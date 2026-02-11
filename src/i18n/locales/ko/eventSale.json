@@ -1,0 +1,121 @@
+{
+  "header": {
+    "badge": "단 100원으로 인기 드럼 악보 소장!",
+    "title": "100원 특가 악보 EVENT",
+    "description": "한정 기간 동안만 제공되는 초특가 드럼 악보를 놓치지 마세요. 인기 곡을 100원에 소장하고, 오늘 바로 연주에 도전해보세요."
+  },
+  "countdownNotice": "실시간으로 갱신되는 타이머를 확인하세요!",
+  "loading": "이벤트 정보를 불러오는 중입니다...",
+  "countdown": {
+    "startingSoon": "곧 시작됩니다",
+    "startsIn": "시작까지",
+    "timeLeft": "⏰ 남은 시간",
+    "dayUnit": "일",
+    "starts": "시작"
+  },
+  "buttons": {
+    "only100Won": "100원 한정!",
+    "addToFavorites": "찜하기",
+    "removeFromFavorites": "찜 해제",
+    "viewDetails": "상세 보기",
+    "buyNow": "즉시 구매하기",
+    "processing": "결제 중...",
+    "saleEnded": "판매 종료"
+  },
+  "labels": {
+    "eventSheet": "이벤트 악보",
+    "saleEnded": "판매 종료",
+    "only100WonBadge": "100원 한정!",
+    "100Won": "100원",
+    "discount": "할인",
+    "startingSoon": "곧 시작"
+  },
+  "sections": {
+    "ongoing": {
+      "title": "진행 중인 100원 특가",
+      "description": "현재 바로 구매 가능한 이벤트 악보입니다.",
+      "activeCount": "총 {{count}}건 진행 중",
+      "noEvents": "현재 진행 중인 이벤트가 없습니다. 아래 예정된 이벤트를 확인해보세요!"
+    },
+    "scheduled": {
+      "title": "예정된 이벤트",
+      "description": "곧 시작될 이벤트를 미리 확인하고 알림을 준비하세요.",
+      "scheduledCount": "예정 {{count}}건"
+    },
+    "ended": {
+      "title": "종료된 이벤트"
+    }
+  },
+  "messages": {
+    "loginRequired": "로그인이 필요합니다.",
+    "loginRequiredConfirm": "로그인이 필요합니다. 로그인 페이지로 이동할까요?",
+    "checkDownloadPage": "다운로드 페이지에서 악보를 확인하세요.",
+    "paymentError": "결제 중 오류가 발생했습니다.",
+    "favoriteError": "찜하기 처리 중 문제가 발생했습니다. 잠시 후 다시 시도해 주세요."
+  },
+  "console": {
+    "loadEventsError": "이벤트 할인 악보 목록 로드 오류:",
+    "loadFavoritesError": "찜 목록 로드 오류:",
+    "toggleFavoriteError": "찜하기 처리 오류:"
+  },
+  "detail": {
+    "loading": "이벤트 정보를 불러오는 중입니다...",
+    "notFound": "요청하신 이벤트를 찾을 수 없습니다.",
+    "loadError": "이벤트 할인 악보 상세 조회 오류:",
+    "loadErrorMessage": "이벤트 정보를 불러오는 중 문제가 발생했습니다.",
+    "eventNotFound": "이벤트 정보를 찾을 수 없습니다.",
+    "backToList": "이벤트 목록으로 돌아가기",
+    "badge": "100원 특가 이벤트 악보",
+    "eventSheet": "이벤트 악보",
+    "originalPrice": "정가",
+    "eventPrice": "이벤트가",
+    "discountPercent": "{{percent}}% 할인",
+    "eventInfo": {
+      "title": "이벤트 안내",
+      "description": "이벤트 기간 동안 100원에 해당 악보를 소장할 수 있습니다.",
+      "status": {
+        "active": "진행 중",
+        "scheduled": "예정",
+        "ended": "종료"
+      },
+      "period": "이벤트 기간",
+      "timeLeft": "남은 시간",
+      "startsAt": "이벤트 시작 예정: {{date}}",
+      "ended": "이벤트가 종료되었습니다.",
+      "timeRemaining": "남은 시간 {{days}}일 {{time}}"
+    },
+    "features": {
+      "title": "이 악보의 특징",
+      "instantDownload": "이벤트 기간 내 100원에 즉시 다운로드 가능",
+      "redownload": "결제 완료 후 마이페이지 > 구매내역에서 재다운로드 지원",
+      "priceChange": "이벤트 종료 후에는 정상가로 전환될 수 있습니다."
+    },
+    "payment": {
+      "title": "결제 정보",
+      "originalPrice": "정가",
+      "eventPrice": "이벤트가",
+      "note": "이벤트 기간 중에는 다른 쿠폰이나 포인트 적용이 제한될 수 있습니다.",
+      "processing": "결제 중...",
+      "buyNow": "100원에 즉시 구매하기",
+      "eventEnded": "이벤트 종료",
+      "viewOtherEvents": "다른 이벤트 보기",
+      "favorite": "찜하기",
+      "unfavorite": "찜 해제"
+    },
+    "purchase": {
+      "loginRequired": "로그인이 필요합니다. 로그인 페이지로 이동할까요?",
+      "eventEnded": "이벤트가 종료되었거나 비활성화되었습니다.",
+      "sheetNotFound": "구매할 악보 정보를 확인할 수 없습니다.",
+      "alreadyPurchased": "이미 구매하신 악보입니다.\n마이페이지에서 다운로드해 주세요.",
+      "purchaseHistoryError": "이벤트 악보 구매 이력 확인 오류:",
+      "purchaseHistoryErrorMessage": "구매 이력 확인 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.",
+      "purchaseDescription": "이벤트 악보 구매: {{title}}",
+      "eventSheet": "이벤트 악보",
+      "insufficientCredits": "보유 캐쉬가 부족합니다.\n현재 잔액: {{balance}}\n캐쉬를 충전한 뒤 다시 시도해주세요.",
+      "purchaseComplete": "구매가 완료되었습니다.\n마이페이지에서 악보를 확인하세요.",
+      "paymentError": "결제 중 오류가 발생했습니다.",
+      "favoriteError": "찜하기 처리 중 문제가 발생했습니다. 잠시 후 다시 시도해 주세요.",
+      "favoriteLoadError": "찜 상태 로드 오류:"
+    }
+  }
+}

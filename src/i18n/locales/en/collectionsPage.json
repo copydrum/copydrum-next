@@ -1,0 +1,48 @@
+{
+  "loading": "Loading...",
+  "title": "Sheet Music Collections",
+  "subtitle": "Discover our specially curated drum sheet music collections by theme.",
+  "filter": {
+    "all": "All"
+  },
+  "empty": {
+    "noCollections": "No collections registered.",
+    "noCollectionsForCategory": "No collections available for the selected genre."
+  },
+  "collection": {
+    "badge": "Collection",
+    "discount": "{{percentage}}% OFF",
+    "free": "Free",
+    "songs": "{{count}} songs"
+  },
+  "pagination": {
+    "pageInfo": "{{current}} / {{total}}"
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

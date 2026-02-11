@@ -1,0 +1,21 @@
+{
+  "loading": "लोड हो रहा है...",
+  "title": "शीट म्यूजिक संग्रह",
+  "subtitle": "थीम के अनुसार हमारे विशेष रूप से क्यूरेट किए गए ड्रम शीट म्यूजिक संग्रह खोजें।",
+  "filter": {
+    "all": "सभी"
+  },
+  "empty": {
+    "noCollections": "कोई संग्रह पंजीकृत नहीं है।",
+    "noCollectionsForCategory": "चयनित शैली के लिए कोई संग्रह उपलब्ध नहीं है।"
+  },
+  "collection": {
+    "badge": "संग्रह",
+    "discount": "{{percentage}}% छूट",
+    "free": "मुफ्त",
+    "songs": "{{count}} गाने"
+  },
+  "pagination": {
+    "pageInfo": "{{current}} / {{total}}"
+  }
+}

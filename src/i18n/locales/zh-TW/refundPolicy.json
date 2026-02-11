@@ -1,0 +1,36 @@
+{
+  "title": "退款與交付（數位產品政策）",
+  "sections": {
+    "productType": {
+      "title": "1. 產品類型",
+      "description": "CopyDrum 上銷售的所有產品都是數位內容（PDF 鼓譜）。這些是非實體電子產品，付款後可立即下載。"
+    },
+    "deliveryMethod": {
+      "title": "2. 交付方式",
+      "description1": "付款成功後，檔案可在",
+      "description2": "我的頁面 > 訂單記錄",
+      "description3": "下立即下載。如果下載無法運作，我們會根據要求提供重新發行的下載連結或手動重新發送檔案。"
+    },
+    "refundPolicy": {
+      "title": "3. 退款政策",
+      "description": "由於數位產品的性質，一旦檔案已被下載或存取，將無法退款。",
+      "exceptionNote": "但是，我們在以下特殊情況下提供退款或換貨：",
+      "exceptions": {
+        "exception1": "購買後 7 天內，如果檔案尚未下載",
+        "exception2": "提供的檔案錯誤或技術錯誤導致檔案無法使用",
+        "exception3": "同一產品的重複付款"
+      }
+    },
+    "customerProtection": {
+      "title": "4. 客戶保護",
+      "description": "我們努力立即解決問題：",
+      "protections": {
+        "protection1": "檔案錯誤免費更換",
+        "protection2": "如果發生存取問題，重新發行下載連結",
+        "protection3": "重複交易立即退款"
+      },
+      "contact": "客戶支援：",
+      "email": "support@copydrum.com"
+    }
+  }
+}

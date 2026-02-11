@@ -1,0 +1,78 @@
+{
+  "title": "Cart",
+  "loginRequired": "Login Required",
+  "loginRequiredDescription": "Please log in to use the cart.",
+  "selectItemsToDelete": "Please select items to delete.",
+  "confirmDelete": "Are you sure you want to delete {{count}} selected items?",
+  "confirmClear": "Are you sure you want to clear all items from the cart?",
+  "selectItemsToPurchase": "Please select items to purchase.",
+  "itemsNotFound": "Selected items not found.",
+  "onlyPurchasedItems": "Only already purchased items found.",
+  "duplicateSheets": "Duplicate sheets:",
+  "excludePurchased": "Proceeding with purchase excluding already purchased items.",
+  "excludedSheets": "Excluded sheets:",
+  "purchaseCheckError": "An error occurred while checking purchase history.",
+  "noNewItems": "No new items to purchase.",
+  "purchaseDescription": "Purchase {{title}}",
+  "cartPurchaseDescription": "Purchase {{count}} cart items",
+  "bankTransferCreated": "Bank transfer account has been created.",
+  "paymentWindowOpen": "Payment window will open. Please complete the payment.",
+  "insufficientCash": "Insufficient cash. Current balance: {{amount}}",
+  "purchaseComplete": "Purchase completed.",
+  "paymentError": "An error occurred during payment processing.",
+  "bankTransferInfo": "Bank Transfer Information",
+  "close": "Close",
+  "bank": "Bank",
+  "accountNumber": "Account Number",
+  "accountHolder": "Account Holder",
+  "depositAmount": "Deposit Amount",
+  "depositorName": "Depositor Name",
+  "totalItems": "Total {{count}} items",
+  "empty": "Your cart is empty",
+  "emptyDescription": "There are no items in your cart.",
+  "browseSheets": "Browse Sheets",
+  "selectAll": "Select All ({{selected}}/{{total}})",
+  "deleteSelected": "Delete Selected",
+  "deleteAll": "Delete All",
+  "confirmDeleteItem": "Are you sure you want to remove '{{title}}' from your cart?",
+  "removeItem": "Remove",
+  "selectedItems": "Selected Items ({{count}})",
+  "processing": "Processing...",
+  "orderSelected": "Order Selected",
+  "orderAll": "Order All",
+  "continueShopping": "Continue Shopping",
+  "console": {
+    "purchaseCheckError": "Cart purchase history check error:",
+    "cartUpdateAfterPaymentError": "Failed to update cart after payment.",
+    "cartUpdateAfterPurchaseError": "Failed to update cart after purchase.",
+    "paymentProcessingError": "Cart payment processing error:",
+    "bankTransferProcessingError": "Bank transfer payment processing error:"
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,21 @@
+{
+  "loading": "正在載入...",
+  "title": "樂譜收藏",
+  "subtitle": "探索我們按主題精心策劃的鼓譜收藏。",
+  "filter": {
+    "all": "全部"
+  },
+  "empty": {
+    "noCollections": "尚未註冊任何收藏。",
+    "noCollectionsForCategory": "所選類型沒有可用的收藏。"
+  },
+  "collection": {
+    "badge": "收藏",
+    "discount": "{{percentage}}% 折扣",
+    "free": "免費",
+    "songs": "{{count}} 首歌曲"
+  },
+  "pagination": {
+    "pageInfo": "{{current}} / {{total}}"
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "title": "Cronologia ordini personalizzati",
+  "nav": {
+    "home": "Home",
+    "categories": "Categorie spartiti",
+    "customOrder": "Ordine personalizzato",
+    "customOrderHistory": "Cronologia ordini personalizzati"
+  },
+  "loading": "Caricamento...",
+  "empty": {
+    "message": "Nessuna cronologia ordini personalizzati.",
+    "button": "Richiedi ordine personalizzato"
+  },
+  "status": {
+    "pending": {
+      "label": "Preventivo in corso",
+      "message": "Stiamo esaminando la tua richiesta e preparando un preventivo personalizzato."
+    },
+    "quoted": {
+      "label": "In attesa di pagamento",
+      "message": "Il preventivo è arrivato. Effettua un versamento per l'importo preventivato per avviare la produzione."
+    },
+    "payment_confirmed": {
+      "label": "Pagamento confermato",
+      "message": "Il pagamento è stato confermato. Stiamo preparando secondo l'ordine di produzione."
+    },
+    "in_progress": {
+      "label": "In corso",
+      "message": "I nostri professionisti stanno creando lo spartito. Ti avviseremo quando sarà completato."
+    },
+    "completed": {
+      "label": "Completato",
+      "message": "La produzione dello spartito è completata. Scarica il file PDF qui sotto."
+    },
+    "cancelled": {
+      "label": "Annullato"
+    }
+  },
+  "order": {
+    "artist": "Artista",
+    "applicationDate": "Data di richiesta",
+    "estimatedPrice": "Prezzo stimato",
+    "requirements": "Requisiti",
+    "noRequirements": "Nessun requisito aggiuntivo.",
+    "referenceVideo": "Video di riferimento",
+    "adminReply": "Risposta amministratore",
+    "replyDate": "Data risposta",
+    "completedSheet": "Spartito completato",
+    "completedSheetFilename": "Spartito completato.pdf",
+    "sheetMusicSuffix": "Spartito",
+    "download": "Scarica",
+    "downloadCount": "Download",
+    "times": "volte",
+    "expiryDate": "Data di scadenza",
+    "recentUpdate": "Ultimo aggiornamento",
+    "viewDetails": "Visualizza dettagli",
+    "quote": "Preventivo",
+    "checkQuote": "Controlla preventivo",
+    "workCompleted": "Lavoro completato"
+  },
+  "alerts": {
+    "downloadLimitExceeded": "Hai utilizzato tutti i tentativi di download. Contatta il servizio clienti.",
+    "downloadExpired": "Il periodo di download è scaduto. Contatta il servizio clienti.",
+    "downloadSuccess": "Download dello spartito completato.",
+    "downloadFailed": "Download fallito. Riprova."
+  },
+  "warnings": {
+    "downloadLimitExceeded": "Limite di download superato. Contatta il servizio clienti se hai bisogno di download aggiuntivi.",
+    "downloadPeriodExpired": "Il periodo di download è scaduto. Contatta il servizio clienti."
+  }
+}

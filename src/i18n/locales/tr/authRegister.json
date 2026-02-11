@@ -1,0 +1,52 @@
+{
+  "title": "Kayıt Ol",
+  "hasAccount": "Zaten hesabınız var mı?",
+  "signIn": "Giriş Yap",
+  "form": {
+    "name": "Ad",
+    "namePlaceholder": "Adınızı girin",
+    "email": "E-posta Adresi",
+    "emailPlaceholder": "E-postanızı girin",
+    "password": "Şifre",
+    "passwordPlaceholder": "Şifrenizi girin (8+ karakter)",
+    "passwordHint": "8+ karakter, harf, rakam ve özel karakter",
+    "confirmPassword": "Şifreyi Onayla",
+    "confirmPasswordPlaceholder": "Şifrenizi tekrar girin",
+    "agreeTerms": "Hizmet Şartlarını kabul ediyorum",
+    "viewTerms": "(Görüntüle)",
+    "agreePrivacy": "Gizlilik Politikasını kabul ediyorum",
+    "viewPrivacy": "(Görüntüle)",
+    "agreeMarketing": "Pazarlama bilgileri almayı kabul ediyorum (İsteğe bağlı)",
+    "submit": "Kayıt Ol",
+    "submitting": "Kayıt yapılıyor..."
+  },
+  "divider": "veya",
+  "social": {
+    "google": "Google",
+    "kakao": "Kakao"
+  },
+  "errors": {
+    "passwordMismatch": "Şifreler eşleşmiyor.",
+    "passwordTooShort": "Şifre en az 8 karakter uzunluğunda olmalıdır.",
+    "termsRequired": "Lütfen gerekli şartları kabul edin.",
+    "profileCreationFailed": "Profil oluşturulamadı. Lütfen tekrar deneyin.",
+    "emailAlreadyRegistered": "Bu e-posta zaten kayıtlı.",
+    "invalidEmail": "Lütfen geçerli bir e-posta adresi girin.",
+    "signUpFailed": "Kayıt başarısız oldu. Lütfen tekrar deneyin.",
+    "kakaoLoginFailed": "Kakao girişi başarısız oldu. Lütfen tekrar deneyin.",
+    "googleLoginFailed": "Google girişi başarısız oldu. Lütfen tekrar deneyin."
+  },
+  "messages": {
+    "signUpSuccess": "Kayıt tamamlandı! Lütfen e-postanızı kontrol edin ve giriş yapın."
+  },
+  "console": {
+    "kakaoLoginError": "Kakao giriş hatası:",
+    "googleLoginError": "Google giriş hatası:",
+    "profileError": "Profil oluşturma/güncelleme hatası:",
+    "rollbackFunctionError": "Geri alma fonksiyonu çağrı hatası:",
+    "rollbackComplete": "Kayıt geri alma tamamlandı",
+    "rollbackError": "Geri alma sırasında hata:",
+    "profileSuccess": "Profil başarıyla oluşturuldu/güncellendi",
+    "signUpError": "Kayıt hatası:"
+  }
+}

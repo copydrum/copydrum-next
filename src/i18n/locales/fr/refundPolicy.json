@@ -1,0 +1,36 @@
+{
+  "title": "Politique de Remboursement et de Livraison (Politique des Produits Numériques)",
+  "sections": {
+    "productType": {
+      "title": "1. Type de Produit",
+      "description": "Tous les produits vendus sur CopyDrum sont des contenus numériques (partitions de batterie en PDF). Ce sont des produits électroniques non physiques disponibles pour téléchargement immédiat après paiement."
+    },
+    "deliveryMethod": {
+      "title": "2. Méthode de Livraison",
+      "description1": "Après un paiement réussi, les fichiers sont disponibles pour téléchargement instantané sous",
+      "description2": "Ma Page > Historique des Commandes",
+      "description3": "Si le téléchargement ne fonctionne pas, nous fournissons des liens de téléchargement réémis ou renvoyons les fichiers manuellement sur demande."
+    },
+    "refundPolicy": {
+      "title": "3. Politique de Remboursement",
+      "description": "En raison de la nature des produits numériques, les remboursements ne sont pas disponibles une fois que le fichier a été téléchargé ou consulté.",
+      "exceptionNote": "Cependant, nous offrons des remboursements ou des échanges dans les cas exceptionnels suivants :",
+      "exceptions": {
+        "exception1": "Dans les 7 jours suivant l'achat si le fichier n'a pas été téléchargé",
+        "exception2": "Fichier incorrect fourni ou erreurs techniques qui rendent le fichier inutilisable",
+        "exception3": "Paiements en double pour le même produit"
+      }
+    },
+    "customerProtection": {
+      "title": "4. Protection du Client",
+      "description": "Nous nous efforçons de résoudre les problèmes immédiatement :",
+      "protections": {
+        "protection1": "Remplacement gratuit pour les erreurs de fichier",
+        "protection2": "Réémission des liens de téléchargement en cas de problèmes d'accès",
+        "protection3": "Remboursement immédiat pour les transactions en double"
+      },
+      "contact": "Support Client :",
+      "email": "support@copydrum.com"
+    }
+  }
+}

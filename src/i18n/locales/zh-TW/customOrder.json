@@ -1,0 +1,101 @@
+{
+  "title": "客製鼓譜",
+  "description": {
+    "line1": "在尋找特定歌曲嗎？",
+    "line2": "我們的專業人員將為您分析並製作高品質的鼓譜。",
+    "line3": "我們根據歌曲的難度和結構提供客製報價。"
+  },
+  "login": {
+    "required": "需要登入",
+    "description": "請登入以提交客製訂單請求。",
+    "button": "登入"
+  },
+  "pricing": {
+    "title": "價格資訊",
+    "note": "* 最終價格將在分析歌曲的難度和長度後作為個別報價提供。",
+    "grades": {
+      "c": {
+        "name": "C 級",
+        "price": "$10+",
+        "description": "一般 K-pop、流行、成人當代歌曲，5 分鐘以下"
+      },
+      "b": {
+        "name": "B 級",
+        "price": "$30+",
+        "description": "略高於中級難度或超過 5 分鐘的歌曲"
+      },
+      "a": {
+        "name": "A 級",
+        "price": "$50+",
+        "description": "進階難度歌曲"
+      }
+    }
+  },
+  "form": {
+    "title": "客製訂單請求表單",
+    "applicantId": "申請人 ID",
+    "applicantIdPlaceholder": "已登入的 ID",
+    "songInfo": "歌曲資訊",
+    "songTitle": "歌曲標題",
+    "songTitlePlaceholder": "輸入您要訂購的歌曲標題",
+    "artist": "藝人",
+    "artistPlaceholder": "輸入藝人名稱",
+    "youtubeUrl": "YouTube URL",
+    "youtubeUrlPlaceholder": "輸入 YouTube URL 以準確製作樂譜（選填）",
+    "youtubeUrlHint": "請輸入 YouTube URL 以準確製作樂譜。（選填）",
+    "memo": "備註",
+    "memoPlaceholder": "輸入任何備註或備忘（最多 500 個字元）",
+    "characters": "字元",
+    "submit": "提交客製訂單請求",
+    "submitting": "正在提交...",
+    "note": "提交後，您可以在我的頁面「客製訂單記錄」中查看進度，並在完成後下載樂譜。"
+  },
+  "process": {
+    "title": "客製訂單流程",
+    "steps": {
+      "request": {
+        "title": "收到請求",
+        "description": "您的客製訂單請求在提交時即被接收。"
+      },
+      "quote": {
+        "title": "發送報價",
+        "description": "我們分析歌曲並透過我的頁面提供報價。"
+      },
+      "payment": {
+        "title": "確認付款",
+        "description": "確認報價和付款後，開始製作。"
+      },
+      "completed": {
+        "title": "完成",
+        "description": "從我的頁面下載完成的樂譜。"
+      }
+    }
+  },
+  "faq": {
+    "title": "常見問題",
+    "questions": {
+      "quote": {
+        "question": "如何查看報價？",
+        "answer": "您可以在我的頁面「客製訂單記錄」中查看報價。我們將在您提出請求後 24 小時內提供報價。"
+      },
+      "production": {
+        "question": "製作需要多長時間？",
+        "answer": "一般來說，付款確認後需要 1-3 天。時間可能因歌曲的難度和長度而異，我們將在報價中提供確切的時間表。"
+      },
+      "payment": {
+        "question": "有哪些付款方式？",
+        "answer": "目前僅提供銀行轉帳。我們將在報價中提供銀行帳戶資訊。"
+      }
+    }
+  },
+  "errors": {
+    "loginRequired": "需要登入。",
+    "submitError": "提交時發生錯誤。請再試一次。"
+  },
+  "messages": {
+    "submitSuccess": "客製訂單請求已提交。您可以在我的頁面查看進度。"
+  },
+  "console": {
+    "submitError": "提交訂單錯誤："
+  }
+}

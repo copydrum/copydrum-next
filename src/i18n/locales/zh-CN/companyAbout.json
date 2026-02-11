@@ -1,0 +1,49 @@
+{
+  "title": "关于COPYDRUM",
+  "intro": "我们介绍COPYDRUM，自2010年以来一直为专业鼓手和鼓爱好者制作和提供最佳乐谱。",
+  "mission": {
+    "title": "我们的使命",
+    "description": "COPYDRUM旨在帮助鼓手通过随时可用的可靠乐谱获得音乐灵感并提高演奏水平。我们通过精确的记谱、高质量的PDF和实用的编曲为所有鼓手提供所需的资源。"
+  },
+  "expertise": {
+    "title": "超过10年的专业经验",
+    "description": "COPYDRUM自2010年运营以来，与国内外众多鼓手共同成长。凭借多年积累的记谱经验和专业知识，我们为从初学者到专业音乐家的各个级别的演奏者提供乐谱。"
+  },
+  "network": {
+    "title": "全球网络扩展",
+    "description": "COPYDRUM一直向包括亚洲、北美和欧洲在内的全球鼓手提供乐谱，建立了全球网络。我们正在成长为一个受各种类型和风格的鼓手信赖和追捧的全球乐谱平台。"
+  },
+  "features": {
+    "notationTeam": {
+      "title": "专业记谱团队",
+      "description": "我们拥有超过10年经验的专业记谱团队和活跃的鼓手直接审核并提供高质量乐谱。"
+    },
+    "genres": {
+      "title": "多种类型",
+      "description": "我们拥有包括K-pop、流行、摇滚、爵士、CCM和OST在内的各种类型的乐谱，并快速更新最新歌曲。"
+    },
+    "updates": {
+      "title": "持续更新",
+      "description": "基于多年运营积累的数据和用户反馈，我们持续更新新乐谱。"
+    }
+  },
+  "values": {
+    "title": "COPYDRUM承诺的价值观",
+    "accuracy": {
+      "label": "准确性",
+      "description": "— 基于实际演奏的精确记谱可减少练习时间。"
+    },
+    "accessibility": {
+      "label": "可访问性",
+      "description": "— 我们提供针对移动设备和平板电脑优化的高质量PDF。"
+    },
+    "connectivity": {
+      "label": "连接性",
+      "description": "— 我们与鼓手社区共同成长，快速提供您需要的内容。"
+    }
+  },
+  "partner": {
+    "title": "鼓手的成长伙伴",
+    "description": "COPYDRUM将成为鼓手实现梦想舞台的伙伴。我们将继续以最佳乐谱和服务与您同行。"
+  }
+}

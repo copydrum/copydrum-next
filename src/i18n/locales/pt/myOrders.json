@@ -1,0 +1,65 @@
+{
+  "title": "Histórico de Compra de Partituras",
+  "description": "Esta é a lista de partituras que você comprou, ordenadas pelas mais recentes.",
+  "totalPurchased": "Você comprou um total de {{count}} partituras.",
+  "loginRequired": "Login Necessário",
+  "loginRequiredMessage": "Por favor, faça login para ver seu histórico de compras.",
+  "orderNumber": "Número do Pedido",
+  "categoryNotSet": "Categoria Não Definida",
+  "deletedSheet": "Partitura Excluída",
+  "status": {
+    "pending": "Pagamento Pendente",
+    "pendingDesc": "Aguardando confirmação do pagamento.",
+    "processing": "Processando",
+    "processingDesc": "Seu pedido está sendo processado.",
+    "completed": "Concluído",
+    "completedDesc": "Pedido concluído. Downloads disponíveis.",
+    "cancelled": "Cancelado",
+    "cancelledDesc": "O pedido foi cancelado.",
+    "paymentPending": "Pagamento Pendente",
+    "paymentPendingDesc": "Aguardando confirmação do depósito.",
+    "paymentConfirmed": "Pagamento Confirmado",
+    "paymentConfirmedDesc": "Pagamento confirmado. Downloads disponíveis.",
+    "paid": "Pago",
+    "paidDesc": "Pagamento concluído. Downloads disponíveis.",
+    "refunded": "Reembolsado",
+    "refundedDesc": "O pedido foi reembolsado."
+  },
+  "paymentMethod": {
+    "card": "Cartão de Crédito",
+    "bankTransfer": "Transferência Bancária",
+    "virtualAccount": "Conta Virtual",
+    "cash": "Saldo Disponível",
+    "points": "Pontos"
+  },
+  "empty": {
+    "title": "Nenhuma Partitura Comprada",
+    "message": "Encontre suas partituras favoritas e adicione-as ao carrinho.",
+    "browseButton": "Navegar Partituras"
+  },
+  "actions": {
+    "downloadAll": "Baixar Tudo Neste Pedido",
+    "downloadSelected": "Baixar Selecionadas",
+    "selectAll": "Selecionar Tudo",
+    "deselectAll": "Desselecionar Tudo",
+    "clearSelection": "Limpar Seleção",
+    "download": "Baixar",
+    "downloadNotAvailable": "Download Indisponível",
+    "downloading": "Baixando...",
+    "viewDetails": "Ver Detalhes",
+    "purchaseDate": "Data de Compra {{date}}",
+    "selectedCount": "{{count}} selecionadas",
+    "cart": "Carrinho"
+  },
+  "messages": {
+    "selectSheetsToDownload": "Por favor, selecione partituras para baixar.",
+    "refundedOrRestricted": "Este pedido foi reembolsado ou o download está restrito.",
+    "loginRequired": "Login é necessário.",
+    "downloadFailed": "Falha ao baixar {{count}} partitura(s).",
+    "refundedOrder": "Pedidos reembolsados não podem ser baixados.",
+    "noSheetsToDownload": "Nenhuma partitura disponível para download.",
+    "sheetInfoNotFound": "Informações da partitura não encontradas.",
+    "fileNotFound": "Arquivo não encontrado.",
+    "downloadError": "Falha ao baixar o arquivo. Por favor, tente novamente mais tarde."
+  }
+}

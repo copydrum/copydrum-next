@@ -1,0 +1,72 @@
+{
+  "loading": "กำลังโหลดคอลเลกชัน...",
+  "errors": {
+    "noCollectionInfo": "ข้อมูลคอลเลกชันที่ร้องขอไม่พร้อมใช้งาน",
+    "collectionNotFound": "ไม่พบคอลเลกชันที่ร้องขอ",
+    "loadError": "เกิดข้อผิดพลาดขณะโหลดข้อมูลคอลเลกชัน",
+    "collectionNotAvailable": "คอลเลกชันแผ่นเพลงที่ร้องขอไม่มีอยู่หรือถูกปิดใช้งานแล้ว"
+  },
+  "backToList": "กลับไปยังคอลเลกชัน",
+  "free": "ฟรี",
+  "discount": "ลด {{percentage}}%",
+  "badge": "คอลเลกชันแผ่นเพลง",
+  "includedSheets": {
+    "count": "แผ่นเพลงที่รวมอยู่",
+    "number": "{{count}} เพลง",
+    "title": "แผ่นเพลงที่รวมอยู่",
+    "description": "ดูแผ่นเพลงทั้งหมดที่รวมอยู่ในคอลเลกชันนี้และสำรวจที่คุณต้องการ",
+    "empty": "ยังไม่มีแผ่นเพลงถูกเพิ่มในคอลเลกชันนี้"
+  },
+  "sheet": {
+    "difficulty": "ระดับความยาก {{difficulty}}",
+    "free": "ฟรี"
+  },
+  "purchase": {
+    "priceInfo": "ข้อมูลราคาคอลเลกชัน",
+    "totalIndividual": "รวมแผ่นเพลงรายตัว",
+    "noInfo": "ไม่มีข้อมูล",
+    "collectionPrice": "ราคาคอลเลกชัน",
+    "buyNow": "ซื้อเลย",
+    "save": "ประหยัด {{amount}}!",
+    "processing": "กำลังประมวลผล...",
+    "note": "คอลเลกชันสามารถซื้อได้เฉพาะในราคาลดเท่านั้น",
+    "inactive": "คอลเลกชันนี้ถูกปิดใช้งานชั่วคราว กรุณาติดต่อผู้ดูแลระบบ",
+    "mobilePrice": "ราคาคอลเลกชัน",
+    "mobileSave": "ประหยัด {{amount}} เมื่อเทียบกับการซื้อรายตัว",
+    "mobileInactive": "คอลเลกชันนี้ถูกปิดใช้งานชั่วคราว",
+    "buyCollection": "Buy Collection",
+    "goToCart": "Go to Cart"
+  },
+  "alerts": {
+    "noSheetInfo": "ไม่พบข้อมูลแผ่นเพลงที่รวมอยู่ในคอลเลกชัน",
+    "duplicatePurchase": "คุณได้ซื้อแผ่นเพลงบางแผ่นที่รวมอยู่ในคอลเลกชันนี้แล้ว จึงไม่สามารถซื้อซ้ำได้",
+    "duplicateList": "แผ่นเพลงซ้ำ:",
+    "checkMyPage": "กรุณาตรวจสอบประวัติการซื้อในหน้า My Page",
+    "insufficientCredit": "ยอดเงินสดไม่เพียงพอ",
+    "currentBalance": "ยอดคงเหลือปัจจุบัน: {{amount}}P",
+    "chargeCash": "กรุณาเติมเงินสดและลองอีกครั้ง",
+    "purchaseSuccess": "ซื้อเสร็จสมบูรณ์ กรุณาตรวจสอบเนื้อหาในหน้า My Page",
+    "purchaseError": "เกิดข้อผิดพลาดระหว่างการซื้อ"
+  },
+  "navigation": {
+    "title": "สำรวจหน้าอื่นๆ",
+    "viewCategories": "ดูหมวดหมู่แผ่นเพลง",
+    "eventSale": "แผ่นเพลงลดราคา",
+    "customOrder": "สอบถามคำสั่งซื้อแบบกำหนดเอง"
+  },
+  "purchaseDescription": "ซื้อคอลเลกชันแผ่นเพลง: {{title}}",
+  "sheetTitle": "แผ่นเพลง",
+  "viewSheet": "ดูแผ่นเพลง",
+  "difficulty": {
+    "beginner": "เริ่มต้น",
+    "intermediate": "ปานกลาง",
+    "advanced": "ขั้นสูง"
+  },
+  "features": {
+    "title": "สิ่งที่รวมอยู่",
+    "allSheets": "แผ่นเพลงทั้งหมดในราคาลด",
+    "highQuality": "ให้บริการรูปแบบ PDF คุณภาพสูง",
+    "instantDownload": "ดาวน์โหลดได้ทันที",
+    "lifetimeAccess": "เก็บได้ตลอดชีพ"
+  }
+}

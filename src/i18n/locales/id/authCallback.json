@@ -1,0 +1,14 @@
+{
+  "loading": "Memproses login...",
+  "errors": {
+    "oauthError": "Login gagal",
+    "callbackError": "Terjadi kesalahan saat memproses login. Silakan coba lagi.",
+    "profileCreationError": "Kesalahan pembuatan profil"
+  },
+  "console": {
+    "oauthError": "Kesalahan OAuth:",
+    "callbackError": "Kesalahan pemrosesan callback autentikasi:",
+    "profileCreationError": "Kesalahan pembuatan profil:"
+  },
+  "defaultUserName": "Pengguna"
+}

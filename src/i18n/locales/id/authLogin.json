@@ -1,0 +1,45 @@
+{
+  "title": "Login",
+  "noAccount": "Belum punya akun?",
+  "signUp": "Daftar",
+  "notice": "🔔 Untuk anggota yang sudah ada: Reset kata sandi diperlukan pada login pertama karena pembaruan situs.",
+  "form": {
+    "email": "Alamat Email",
+    "emailPlaceholder": "Masukkan email Anda",
+    "password": "Kata Sandi",
+    "passwordPlaceholder": "Masukkan kata sandi Anda",
+    "rememberMe": "Ingat Saya",
+    "forgotPassword": "Lupa kata sandi?",
+    "submit": "Login",
+    "submitting": "Masuk..."
+  },
+  "divider": "atau",
+  "social": {
+    "google": "Google",
+    "kakao": "Kakao"
+  },
+  "errors": {
+    "kakaoLoginFailed": "Login Kakao gagal. Silakan coba lagi.",
+    "googleLoginFailed": "Login Google gagal. Silakan coba lagi.",
+    "invalidCredentials": "Email atau kata sandi salah.",
+    "emailNotConfirmed": "Verifikasi email diperlukan. Silakan periksa email Anda.",
+    "loginFailed": "Login gagal. Silakan coba lagi.",
+    "resetPasswordEmailError": "Terjadi kesalahan saat mengirim email reset kata sandi. Silakan coba lagi.",
+    "profileError": "Kesalahan pencarian profil",
+    "profileCreationError": "Kesalahan pembuatan profil",
+    "migrationCheckError": "Kesalahan memeriksa pengguna migrasi"
+  },
+  "messages": {
+    "passwordResetEmailSent": "Anda adalah anggota yang sudah ada! Kami telah mengirim email reset kata sandi. Silakan periksa kotak masuk Anda."
+  },
+  "console": {
+    "kakaoLoginError": "Kesalahan login Kakao:",
+    "googleLoginError": "Kesalahan login Google:",
+    "profileLookupError": "Kesalahan pencarian profil:",
+    "profileCreationError": "Kesalahan pembuatan profil:",
+    "resetPasswordEmailError": "Kesalahan pengiriman email reset kata sandi:",
+    "migrationCheckError": "Kesalahan pemeriksaan pengguna migrasi:",
+    "loginError": "Kesalahan login:"
+  },
+  "defaultUserName": "Pengguna"
+}

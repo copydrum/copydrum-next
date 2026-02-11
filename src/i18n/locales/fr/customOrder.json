@@ -1,0 +1,101 @@
+{
+  "title": "Partition de batterie personnalisée",
+  "description": {
+    "line1": "Vous cherchez une chanson spécifique ?",
+    "line2": "Nos professionnels analyseront et créeront des partitions de batterie de haute qualité pour vous.",
+    "line3": "Nous fournissons des devis personnalisés basés sur la difficulté et la structure de la chanson."
+  },
+  "login": {
+    "required": "La connexion est requise",
+    "description": "Veuillez vous connecter pour soumettre une demande de commande personnalisée.",
+    "button": "Se connecter"
+  },
+  "pricing": {
+    "title": "Informations sur les prix",
+    "note": "* Le prix final sera fourni comme devis individuel après analyse de la difficulté et de la longueur de la chanson.",
+    "grades": {
+      "c": {
+        "name": "Niveau C",
+        "price": "$10+",
+        "description": "Chansons K-pop, pop, adult contemporary générales de moins de 5 minutes"
+      },
+      "b": {
+        "name": "Niveau B",
+        "price": "$30+",
+        "description": "Difficulté légèrement supérieure à l'intermédiaire ou chansons de plus de 5 minutes"
+      },
+      "a": {
+        "name": "Niveau A",
+        "price": "$50+",
+        "description": "Chansons de difficulté avancée"
+      }
+    }
+  },
+  "form": {
+    "title": "Formulaire de demande de commande personnalisée",
+    "applicantId": "ID du demandeur",
+    "applicantIdPlaceholder": "ID connecté",
+    "songInfo": "Informations sur la chanson",
+    "songTitle": "Titre de la chanson",
+    "songTitlePlaceholder": "Entrez le titre de la chanson que vous souhaitez commander",
+    "artist": "Artiste",
+    "artistPlaceholder": "Entrez le nom de l'artiste",
+    "youtubeUrl": "URL YouTube",
+    "youtubeUrlPlaceholder": "Entrez l'URL YouTube pour une création de partition précise (optionnel)",
+    "youtubeUrlHint": "Veuillez entrer une URL YouTube pour une création de partition précise. (Optionnel)",
+    "memo": "Note",
+    "memoPlaceholder": "Entrez toute note ou mémorandum (max 500 caractères)",
+    "characters": "caractères",
+    "submit": "Soumettre la demande de commande personnalisée",
+    "submitting": "Soumission en cours...",
+    "note": "Après la soumission, vous pouvez vérifier la progression dans Ma Page \"Historique des commandes personnalisées\" et télécharger la partition une fois terminée."
+  },
+  "process": {
+    "title": "Processus de commande personnalisée",
+    "steps": {
+      "request": {
+        "title": "Demande reçue",
+        "description": "Votre demande de commande personnalisée est reçue lors de la soumission."
+      },
+      "quote": {
+        "title": "Devis envoyé",
+        "description": "Nous analysons la chanson et fournissons un devis via Ma Page."
+      },
+      "payment": {
+        "title": "Paiement confirmé",
+        "description": "Après confirmation du devis et du paiement, la production commence."
+      },
+      "completed": {
+        "title": "Terminé",
+        "description": "Téléchargez la partition terminée depuis Ma Page."
+      }
+    }
+  },
+  "faq": {
+    "title": "Questions fréquemment posées",
+    "questions": {
+      "quote": {
+        "question": "Comment vérifier le devis ?",
+        "answer": "Vous pouvez vérifier le devis dans \"Historique des commandes personnalisées\" dans Ma Page. Nous fournirons un devis dans les 24 heures suivant votre demande."
+      },
+      "production": {
+        "question": "Combien de temps prend la production ?",
+        "answer": "Généralement, cela prend 1 à 3 jours après confirmation du paiement. La durée peut varier selon la difficulté et la longueur de la chanson, et nous fournirons le calendrier exact dans le devis."
+      },
+      "payment": {
+        "question": "Quels modes de paiement sont disponibles ?",
+        "answer": "Actuellement, seul le virement bancaire est disponible. Nous fournirons les informations de compte bancaire avec le devis."
+      }
+    }
+  },
+  "errors": {
+    "loginRequired": "La connexion est requise.",
+    "submitError": "Une erreur s'est produite lors de la soumission. Veuillez réessayer."
+  },
+  "messages": {
+    "submitSuccess": "La demande de commande personnalisée a été soumise. Vous pouvez vérifier la progression dans Ma Page."
+  },
+  "console": {
+    "submitError": "Erreur lors de la soumission de la commande :"
+  }
+}

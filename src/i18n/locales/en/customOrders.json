@@ -1,0 +1,72 @@
+{
+  "title": "Custom Order History",
+  "nav": {
+    "home": "Home",
+    "categories": "Sheet Music Categories",
+    "customOrder": "Custom Order",
+    "customOrderHistory": "Custom Order History"
+  },
+  "loading": "Loading...",
+  "empty": {
+    "message": "No custom order history.",
+    "button": "Request Custom Order"
+  },
+  "status": {
+    "pending": {
+      "label": "Quoting",
+      "message": "We are reviewing your request and preparing a custom quote."
+    },
+    "quoted": {
+      "label": "Payment Pending",
+      "message": "Quote has arrived. Please make a deposit for the quoted amount to start production."
+    },
+    "payment_confirmed": {
+      "label": "Payment Confirmed",
+      "message": "Payment has been confirmed. We are preparing according to the production order."
+    },
+    "in_progress": {
+      "label": "In Progress",
+      "message": "Our professionals are creating the sheet music. We will notify you when it's completed."
+    },
+    "completed": {
+      "label": "Completed",
+      "message": "Sheet music production is complete. Please download the PDF file below."
+    },
+    "cancelled": {
+      "label": "Cancelled"
+    }
+  },
+  "order": {
+    "artist": "Artist",
+    "applicationDate": "Application Date",
+    "estimatedPrice": "Estimated Price",
+    "requirements": "Requirements",
+    "noRequirements": "No additional requirements.",
+    "referenceVideo": "Reference Video",
+    "adminReply": "Admin Reply",
+    "replyDate": "Reply Date",
+    "completedSheet": "Completed Sheet Music",
+    "completedSheetFilename": "Completed Sheet Music.pdf",
+    "sheetMusicSuffix": "Sheet Music",
+    "download": "Download",
+    "downloadCount": "Download",
+    "times": "times",
+    "expiryDate": "Expiry Date",
+    "recentUpdate": "Recent Update",
+    "viewDetails": "View Details",
+    "quote": "Quote",
+    "checkQuote": "Check Quote",
+    "workCompleted": "Work Completed"
+  },
+  "alerts": {
+    "downloadLimitExceeded": "You have used all download attempts. Please contact customer service.",
+    "downloadExpired": "The download period has expired. Please contact customer service.",
+    "downloadSuccess": "Sheet music download completed.",
+    "downloadFailed": "Download failed. Please try again."
+  },
+  "warnings": {
+    "downloadLimitExceeded": "Download limit exceeded. Please contact customer service if you need additional downloads.",
+    "downloadPeriodExpired": "The download period has expired. Please contact customer service."
+  }
+}
+

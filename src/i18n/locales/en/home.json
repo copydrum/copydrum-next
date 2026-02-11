@@ -1,0 +1,105 @@
+{
+  "banner": {
+    "title": "Premium Drum Sheet Music\nfor Every Musician",
+    "subtitle1": "K-POP, Rock, CCM, Pop and more!",
+    "subtitle2": "Professional drum sheet music",
+    "subtitle3": "Download instantly as PDF.",
+    "browseButton": "Browse Sheet Music"
+  },
+  "latestSheets": "Latest Sheets",
+  "popularSheets": "Popular Sheets",
+  "eventSale": "100 Won Sale",
+  "favorite": "Add to favorites",
+  "unfavorite": "Remove from favorites",
+  "loginRequired": "Please log in to continue.",
+  "favoriteError": "An error occurred while processing your favorite. Please try again later.",
+  "originalPrice": "Original",
+  "eventSaleTitle": "100 Won Sale Event",
+  "eventSaleSubtitle": "Get Popular Drum Sheet Music\nfor Just 100 Won",
+  "eventSaleDescription": "Don't miss this limited-time super sale event.",
+  "eventSaleEvent": "100 Won Sale Event",
+  "eventSaleSubtitleFull": "Get Popular Drum Sheet Music for Just 100 Won",
+  "eventSaleDescriptionFull": "This is a limited-time super sale event. Check the real-time timer and add your desired sheet music right away.",
+  "viewAllEvents": "View All Events",
+  "loadingEvents": "Loading 100 Won sale sheets...",
+  "loadingEventsFull": "Loading 100 Won sale sheets...",
+  "noActiveEvents": "There are currently no active 100 Won sale events.",
+  "noActiveEventsSub": "New sales will be available soon. Please wait a moment!",
+  "noActiveEventsFull": "There are currently no active 100 Won sale events.",
+  "noActiveEventsSubFull": "New sales will be available soon. Please wait a moment!",
+  "saleEnded": "Sale Ended",
+  "discount": "{{percent}}% OFF",
+  "remainingTime": "⏰ Remaining time {{days}}{{time}}",
+  "remainingDays": "{{count}} days ",
+  "prevSlide": "Previous slide",
+  "nextSlide": "Next slide",
+  "slideNumber": "Go to slide {{number}}",
+  "viewDetails": "View Details",
+  "buyNow": "Buy Now",
+  "viewAll": "View All",
+  "showMore": "Show More",
+  "all": "All",
+  "best": "BEST",
+  "day": " days ",
+  "collections": "Sheet Collections",
+  "collectionsSubtitle": "Curated Premium Drum Sheet Music Collections by Theme",
+  "collectionsDescription": "Get multiple songs at a discounted price all at once.",
+  "collectionsDescriptionFull": "Get multiple songs at a discounted price all at once. Perfect collections for practice or performance preparation.",
+  "viewAllCollections": "View All Collections",
+  "loadingCollections": "Loading sheet collections...",
+  "noCollections": "No collections have been registered yet.",
+  "noCollectionsSub": "We'll notify you as soon as new collections are ready!",
+  "songsIncluded": "{{count}} songs included",
+  "viewDetailsCollection": "View Details",
+  "featuresTitle": "What Makes COPYDRUM Special",
+  "featuresSubtitle": "Premium Drum Sheet Music Service Recognized by Professionals",
+  "customOrderTitle": "Custom Order Service",
+  "customOrderDescription": "Can't find the sheet music you want? Request a custom order! We'll create professional drum sheet music for any song you want.",
+  "instantDownloadTitle": "Instant Download",
+  "instantDownloadDescription": "Purchase and download immediately. No waiting, start practicing right away with high-quality PDF files.",
+  "customOrderCTATitle": "Need a Custom Drum Sheet?",
+  "customOrderCTADescription": "Request a custom order for any song you want.",
+  "customOrderCTADescription2": "Professional drum sheet music will be delivered to you.",
+  "customOrderCTAButton": "Request Custom Order",
+  "businessInfo": "Business Information",
+  "console": {
+    "categoryQueryError": "Category query error:",
+    "latestSheetsLoadError": "Latest sheets load error:",
+    "categoryLoadError": "Category load error:",
+    "eventDiscountLoadError": "Event discount sheets load error:",
+    "collectionSheetCountError": "Collection sheet count query error:",
+    "collectionLoadError": "Collection load error:",
+    "activeEventLoadError": "100 Won sale event load error:",
+    "popularSheetsLoadError": "Popular sheets load error:",
+    "favoritesLoadError": "Favorites load error:",
+    "userInfoLoadError": "User info load error:",
+    "favoriteToggleError": "Favorite toggle error:"
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

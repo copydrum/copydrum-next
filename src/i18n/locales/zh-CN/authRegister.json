@@ -1,0 +1,52 @@
+{
+  "title": "注册",
+  "hasAccount": "已有账户？",
+  "signIn": "登录",
+  "form": {
+    "name": "姓名",
+    "namePlaceholder": "请输入您的姓名",
+    "email": "电子邮件地址",
+    "emailPlaceholder": "请输入您的电子邮件",
+    "password": "密码",
+    "passwordPlaceholder": "请输入您的密码（8个字符以上）",
+    "passwordHint": "8个字符以上，包含字母、数字和特殊字符",
+    "confirmPassword": "确认密码",
+    "confirmPasswordPlaceholder": "请再次输入您的密码",
+    "agreeTerms": "我同意服务条款",
+    "viewTerms": "（查看）",
+    "agreePrivacy": "我同意隐私政策",
+    "viewPrivacy": "（查看）",
+    "agreeMarketing": "我同意接收营销信息（可选）",
+    "submit": "注册",
+    "submitting": "正在注册..."
+  },
+  "divider": "或",
+  "social": {
+    "google": "Google",
+    "kakao": "Kakao"
+  },
+  "errors": {
+    "passwordMismatch": "密码不匹配。",
+    "passwordTooShort": "密码必须至少8个字符。",
+    "termsRequired": "请同意必需的条款。",
+    "profileCreationFailed": "创建个人资料失败。请重试。",
+    "emailAlreadyRegistered": "此电子邮件已被注册。",
+    "invalidEmail": "请输入有效的电子邮件地址。",
+    "signUpFailed": "注册失败。请重试。",
+    "kakaoLoginFailed": "Kakao登录失败。请重试。",
+    "googleLoginFailed": "Google登录失败。请重试。"
+  },
+  "messages": {
+    "signUpSuccess": "注册完成！请查收您的邮件并登录。"
+  },
+  "console": {
+    "kakaoLoginError": "Kakao登录错误：",
+    "googleLoginError": "Google登录错误：",
+    "profileError": "创建/更新个人资料错误：",
+    "rollbackFunctionError": "回滚函数调用错误：",
+    "rollbackComplete": "注册回滚完成",
+    "rollbackError": "回滚期间发生错误：",
+    "profileSuccess": "个人资料创建/更新成功",
+    "signUpError": "注册错误："
+  }
+}

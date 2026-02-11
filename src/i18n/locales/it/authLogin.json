@@ -1,0 +1,45 @@
+{
+  "title": "Accesso",
+  "noAccount": "Non hai un account?",
+  "signUp": "Registrati",
+  "notice": "🔔 Per i membri esistenti: È richiesta la reimpostazione della password al primo accesso a causa del rinnovo del sito.",
+  "form": {
+    "email": "Indirizzo email",
+    "emailPlaceholder": "Inserisci la tua email",
+    "password": "Password",
+    "passwordPlaceholder": "Inserisci la tua password",
+    "rememberMe": "Ricordami",
+    "forgotPassword": "Password dimenticata?",
+    "submit": "Accedi",
+    "submitting": "Accesso in corso..."
+  },
+  "divider": "oppure",
+  "social": {
+    "google": "Google",
+    "kakao": "Kakao"
+  },
+  "errors": {
+    "kakaoLoginFailed": "Accesso Kakao fallito. Riprova.",
+    "googleLoginFailed": "Accesso Google fallito. Riprova.",
+    "invalidCredentials": "Email o password non corretti.",
+    "emailNotConfirmed": "È richiesta la verifica dell'email. Controlla la tua email.",
+    "loginFailed": "Accesso fallito. Riprova.",
+    "resetPasswordEmailError": "Si è verificato un errore durante l'invio dell'email di reimpostazione password. Riprova.",
+    "profileError": "Errore nella ricerca del profilo",
+    "profileCreationError": "Errore nella creazione del profilo",
+    "migrationCheckError": "Errore nel controllo dell'utente di migrazione"
+  },
+  "messages": {
+    "passwordResetEmailSent": "Sei un membro esistente! Abbiamo inviato un'email di reimpostazione password. Controlla la tua casella di posta."
+  },
+  "console": {
+    "kakaoLoginError": "Errore di accesso Kakao:",
+    "googleLoginError": "Errore di accesso Google:",
+    "profileLookupError": "Errore nella ricerca del profilo:",
+    "profileCreationError": "Errore nella creazione del profilo:",
+    "resetPasswordEmailError": "Errore nell'invio dell'email di reimpostazione password:",
+    "migrationCheckError": "Errore nel controllo dell'utente di migrazione:",
+    "loginError": "Errore di accesso:"
+  },
+  "defaultUserName": "Utente"
+}

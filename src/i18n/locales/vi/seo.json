@@ -1,0 +1,9 @@
+{
+  "detailTitle": "{{title}} – {{artist}} | Bản nhạc trống PDF | COPYDRUM",
+  "detailDescription": "Tải bản nhạc trống cho bài \"{{title}}\" của {{artist}} dưới dạng PDF chất lượng cao. Bản nhạc {{genre}}, {{pages}} trang, {{bpm}} BPM, cấp độ {{difficulty}}.",
+  "detailKeywords": "{{title}}, {{artist}}, bản nhạc trống, drum sheet music, chép trống, COPYDRUM",
+  "homeTitle": "COPYDRUM | Cửa hàng bản nhạc trống",
+  "homeDescription": "Cung cấp bản nhạc trống chất lượng cao cho các thể loại pop, rock, K-POP, CCM và nhiều hơn nữa. Tải PDF ngay lập tức cho các tay trống trên toàn thế giới.",
+  "categoryTitle": "Bản nhạc trống {{category}} | COPYDRUM",
+  "categoryDescription": "Tải bản nhạc trống dạng PDF cho các bài hát thuộc thể loại {{category}}. Phù hợp cho luyện tập và biểu diễn."
+}

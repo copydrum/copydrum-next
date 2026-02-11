@@ -1,0 +1,21 @@
+{
+  "loading": "Wird geladen...",
+  "title": "Notenblatt-Sammlungen",
+  "subtitle": "Entdecken Sie unsere speziell kuratierten Schlagzeug-Notenblatt-Sammlungen nach Themen.",
+  "filter": {
+    "all": "Alle"
+  },
+  "empty": {
+    "noCollections": "Keine Sammlungen registriert.",
+    "noCollectionsForCategory": "Keine Sammlungen für das ausgewählte Genre verfügbar."
+  },
+  "collection": {
+    "badge": "Sammlung",
+    "discount": "{{percentage}}% RABATT",
+    "free": "Kostenlos",
+    "songs": "{{count}} Songs"
+  },
+  "pagination": {
+    "pageInfo": "{{current}} / {{total}}"
+  }
+}

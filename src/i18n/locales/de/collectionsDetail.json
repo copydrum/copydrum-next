@@ -1,0 +1,72 @@
+{
+  "loading": "Sammlung wird geladen...",
+  "errors": {
+    "noCollectionInfo": "Die angeforderte Sammlungsinformation ist nicht verfügbar.",
+    "collectionNotFound": "Die angeforderte Sammlung konnte nicht gefunden werden.",
+    "loadError": "Beim Laden der Sammlungsinformationen ist ein Fehler aufgetreten.",
+    "collectionNotAvailable": "Die angeforderte Notenblatt-Sammlung existiert nicht oder wurde deaktiviert."
+  },
+  "backToList": "Zurück zu den Sammlungen",
+  "free": "Kostenlos",
+  "discount": "{{percentage}}% RABATT",
+  "badge": "Notenblatt-Sammlung",
+  "includedSheets": {
+    "count": "Enthaltene Notenblätter",
+    "number": "{{count}} Songs",
+    "title": "Enthaltene Notenblätter",
+    "description": "Zeigen Sie alle in dieser Sammlung enthaltenen Notenblätter an und erkunden Sie die gewünschten.",
+    "empty": "Es wurden noch keine Notenblätter zu dieser Sammlung hinzugefügt."
+  },
+  "sheet": {
+    "difficulty": "Schwierigkeit {{difficulty}}",
+    "free": "Kostenlos"
+  },
+  "purchase": {
+    "priceInfo": "Sammlungspreis-Informationen",
+    "totalIndividual": "Gesamtpreis einzelner Notenblätter",
+    "noInfo": "Keine Informationen",
+    "collectionPrice": "Sammlungspreis",
+    "buyNow": "Jetzt kaufen",
+    "save": "Sparen Sie {{amount}}!",
+    "processing": "Wird verarbeitet...",
+    "note": "Sammlungen können nur zum reduzierten Preis gekauft werden.",
+    "inactive": "Diese Sammlung ist derzeit inaktiv. Bitte kontaktieren Sie den Administrator.",
+    "mobilePrice": "Sammlungspreis",
+    "mobileSave": "Sparen Sie {{amount}} im Vergleich zum Einzelkauf",
+    "mobileInactive": "Diese Sammlung ist derzeit inaktiv.",
+    "buyCollection": "Buy Collection",
+    "goToCart": "Go to Cart"
+  },
+  "alerts": {
+    "noSheetInfo": "Die in der Sammlung enthaltenen Notenblatt-Informationen konnten nicht gefunden werden.",
+    "duplicatePurchase": "Sie haben bereits einige in dieser Sammlung enthaltene Notenblätter gekauft, daher ist ein doppelter Kauf nicht möglich.",
+    "duplicateList": "Doppelte Notenblätter:",
+    "checkMyPage": "Bitte überprüfen Sie Ihre Kaufhistorie in Meine Seite.",
+    "insufficientCredit": "Unzureichendes Guthaben.",
+    "currentBalance": "Aktuelles Guthaben: {{amount}}P",
+    "chargeCash": "Bitte laden Sie Guthaben auf und versuchen Sie es erneut.",
+    "purchaseSuccess": "Kauf abgeschlossen. Bitte überprüfen Sie den Inhalt in Meine Seite.",
+    "purchaseError": "Beim Kauf ist ein Fehler aufgetreten."
+  },
+  "navigation": {
+    "title": "Andere Seiten erkunden",
+    "viewCategories": "Notenblatt-Kategorien anzeigen",
+    "eventSale": "Event-Verkaufs-Notenblätter",
+    "customOrder": "Individuelle Bestellungsanfrage"
+  },
+  "purchaseDescription": "Notenblatt-Sammlung Kauf: {{title}}",
+  "sheetTitle": "Notenblatt",
+  "viewSheet": "Notenblatt ansehen",
+  "difficulty": {
+    "beginner": "Anfänger",
+    "intermediate": "Mittelstufe",
+    "advanced": "Fortgeschritten"
+  },
+  "features": {
+    "title": "Was ist enthalten",
+    "allSheets": "Alle Notenblätter zum reduzierten Preis",
+    "highQuality": "Hochwertige PDF-Format",
+    "instantDownload": "Sofortiger Download",
+    "lifetimeAccess": "Lebenslanger Zugang"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "loading": "Processando login...",
+  "errors": {
+    "oauthError": "Falha no login",
+    "callbackError": "Ocorreu um erro ao processar o login. Por favor, tente novamente.",
+    "profileCreationError": "Erro na criação do perfil"
+  },
+  "console": {
+    "oauthError": "Erro OAuth:",
+    "callbackError": "Erro no processamento do callback de autenticação:",
+    "profileCreationError": "Erro na criação do perfil:"
+  },
+  "defaultUserName": "Usuário"
+}

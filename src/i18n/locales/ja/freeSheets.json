@@ -1,0 +1,79 @@
+{
+  "badge": "無料ドラムレッスン",
+  "title": "無料ドラムレッスン楽譜",
+  "description": "ドラムレッスンカテゴリーのすべての楽譜を無料で探索！YouTubeレッスンと一緒に練習して、スキルをより早く向上させましょう。ドラムテクニック、ルーディメント、ドラムソロなど、さまざまな学習トピックから選択できます。",
+  "features": {
+    "freeDownload": "無料フルダウンロード",
+    "categoryLearning": "カテゴリー別学習",
+    "youtubeLesson": "YouTubeレッスンリンク"
+  },
+  "categories": {
+    "all": "すべて",
+    "drumTechnique": "ドラムテクニック",
+    "rudiment": "ルーディメント",
+    "drumSolo": "ドラムソロ",
+    "beginnerBasics": "初級/基礎",
+    "rhythmPattern": "リズムパターン",
+    "fillIn": "フィルイン",
+    "drumLesson": "ドラムレッスン",
+    "categoryPending": "カテゴリー保留中"
+  },
+  "search": {
+    "placeholder": "タイトル、アーティスト、またはタグで検索"
+  },
+  "sort": {
+    "label": "並び替え",
+    "latest": "最新",
+    "title": "タイトル",
+    "difficulty": "難易度"
+  },
+  "difficulty": {
+    "beginner": "初級",
+    "intermediate": "中級",
+    "advanced": "上級",
+    "notAvailable": "難易度情報なし"
+  },
+  "loading": "無料ドラムレッスン楽譜を読み込み中...",
+  "empty": {
+    "title": "条件に一致する無料楽譜がありません。",
+    "description": "別のカテゴリーを選択するか、検索語を変更してお試しください。"
+  },
+  "actions": {
+    "viewFreeSheet": "無料楽譜を見る",
+    "viewYoutubeLesson": "YouTubeレッスンを見る",
+    "goToDetail": "詳細ページへ",
+    "closeDetail": "無料楽譜詳細を閉じる"
+  },
+  "errors": {
+    "lessonCategoryLoadError": "ドラムレッスンカテゴリーの読み込みに失敗しました。後でもう一度お試しください。",
+    "lessonCategoryNotFound": "ドラムレッスンカテゴリーが存在しません。管理者にお問い合わせください。",
+    "sheetsLoadError": "無料ドラムレッスン楽譜の読み込みに失敗しました。後でもう一度お試しください。",
+    "generalError": "無料ドラムレッスン楽譜の読み込み中にエラーが発生しました。",
+    "loginRequired": "ログインが必要です。",
+    "favoriteError": "お気に入り処理中にエラーが発生しました。後でもう一度お試しください。",
+    "pdfNotReady": "PDFリンクの準備ができていません。",
+    "youtubeNotAvailable": "YouTube動画が登録されていません。"
+  },
+  "mobile": {
+    "freeSheet": "無料楽譜",
+    "upload": "アップロード",
+    "pages": "ページ",
+    "youtubeLessonIncluded": "YouTubeレッスン含む",
+    "freeDownload": "無料ダウンロード",
+    "practiceWithPdf": "PDF楽譜で練習します。",
+    "favorite": "お気に入り",
+    "unfavorite": "お気に入り解除"
+  },
+  "console": {
+    "lessonCategoryError": "ドラムレッスンカテゴリー検索エラー:",
+    "primarySheetsError": "主要ドラムレッスン楽譜読み込みエラー:",
+    "relationsError": "ドラムレッスンカテゴリー関連読み込みエラー:",
+    "additionalSheetsError": "追加ドラムレッスン楽譜読み込みエラー:",
+    "extraCategoriesError": "追加カテゴリー読み込みエラー:",
+    "generalError": "無料楽譜ページ処理エラー:",
+    "favoritesLoadError": "お気に入り読み込みエラー:",
+    "favoriteToggleError": "お気に入り切り替えエラー:",
+    "userLoadError": "ユーザー情報の読み込みに失敗しました:",
+    "youtubeUrlParseError": "YouTube URL解析に失敗しました:"
+  }
+}

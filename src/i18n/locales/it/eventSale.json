@@ -1,0 +1,61 @@
+{
+  "header": {
+    "badge": "Ottieni spartiti per batteria popolari per soli 100 won!",
+    "title": "Evento speciale 100 won",
+    "description": "Non perdere questi spartiti per batteria in super promozione a tempo limitato. Ottieni canzoni popolari per soli 100 won e inizia a suonare oggi!"
+  },
+  "countdownNotice": "Controlla il timer del countdown in tempo reale!",
+  "loading": "Caricamento informazioni evento...",
+  "countdown": {
+    "startingSoon": "Inizio imminente",
+    "startsIn": "Inizia tra",
+    "timeLeft": "⏰ Tempo rimanente",
+    "dayUnit": "g",
+    "starts": "Inizia"
+  },
+  "buttons": {
+    "only100Won": "Solo 100 won!",
+    "addToFavorites": "Aggiungi ai preferiti",
+    "removeFromFavorites": "Rimuovi dai preferiti",
+    "viewDetails": "Visualizza dettagli",
+    "buyNow": "Acquista ora",
+    "processing": "Elaborazione in corso...",
+    "saleEnded": "Promozione terminata"
+  },
+  "labels": {
+    "eventSheet": "Spartito evento",
+    "saleEnded": "Promozione terminata",
+    "only100WonBadge": "Solo 100 won!",
+    "100Won": "100 won",
+    "discount": "di sconto",
+    "startingSoon": "Inizio imminente"
+  },
+  "sections": {
+    "ongoing": {
+      "title": "Promozione speciale 100 won in corso",
+      "description": "Spartiti evento disponibili per l'acquisto ora.",
+      "activeCount": "{{count}} attivi",
+      "noEvents": "Non ci sono eventi in corso. Controlla gli eventi programmati qui sotto!"
+    },
+    "scheduled": {
+      "title": "Eventi programmati",
+      "description": "Controlla gli eventi imminenti e preparati per le notifiche.",
+      "scheduledCount": "{{count}} programmati"
+    },
+    "ended": {
+      "title": "Eventi terminati"
+    }
+  },
+  "messages": {
+    "loginRequired": "Accesso richiesto.",
+    "loginRequiredConfirm": "Accesso richiesto. Vai alla pagina di accesso?",
+    "checkDownloadPage": "Controlla il tuo spartito nella pagina di download.",
+    "paymentError": "Si è verificato un errore durante il pagamento.",
+    "favoriteError": "Si è verificato un errore durante l'elaborazione del tuo preferito. Riprova più tardi."
+  },
+  "console": {
+    "loadEventsError": "Errore nel caricamento dell'elenco spartiti in promozione evento:",
+    "loadFavoritesError": "Errore nel caricamento dell'elenco preferiti:",
+    "toggleFavoriteError": "Errore nell'elaborazione del toggle preferito:"
+  }
+}

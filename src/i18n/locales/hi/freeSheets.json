@@ -1,0 +1,79 @@
+{
+  "badge": "मुफ्त ड्रम पाठ",
+  "title": "मुफ्त ड्रम पाठ शीट",
+  "description": "ड्रम पाठ श्रेणी में सभी शीट म्यूजिक को मुफ्त में एक्सप्लोर करें! अपने कौशल को तेजी से सुधारने के लिए YouTube पाठों के साथ अभ्यास करें। ड्रम तकनीक, रूडिमेंट, ड्रम सोलो, और अधिक जैसे विभिन्न सीखने के विषयों में से चुनें।",
+  "features": {
+    "freeDownload": "मुफ्त पूर्ण डाउनलोड",
+    "categoryLearning": "श्रेणी-आधारित सीखना",
+    "youtubeLesson": "YouTube पाठ लिंक"
+  },
+  "categories": {
+    "all": "सभी",
+    "drumTechnique": "ड्रम तकनीक",
+    "rudiment": "रूडिमेंट",
+    "drumSolo": "ड्रम सोलो",
+    "beginnerBasics": "शुरुआती/मूल बातें",
+    "rhythmPattern": "ताल पैटर्न",
+    "fillIn": "फिल-इन",
+    "drumLesson": "ड्रम पाठ",
+    "categoryPending": "श्रेणी लंबित"
+  },
+  "search": {
+    "placeholder": "शीर्षक, कलाकार, या टैग से खोजें"
+  },
+  "sort": {
+    "label": "क्रमबद्ध करें",
+    "latest": "नवीनतम",
+    "title": "शीर्षक",
+    "difficulty": "कठिनाई"
+  },
+  "difficulty": {
+    "beginner": "शुरुआती",
+    "intermediate": "मध्यम",
+    "advanced": "उन्नत",
+    "notAvailable": "कठिनाई उपलब्ध नहीं है"
+  },
+  "loading": "मुफ्त ड्रम पाठ शीट लोड हो रही है...",
+  "empty": {
+    "title": "आपकी कसौटी से मेल खाने वाली कोई मुफ्त शीट नहीं है।",
+    "description": "एक अलग श्रेणी चुनने या अपने खोज शब्द को बदलने का प्रयास करें।"
+  },
+  "actions": {
+    "viewFreeSheet": "मुफ्त शीट देखें",
+    "viewYoutubeLesson": "YouTube पाठ देखें",
+    "goToDetail": "विवरण पेज पर जाएं",
+    "closeDetail": "मुफ्त शीट विवरण बंद करें"
+  },
+  "errors": {
+    "lessonCategoryLoadError": "ड्रम पाठ श्रेणी लोड करने में विफल। कृपया बाद में पुनः प्रयास करें।",
+    "lessonCategoryNotFound": "ड्रम पाठ श्रेणी मौजूद नहीं है। कृपया प्रशासक से संपर्क करें।",
+    "sheetsLoadError": "मुफ्त ड्रम पाठ शीट लोड करने में विफल। कृपया बाद में पुनः प्रयास करें।",
+    "generalError": "मुफ्त ड्रम पाठ शीट लोड करते समय एक त्रुटि हुई।",
+    "loginRequired": "लॉगिन आवश्यक है।",
+    "favoriteError": "पसंदीदा को प्रसंस्करण करते समय एक त्रुटि हुई। कृपया बाद में पुनः प्रयास करें।",
+    "pdfNotReady": "PDF लिंक तैयार नहीं है।",
+    "youtubeNotAvailable": "कोई YouTube वीडियो पंजीकृत नहीं है।"
+  },
+  "mobile": {
+    "freeSheet": "मुफ्त शीट",
+    "upload": "अपलोड",
+    "pages": "पृष्ठ",
+    "youtubeLessonIncluded": "YouTube पाठ शामिल",
+    "freeDownload": "मुफ्त डाउनलोड",
+    "practiceWithPdf": "PDF शीट म्यूजिक के साथ अभ्यास करें।",
+    "favorite": "पसंदीदा",
+    "unfavorite": "पसंदीदा नहीं"
+  },
+  "console": {
+    "lessonCategoryError": "ड्रम पाठ श्रेणी खोज त्रुटि:",
+    "primarySheetsError": "प्राथमिक ड्रम पाठ शीट लोड त्रुटि:",
+    "relationsError": "ड्रम पाठ श्रेणी संबंध लोड त्रुटि:",
+    "additionalSheetsError": "अतिरिक्त ड्रम पाठ शीट लोड त्रुटि:",
+    "extraCategoriesError": "अतिरिक्त श्रेणियां लोड त्रुटि:",
+    "generalError": "मुफ्त शीट पेज प्रसंस्करण त्रुटि:",
+    "favoritesLoadError": "पसंदीदा लोड त्रुटि:",
+    "favoriteToggleError": "पसंदीदा टॉगल त्रुटि:",
+    "userLoadError": "उपयोगकर्ता जानकारी लोड करने में विफल:",
+    "youtubeUrlParseError": "YouTube URL पार्स करने में विफल:"
+  }
+}

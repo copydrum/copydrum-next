@@ -1,0 +1,206 @@
+{
+  "hero": {
+    "badge": "Aramadan indirmeye kadar her şey tek yerde",
+    "title": "COPYDRUM Arama ve Satın Alma Rehberi",
+    "description": "İstediğiniz davul notasını hızlıca bulun, uygun fiyata satın alın,<br />ve sorunsuz bir şekilde indirin—tüm yöntemler tek yerde toplandı.<br />Yeni kullanıcılardan mevcut üyelere kadar verimli pratik için temel ipuçlarını kontrol edin."
+  },
+  "sections": {
+    "firstPurchase": {
+      "title": "3 Dakikada İlk Satın Alma",
+      "description": "İlk kez ziyaret edenler için hızlı bir özet. İlk nota satın alımınızı hemen tamamlamak için aşağıdaki adımları izleyin.",
+      "steps": {
+        "account": {
+          "title": "1 dk – Hesap Oluştur",
+          "detail": "Kayıt veya sosyal giriş yoluyla hızlıca hesap oluşturun.",
+          "highlight": "Giriş yaptıktan sonra sepet ve indirme menüleri etkinleştirilecektir."
+        },
+        "findSheet": {
+          "title": "1 dk – Nota Bul",
+          "detail": "Arama kutusuna şarkı başlığını veya sanatçı adını girin ve beğendiğiniz notayı seçin."
+        },
+        "payment": {
+          "title": "1 dk – Ödeme ve İndirme",
+          "detail": "Sepete ekleyin, ödemeyi tamamlayın ve PDF notayı hemen indirebilirsiniz."
+        }
+      },
+      "cta": {
+        "register": "Şimdi Kayıt Ol",
+        "popular": "Popüler Notaları Görüntüle"
+      }
+    },
+    "effectiveSearch": {
+      "title": "Notayı Etkili Bir Şekilde Ara",
+      "description": "Arama sonuçları çok fazlaysa veya istediğiniz şarkıyı bulamıyorsanız, aşağıdaki yöntemlerle aramanızı daha hassas bir şekilde ayarlamayı deneyin.",
+      "steps": {
+        "keyword": {
+          "title": "Anahtar Kelime Kombinasyonu",
+          "detail": "Şarkı başlığı + sanatçı gibi iki veya daha fazla kelimeyi birleştirmek doğruluğu artırır.",
+          "highlight": "Örnek: \"Spring Day davul\", \"BTS rock düzenleme\""
+        },
+        "filter": {
+          "title": "Filtrelerle Daralt",
+          "detail": "Kategori sayfasında tür, fiyat aralığı ve zorluk seviyesini seçerek yalnızca ihtiyacınız olan notaları filtreleyin."
+        },
+        "noResults": {
+          "title": "Sonuç Yok İşleme",
+          "detail": "Yazımı kontrol edin ve benzer anahtar kelimelerle tekrar arama yapın."
+        }
+      },
+      "cta": {
+        "categories": "Kategorileri Görüntüle",
+        "freeSheets": "Ücretsiz Notaları Kontrol Et"
+      }
+    },
+    "chooseSheet": {
+      "title": "Size Uygun Notayı Seçin",
+      "description": "Pratik hedeflerinize uygun notayı seçmek için zorluk seviyesi, düzenleme stili ve nota kompozisyonunu karşılaştırın.",
+      "steps": {
+        "difficulty": {
+          "title": "Zorluğu Kontrol Et",
+          "detail": "Başlangıç/orta/ileri olarak ayrılır ve detaylı açıklamada gerekli teknikleri kontrol edebilirsiniz.",
+          "highlight": "Başlangıç: Temel kalıplar, Orta: Doldurmalar dahil, İleri: Hız ve teknik vurgular"
+        },
+        "preview": {
+          "title": "Önizlemeyi Kullan",
+          "detail": "Örnek sayfalar ve demo videolar aracılığıyla istediğiniz stil olup olmadığını kontrol edin."
+        },
+        "price": {
+          "title": "Fiyatları Karşılaştır",
+          "detail": "Bireysel notalar, koleksiyonlar ve etkinlik notalarını birlikte karşılaştırarak daha uygun bir seçim yapabilirsiniz."
+        }
+      },
+      "cta": {
+        "eventSale": "Etkinlik Notalarını Gözat",
+        "collections": "Koleksiyonları Görüntüle"
+      }
+    },
+    "purchaseProcess": {
+      "title": "Tam Satın Alma Süreci Rehberi",
+      "description": "Sepetten ödeme tamamlanmasına kadar hatasız ilerlemek için adım adım rehber.",
+      "steps": {
+        "cart": {
+          "title": "Sepete Ekle",
+          "detail": "Nota detay sayfasındaki sepet düğmesine tıklayarak birden fazla notayı bir kerede ödeyin.",
+          "highlight": "Promosyon kodu sepetin üst kısmına girilebilir"
+        },
+        "paymentInfo": {
+          "title": "Ödeme Bilgilerini Kontrol Et",
+          "detail": "Ödeme öncesi sipariş detaylarını, indirim uygulamasını ve hizmet şartlarını mutlaka kontrol edin."
+        },
+        "paymentMethod": {
+          "title": "Ödeme Yöntemini Seç",
+          "detail": "Kredi kartı, banka havalesi, Kakao Pay vb. destekler ve ödeme tamamlandıktan sonra bildirim e-postası gönderilir."
+        }
+      },
+      "cta": {
+        "cart": "Sepete Git"
+      }
+    },
+    "download": {
+      "title": "Notayı İndir",
+      "description": "Satın alınan notalar hemen PDF olarak indirilebilir ve istediğiniz zaman yeniden indirilebilir.",
+      "steps": {
+        "immediate": {
+          "title": "Hemen İndirme",
+          "detail": "Satın alma işleminden hemen sonra satın alma tamamlama sayfasından PDF dosyasını hemen indirebilirsiniz."
+        },
+        "redownload": {
+          "title": "Sayfam'dan Yeniden İndirme",
+          "detail": "Zaten satın alınmış notaları Sayfam'daki satın alma geçmişinden yeniden indirebilirsiniz.",
+          "highlight": "Satın alınan notalar sınırsız olarak yeniden indirilebilir."
+        },
+        "pdf": {
+          "title": "PDF Kullan",
+          "detail": "Yüksek kaliteli PDF dosyaları olarak sağlanır, tablet veya dizüstü bilgisayarlarda doğrudan pratik yapabilir veya istediğiniz boyutta yazdırabilirsiniz."
+        }
+      },
+      "cta": {
+        "mypage": "Sayfam'ı Aç",
+        "orders": "Satın Alma Geçmişini Kontrol Et"
+      }
+    },
+    "discounts": {
+      "title": "İndirimleri ve Avantajları Maksimize Edin",
+      "description": "Özel etkinlik satışları, nota bakiye yükleme bonusları ve özel sipariş hizmetlerini kullanarak daha zengin bir pratik ortamı oluşturun.",
+      "steps": {
+        "event": {
+          "title": "Etkinlik Notaları",
+          "detail": "Özel satış bölümünde sınırlı süre için 100 won veya indirimli fiyatlarla sunulan notaları kontrol edin.",
+          "highlight": "Etkinlik notaları sınırlı miktar/süredir, hızlıca kontrol edin!"
+        },
+        "cash": {
+          "title": "Nota Bakiye Yükleme",
+          "detail": "Yükleme tutarına göre ek bonuslar sağlanır. Toplu satın alma yapmayı planlıyorsanız, önceden yükleyin."
+        },
+        "customOrder": {
+          "title": "Özel Siparişleri Karşılaştır",
+          "detail": "Aradığınız notayı bulamıyorsanız, özel siparişler aracılığıyla doğru bir düzenleme alabilirsiniz. Bütçenize ve programınıza göre seçin."
+        }
+      },
+      "cta": {
+        "customOrder": "Özel Sipariş Başvurusu",
+        "customOrders": "Devam Eden Siparişleri Kontrol Et"
+      }
+    }
+  },
+  "searchTips": {
+    "title": "Arama İpuçları Koleksiyonu",
+    "items": {
+      "keyword": {
+        "title": "Önerilen Anahtar Kelimeler",
+        "description": "Şarkı başlığı + sanatçı ile arama yapmak doğruluğu artırır."
+      },
+      "filter": {
+        "title": "Filtre Kombinasyonu",
+        "description": "Tür + zorluk + fiyat aralığını birlikte ayarlamak yalnızca ihtiyacınız olan notaları bırakır."
+      },
+      "noResults": {
+        "title": "Arama Sonucu Yok",
+        "description": "Yazımı tekrar kontrol edin veya benzer tür/sanatçı ile arama yapın ve ardından özel siparişleri deneyin."
+      }
+    }
+  },
+  "purchaseComparison": {
+    "title": "Satın Alma Yöntemi Karşılaştırması",
+    "regular": {
+      "title": "Normal Satın Alma",
+      "badge": "Önerilen",
+      "items": [
+        "Ödeme sonrası hemen PDF indirme",
+        "Etkinlik/ücretsiz notalarla maliyet tasarrufu",
+        "Geniş tür ve zorluk seviyesi seçimi"
+      ]
+    },
+    "custom": {
+      "title": "Özel Sipariş",
+      "badge": "Özelleştirilmiş",
+      "items": [
+        "Tam olarak istediğiniz şarkı ve düzenleme stilini üretin",
+        "Üretim süresi 1-7 gün, zorluğa göre değişir",
+        "Teklif onayından sonra ödeme ile devam edin"
+      ]
+    }
+  },
+  "helpNeeded": {
+    "title": "Daha Fazla Yardıma İhtiyacınız Var mı?",
+    "description": "Müşteri desteğindeki sık sorulan soruları kontrol edin veya sorgu aracılığıyla doğrudan danışmanlık talep edin.",
+    "cta": {
+      "findSheets": "Şimdi Nota Bul",
+      "eventSale": "Devam Eden İndirimli Notaları Görüntüle"
+    }
+  },
+  "terms": {
+    "title": "Hizmet Şartları",
+    "content": [
+      "COPYDRUM hizmetlerini kullanan tüm müşteriler telif hakkına saygı göstermeli ve notaları kişisel pratik amaçları kapsamında kullanmalıdır. Satın alınan notaların yetkisiz dağıtımı, çoğaltılması veya paylaşılması yasal yaptırımlara tabidir ve ticari kullanım için ayrı bir lisans gereklidir.",
+      "İndirmeler ödeme sonrası hemen sağlandığından, dijital içeriğin doğası gereği indirme tamamlandıktan sonra iadeler sınırlı olabilir. Ödemeler, özel siparişler ve etkinlik avantajları dahil olmak üzere hizmet kullanımıyla ilgili detaylı politikalar, müşteri hizmetleri duyuruları aracılığıyla düzenli olarak güncellenir."
+    ]
+  },
+  "privacy": {
+    "title": "Gizlilik Politikası Özeti",
+    "content": [
+      "Hesap kaydı, sipariş işleme ve müşteri desteği için e-posta, ad ve ödeme bilgileri gibi minimal kişisel bilgiler topluyoruz. Bu bilgiler Supabase tabanlı güvenlik ortamında güvenli bir şekilde saklanır. Kişisel bilgileri hizmet sağlamak dışında başka amaçlarla kullanmıyoruz ve üçüncü taraflarla paylaşırken önceden onay prosedürlerine sıkı sıkıya uyuyoruz.",
+      "Müşteriler, Sayfam veya Müşteri Desteği aracılığıyla kişisel bilgilerini görüntüleme, değiştirme veya silme talebinde bulunabilir ve bu tür talepler gecikmeden işlenecektir. Kişisel bilgi korumasıyla ilgili sorgular için lütfen Müşteri Desteği 1:1 sorgusu veya e-posta aracılığıyla bizimle iletişime geçin."
+    ]
+  }
+}

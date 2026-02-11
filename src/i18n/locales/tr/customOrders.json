@@ -1,0 +1,71 @@
+{
+  "title": "Özel Sipariş Geçmişi",
+  "nav": {
+    "home": "Ana Sayfa",
+    "categories": "Nota Kategorileri",
+    "customOrder": "Özel Sipariş",
+    "customOrderHistory": "Özel Sipariş Geçmişi"
+  },
+  "loading": "Yükleniyor...",
+  "empty": {
+    "message": "Özel sipariş geçmişi yok.",
+    "button": "Özel Sipariş İste"
+  },
+  "status": {
+    "pending": {
+      "label": "Teklif Bekleniyor",
+      "message": "Talebinizi inceliyoruz ve özel teklif hazırlıyoruz."
+    },
+    "quoted": {
+      "label": "Ödeme Bekleniyor",
+      "message": "Teklif geldi. Üretimi başlatmak için teklif edilen tutarı yatırmanız gerekiyor."
+    },
+    "payment_confirmed": {
+      "label": "Ödeme Onaylandı",
+      "message": "Ödeme onaylandı. Üretim sırasına göre hazırlıyoruz."
+    },
+    "in_progress": {
+      "label": "Devam Ediyor",
+      "message": "Profesyonellerimiz notayı oluşturuyor. Tamamlandığında size bildireceğiz."
+    },
+    "completed": {
+      "label": "Tamamlandı",
+      "message": "Nota üretimi tamamlandı. Lütfen aşağıdaki PDF dosyasını indirin."
+    },
+    "cancelled": {
+      "label": "İptal Edildi"
+    }
+  },
+  "order": {
+    "artist": "Sanatçı",
+    "applicationDate": "Başvuru Tarihi",
+    "estimatedPrice": "Tahmini Fiyat",
+    "requirements": "Gereksinimler",
+    "noRequirements": "Ek gereksinim yok.",
+    "referenceVideo": "Referans Video",
+    "adminReply": "Yönetici Yanıtı",
+    "replyDate": "Yanıt Tarihi",
+    "completedSheet": "Tamamlanan Nota",
+    "completedSheetFilename": "Tamamlanan Nota.pdf",
+    "sheetMusicSuffix": "Nota",
+    "download": "İndir",
+    "downloadCount": "İndirme",
+    "times": "kez",
+    "expiryDate": "Son Kullanma Tarihi",
+    "recentUpdate": "Son Güncelleme",
+    "viewDetails": "Detayları Görüntüle",
+    "quote": "Teklif",
+    "checkQuote": "Teklifi Kontrol Et",
+    "workCompleted": "İş Tamamlandı"
+  },
+  "alerts": {
+    "downloadLimitExceeded": "Tüm indirme denemelerini kullandınız. Lütfen müşteri hizmetleriyle iletişime geçin.",
+    "downloadExpired": "İndirme süresi doldu. Lütfen müşteri hizmetleriyle iletişime geçin.",
+    "downloadSuccess": "Nota indirme tamamlandı.",
+    "downloadFailed": "İndirme başarısız oldu. Lütfen tekrar deneyin."
+  },
+  "warnings": {
+    "downloadLimitExceeded": "İndirme limiti aşıldı. Ek indirmelere ihtiyacınız varsa lütfen müşteri hizmetleriyle iletişime geçin.",
+    "downloadPeriodExpired": "İndirme süresi doldu. Lütfen müşteri hizmetleriyle iletişime geçin."
+  }
+}

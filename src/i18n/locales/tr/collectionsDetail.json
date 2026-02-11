@@ -1,0 +1,60 @@
+{
+  "loading": "Koleksiyon yükleniyor...",
+  "errors": {
+    "noCollectionInfo": "İstenen koleksiyon bilgisi mevcut değil.",
+    "collectionNotFound": "İstenen koleksiyon bulunamadı.",
+    "loadError": "Koleksiyon bilgileri yüklenirken bir hata oluştu.",
+    "collectionNotAvailable": "İstenen nota koleksiyonu mevcut değil veya devre dışı bırakılmış."
+  },
+  "backToList": "Koleksiyonlara Dön",
+  "free": "Ücretsiz",
+  "discount": "%{{percentage}} İNDİRİM",
+  "badge": "Nota Koleksiyonu",
+  "includedSheets": {
+    "count": "Dahil Edilen Notalar",
+    "number": "{{count}} şarkı",
+    "title": "Dahil Edilen Notalar",
+    "description": "Bu koleksiyona dahil edilen tüm notaları görüntüleyin ve istediğinizi keşfedin.",
+    "empty": "Bu koleksiyona henüz nota eklenmemiş."
+  },
+  "sheet": {
+    "difficulty": "Zorluk {{difficulty}}",
+    "free": "Ücretsiz"
+  },
+  "purchase": {
+    "priceInfo": "Koleksiyon Fiyat Bilgisi",
+    "totalIndividual": "Toplam Bireysel Notalar",
+    "noInfo": "Bilgi yok",
+    "collectionPrice": "Koleksiyon Fiyatı",
+    "buyNow": "Hemen Satın Al",
+    "save": "{{amount}} tasarruf edin!",
+    "processing": "İşleniyor...",
+    "note": "Koleksiyonlar yalnızca indirimli fiyattan satın alınabilir.",
+    "inactive": "Bu koleksiyon şu anda aktif değil. Lütfen yöneticiye başvurun.",
+    "mobilePrice": "Koleksiyon Fiyatı",
+    "mobileSave": "Bireysel satın almaya kıyasla {{amount}} tasarruf edin",
+    "mobileInactive": "Bu koleksiyon şu anda aktif değil.",
+    "buyCollection": "Buy Collection",
+    "goToCart": "Go to Cart"
+  },
+  "alerts": {
+    "noSheetInfo": "Koleksiyona dahil edilen nota bilgisi bulunamadı.",
+    "duplicatePurchase": "Bu koleksiyona dahil edilen bazı notaları zaten satın aldınız, bu nedenle yinelenen satın alma mümkün değil.",
+    "duplicateList": "Yinelenen notalar:",
+    "checkMyPage": "Lütfen Sayfam'daki satın alma geçmişinizi kontrol edin.",
+    "insufficientCredit": "Yetersiz bakiye.",
+    "currentBalance": "Mevcut bakiye: {{amount}}P",
+    "chargeCash": "Lütfen bakiye yükleyin ve tekrar deneyin.",
+    "purchaseSuccess": "Satın alma tamamlandı. Lütfen içeriği Sayfam'da kontrol edin.",
+    "purchaseError": "Satın alma sırasında bir hata oluştu."
+  },
+  "navigation": {
+    "title": "Diğer Sayfaları Keşfedin",
+    "viewCategories": "Nota Kategorilerini Görüntüle",
+    "eventSale": "Etkinlik İndirimli Notalar",
+    "customOrder": "Özel Sipariş Sorgusu"
+  },
+  "purchaseDescription": "Nota Koleksiyonu Satın Alma: {{title}}",
+  "sheetTitle": "Nota",
+  "viewSheet": "View Sheet"
+}

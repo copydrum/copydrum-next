@@ -1,0 +1,14 @@
+{
+  "loading": "Elaborazione accesso in corso...",
+  "errors": {
+    "oauthError": "Accesso fallito",
+    "callbackError": "Si è verificato un errore durante l'elaborazione dell'accesso. Riprova.",
+    "profileCreationError": "Errore nella creazione del profilo"
+  },
+  "console": {
+    "oauthError": "Errore OAuth:",
+    "callbackError": "Errore nell'elaborazione del callback di autenticazione:",
+    "profileCreationError": "Errore nella creazione del profilo:"
+  },
+  "defaultUserName": "Utente"
+}

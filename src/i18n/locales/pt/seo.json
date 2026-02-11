@@ -1,0 +1,9 @@
+{
+  "detailTitle": "{{title}} – {{artist}} | Partitura para bateria PDF | COPYDRUM",
+  "detailDescription": "Baixe a partitura para bateria de \"{{title}}\" de {{artist}} em PDF de alta qualidade. Partitura {{genre}} com {{pages}} páginas, {{bpm}} BPM, nível {{difficulty}}.",
+  "detailKeywords": "{{title}}, {{artist}}, partitura para bateria, drum sheet music, transcrição de bateria, COPYDRUM",
+  "homeTitle": "COPYDRUM | Loja de partituras para bateria",
+  "homeDescription": "Partituras para bateria e drum scores de alta qualidade para pop, rock, K-POP, CCM e muito mais. Download imediato em PDF para bateristas do mundo todo.",
+  "categoryTitle": "Partituras de bateria {{category}} | COPYDRUM",
+  "categoryDescription": "Baixe partituras para bateria em PDF de músicas de {{category}}. Perfeitas para estudo e apresentações."
+}

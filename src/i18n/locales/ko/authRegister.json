@@ -1,0 +1,79 @@
+{
+  "title": "회원가입",
+  "hasAccount": "이미 계정이 있으신가요?",
+  "signIn": "로그인하기",
+  "form": {
+    "name": "이름",
+    "namePlaceholder": "이름을 입력하세요",
+    "email": "이메일 주소",
+    "emailPlaceholder": "이메일을 입력하세요",
+    "password": "비밀번호",
+    "passwordPlaceholder": "비밀번호를 입력하세요 (8자 이상)",
+    "passwordHint": "8자 이상, 영문, 숫자, 특수문자 조합",
+    "confirmPassword": "비밀번호 확인",
+    "confirmPasswordPlaceholder": "비밀번호를 다시 입력하세요",
+    "agreeTerms": "이용약관에 동의합니다",
+    "viewTerms": "(보기)",
+    "agreePrivacy": "개인정보 수집 및 이용에 동의합니다",
+    "viewPrivacy": "(보기)",
+    "agreeMarketing": "마케팅 정보 수신에 동의합니다 (선택)",
+    "submit": "회원가입",
+    "submitting": "가입 중..."
+  },
+  "divider": "또는",
+  "social": {
+    "google": "Google",
+    "kakao": "카카오"
+  },
+  "errors": {
+    "passwordMismatch": "비밀번호가 일치하지 않습니다.",
+    "passwordTooShort": "비밀번호는 8자 이상이어야 합니다.",
+    "termsRequired": "필수 약관에 동의해주세요.",
+    "profileCreationFailed": "프로필 생성에 실패했습니다. 다시 시도해주세요.",
+    "emailAlreadyRegistered": "이미 등록된 이메일입니다.",
+    "invalidEmail": "올바른 이메일 형식을 입력해주세요.",
+    "signUpFailed": "회원가입에 실패했습니다. 다시 시도해 주세요.",
+    "kakaoLoginFailed": "카카오 로그인에 실패했습니다. 다시 시도해주세요.",
+    "googleLoginFailed": "구글 로그인에 실패했습니다. 다시 시도해주세요."
+  },
+  "messages": {
+    "signUpSuccess": "회원가입이 완료되었습니다! 이메일을 확인 후 로그인해주세요."
+  },
+  "console": {
+    "kakaoLoginError": "카카오 로그인 오류:",
+    "googleLoginError": "구글 로그인 오류:",
+    "profileError": "프로필 생성/업데이트 오류:",
+    "rollbackFunctionError": "롤백 함수 호출 오류:",
+    "rollbackComplete": "회원가입 롤백 완료",
+    "rollbackError": "롤백 중 오류:",
+    "profileSuccess": "프로필 생성/업데이트 성공",
+    "signUpError": "회원가입 오류:"
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

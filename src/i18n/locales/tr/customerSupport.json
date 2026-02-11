@@ -1,0 +1,119 @@
+{
+  "title": "Müşteri Desteği",
+  "subtitle": "Herhangi bir sorunuz varsa, lütfen istediğiniz zaman bizimle iletişime geçin. Hızlı ve doğru yanıtlar sağlayacağız.",
+  "tabs": {
+    "faq": "SSS",
+    "contact": "İletişim"
+  },
+  "contact": {
+    "title": "İletişim",
+    "description": "Herhangi bir sorunuz veya sorununuz varsa, lütfen aşağıdaki formu doldurun. En kısa sürede yanıt vereceğiz.",
+    "form": {
+      "name": "Ad",
+      "namePlaceholder": "Adınızı girin",
+      "email": "E-posta",
+      "emailPlaceholder": "E-postanızı girin",
+      "inquiryType": "Sorgu Türü",
+      "inquiryTypePlaceholder": "Sorgu türünü seçin",
+      "subject": "Konu",
+      "subjectPlaceholder": "Sorgu konusunu girin",
+      "message": "Mesaj",
+      "messagePlaceholder": "Lütfen sorgunuzu detaylı olarak yazın (maksimum 500 karakter)",
+      "characters": "karakter",
+      "submit": "Sorgu Gönder",
+      "submitting": "Gönderiliyor...",
+      "note": "İş günlerinde sorgunuz 24 saat içinde yanıtlanacaktır."
+    },
+    "categories": {
+      "orderPayment": "Sipariş/Ödeme Sorgusu",
+      "sheetDownload": "Nota/İndirme Sorgusu",
+      "customOrder": "Özel Sipariş Sorgusu",
+      "technical": "Teknik Destek",
+      "other": "Diğer Sorgu"
+    }
+  },
+  "contactInfo": {
+    "title": "İletişim Bilgileri",
+    "subtitle": "Çeşitli yöntemlerle bizimle iletişime geçebilirsiniz",
+    "email": {
+      "title": "E-posta Sorgusu",
+      "address": "copydrum@hanmail.net",
+      "description": "7/24 kabul, 1 gün içinde yanıt"
+    },
+    "kakao": {
+      "title": "KakaoTalk Danışmanlığı",
+      "description": "Gerçek zamanlı sohbet danışmanlığı kullanabilirsiniz.",
+      "button": "KakaoTalk Sohbetini Aç"
+    },
+    "hours": {
+      "title": "Çalışma Saatleri",
+      "weekdays": "Hafta içi 09:00 - 17:00",
+      "closed": "Hafta sonları ve resmi tatillerde kapalı"
+    }
+  },
+  "faq": {
+    "categories": {
+      "orderPayment": {
+        "name": "Sipariş/Ödeme",
+        "items": {
+          "download": {
+            "question": "Satın alma sonrası notayı ne zaman indirebilirim?",
+            "answer": "Ödeme tamamlandıktan hemen sonra Sayfam'dan indirebilirsiniz. Satın alınan notalar istediğiniz zaman yeniden indirilebilir."
+          },
+          "payment": {
+            "question": "Hangi ödeme yöntemleri mevcut?",
+            "answer": "Kredi kartı, banka kartı, banka havalesi ve kolay ödeme yöntemlerini (Kakao Pay) destekliyoruz."
+          },
+          "refund": {
+            "question": "Nasıl iade alabilirim?",
+            "answer": "Dijital ürünlerin doğası gereği, iadeler yalnızca indirme öncesi mevcuttur. İndirme sonrası iade zordur, bu nedenle lütfen dikkatli satın alın."
+          }
+        }
+      },
+      "sheetDownload": {
+        "name": "Nota/İndirme",
+        "items": {
+          "format": {
+            "question": "Nota dosyaları hangi dosya formatındadır?",
+            "answer": "Tüm notalar yüksek kaliteli PDF formatında sağlanmaktadır. Hem yazdırma hem de dijital cihazlar için optimize edilmiştir."
+          },
+          "print": {
+            "question": "İndirilen notaları yazdırabilir miyim?",
+            "answer": "Evet, kişisel pratik kullanımı için yazdırabilirsiniz. Ancak ticari kullanım veya yeniden dağıtım yasaktır."
+          },
+          "difficulty": {
+            "question": "Zorluk seviyeleri nasıl sınıflandırılır?",
+            "answer": "Başlangıç (temel kalıplar), Orta (varyasyon kalıpları dahil) ve İleri (karmaşık teknikler dahil) olarak sınıflandırılır."
+          }
+        }
+      },
+      "customOrder": {
+        "name": "Özel Sipariş",
+        "items": {
+          "what": {
+            "question": "Özel sipariş hizmeti nedir?",
+            "answer": "Profesyonellerin istediğiniz şarkı için davul notası oluşturduğu özelleştirilmiş bir hizmettir."
+          },
+          "duration": {
+            "question": "Üretim ne kadar sürer?",
+            "answer": "Genellikle şarkının karmaşıklığına bağlı olarak 1-7 gün sürer. Kesin program, başvurudan sonra bireysel olarak sağlanacaktır."
+          },
+          "cost": {
+            "question": "Üretim maliyeti nasıl belirlenir?",
+            "answer": "Şarkının uzunluğu, karmaşıklığı ve zorluk seviyesini kapsamlı bir şekilde değerlendirerek teklifler sağlıyoruz."
+          }
+        }
+      }
+    }
+  },
+  "errors": {
+    "fillAllFields": "Lütfen tüm alanları doldurun.",
+    "submitError": "Sorgunuz gönderilirken bir hata oluştu. Lütfen tekrar deneyin."
+  },
+  "messages": {
+    "submitSuccess": "Sorgunuz başarıyla gönderildi. En kısa sürede yanıt vereceğiz."
+  },
+  "console": {
+    "inquiryError": "Müşteri sorgusu kaydetme hatası:"
+  }
+}

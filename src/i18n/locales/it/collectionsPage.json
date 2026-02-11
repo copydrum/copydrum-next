@@ -1,0 +1,21 @@
+{
+  "loading": "Caricamento...",
+  "title": "Collezioni spartiti",
+  "subtitle": "Scopri le nostre collezioni di spartiti per batteria curate per tema.",
+  "filter": {
+    "all": "Tutti"
+  },
+  "empty": {
+    "noCollections": "Nessuna collezione registrata.",
+    "noCollectionsForCategory": "Nessuna collezione disponibile per il genere selezionato."
+  },
+  "collection": {
+    "badge": "Collezione",
+    "discount": "{{percentage}}% di sconto",
+    "free": "Gratuito",
+    "songs": "{{count}} canzoni"
+  },
+  "pagination": {
+    "pageInfo": "{{current}} / {{total}}"
+  }
+}

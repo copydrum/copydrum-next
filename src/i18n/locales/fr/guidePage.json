@@ -1,0 +1,206 @@
+{
+  "hero": {
+    "badge": "De la recherche au téléchargement, tout en un seul endroit",
+    "title": "Guide de recherche et d'achat COPYDRUM",
+    "description": "Trouvez rapidement la partition de batterie souhaitée, achetez raisonnablement,<br />et téléchargez sans problème—toutes les méthodes rassemblées en un seul endroit.<br />Découvrez les conseils essentiels pour une pratique efficace, des nouveaux utilisateurs aux membres existants."
+  },
+  "sections": {
+    "firstPurchase": {
+      "title": "Premier achat en 3 minutes",
+      "description": "Un résumé rapide pour les visiteurs de première fois. Suivez les étapes ci-dessous pour compléter votre premier achat de partition immédiatement.",
+      "steps": {
+        "account": {
+          "title": "1 min – Créer un compte",
+          "detail": "Créez rapidement un compte via l'inscription ou la connexion sociale.",
+          "highlight": "Après la connexion, les menus panier et téléchargement seront activés."
+        },
+        "findSheet": {
+          "title": "1 min – Trouver une partition",
+          "detail": "Entrez le titre de la chanson ou le nom de l'artiste dans la boîte de recherche et sélectionnez la partition que vous aimez."
+        },
+        "payment": {
+          "title": "1 min – Paiement et téléchargement",
+          "detail": "Ajoutez au panier, complétez le paiement et vous pouvez télécharger immédiatement la partition PDF."
+        }
+      },
+      "cta": {
+        "register": "S'inscrire maintenant",
+        "popular": "Voir les partitions populaires"
+      }
+    },
+    "effectiveSearch": {
+      "title": "Rechercher efficacement une partition",
+      "description": "Si les résultats de recherche sont trop nombreux ou si vous ne trouvez pas la chanson souhaitée, essayez d'ajuster votre recherche plus précisément avec les méthodes suivantes.",
+      "steps": {
+        "keyword": {
+          "title": "Combinaison de mots-clés",
+          "detail": "Combiner deux mots ou plus comme titre de chanson + artiste augmente la précision.",
+          "highlight": "Exemple : \"Spring Day batterie\", \"arrangement rock BTS\""
+        },
+        "filter": {
+          "title": "Affiner avec les filtres",
+          "detail": "Sélectionnez le genre, la gamme de prix et le niveau de difficulté sur la page de catégorie pour filtrer uniquement les partitions dont vous avez besoin."
+        },
+        "noResults": {
+          "title": "Gestion des résultats vides",
+          "detail": "Vérifiez l'orthographe et essayez de rechercher à nouveau avec des mots-clés similaires."
+        }
+      },
+      "cta": {
+        "categories": "Voir les catégories",
+        "freeSheets": "Consulter les partitions gratuites"
+      }
+    },
+    "chooseSheet": {
+      "title": "Choisissez la bonne partition pour vous",
+      "description": "Comparez le niveau de difficulté, le style d'arrangement et la composition de la partition pour sélectionner une partition qui correspond à vos objectifs de pratique.",
+      "steps": {
+        "difficulty": {
+          "title": "Vérifier la difficulté",
+          "detail": "Divisé en débutant/intermédiaire/avancé, et vous pouvez vérifier les techniques requises dans la description détaillée.",
+          "highlight": "Débutant : Motifs de base, Intermédiaire : Inclut les fills, Avancé : Met l'accent sur la vitesse et la technique"
+        },
+        "preview": {
+          "title": "Utiliser l'aperçu",
+          "detail": "Vérifiez si c'est le style que vous voulez grâce aux pages d'exemple et aux vidéos de démonstration."
+        },
+        "price": {
+          "title": "Comparer les prix",
+          "detail": "Vous pouvez faire un choix plus raisonnable en comparant les partitions individuelles, les collections et les partitions d'événement ensemble."
+        }
+      },
+      "cta": {
+        "eventSale": "Parcourir les partitions d'événement",
+        "collections": "Voir les collections"
+      }
+    },
+    "purchaseProcess": {
+      "title": "Guide complet du processus d'achat",
+      "description": "Guide étape par étape pour procéder sans erreur du panier à la fin du paiement.",
+      "steps": {
+        "cart": {
+          "title": "Ajouter au panier",
+          "detail": "Cliquez sur le bouton panier sur la page de détails de la partition pour payer plusieurs partitions à la fois.",
+          "highlight": "Le code promotionnel peut être entré en haut du panier"
+        },
+        "paymentInfo": {
+          "title": "Vérifier les informations de paiement",
+          "detail": "Assurez-vous de vérifier les détails de la commande, l'application de réduction et les conditions d'utilisation avant le paiement."
+        },
+        "paymentMethod": {
+          "title": "Sélectionner le mode de paiement",
+          "detail": "Prend en charge la carte de crédit, le virement bancaire, Kakao Pay, etc., et un e-mail de notification sera envoyé après la fin du paiement."
+        }
+      },
+      "cta": {
+        "cart": "Aller au panier"
+      }
+    },
+    "download": {
+      "title": "Télécharger la partition",
+      "description": "Les partitions achetées peuvent être téléchargées immédiatement en PDF et peuvent être re-téléchargées à tout moment.",
+      "steps": {
+        "immediate": {
+          "title": "Téléchargement immédiat",
+          "detail": "Vous pouvez télécharger le fichier PDF immédiatement depuis la page de fin d'achat juste après l'achat."
+        },
+        "redownload": {
+          "title": "Re-télécharger depuis Ma Page",
+          "detail": "Vous pouvez re-télécharger les partitions déjà achetées depuis l'historique d'achat dans Ma Page.",
+          "highlight": "Les partitions achetées peuvent être re-téléchargées sans limite."
+        },
+        "pdf": {
+          "title": "Utiliser le PDF",
+          "detail": "Fourni sous forme de fichiers PDF de haute qualité, vous pouvez pratiquer directement sur tablettes ou ordinateurs portables, ou imprimer dans la taille souhaitée."
+        }
+      },
+      "cta": {
+        "mypage": "Ouvrir Ma Page",
+        "orders": "Vérifier l'historique d'achat"
+      }
+    },
+    "discounts": {
+      "title": "Maximiser les réductions et les avantages",
+      "description": "Créez un environnement de pratique plus riche en utilisant les ventes d'événements spéciaux, les bonus de recharge de solde et les services de commande personnalisée.",
+      "steps": {
+        "event": {
+          "title": "Partitions d'événement",
+          "detail": "Consultez les partitions proposées à 100 won ou à prix réduit pour une durée limitée dans la section promotion spéciale.",
+          "highlight": "Les partitions d'événement sont en quantité/période limitée, alors vérifiez rapidement !"
+        },
+        "cash": {
+          "title": "Recharge de solde",
+          "detail": "Des bonus supplémentaires sont fournis selon le montant de recharge. Si vous prévoyez d'effectuer des achats en gros, rechargez à l'avance."
+        },
+        "customOrder": {
+          "title": "Comparer les commandes personnalisées",
+          "detail": "Si vous ne trouvez pas la partition que vous cherchez, vous pouvez obtenir un arrangement précis via les commandes personnalisées. Choisissez selon votre budget et votre calendrier."
+        }
+      },
+      "cta": {
+        "customOrder": "Postuler pour une commande personnalisée",
+        "customOrders": "Vérifier les commandes en cours"
+      }
+    }
+  },
+  "searchTips": {
+    "title": "Collection de conseils de recherche",
+    "items": {
+      "keyword": {
+        "title": "Mots-clés recommandés",
+        "description": "Rechercher avec titre de chanson + artiste augmente la précision."
+      },
+      "filter": {
+        "title": "Combinaison de filtres",
+        "description": "Définir genre + difficulté + gamme de prix ensemble ne laisse que les partitions dont vous avez besoin."
+      },
+      "noResults": {
+        "title": "Aucun résultat de recherche",
+        "description": "Vérifiez à nouveau l'orthographe ou recherchez avec un genre/artiste similaire puis essayez les commandes personnalisées."
+      }
+    }
+  },
+  "purchaseComparison": {
+    "title": "Comparaison des méthodes d'achat",
+    "regular": {
+      "title": "Achat régulier",
+      "badge": "Recommandé",
+      "items": [
+        "Téléchargement PDF immédiat après paiement",
+        "Économisez avec les partitions d'événement/gratuites",
+        "Large sélection de genres et niveaux de difficulté"
+      ]
+    },
+    "custom": {
+      "title": "Commande personnalisée",
+      "badge": "Personnalisé",
+      "items": [
+        "Produire exactement la chanson et le style d'arrangement que vous voulez",
+        "Période de production 1-7 jours, varie selon la difficulté",
+        "Procéder avec le paiement après confirmation du devis"
+      ]
+    }
+  },
+  "helpNeeded": {
+    "title": "Besoin de plus d'aide ?",
+    "description": "Consultez les questions fréquemment posées dans le service client ou demandez une consultation directe via la demande.",
+    "cta": {
+      "findSheets": "Trouver une partition maintenant",
+      "eventSale": "Voir les partitions en promotion en cours"
+    }
+  },
+  "terms": {
+    "title": "Conditions d'utilisation",
+    "content": [
+      "Tous les clients utilisant les services COPYDRUM doivent respecter le droit d'auteur et utiliser les partitions dans le cadre d'un usage personnel de pratique. La distribution non autorisée, la reproduction ou le partage de partitions achetées est soumis à des sanctions légales, et une licence séparée est requise pour un usage commercial.",
+      "Étant donné que les téléchargements sont fournis immédiatement après le paiement, les remboursements peuvent être limités après la fin du téléchargement en raison de la nature du contenu numérique. Les politiques détaillées liées à l'utilisation du service, y compris les paiements, les commandes personnalisées et les avantages d'événement, sont mises à jour régulièrement via les annonces du service client."
+    ]
+  },
+  "privacy": {
+    "title": "Résumé de la politique de confidentialité",
+    "content": [
+      "Nous collectons des informations personnelles minimales telles que l'e-mail, le nom et les informations de paiement pour l'enregistrement du compte, le traitement des commandes et le support client. Ces informations sont stockées en toute sécurité dans un environnement sécurisé basé sur Supabase. Nous n'utilisons pas les informations personnelles à d'autres fins que la fourniture de services, et nous respectons strictement les procédures de consentement préalable lors du partage avec des tiers.",
+      "Les clients peuvent demander à consulter, modifier ou supprimer leurs informations personnelles via Ma Page ou le Service client, et ces demandes seront traitées sans délai. Pour les demandes concernant la protection des informations personnelles, veuillez nous contacter via la demande 1:1 du Service client ou par e-mail."
+    ]
+  }
+}

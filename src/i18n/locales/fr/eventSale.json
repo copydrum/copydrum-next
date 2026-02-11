@@ -1,0 +1,61 @@
+{
+  "header": {
+    "badge": "Obtenez des partitions de batterie populaires pour seulement 100 won !",
+    "title": "ÉVÉNEMENT Promotion spéciale 100 won",
+    "description": "Ne manquez pas ces partitions de batterie en super promotion à durée limitée. Obtenez des chansons populaires pour seulement 100 won et commencez à jouer dès aujourd'hui !"
+  },
+  "countdownNotice": "Vérifiez le compte à rebours en temps réel !",
+  "loading": "Chargement des informations sur l'événement...",
+  "countdown": {
+    "startingSoon": "Bientôt disponible",
+    "startsIn": "Démarre dans",
+    "timeLeft": "⏰ Temps restant",
+    "dayUnit": "j",
+    "starts": "Démarre"
+  },
+  "buttons": {
+    "only100Won": "Seulement 100 won !",
+    "addToFavorites": "Ajouter aux favoris",
+    "removeFromFavorites": "Retirer des favoris",
+    "viewDetails": "Voir les détails",
+    "buyNow": "Acheter maintenant",
+    "processing": "Traitement en cours...",
+    "saleEnded": "Promotion terminée"
+  },
+  "labels": {
+    "eventSheet": "Partition d'événement",
+    "saleEnded": "Promotion terminée",
+    "only100WonBadge": "Seulement 100 won !",
+    "100Won": "100 won",
+    "discount": "De réduction",
+    "startingSoon": "Bientôt disponible"
+  },
+  "sections": {
+    "ongoing": {
+      "title": "Promotion spéciale 100 won en cours",
+      "description": "Partitions d'événement disponibles à l'achat maintenant.",
+      "activeCount": "{{count}} Actif",
+      "noEvents": "Il n'y a pas d'événements en cours. Consultez les événements programmés ci-dessous !"
+    },
+    "scheduled": {
+      "title": "Événements programmés",
+      "description": "Consultez les événements à venir et préparez-vous pour les notifications.",
+      "scheduledCount": "{{count}} Programmé"
+    },
+    "ended": {
+      "title": "Événements terminés"
+    }
+  },
+  "messages": {
+    "loginRequired": "Connexion requise.",
+    "loginRequiredConfirm": "Connexion requise. Aller à la page de connexion ?",
+    "checkDownloadPage": "Vérifiez votre partition dans la page de téléchargement.",
+    "paymentError": "Une erreur s'est produite lors du paiement.",
+    "favoriteError": "Une erreur s'est produite lors du traitement de votre favori. Veuillez réessayer plus tard."
+  },
+  "console": {
+    "loadEventsError": "Erreur de chargement de la liste des partitions en promotion :",
+    "loadFavoritesError": "Erreur de chargement de la liste des favoris :",
+    "toggleFavoriteError": "Erreur de traitement du basculement des favoris :"
+  }
+}

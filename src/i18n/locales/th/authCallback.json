@@ -1,0 +1,14 @@
+{
+  "loading": "กำลังประมวลผลการเข้าสู่ระบบ...",
+  "errors": {
+    "oauthError": "เข้าสู่ระบบล้มเหลว",
+    "callbackError": "เกิดข้อผิดพลาดขณะประมวลผลการเข้าสู่ระบบ กรุณาลองอีกครั้ง",
+    "profileCreationError": "ข้อผิดพลาดในการสร้างโปรไฟล์"
+  },
+  "console": {
+    "oauthError": "ข้อผิดพลาด OAuth:",
+    "callbackError": "ข้อผิดพลาดในการประมวลผล callback การยืนยันตัวตน:",
+    "profileCreationError": "ข้อผิดพลาดในการสร้างโปรไฟล์:"
+  },
+  "defaultUserName": "ผู้ใช้"
+}

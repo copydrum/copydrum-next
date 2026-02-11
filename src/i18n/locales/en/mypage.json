@@ -1,0 +1,288 @@
+{
+  "title": "My Page",
+  "subtitle": "View all your activities from sheet music purchases to custom orders at a glance.",
+  "tabs": {
+    "profile": {
+      "label": "Profile Management",
+      "description": "Manage your personal information and contact details."
+    },
+    "purchases": {
+      "label": "Purchase History",
+      "description": "Check your purchased sheet music order information."
+    },
+    "downloads": {
+      "label": "Download Management",
+      "description": "Download and preview your purchased sheet music."
+    },
+    "favorites": {
+      "label": "Favorite Sheets",
+      "description": "View your favorite sheet music."
+    },
+    "cash": {
+      "label": "Point History",
+      "description": "Check your point balance and usage history."
+    },
+    "inquiries": {
+      "label": "1:1 Inquiry",
+      "description": "Check your inquiries and responses."
+    },
+    "customOrders": {
+      "label": "Custom Orders",
+      "description": "Check the status of your custom order requests."
+    }
+  },
+  "stats": {
+    "purchasedSheets": "Purchased Sheets",
+    "availableDownloads": "Available Downloads",
+    "favoriteSheets": "Favorite Sheets",
+    "inquiries": "1:1 Inquiries",
+    "customOrders": "Custom Orders"
+  },
+  "profile": {
+    "title": "Profile Management",
+    "memberInfo": "Member Information",
+    "nameNotSet": "Name not set",
+    "joinedOn": "Joined on",
+    "cashBalance": "Point Balance",
+    "cashBalanceDescription": "Available for your next sheet music purchase.",
+    "chargeCash": "Charge Points",
+    "email": "Email",
+    "name": "Name",
+    "namePlaceholder": "Enter your name",
+    "phoneNumber": "Phone Number",
+    "phonePlaceholder": "Enter your phone number",
+    "joinDate": "Join Date",
+    "saving": "Saving...",
+    "updateProfile": "Update Profile"
+  },
+  "purchases": {
+    "title": "Purchase History",
+    "description": "Sorted by most recent orders.",
+    "browseMore": "Browse More Sheets",
+    "noPurchases": "No purchased sheet music yet.",
+    "orderNumber": "Order Number",
+    "total": "Total",
+    "downloadAllInOrder": "Download All in This Order",
+    "downloading": "Downloading...",
+    "selectAll": "Select All",
+    "deselectAll": "Deselect All",
+    "selected": "Selected",
+    "downloadSelected": "Download Selected",
+    "download": "Download",
+    "viewDetails": "View Details",
+    "categoryNotSet": "Category not set",
+    "deletedSheet": "Deleted sheet"
+  },
+  "downloads": {
+    "title": "Download Management",
+    "description": "You can re-download purchased sheet music anytime.",
+    "totalItems": "Total {{count}} items",
+    "selectedItems": "Selected {{count}} items",
+    "selectAll": "Select All",
+    "deselectAll": "Deselect All",
+    "downloadSelected": "Download Selected",
+    "downloadAll": "Download All",
+    "downloading": "Downloading...",
+    "noDownloads": "No downloadable sheet music available.",
+    "purchaseDate": "Purchase Date",
+    "preview": "Preview",
+    "downloadUnavailable": "Download Unavailable",
+    "goToPurchaseHistory": "Go to Purchase History"
+  },
+  "favorites": {
+    "title": "Favorite Sheets",
+    "description": "Quickly find your favorite sheet music.",
+    "totalCount": "Total {{count}} items",
+    "noFavorites": "No favorite sheets yet.",
+    "addFavorites": "Add your favorite sheet music!",
+    "viewDetails": "View Details",
+    "inCart": "In Cart",
+    "cart": "Add to Cart",
+    "removeFavorite": "Remove Favorite",
+    "deletedSheet": "Deleted sheet"
+  },
+  "inquiries": {
+    "title": "1:1 Inquiry",
+    "description": "Submit an inquiry and receive admin responses directly in My Page.",
+    "name": "Name",
+    "namePlaceholder": "Enter your name",
+    "email": "Email",
+    "emailPlaceholder": "Enter your contact email",
+    "category": "Inquiry Type",
+    "categoryPlaceholder": "Select inquiry type",
+    "categories": {
+      "orderPayment": "Order/Payment Inquiry",
+      "sheetDownload": "Sheet Music/Download Inquiry",
+      "customOrder": "Custom Order Inquiry",
+      "technical": "Technical Support",
+      "other": "Other Inquiry"
+    },
+    "subject": "Subject",
+    "subjectPlaceholder": "Enter inquiry subject",
+    "message": "Message",
+    "messagePlaceholder": "Please write your inquiry in detail (max 500 characters)",
+    "characters": "characters",
+    "submitting": "Submitting...",
+    "submit": "Submit Inquiry",
+    "history": {
+      "title": "My Inquiry History",
+      "description": "Check your submitted inquiries and admin responses.",
+      "total": "Total {{count}} inquiries",
+      "loading": "Loading inquiry history...",
+      "noInquiries": "No inquiries submitted yet.",
+      "noInquiriesDescription": "If you have any questions, please submit an inquiry using the form above.",
+      "category": "Inquiry",
+      "received": "Received",
+      "adminReply": "Admin Reply",
+      "replied": "Replied",
+      "preparing": "Response is being prepared. We will contact you after review."
+    }
+  },
+  "cash": {
+    "title": "Point History",
+    "description": "Check your point balance and usage history.",
+    "chargeCash": "Charge Points",
+    "availableCash": "Available Points",
+    "loadingHistory": "Loading point history...",
+    "noHistory": "No point history to display.",
+    "noHistoryDescription": "Point transactions will be recorded here when you charge or use points.",
+    "types": {
+      "charge": "Point Charge",
+      "use": "Point Use",
+      "adminAdd": "Admin Addition",
+      "adminDeduct": "Admin Deduction",
+      "record": "Record"
+    },
+    "bonus": "Bonus",
+    "balance": "Balance",
+    "sheet": "Sheet",
+    "noDescription": "No description recorded."
+  },
+  "customOrders": {
+    "title": "Custom Order History",
+    "description": "Check the status of your custom order requests.",
+    "newOrderRequest": "New Order Request",
+    "noOrders": "No custom order history.",
+    "serviceDescription": "Use our custom order service to create special sheet music.",
+    "requestDate": "Request Date",
+    "lastUpdate": "Last Update",
+    "viewDetails": "View Details",
+    "quoteConfirm": "Quote Confirm",
+    "workCompleted": "Work Completed",
+    "quotePending": "Quote Pending"
+  },
+  "status": {
+    "order": {
+      "completed": "Completed",
+      "pending": "Pending",
+      "cancelled": "Cancelled",
+      "refunded": "Refunded",
+      "undetermined": "Undetermined"
+    },
+    "customOrder": {
+      "pending": "Quote Pending",
+      "quoted": "Payment Pending",
+      "paymentConfirmed": "Payment Confirmed",
+      "inProgress": "In Progress",
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "undetermined": "Undetermined"
+    },
+    "inquiry": {
+      "pending": "Awaiting Response",
+      "answered": "Answered",
+      "processing": "Processing"
+    }
+  },
+  "cashCharge": {
+    "title": "Cash Charge",
+    "currentCash": "Current Cash Balance",
+    "paymentAmount": "Payment Amount",
+    "bankTransferInfo": {
+      "title": "Bank Transfer Information",
+      "bank": "Bank",
+      "accountNumber": "Account Number",
+      "accountHolder": "Account Holder",
+      "amount": "Deposit Amount",
+      "depositorName": "Depositor Name"
+    },
+    "depositorName": "Depositor Name",
+    "depositorNamePlaceholder": "Enter depositor name",
+    "depositorNameHint": "* If the depositor name differs from your member name, please enter the depositor name.",
+    "bankTransferNotice": {
+      "title": "Bank Transfer Notice",
+      "line1": "• Cash will be charged manually by admin after deposit confirmation.",
+      "line2": "• Confirmation may be delayed if depositor name does not match.",
+      "line3": "• Deposit confirmation may take 1-2 business days."
+    },
+    "back": "Back",
+    "confirm": "Confirm",
+    "processing": "Processing...",
+    "paymentMethod": "Payment Method",
+    "paymentAmountTitle": "Payment Amount",
+    "agreement": "I have reviewed the payment details and agree to the terms.",
+    "next": "Next",
+    "bankTransferGuide": {
+      "title": "Bank Transfer Guide",
+      "bank": "Bank",
+      "accountNumber": "Account Number",
+      "accountHolder": "Account Holder",
+      "amount": "Deposit Amount"
+    }
+  },
+  "guest": {
+    "title": "Login Required",
+    "description": "Please log in to use My Page features such as purchase history, downloads, and favorite sheets.",
+    "login": "Go to Login",
+    "signup": "Sign Up"
+  },
+  "loading": {
+    "message": "Loading My Page data..."
+  },
+  "errors": {
+    "loginRequired": "Login is required.",
+    "agreementRequired": "Please agree to the payment terms.",
+    "amountNotFound": "Selected charge amount could not be found.",
+    "paymentMethodNotReady": "This payment method is currently being prepared.",
+    "paymentWindowOpen": "Payment window will open. Please complete the payment.",
+    "paymentError": "An error occurred during payment processing.",
+    "depositorNameRequired": "Please enter the depositor name.",
+    "orderReceived": "Order has been received.\\nCash will be charged after deposit confirmation by admin.",
+    "allFieldsRequired": "Please fill in all fields.",
+    "inquirySubmitted": "Inquiry has been submitted. We will respond as soon as possible.",
+    "inquiryError": "An error occurred while sending the inquiry. Please try again.",
+    "profileUpdated": "Profile information has been updated.",
+    "profileUpdateError": "Failed to update profile. Please try again later.",
+    "downloadRestricted": "This order has been refunded or download is restricted.",
+    "selectDownloadItems": "Please select sheet music to download.",
+    "noDownloadableItems": "No downloadable sheet music available.",
+    "downloadRestrictedMultiple": "Refunded or restricted sheet music cannot be downloaded.",
+    "loginRequiredForDownload": "Login is required. Please log in again.",
+    "downloadFailed": "Failed to download {{count}} files. Please try again later.",
+    "downloadFailedSingle": "File download failed. Please try again later.",
+    "previewNotFound": "Preview file not found.",
+    "favoriteRemoveFailed": "Failed to remove from favorites.",
+    "sheetInfoNotFound": "Downloadable sheet music information not found.",
+    "downloadLinkNotFound": "Download link not found. Please contact admin."
+  },
+  "console": {
+    "cashHistoryError": "Cash history load error:",
+    "inquiryHistoryError": "Inquiry history load error:",
+    "profileLoadError": "Profile load error:",
+    "orderHistoryError": "Order history load error:",
+    "favoritesLoadError": "Favorites load error:",
+    "customOrderHistoryError": "Custom order history load error:",
+    "initError": "My Page initialization error:",
+    "cashChargeError": "Cash charge error:",
+    "inquirySubmitError": "Inquiry submission error:",
+    "profileUpdateError": "Profile update error:",
+    "favoriteRemoveError": "Favorite removal error:"
+  },
+  "paymentMethods": {
+    "creditCard": "Credit Card",
+    "kakaoPay": "Kakao Pay",
+    "bankTransfer": "Bank Transfer",
+    "preparing": "Preparing"
+  },
+  "cart": "Cart"
+}

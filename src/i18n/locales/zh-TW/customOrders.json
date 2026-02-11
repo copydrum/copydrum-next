@@ -1,0 +1,71 @@
+{
+  "title": "客製訂單記錄",
+  "nav": {
+    "home": "首頁",
+    "categories": "樂譜類別",
+    "customOrder": "客製訂單",
+    "customOrderHistory": "客製訂單記錄"
+  },
+  "loading": "正在載入...",
+  "empty": {
+    "message": "沒有客製訂單記錄。",
+    "button": "請求客製訂單"
+  },
+  "status": {
+    "pending": {
+      "label": "報價中",
+      "message": "我們正在審查您的請求並準備客製報價。"
+    },
+    "quoted": {
+      "label": "待付款",
+      "message": "報價已到達。請為報價金額存入款項以開始製作。"
+    },
+    "payment_confirmed": {
+      "label": "付款已確認",
+      "message": "付款已確認。我們正在根據製作順序進行準備。"
+    },
+    "in_progress": {
+      "label": "進行中",
+      "message": "我們的專業人員正在製作樂譜。完成時我們會通知您。"
+    },
+    "completed": {
+      "label": "已完成",
+      "message": "樂譜製作已完成。請下載下方的 PDF 檔案。"
+    },
+    "cancelled": {
+      "label": "已取消"
+    }
+  },
+  "order": {
+    "artist": "藝人",
+    "applicationDate": "申請日期",
+    "estimatedPrice": "預估價格",
+    "requirements": "需求",
+    "noRequirements": "沒有其他需求。",
+    "referenceVideo": "參考影片",
+    "adminReply": "管理員回覆",
+    "replyDate": "回覆日期",
+    "completedSheet": "已完成的樂譜",
+    "completedSheetFilename": "已完成的樂譜.pdf",
+    "sheetMusicSuffix": "樂譜",
+    "download": "下載",
+    "downloadCount": "下載",
+    "times": "次",
+    "expiryDate": "到期日期",
+    "recentUpdate": "最近更新",
+    "viewDetails": "查看詳情",
+    "quote": "報價",
+    "checkQuote": "查看報價",
+    "workCompleted": "工作已完成"
+  },
+  "alerts": {
+    "downloadLimitExceeded": "您已用完所有下載次數。請聯絡客戶服務。",
+    "downloadExpired": "下載期限已過期。請聯絡客戶服務。",
+    "downloadSuccess": "樂譜下載完成。",
+    "downloadFailed": "下載失敗。請再試一次。"
+  },
+  "warnings": {
+    "downloadLimitExceeded": "下載次數已超過。如果您需要額外下載，請聯絡客戶服務。",
+    "downloadPeriodExpired": "下載期限已過期。請聯絡客戶服務。"
+  }
+}

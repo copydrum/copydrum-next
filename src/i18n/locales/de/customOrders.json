@@ -1,0 +1,71 @@
+{
+  "title": "Individuelle Bestellhistorie",
+  "nav": {
+    "home": "Startseite",
+    "categories": "Notenblatt-Kategorien",
+    "customOrder": "Individuelle Bestellung",
+    "customOrderHistory": "Individuelle Bestellhistorie"
+  },
+  "loading": "Wird geladen...",
+  "empty": {
+    "message": "Keine individuelle Bestellhistorie.",
+    "button": "Individuelle Bestellung anfordern"
+  },
+  "status": {
+    "pending": {
+      "label": "Angebotserstellung",
+      "message": "Wir überprüfen Ihre Anfrage und bereiten ein individuelles Angebot vor."
+    },
+    "quoted": {
+      "label": "Zahlung ausstehend",
+      "message": "Angebot ist eingegangen. Bitte zahlen Sie den angebotenen Betrag ein, um die Produktion zu starten."
+    },
+    "payment_confirmed": {
+      "label": "Zahlung bestätigt",
+      "message": "Zahlung wurde bestätigt. Wir bereiten gemäß der Produktionsreihenfolge vor."
+    },
+    "in_progress": {
+      "label": "In Bearbeitung",
+      "message": "Unsere Profis erstellen die Notenblätter. Wir benachrichtigen Sie, wenn es abgeschlossen ist."
+    },
+    "completed": {
+      "label": "Abgeschlossen",
+      "message": "Die Notenblatterstellung ist abgeschlossen. Bitte laden Sie die PDF-Datei unten herunter."
+    },
+    "cancelled": {
+      "label": "Storniert"
+    }
+  },
+  "order": {
+    "artist": "Künstler",
+    "applicationDate": "Antragsdatum",
+    "estimatedPrice": "Geschätzter Preis",
+    "requirements": "Anforderungen",
+    "noRequirements": "Keine zusätzlichen Anforderungen.",
+    "referenceVideo": "Referenzvideo",
+    "adminReply": "Administrator-Antwort",
+    "replyDate": "Antwortdatum",
+    "completedSheet": "Fertiges Notenblatt",
+    "completedSheetFilename": "Fertiges Notenblatt.pdf",
+    "sheetMusicSuffix": "Notenblatt",
+    "download": "Herunterladen",
+    "downloadCount": "Herunterladen",
+    "times": "mal",
+    "expiryDate": "Ablaufdatum",
+    "recentUpdate": "Letzte Aktualisierung",
+    "viewDetails": "Details anzeigen",
+    "quote": "Angebot",
+    "checkQuote": "Angebot überprüfen",
+    "workCompleted": "Arbeit abgeschlossen"
+  },
+  "alerts": {
+    "downloadLimitExceeded": "Sie haben alle Download-Versuche verwendet. Bitte kontaktieren Sie den Kundenservice.",
+    "downloadExpired": "Die Download-Periode ist abgelaufen. Bitte kontaktieren Sie den Kundenservice.",
+    "downloadSuccess": "Notenblatt-Download abgeschlossen.",
+    "downloadFailed": "Download fehlgeschlagen. Bitte versuchen Sie es erneut."
+  },
+  "warnings": {
+    "downloadLimitExceeded": "Download-Limit überschritten. Bitte kontaktieren Sie den Kundenservice, wenn Sie zusätzliche Downloads benötigen.",
+    "downloadPeriodExpired": "Die Download-Periode ist abgelaufen. Bitte kontaktieren Sie den Kundenservice."
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "title": "Reembolso e Entrega (Política de Produto Digital)",
+  "sections": {
+    "productType": {
+      "title": "1. Tipo de Produto",
+      "description": "Todos os produtos vendidos no CopyDrum são conteúdos digitais (partituras de bateria em PDF). Estes são produtos eletrônicos não físicos disponíveis para download imediato após o pagamento."
+    },
+    "deliveryMethod": {
+      "title": "2. Método de Entrega",
+      "description1": "Após o pagamento bem-sucedido, os arquivos estão disponíveis para download instantâneo em",
+      "description2": "Minha Página > Histórico de Pedidos",
+      "description3": "Se o download não funcionar, fornecemos links de download reemitidos ou reenviamos os arquivos manualmente mediante solicitação."
+    },
+    "refundPolicy": {
+      "title": "3. Política de Reembolso",
+      "description": "Devido à natureza dos produtos digitais, reembolsos não estão disponíveis uma vez que o arquivo foi baixado ou acessado.",
+      "exceptionNote": "No entanto, oferecemos reembolsos ou trocas nos seguintes casos excepcionais:",
+      "exceptions": {
+        "exception1": "Dentro de 7 dias após a compra se o arquivo não foi baixado",
+        "exception2": "Arquivo incorreto fornecido ou erros técnicos que tornam o arquivo inutilizável",
+        "exception3": "Pagamentos duplicados para o mesmo produto"
+      }
+    },
+    "customerProtection": {
+      "title": "4. Proteção ao Cliente",
+      "description": "Nos esforçamos para resolver problemas imediatamente:",
+      "protections": {
+        "protection1": "Substituição gratuita para erros de arquivo",
+        "protection2": "Reemissão de links de download se ocorrerem problemas de acesso",
+        "protection3": "Reembolso imediato para transações duplicadas"
+      },
+      "contact": "Atendimento ao Cliente:",
+      "email": "support@copydrum.com"
+    }
+  }
+}

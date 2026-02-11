@@ -1,0 +1,119 @@
+{
+  "title": "Atendimento ao Cliente",
+  "subtitle": "Se você tiver alguma dúvida, entre em contato conosco a qualquer momento. Forneceremos respostas rápidas e precisas.",
+  "tabs": {
+    "faq": "FAQ",
+    "contact": "Entre em Contato"
+  },
+  "contact": {
+    "title": "Entre em Contato",
+    "description": "Se você tiver alguma dúvida ou problema, preencha o formulário abaixo. Responderemos o mais rápido possível.",
+    "form": {
+      "name": "Nome",
+      "namePlaceholder": "Digite seu nome",
+      "email": "E-mail",
+      "emailPlaceholder": "Digite seu e-mail",
+      "inquiryType": "Tipo de Solicitação",
+      "inquiryTypePlaceholder": "Selecione o tipo de solicitação",
+      "subject": "Assunto",
+      "subjectPlaceholder": "Digite o assunto da solicitação",
+      "message": "Mensagem",
+      "messagePlaceholder": "Por favor, escreva sua solicitação em detalhes (máx. 500 caracteres)",
+      "characters": "caracteres",
+      "submit": "Enviar Solicitação",
+      "submitting": "Enviando...",
+      "note": "Responderemos sua solicitação em até 24 horas em dias úteis."
+    },
+    "categories": {
+      "orderPayment": "Solicitação de Pedido/Pagamento",
+      "sheetDownload": "Solicitação de Partitura/Download",
+      "customOrder": "Solicitação de Pedido Personalizado",
+      "technical": "Suporte Técnico",
+      "other": "Outra Solicitação"
+    }
+  },
+  "contactInfo": {
+    "title": "Informações de Contato",
+    "subtitle": "Você pode entrar em contato conosco através de vários métodos",
+    "email": {
+      "title": "Solicitação por E-mail",
+      "address": "copydrum@hanmail.net",
+      "description": "Recepção 24/7, resposta em até 1 dia"
+    },
+    "kakao": {
+      "title": "Consulta KakaoTalk",
+      "description": "Você pode usar a consulta de chat em tempo real.",
+      "button": "Abrir Chat KakaoTalk"
+    },
+    "hours": {
+      "title": "Horário de Funcionamento",
+      "weekdays": "Dias úteis 09:00 - 17:00",
+      "closed": "Fechado nos fins de semana e feriados"
+    }
+  },
+  "faq": {
+    "categories": {
+      "orderPayment": {
+        "name": "Pedido/Pagamento",
+        "items": {
+          "download": {
+            "question": "Quando posso baixar a partitura após a compra?",
+            "answer": "Você pode baixar imediatamente após o pagamento ser concluído na Minha Página. As partituras compradas podem ser baixadas novamente a qualquer momento."
+          },
+          "payment": {
+            "question": "Quais métodos de pagamento estão disponíveis?",
+            "answer": "Suportamos cartões de crédito, cartões de débito, transferências bancárias e métodos de pagamento convenientes (Kakao Pay)."
+          },
+          "refund": {
+            "question": "Como posso obter um reembolso?",
+            "answer": "Devido à natureza dos produtos digitais, os reembolsos estão disponíveis apenas antes do download. Reembolsos são difíceis após o download, então por favor, compre com cuidado."
+          }
+        }
+      },
+      "sheetDownload": {
+        "name": "Partitura/Download",
+        "items": {
+          "format": {
+            "question": "Qual é o formato de arquivo das partituras?",
+            "answer": "Todas as partituras são fornecidas em formato PDF de alta qualidade. Otimizado para impressão e dispositivos digitais."
+          },
+          "print": {
+            "question": "Posso imprimir as partituras baixadas?",
+            "answer": "Sim, você pode imprimir para uso pessoal de prática. No entanto, uso comercial ou redistribuição é proibido."
+          },
+          "difficulty": {
+            "question": "Como os níveis de dificuldade são classificados?",
+            "answer": "São classificados como Iniciante (padrões básicos), Intermediário (incluindo padrões de variação) e Avançado (incluindo técnicas complexas)."
+          }
+        }
+      },
+      "customOrder": {
+        "name": "Pedido Personalizado",
+        "items": {
+          "what": {
+            "question": "O que é o serviço de pedido personalizado?",
+            "answer": "É um serviço personalizado onde profissionais criam partituras de bateria para a música desejada."
+          },
+          "duration": {
+            "question": "Quanto tempo leva a produção?",
+            "answer": "Geralmente leva de 1 a 7 dias dependendo da complexidade da música. O cronograma exato será fornecido individualmente após a solicitação."
+          },
+          "cost": {
+            "question": "Como o custo de produção é determinado?",
+            "answer": "Fornecemos orçamentos considerando abrangentemente a duração, complexidade e nível de dificuldade da música."
+          }
+        }
+      }
+    }
+  },
+  "errors": {
+    "fillAllFields": "Por favor, preencha todos os campos.",
+    "submitError": "Ocorreu um erro ao enviar sua solicitação. Por favor, tente novamente."
+  },
+  "messages": {
+    "submitSuccess": "Sua solicitação foi enviada com sucesso. Responderemos o mais rápido possível."
+  },
+  "console": {
+    "inquiryError": "Falha ao salvar solicitação do cliente:"
+  }
+}

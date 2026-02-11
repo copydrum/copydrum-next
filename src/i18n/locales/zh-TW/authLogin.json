@@ -1,0 +1,45 @@
+{
+  "title": "登入",
+  "noAccount": "沒有帳號？",
+  "signUp": "註冊",
+  "notice": "🔔 現有會員注意：由於網站更新，首次登入需要重設密碼。",
+  "form": {
+    "email": "電子郵件地址",
+    "emailPlaceholder": "輸入您的電子郵件",
+    "password": "密碼",
+    "passwordPlaceholder": "輸入您的密碼",
+    "rememberMe": "記住我",
+    "forgotPassword": "忘記密碼？",
+    "submit": "登入",
+    "submitting": "正在登入..."
+  },
+  "divider": "或",
+  "social": {
+    "google": "Google",
+    "kakao": "Kakao"
+  },
+  "errors": {
+    "kakaoLoginFailed": "Kakao 登入失敗。請再試一次。",
+    "googleLoginFailed": "Google 登入失敗。請再試一次。",
+    "invalidCredentials": "電子郵件或密碼不正確。",
+    "emailNotConfirmed": "需要電子郵件驗證。請檢查您的電子郵件。",
+    "loginFailed": "登入失敗。請再試一次。",
+    "resetPasswordEmailError": "發送密碼重設電子郵件時發生錯誤。請再試一次。",
+    "profileError": "個人資料查詢錯誤",
+    "profileCreationError": "個人資料建立錯誤",
+    "migrationCheckError": "檢查遷移使用者時發生錯誤"
+  },
+  "messages": {
+    "passwordResetEmailSent": "您是現有會員！我們已發送密碼重設電子郵件。請檢查您的收件匣。"
+  },
+  "console": {
+    "kakaoLoginError": "Kakao 登入錯誤：",
+    "googleLoginError": "Google 登入錯誤：",
+    "profileLookupError": "個人資料查詢錯誤：",
+    "profileCreationError": "個人資料建立錯誤：",
+    "resetPasswordEmailError": "密碼重設電子郵件發送錯誤：",
+    "migrationCheckError": "遷移使用者檢查錯誤：",
+    "loginError": "登入錯誤："
+  },
+  "defaultUserName": "使用者"
+}

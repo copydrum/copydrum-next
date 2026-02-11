@@ -1,0 +1,79 @@
+{
+  "badge": "免费鼓课程",
+  "title": "免费鼓课程乐谱",
+  "description": "免费探索鼓课程类别中的所有乐谱！通过YouTube课程练习，更快地提高您的技能。从各种学习主题中选择，如鼓技巧、基本功、鼓独奏等。",
+  "features": {
+    "freeDownload": "免费完整下载",
+    "categoryLearning": "基于类别的学习",
+    "youtubeLesson": "YouTube课程链接"
+  },
+  "categories": {
+    "all": "全部",
+    "drumTechnique": "鼓技巧",
+    "rudiment": "基本功",
+    "drumSolo": "鼓独奏",
+    "beginnerBasics": "初级/基础",
+    "rhythmPattern": "节奏模式",
+    "fillIn": "填充",
+    "drumLesson": "鼓课程",
+    "categoryPending": "类别待定"
+  },
+  "search": {
+    "placeholder": "按标题、艺术家或标签搜索"
+  },
+  "sort": {
+    "label": "排序",
+    "latest": "最新",
+    "title": "标题",
+    "difficulty": "难度"
+  },
+  "difficulty": {
+    "beginner": "初级",
+    "intermediate": "中级",
+    "advanced": "高级",
+    "notAvailable": "难度不可用"
+  },
+  "loading": "正在加载免费鼓课程乐谱...",
+  "empty": {
+    "title": "没有符合您条件的免费乐谱。",
+    "description": "尝试选择不同的类别或更改您的搜索词。"
+  },
+  "actions": {
+    "viewFreeSheet": "查看免费乐谱",
+    "viewYoutubeLesson": "查看YouTube课程",
+    "goToDetail": "前往详情页面",
+    "closeDetail": "关闭免费乐谱详情"
+  },
+  "errors": {
+    "lessonCategoryLoadError": "加载鼓课程类别失败。请稍后重试。",
+    "lessonCategoryNotFound": "鼓课程类别不存在。请联系管理员。",
+    "sheetsLoadError": "加载免费鼓课程乐谱失败。请稍后重试。",
+    "generalError": "加载免费鼓课程乐谱时发生错误。",
+    "loginRequired": "需要登录。",
+    "favoriteError": "处理收藏时发生错误。请稍后重试。",
+    "pdfNotReady": "PDF链接未准备好。",
+    "youtubeNotAvailable": "未注册YouTube视频。"
+  },
+  "mobile": {
+    "freeSheet": "免费乐谱",
+    "upload": "上传",
+    "pages": "页",
+    "youtubeLessonIncluded": "包含YouTube课程",
+    "freeDownload": "免费下载",
+    "practiceWithPdf": "使用PDF乐谱练习。",
+    "favorite": "收藏",
+    "unfavorite": "取消收藏"
+  },
+  "console": {
+    "lessonCategoryError": "鼓课程类别查找错误：",
+    "primarySheetsError": "主要鼓课程乐谱加载错误：",
+    "relationsError": "鼓课程类别关系加载错误：",
+    "additionalSheetsError": "附加鼓课程乐谱加载错误：",
+    "extraCategoriesError": "额外类别加载错误：",
+    "generalError": "免费乐谱页面处理错误：",
+    "favoritesLoadError": "收藏加载错误：",
+    "favoriteToggleError": "收藏切换错误：",
+    "userLoadError": "加载用户信息失败：",
+    "youtubeUrlParseError": "YouTube URL解析失败："
+  }
+}

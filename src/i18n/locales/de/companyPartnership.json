@@ -1,0 +1,25 @@
+{
+  "title": "Partnerschaftsinformationen",
+  "description": "COPYDRUM liefert durch Partnerschaften die besten Inhalte an mehr Schlagzeuger.",
+  "benefits": {
+    "title": "Partnerschaftsvorteile",
+    "exclusiveLicense": {
+      "title": "Exklusive Notenblatt-Lizenz",
+      "description": "Wir bieten maßgeschneiderte Lizenzen für die Verwendung in verschiedenen Umgebungen wie Aufführungen, Unterricht und Verkauf."
+    },
+    "premiumSupport": {
+      "title": "Premium-Support",
+      "description": "Wir bieten dedizierten Support für Partner, einschließlich neuer Notenblatt-Anfragen, individueller Transkriptionen und gemeinsamen Marketings."
+    },
+    "sharedGrowth": {
+      "title": "Gemeinsames Wachstum",
+      "description": "Wir erweitern die Schlagzeuger-Community gemeinsam durch gemeinsame Projekte und Veranstaltungen."
+    }
+  },
+  "inquiry": {
+    "title": "Partnerschaftsanfrage",
+    "description": "Sind Sie bereit, durch eine Partnerschaft mit COPYDRUM gemeinsam zu wachsen? Bitte kontaktieren Sie uns mit den unten stehenden Informationen.",
+    "emailLabel": "E-Mail",
+    "note": "Bitte geben Sie in Ihrer Anfrage detaillierte Informationen an, damit unser Team schnell antworten kann."
+  }
+}

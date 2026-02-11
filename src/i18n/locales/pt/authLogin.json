@@ -1,0 +1,45 @@
+{
+  "title": "Login",
+  "noAccount": "Não tem uma conta?",
+  "signUp": "Cadastrar",
+  "notice": "🔔 Para membros existentes: A redefinição de senha é necessária no primeiro login devido à renovação do site.",
+  "form": {
+    "email": "Endereço de E-mail",
+    "emailPlaceholder": "Digite seu e-mail",
+    "password": "Senha",
+    "passwordPlaceholder": "Digite sua senha",
+    "rememberMe": "Lembrar-me",
+    "forgotPassword": "Esqueceu sua senha?",
+    "submit": "Entrar",
+    "submitting": "Entrando..."
+  },
+  "divider": "ou",
+  "social": {
+    "google": "Google",
+    "kakao": "Kakao"
+  },
+  "errors": {
+    "kakaoLoginFailed": "Falha no login do Kakao. Por favor, tente novamente.",
+    "googleLoginFailed": "Falha no login do Google. Por favor, tente novamente.",
+    "invalidCredentials": "E-mail ou senha incorretos.",
+    "emailNotConfirmed": "Verificação de e-mail necessária. Por favor, verifique seu e-mail.",
+    "loginFailed": "Falha no login. Por favor, tente novamente.",
+    "resetPasswordEmailError": "Ocorreu um erro ao enviar o e-mail de redefinição de senha. Por favor, tente novamente.",
+    "profileError": "Erro na busca do perfil",
+    "profileCreationError": "Erro na criação do perfil",
+    "migrationCheckError": "Erro ao verificar usuário de migração"
+  },
+  "messages": {
+    "passwordResetEmailSent": "Você é um membro existente! Enviamos um e-mail de redefinição de senha. Por favor, verifique sua caixa de entrada."
+  },
+  "console": {
+    "kakaoLoginError": "Erro no login do Kakao:",
+    "googleLoginError": "Erro no login do Google:",
+    "profileLookupError": "Erro na busca do perfil:",
+    "profileCreationError": "Erro na criação do perfil:",
+    "resetPasswordEmailError": "Erro no envio do e-mail de redefinição de senha:",
+    "migrationCheckError": "Erro na verificação do usuário de migração:",
+    "loginError": "Erro no login:"
+  },
+  "defaultUserName": "Usuário"
+}

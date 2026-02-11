@@ -1,0 +1,25 @@
+{
+  "title": "Informações de Parceria",
+  "description": "O COPYDRUM entrega o melhor conteúdo para mais bateristas através de parcerias.",
+  "benefits": {
+    "title": "Benefícios da Parceria",
+    "exclusiveLicense": {
+      "title": "Licença Exclusiva de Partituras",
+      "description": "Fornecemos licenças personalizadas para uso em vários ambientes, como apresentações, aulas e vendas."
+    },
+    "premiumSupport": {
+      "title": "Suporte Premium",
+      "description": "Fornecemos suporte dedicado para parceiros, incluindo solicitações de novas partituras, transcrições personalizadas e marketing conjunto."
+    },
+    "sharedGrowth": {
+      "title": "Crescimento Compartilhado",
+      "description": "Expandimos a comunidade de bateristas juntos através de projetos e eventos conjuntos."
+    }
+  },
+  "inquiry": {
+    "title": "Solicitação de Parceria",
+    "description": "Está pronto para crescer junto através de uma parceria com o COPYDRUM? Por favor, entre em contato conosco usando as informações abaixo.",
+    "emailLabel": "E-mail",
+    "note": "Por favor, forneça informações detalhadas em sua solicitação para uma resposta rápida de nossa equipe."
+  }
+}

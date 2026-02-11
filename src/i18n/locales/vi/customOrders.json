@@ -1,0 +1,71 @@
+{
+  "title": "Lịch sử đặt hàng tùy chỉnh",
+  "nav": {
+    "home": "Trang chủ",
+    "categories": "Danh mục Sheet Music",
+    "customOrder": "Đặt hàng tùy chỉnh",
+    "customOrderHistory": "Lịch sử đặt hàng tùy chỉnh"
+  },
+  "loading": "Đang tải...",
+  "empty": {
+    "message": "Không có lịch sử đặt hàng tùy chỉnh.",
+    "button": "Yêu cầu đặt hàng tùy chỉnh"
+  },
+  "status": {
+    "pending": {
+      "label": "Đang báo giá",
+      "message": "Chúng tôi đang xem xét yêu cầu của bạn và chuẩn bị báo giá tùy chỉnh."
+    },
+    "quoted": {
+      "label": "Chờ thanh toán",
+      "message": "Báo giá đã đến. Vui lòng nộp tiền theo số tiền đã báo giá để bắt đầu sản xuất."
+    },
+    "payment_confirmed": {
+      "label": "Đã xác nhận thanh toán",
+      "message": "Thanh toán đã được xác nhận. Chúng tôi đang chuẩn bị theo thứ tự sản xuất."
+    },
+    "in_progress": {
+      "label": "Đang thực hiện",
+      "message": "Các chuyên gia của chúng tôi đang tạo sheet music. Chúng tôi sẽ thông báo cho bạn khi hoàn thành."
+    },
+    "completed": {
+      "label": "Hoàn thành",
+      "message": "Sản xuất sheet music đã hoàn thành. Vui lòng tải xuống file PDF bên dưới."
+    },
+    "cancelled": {
+      "label": "Đã hủy"
+    }
+  },
+  "order": {
+    "artist": "Nghệ sĩ",
+    "applicationDate": "Ngày đăng ký",
+    "estimatedPrice": "Giá ước tính",
+    "requirements": "Yêu cầu",
+    "noRequirements": "Không có yêu cầu bổ sung.",
+    "referenceVideo": "Video tham khảo",
+    "adminReply": "Phản hồi quản trị viên",
+    "replyDate": "Ngày phản hồi",
+    "completedSheet": "Sheet Music đã hoàn thành",
+    "completedSheetFilename": "Sheet Music đã hoàn thành.pdf",
+    "sheetMusicSuffix": "Sheet Music",
+    "download": "Tải xuống",
+    "downloadCount": "Tải xuống",
+    "times": "lần",
+    "expiryDate": "Ngày hết hạn",
+    "recentUpdate": "Cập nhật gần đây",
+    "viewDetails": "Xem chi tiết",
+    "quote": "Báo giá",
+    "checkQuote": "Kiểm tra báo giá",
+    "workCompleted": "Công việc hoàn thành"
+  },
+  "alerts": {
+    "downloadLimitExceeded": "Bạn đã sử dụng hết số lần tải xuống. Vui lòng liên hệ dịch vụ khách hàng.",
+    "downloadExpired": "Thời gian tải xuống đã hết hạn. Vui lòng liên hệ dịch vụ khách hàng.",
+    "downloadSuccess": "Tải xuống sheet music đã hoàn thành.",
+    "downloadFailed": "Tải xuống thất bại. Vui lòng thử lại."
+  },
+  "warnings": {
+    "downloadLimitExceeded": "Đã vượt quá giới hạn tải xuống. Vui lòng liên hệ dịch vụ khách hàng nếu bạn cần tải xuống thêm.",
+    "downloadPeriodExpired": "Thời gian tải xuống đã hết hạn. Vui lòng liên hệ dịch vụ khách hàng."
+  }
+}

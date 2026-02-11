@@ -1,0 +1,287 @@
+{
+  "title": "Meine Seite",
+  "subtitle": "Sehen Sie alle Ihre Aktivitäten auf einen Blick, von Notenblatt-Käufen bis zu individuellen Bestellungen.",
+  "tabs": {
+    "profile": {
+      "label": "Profilverwaltung",
+      "description": "Verwalten Sie Ihre persönlichen Informationen und Kontaktdaten."
+    },
+    "purchases": {
+      "label": "Kaufhistorie",
+      "description": "Überprüfen Sie Ihre gekauften Notenblatt-Bestellungsinformationen."
+    },
+    "downloads": {
+      "label": "Download-Verwaltung",
+      "description": "Laden Sie Ihre gekauften Notenblätter herunter und zeigen Sie eine Vorschau an."
+    },
+    "favorites": {
+      "label": "Favorisierte Notenblätter",
+      "description": "Zeigen Sie Ihre favorisierten Notenblätter an."
+    },
+    "cash": {
+      "label": "Guthaben-Historie",
+      "description": "Überprüfen Sie Ihr Guthaben-Guthaben und Nutzungshistorie."
+    },
+    "inquiries": {
+      "label": "1:1 Anfrage",
+      "description": "Überprüfen Sie Ihre Anfragen und Antworten."
+    },
+    "customOrders": {
+      "label": "Individuelle Bestellungen",
+      "description": "Überprüfen Sie den Status Ihrer individuellen Bestellungsanfragen."
+    }
+  },
+  "stats": {
+    "purchasedSheets": "Gekaufte Notenblätter",
+    "availableDownloads": "Verfügbare Downloads",
+    "favoriteSheets": "Favorisierte Notenblätter",
+    "inquiries": "1:1 Anfragen",
+    "customOrders": "Individuelle Bestellungen"
+  },
+  "profile": {
+    "title": "Profilverwaltung",
+    "memberInfo": "Mitgliedsinformationen",
+    "nameNotSet": "Name nicht festgelegt",
+    "joinedOn": "Beigetreten am",
+    "cashBalance": "Guthaben-Guthaben",
+    "cashBalanceDescription": "Verfügbar für Ihren nächsten Notenblatt-Kauf.",
+    "chargeCash": "Guthaben aufladen",
+    "email": "E-Mail",
+    "name": "Name",
+    "namePlaceholder": "Geben Sie Ihren Namen ein",
+    "phoneNumber": "Telefonnummer",
+    "phonePlaceholder": "Geben Sie Ihre Telefonnummer ein",
+    "joinDate": "Beitrittsdatum",
+    "saving": "Wird gespeichert...",
+    "updateProfile": "Profil aktualisieren"
+  },
+  "purchases": {
+    "title": "Kaufhistorie",
+    "description": "Sortiert nach neuesten Bestellungen.",
+    "browseMore": "Weitere Notenblätter durchsuchen",
+    "noPurchases": "Noch keine gekauften Notenblätter.",
+    "orderNumber": "Bestellnummer",
+    "total": "Gesamt",
+    "downloadAllInOrder": "Alle in dieser Bestellung herunterladen",
+    "downloading": "Wird heruntergeladen...",
+    "selectAll": "Alle auswählen",
+    "deselectAll": "Alle abwählen",
+    "selected": "Ausgewählt",
+    "downloadSelected": "Ausgewählte herunterladen",
+    "download": "Herunterladen",
+    "viewDetails": "Details anzeigen",
+    "categoryNotSet": "Kategorie nicht festgelegt",
+    "deletedSheet": "Gelöschtes Notenblatt"
+  },
+  "downloads": {
+    "title": "Download-Verwaltung",
+    "description": "Sie können gekaufte Notenblätter jederzeit erneut herunterladen.",
+    "totalItems": "Gesamt {{count}} Artikel",
+    "selectedItems": "Ausgewählte {{count}} Artikel",
+    "selectAll": "Alle auswählen",
+    "deselectAll": "Alle abwählen",
+    "downloadSelected": "Ausgewählte herunterladen",
+    "downloadAll": "Alle herunterladen",
+    "downloading": "Wird heruntergeladen...",
+    "noDownloads": "Keine herunterladbaren Notenblätter verfügbar.",
+    "purchaseDate": "Kaufdatum",
+    "preview": "Vorschau",
+    "downloadUnavailable": "Download nicht verfügbar"
+  },
+  "favorites": {
+    "title": "Favorisierte Notenblätter",
+    "description": "Finden Sie schnell Ihre favorisierten Notenblätter.",
+    "totalCount": "Gesamt {{count}} Artikel",
+    "noFavorites": "Noch keine favorisierten Notenblätter.",
+    "addFavorites": "Fügen Sie Ihre favorisierten Notenblätter hinzu!",
+    "viewDetails": "Details anzeigen",
+    "inCart": "Im Warenkorb",
+    "cart": "In den Warenkorb",
+    "removeFavorite": "Favorit entfernen",
+    "deletedSheet": "Gelöschtes Notenblatt"
+  },
+  "inquiries": {
+    "title": "1:1 Anfrage",
+    "description": "Stellen Sie eine Anfrage und erhalten Sie Administrator-Antworten direkt in Meine Seite.",
+    "name": "Name",
+    "namePlaceholder": "Geben Sie Ihren Namen ein",
+    "email": "E-Mail",
+    "emailPlaceholder": "Geben Sie Ihre Kontakt-E-Mail ein",
+    "category": "Anfragetyp",
+    "categoryPlaceholder": "Anfragetyp auswählen",
+    "categories": {
+      "orderPayment": "Bestellungs-/Zahlungsanfrage",
+      "sheetDownload": "Notenblatt-/Download-Anfrage",
+      "customOrder": "Individuelle Bestellungsanfrage",
+      "technical": "Technischer Support",
+      "other": "Sonstige Anfrage"
+    },
+    "subject": "Betreff",
+    "subjectPlaceholder": "Geben Sie den Anfragebetreff ein",
+    "message": "Nachricht",
+    "messagePlaceholder": "Bitte beschreiben Sie Ihre Anfrage ausführlich (max. 500 Zeichen)",
+    "characters": "Zeichen",
+    "submitting": "Wird gesendet...",
+    "submit": "Anfrage senden",
+    "history": {
+      "title": "Meine Anfrage-Historie",
+      "description": "Überprüfen Sie Ihre übermittelten Anfragen und Administrator-Antworten.",
+      "total": "Gesamt {{count}} Anfragen",
+      "loading": "Anfrage-Historie wird geladen...",
+      "noInquiries": "Noch keine Anfragen übermittelt.",
+      "noInquiriesDescription": "Wenn Sie Fragen haben, stellen Sie bitte eine Anfrage mit dem oben stehenden Formular.",
+      "category": "Anfrage",
+      "received": "Erhalten",
+      "adminReply": "Administrator-Antwort",
+      "replied": "Beantwortet",
+      "preparing": "Antwort wird vorbereitet. Wir werden Sie nach Überprüfung kontaktieren."
+    }
+  },
+  "cash": {
+    "title": "Guthaben-Historie",
+    "description": "Überprüfen Sie Ihr Guthaben-Guthaben und Nutzungshistorie.",
+    "chargeCash": "Guthaben aufladen",
+    "availableCash": "Verfügbares Guthaben",
+    "loadingHistory": "Guthaben-Historie wird geladen...",
+    "noHistory": "Keine Guthaben-Historie zum Anzeigen.",
+    "noHistoryDescription": "Guthaben-Transaktionen werden hier aufgezeichnet, wenn Sie Guthaben aufladen oder verwenden.",
+    "types": {
+      "charge": "Guthaben-Aufladung",
+      "use": "Guthaben-Verwendung",
+      "adminAdd": "Administrator-Hinzufügung",
+      "adminDeduct": "Administrator-Abzug",
+      "record": "Aufzeichnung"
+    },
+    "bonus": "Bonus",
+    "balance": "Guthaben",
+    "sheet": "Notenblatt",
+    "noDescription": "Keine Beschreibung aufgezeichnet."
+  },
+  "customOrders": {
+    "title": "Individuelle Bestellhistorie",
+    "description": "Überprüfen Sie den Status Ihrer individuellen Bestellungsanfragen.",
+    "newOrderRequest": "Neue Bestellungsanfrage",
+    "noOrders": "Keine individuelle Bestellhistorie.",
+    "serviceDescription": "Verwenden Sie unseren individuellen Bestellungs-Service, um spezielle Notenblätter zu erstellen.",
+    "requestDate": "Anfragedatum",
+    "lastUpdate": "Letzte Aktualisierung",
+    "viewDetails": "Details anzeigen",
+    "quoteConfirm": "Angebot bestätigen",
+    "workCompleted": "Arbeit abgeschlossen",
+    "quotePending": "Angebot ausstehend"
+  },
+  "status": {
+    "order": {
+      "completed": "Abgeschlossen",
+      "pending": "Ausstehend",
+      "cancelled": "Storniert",
+      "refunded": "Erstattet",
+      "undetermined": "Unbestimmt"
+    },
+    "customOrder": {
+      "pending": "Angebot ausstehend",
+      "quoted": "Zahlung ausstehend",
+      "paymentConfirmed": "Zahlung bestätigt",
+      "inProgress": "In Bearbeitung",
+      "completed": "Abgeschlossen",
+      "cancelled": "Storniert",
+      "undetermined": "Unbestimmt"
+    },
+    "inquiry": {
+      "pending": "Warten auf Antwort",
+      "answered": "Beantwortet",
+      "processing": "Wird verarbeitet"
+    }
+  },
+  "cashCharge": {
+    "title": "Guthaben aufladen",
+    "currentCash": "Aktuelles Guthaben-Guthaben",
+    "paymentAmount": "Zahlungsbetrag",
+    "bankTransferInfo": {
+      "title": "Banküberweisungsinformationen",
+      "bank": "Bank",
+      "accountNumber": "Kontonummer",
+      "accountHolder": "Kontoinhaber",
+      "amount": "Einzahlungsbetrag",
+      "depositorName": "Name des Einzahlers"
+    },
+    "depositorName": "Name des Einzahlers",
+    "depositorNamePlaceholder": "Geben Sie den Namen des Einzahlers ein",
+    "depositorNameHint": "* Wenn der Name des Einzahlers von Ihrem Mitgliedsnamen abweicht, geben Sie bitte den Namen des Einzahlers ein.",
+    "bankTransferNotice": {
+      "title": "Banküberweisungs-Hinweis",
+      "line1": "• Guthaben wird manuell vom Administrator nach Einzahlungsbestätigung aufgeladen.",
+      "line2": "• Die Bestätigung kann verzögert werden, wenn der Name des Einzahlers nicht übereinstimmt.",
+      "line3": "• Die Einzahlungsbestätigung kann 1-2 Werktage dauern."
+    },
+    "back": "Zurück",
+    "confirm": "Bestätigen",
+    "processing": "Wird verarbeitet...",
+    "paymentMethod": "Zahlungsmethode",
+    "paymentAmountTitle": "Zahlungsbetrag",
+    "agreement": "Ich habe die Zahlungsdetails überprüft und stimme den Bedingungen zu.",
+    "next": "Weiter",
+    "bankTransferGuide": {
+      "title": "Banküberweisungs-Anleitung",
+      "bank": "Bank",
+      "accountNumber": "Kontonummer",
+      "accountHolder": "Kontoinhaber",
+      "amount": "Einzahlungsbetrag"
+    }
+  },
+  "guest": {
+    "title": "Anmeldung erforderlich",
+    "description": "Bitte melden Sie sich an, um Meine Seite-Funktionen wie Kaufhistorie, Downloads und favorisierte Notenblätter zu verwenden.",
+    "login": "Zur Anmeldung gehen",
+    "signup": "Registrieren"
+  },
+  "loading": {
+    "message": "Meine Seite-Daten werden geladen..."
+  },
+  "errors": {
+    "loginRequired": "Anmeldung erforderlich.",
+    "agreementRequired": "Bitte stimmen Sie den Zahlungsbedingungen zu.",
+    "amountNotFound": "Ausgewählter Aufladebetrag konnte nicht gefunden werden.",
+    "paymentMethodNotReady": "Diese Zahlungsmethode wird derzeit vorbereitet.",
+    "paymentWindowOpen": "Zahlungsfenster wird geöffnet. Bitte schließen Sie die Zahlung ab.",
+    "paymentError": "Bei der Zahlungsabwicklung ist ein Fehler aufgetreten.",
+    "depositorNameRequired": "Bitte geben Sie den Namen des Einzahlers ein.",
+    "orderReceived": "Bestellung wurde erhalten.\\nGuthaben wird nach Einzahlungsbestätigung vom Administrator aufgeladen.",
+    "allFieldsRequired": "Bitte füllen Sie alle Felder aus.",
+    "inquirySubmitted": "Anfrage wurde übermittelt. Wir werden so schnell wie möglich antworten.",
+    "inquiryError": "Beim Senden der Anfrage ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
+    "profileUpdated": "Profilinformationen wurden aktualisiert.",
+    "profileUpdateError": "Fehler beim Aktualisieren des Profils. Bitte versuchen Sie es später erneut.",
+    "downloadRestricted": "Diese Bestellung wurde erstattet oder Download ist eingeschränkt.",
+    "selectDownloadItems": "Bitte wählen Sie Notenblätter zum Herunterladen aus.",
+    "noDownloadableItems": "Keine herunterladbaren Notenblätter verfügbar.",
+    "downloadRestrictedMultiple": "Erstattete oder eingeschränkte Notenblätter können nicht heruntergeladen werden.",
+    "loginRequiredForDownload": "Anmeldung erforderlich. Bitte melden Sie sich erneut an.",
+    "downloadFailed": "Fehler beim Herunterladen von {{count}} Dateien. Bitte versuchen Sie es später erneut.",
+    "downloadFailedSingle": "Datei-Download fehlgeschlagen. Bitte versuchen Sie es später erneut.",
+    "previewNotFound": "Vorschau-Datei nicht gefunden.",
+    "favoriteRemoveFailed": "Fehler beim Entfernen aus Favoriten.",
+    "sheetInfoNotFound": "Herunterladbare Notenblatt-Informationen nicht gefunden.",
+    "downloadLinkNotFound": "Download-Link nicht gefunden. Bitte kontaktieren Sie den Administrator."
+  },
+  "console": {
+    "cashHistoryError": "Fehler beim Laden der Guthaben-Historie:",
+    "inquiryHistoryError": "Fehler beim Laden der Anfrage-Historie:",
+    "profileLoadError": "Fehler beim Laden des Profils:",
+    "orderHistoryError": "Fehler beim Laden der Bestellhistorie:",
+    "favoritesLoadError": "Fehler beim Laden der Favoriten:",
+    "customOrderHistoryError": "Fehler beim Laden der individuellen Bestellhistorie:",
+    "initError": "Meine Seite-Initialisierungsfehler:",
+    "cashChargeError": "Guthaben-Aufladungsfehler:",
+    "inquirySubmitError": "Fehler beim Übermitteln der Anfrage:",
+    "profileUpdateError": "Fehler beim Aktualisieren des Profils:",
+    "favoriteRemoveError": "Fehler beim Entfernen des Favoriten:"
+  },
+  "paymentMethods": {
+    "creditCard": "Kreditkarte",
+    "kakaoPay": "Kakao Pay",
+    "bankTransfer": "Banküberweisung",
+    "preparing": "Wird vorbereitet"
+  },
+  "cart": "Warenkorb"
+}

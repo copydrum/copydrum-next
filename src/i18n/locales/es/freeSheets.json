@@ -1,0 +1,79 @@
+{
+  "badge": "LECCIONES DE BATERÍA GRATIS",
+  "title": "Partituras de lecciones de batería gratis",
+  "description": "¡Explore todas las partituras en la categoría de lecciones de batería gratis! Practique con lecciones de YouTube para mejorar sus habilidades más rápido. Elija entre varios temas de aprendizaje como técnicas de batería, rudimentos, solos de batería y más.",
+  "features": {
+    "freeDownload": "Descarga completa gratis",
+    "categoryLearning": "Aprendizaje basado en categorías",
+    "youtubeLesson": "Enlaces de lecciones de YouTube"
+  },
+  "categories": {
+    "all": "Todas",
+    "drumTechnique": "Técnica de batería",
+    "rudiment": "Rudimento",
+    "drumSolo": "Solo de batería",
+    "beginnerBasics": "Principiante/Básicos",
+    "rhythmPattern": "Patrón de ritmo",
+    "fillIn": "Relleno",
+    "drumLesson": "Lección de batería",
+    "categoryPending": "Categoría pendiente"
+  },
+  "search": {
+    "placeholder": "Buscar por título, artista o etiqueta"
+  },
+  "sort": {
+    "label": "Ordenar",
+    "latest": "Más recientes",
+    "title": "Título",
+    "difficulty": "Dificultad"
+  },
+  "difficulty": {
+    "beginner": "Principiante",
+    "intermediate": "Intermedio",
+    "advanced": "Avanzado",
+    "notAvailable": "Dificultad no disponible"
+  },
+  "loading": "Cargando partituras de lecciones de batería gratis...",
+  "empty": {
+    "title": "No hay partituras gratis que coincidan con sus criterios.",
+    "description": "Intente seleccionar una categoría diferente o cambiar su término de búsqueda."
+  },
+  "actions": {
+    "viewFreeSheet": "Ver partitura gratis",
+    "viewYoutubeLesson": "Ver lección de YouTube",
+    "goToDetail": "Ir a la página de detalles",
+    "closeDetail": "Cerrar detalle de partitura gratis"
+  },
+  "errors": {
+    "lessonCategoryLoadError": "Error al cargar la categoría de lecciones de batería. Por favor, inténtelo más tarde.",
+    "lessonCategoryNotFound": "La categoría de lecciones de batería no existe. Por favor, contacte al administrador.",
+    "sheetsLoadError": "Error al cargar las partituras de lecciones de batería gratis. Por favor, inténtelo más tarde.",
+    "generalError": "Ocurrió un error al cargar las partituras de lecciones de batería gratis.",
+    "loginRequired": "Inicio de sesión requerido.",
+    "favoriteError": "Ocurrió un error al procesar los favoritos. Por favor, inténtelo más tarde.",
+    "pdfNotReady": "El enlace PDF no está listo.",
+    "youtubeNotAvailable": "No hay video de YouTube registrado."
+  },
+  "mobile": {
+    "freeSheet": "Partitura gratis",
+    "upload": "Subir",
+    "pages": "páginas",
+    "youtubeLessonIncluded": "Lección de YouTube incluida",
+    "freeDownload": "Descarga gratis",
+    "practiceWithPdf": "Practique con partituras PDF.",
+    "favorite": "Favorito",
+    "unfavorite": "Eliminar de favoritos"
+  },
+  "console": {
+    "lessonCategoryError": "Error al buscar la categoría de lecciones de batería:",
+    "primarySheetsError": "Error al cargar las partituras principales de lecciones de batería:",
+    "relationsError": "Error al cargar las relaciones de categoría de lecciones de batería:",
+    "additionalSheetsError": "Error al cargar las partituras adicionales de lecciones de batería:",
+    "extraCategoriesError": "Error al cargar categorías adicionales:",
+    "generalError": "Error al procesar la página de partituras gratis:",
+    "favoritesLoadError": "Error al cargar favoritos:",
+    "favoriteToggleError": "Error al cambiar favorito:",
+    "userLoadError": "Error al cargar la información del usuario:",
+    "youtubeUrlParseError": "Error al analizar la URL de YouTube:"
+  }
+}

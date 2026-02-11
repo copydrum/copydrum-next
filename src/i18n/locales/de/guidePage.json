@@ -1,0 +1,206 @@
+{
+  "hero": {
+    "badge": "Von der Suche bis zum Download, alles an einem Ort",
+    "title": "COPYDRUM Such- und Kaufanleitung",
+    "description": "Finden Sie schnell Ihre gewünschten Schlagzeug-Notenblätter, kaufen Sie vernünftig,<br />und laden Sie ohne Probleme herunter—alle Methoden an einem Ort gesammelt.<br />Schauen Sie sich die wesentlichen Tipps für effizientes Üben an, von neuen Benutzern bis zu bestehenden Mitgliedern."
+  },
+  "sections": {
+    "firstPurchase": {
+      "title": "Erster Kauf in 3 Minuten",
+      "description": "Eine kurze Zusammenfassung für Erstbesucher. Folgen Sie den unten stehenden Schritten, um Ihren ersten Notenblatt-Kauf sofort abzuschließen.",
+      "steps": {
+        "account": {
+          "title": "1 Min. – Konto erstellen",
+          "detail": "Erstellen Sie schnell ein Konto über Registrierung oder Social-Login.",
+          "highlight": "Nach der Anmeldung werden Warenkorb- und Download-Menüs aktiviert."
+        },
+        "findSheet": {
+          "title": "1 Min. – Notenblätter finden",
+          "detail": "Geben Sie den Song-Titel oder Künstlernamen in das Suchfeld ein und wählen Sie die Notenblätter aus, die Ihnen gefallen."
+        },
+        "payment": {
+          "title": "1 Min. – Zahlung und Download",
+          "detail": "In den Warenkorb legen, Zahlung abschließen und Sie können die PDF-Notenblätter sofort herunterladen."
+        }
+      },
+      "cta": {
+        "register": "Jetzt registrieren",
+        "popular": "Beliebte Notenblätter anzeigen"
+      }
+    },
+    "effectiveSearch": {
+      "title": "Notenblätter effektiv suchen",
+      "description": "Wenn die Suchergebnisse zu viele sind oder Sie den gewünschten Song nicht finden, versuchen Sie, Ihre Suche mit den folgenden Methoden genauer anzupassen.",
+      "steps": {
+        "keyword": {
+          "title": "Schlüsselwort-Kombination",
+          "detail": "Die Kombination von zwei oder mehr Wörtern wie Song-Titel + Künstler erhöht die Genauigkeit.",
+          "highlight": "Beispiel: \"Spring Day Schlagzeug\", \"BTS Rock-Arrangement\""
+        },
+        "filter": {
+          "title": "Mit Filtern eingrenzen",
+          "detail": "Wählen Sie auf der Kategorieseite Genre, Preisspanne und Schwierigkeitsgrad aus, um nur die benötigten Notenblätter zu filtern."
+        },
+        "noResults": {
+          "title": "Keine Ergebnisse behandeln",
+          "detail": "Überprüfen Sie die Rechtschreibung und versuchen Sie erneut mit ähnlichen Schlüsselwörtern zu suchen."
+        }
+      },
+      "cta": {
+        "categories": "Kategorien anzeigen",
+        "freeSheets": "Kostenlose Notenblätter überprüfen"
+      }
+    },
+    "chooseSheet": {
+      "title": "Wählen Sie die richtigen Notenblätter für Sie",
+      "description": "Vergleichen Sie Schwierigkeitsgrad, Arrangement-Stil und Notenblatt-Zusammensetzung, um Notenblätter auszuwählen, die Ihren Übungszielen entsprechen.",
+      "steps": {
+        "difficulty": {
+          "title": "Schwierigkeit überprüfen",
+          "detail": "Eingeteilt in Anfänger/Mittelstufe/Fortgeschritten, und Sie können die erforderlichen Techniken in der detaillierten Beschreibung überprüfen.",
+          "highlight": "Anfänger: Grundmuster, Mittelstufe: Enthält Fills, Fortgeschritten: Betont Geschwindigkeit und Technik"
+        },
+        "preview": {
+          "title": "Vorschau verwenden",
+          "detail": "Überprüfen Sie durch Beispielseiten und Demo-Videos, ob es der gewünschte Stil ist."
+        },
+        "price": {
+          "title": "Preise vergleichen",
+          "detail": "Sie können eine vernünftigere Wahl treffen, indem Sie einzelne Notenblätter, Sammlungen und Event-Notenblätter zusammen vergleichen."
+        }
+      },
+      "cta": {
+        "eventSale": "Event-Notenblätter durchsuchen",
+        "collections": "Sammlungen anzeigen"
+      }
+    },
+    "purchaseProcess": {
+      "title": "Vollständige Kaufprozess-Anleitung",
+      "description": "Schritt-für-Schritt-Anleitung, um ohne Fehler vom Warenkorb bis zur Zahlungsabschluss vorzugehen.",
+      "steps": {
+        "cart": {
+          "title": "In den Warenkorb",
+          "detail": "Klicken Sie auf die Warenkorb-Schaltfläche auf der Notenblatt-Detailseite, um mehrere Notenblätter auf einmal zu bezahlen.",
+          "highlight": "Promo-Code kann oben im Warenkorb eingegeben werden"
+        },
+        "paymentInfo": {
+          "title": "Zahlungsinformationen überprüfen",
+          "detail": "Überprüfen Sie vor der Zahlung unbedingt Bestelldetails, Rabattanwendung und Nutzungsbedingungen."
+        },
+        "paymentMethod": {
+          "title": "Zahlungsmethode auswählen",
+          "detail": "Unterstützt Kreditkarte, Banküberweisung, Kakao Pay usw., und nach Zahlungsabschluss wird eine Benachrichtigungs-E-Mail gesendet."
+        }
+      },
+      "cta": {
+        "cart": "Zum Warenkorb gehen"
+      }
+    },
+    "download": {
+      "title": "Notenblätter herunterladen",
+      "description": "Gekaufte Notenblätter können sofort als PDF heruntergeladen werden und können jederzeit erneut heruntergeladen werden.",
+      "steps": {
+        "immediate": {
+          "title": "Sofortiger Download",
+          "detail": "Sie können die PDF-Datei sofort von der Kaufabschluss-Seite direkt nach dem Kauf herunterladen."
+        },
+        "redownload": {
+          "title": "Von Meine Seite erneut herunterladen",
+          "detail": "Sie können bereits gekaufte Notenblätter aus der Kaufhistorie in Meine Seite erneut herunterladen.",
+          "highlight": "Gekaufte Notenblätter können unbegrenzt erneut heruntergeladen werden."
+        },
+        "pdf": {
+          "title": "PDF verwenden",
+          "detail": "Bereitgestellt als hochwertige PDF-Dateien, können Sie direkt auf Tablets oder Laptops üben oder in der gewünschten Größe drucken."
+        }
+      },
+      "cta": {
+        "mypage": "Meine Seite öffnen",
+        "orders": "Kaufhistorie überprüfen"
+      }
+    },
+    "discounts": {
+      "title": "Rabatte und Vorteile maximieren",
+      "description": "Schaffen Sie eine reichhaltigere Übungsumgebung, indem Sie spezielle Event-Verkäufe, Notenblatt-Guthaben-Auflade-Boni und individuelle Bestellungsdienste nutzen.",
+      "steps": {
+        "event": {
+          "title": "Event-Notenblätter",
+          "detail": "Schauen Sie sich Notenblätter an, die für eine begrenzte Zeit zu 100 Won oder reduzierten Preisen im Sonderverkaufsbereich angeboten werden.",
+          "highlight": "Event-Notenblätter sind begrenzte Menge/Zeitraum, also schnell überprüfen!"
+        },
+        "cash": {
+          "title": "Notenblatt-Guthaben aufladen",
+          "detail": "Zusätzliche Boni werden entsprechend dem Aufladebetrag bereitgestellt. Wenn Sie planen, Massenkäufe zu tätigen, laden Sie im Voraus auf."
+        },
+        "customOrder": {
+          "title": "Individuelle Bestellungen vergleichen",
+          "detail": "Wenn Sie die gesuchten Notenblätter nicht finden können, können Sie über individuelle Bestellungen eine genaue Arrangement erhalten. Wählen Sie entsprechend Ihrem Budget und Zeitplan."
+        }
+      },
+      "cta": {
+        "customOrder": "Individuelle Bestellung beantragen",
+        "customOrders": "Laufende Bestellungen überprüfen"
+      }
+    }
+  },
+  "searchTips": {
+    "title": "Suchtipps-Sammlung",
+    "items": {
+      "keyword": {
+        "title": "Empfohlene Schlüsselwörter",
+        "description": "Suche mit Song-Titel + Künstler erhöht die Genauigkeit."
+      },
+      "filter": {
+        "title": "Filter-Kombination",
+        "description": "Gemeinsames Festlegen von Genre + Schwierigkeit + Preisspanne lässt nur die benötigten Notenblätter übrig."
+      },
+      "noResults": {
+        "title": "Keine Suchergebnisse",
+        "description": "Überprüfen Sie die Rechtschreibung erneut oder suchen Sie mit ähnlichem Genre/Künstler und versuchen Sie dann individuelle Bestellungen."
+      }
+    }
+  },
+  "purchaseComparison": {
+    "title": "Kaufmethoden-Vergleich",
+    "regular": {
+      "title": "Regulärer Kauf",
+      "badge": "Empfohlen",
+      "items": [
+        "Sofortiger PDF-Download nach Zahlung",
+        "Kosten sparen mit Event/kostenlosen Notenblättern",
+        "Große Auswahl an Genres und Schwierigkeitsgraden"
+      ]
+    },
+    "custom": {
+      "title": "Individuelle Bestellung",
+      "badge": "Individuell",
+      "items": [
+        "Produzieren Sie genau den Song und Arrangement-Stil, den Sie möchten",
+        "Produktionszeitraum 1-7 Tage, variiert je nach Schwierigkeit",
+        "Zahlung nach Angebotsbestätigung fortfahren"
+      ]
+    }
+  },
+  "helpNeeded": {
+    "title": "Benötigen Sie mehr Hilfe?",
+    "description": "Überprüfen Sie häufig gestellte Fragen im Kundensupport oder fordern Sie direkte Beratung über eine Anfrage an.",
+    "cta": {
+      "findSheets": "Jetzt Notenblätter finden",
+      "eventSale": "Laufende Rabatt-Notenblätter anzeigen"
+    }
+  },
+  "terms": {
+    "title": "Nutzungsbedingungen",
+    "content": [
+      "Alle Kunden, die COPYDRUM-Dienste nutzen, müssen das Urheberrecht respektieren und Notenblätter im Rahmen persönlicher Übungszwecke verwenden. Unbefugte Verbreitung, Vervielfältigung oder Weitergabe gekaufter Notenblätter unterliegt rechtlichen Sanktionen, und für die kommerzielle Nutzung ist eine separate Lizenz erforderlich.",
+      "Da Downloads sofort nach der Zahlung bereitgestellt werden, können Rückerstattungen nach Abschluss des Downloads aufgrund der Natur digitaler Inhalte eingeschränkt sein. Detaillierte Richtlinien im Zusammenhang mit der Dienstnutzung, einschließlich Zahlungen, individueller Bestellungen und Event-Vorteilen, werden regelmäßig über Kundenservice-Ankündigungen aktualisiert."
+    ]
+  },
+  "privacy": {
+    "title": "Datenschutzrichtlinie-Zusammenfassung",
+    "content": [
+      "Wir sammeln minimale persönliche Informationen wie E-Mail, Name und Zahlungsinformationen für Kontoregistrierung, Bestellabwicklung und Kundensupport. Diese Informationen werden sicher in einer auf Supabase basierenden Sicherheitsumgebung gespeichert. Wir verwenden persönliche Informationen nicht für andere Zwecke als die Bereitstellung von Diensten, und wir halten uns strikt an vorherige Einwilligungsverfahren, wenn wir mit Dritten teilen.",
+      "Kunden können über Meine Seite oder Kundensupport anfordern, ihre persönlichen Informationen anzuzeigen, zu ändern oder zu löschen, und solche Anfragen werden ohne Verzögerung bearbeitet. Für Anfragen bezüglich des Schutzes persönlicher Informationen kontaktieren Sie uns bitte über Kundensupport 1:1-Anfrage oder E-Mail."
+    ]
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "detailTitle": "{{title}} – {{artist}} | Schlagzeugnoten PDF | COPYDRUM",
+  "detailDescription": "Lade die Schlagzeugnoten zu \"{{title}}\" von {{artist}} als hochwertiges PDF herunter. {{genre}}-Drumpartitur mit {{pages}} Seiten, {{bpm}} BPM, Schwierigkeitsgrad: {{difficulty}}.",
+  "detailKeywords": "{{title}}, {{artist}}, Schlagzeugnoten, Drum Sheet Music, Drum Transcription, COPYDRUM",
+  "homeTitle": "COPYDRUM | Schlagzeugnoten-Shop",
+  "homeDescription": "Hochwertige Schlagzeugnoten für Pop, Rock, K-POP, CCM und mehr als PDF zum Sofort-Download für Drummer weltweit.",
+  "categoryTitle": "{{category}} Schlagzeugnoten | COPYDRUM",
+  "categoryDescription": "Lade Schlagzeugnoten und Drum-Scores für Songs aus der Kategorie {{category}} als PDF herunter. Ideal zum Üben und für Auftritte."
+}

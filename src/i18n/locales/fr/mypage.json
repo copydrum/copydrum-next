@@ -1,0 +1,287 @@
+{
+  "title": "Ma Page",
+  "subtitle": "Visualisez toutes vos activités, des achats de partitions aux commandes personnalisées, en un coup d'œil.",
+  "tabs": {
+    "profile": {
+      "label": "Gestion du Profil",
+      "description": "Gérez vos informations personnelles et vos coordonnées."
+    },
+    "purchases": {
+      "label": "Historique des Achats",
+      "description": "Consultez les informations de vos commandes de partitions achetées."
+    },
+    "downloads": {
+      "label": "Gestion des Téléchargements",
+      "description": "Téléchargez et prévisualisez vos partitions achetées."
+    },
+    "favorites": {
+      "label": "Partitions Favorites",
+      "description": "Visualisez vos partitions favorites."
+    },
+    "cash": {
+      "label": "Historique des Espèces",
+      "description": "Consultez votre solde d'espèces et votre historique d'utilisation."
+    },
+    "inquiries": {
+      "label": "Demande 1:1",
+      "description": "Consultez vos demandes et réponses."
+    },
+    "customOrders": {
+      "label": "Commandes Personnalisées",
+      "description": "Consultez le statut de vos demandes de commandes personnalisées."
+    }
+  },
+  "stats": {
+    "purchasedSheets": "Partitions Achetées",
+    "availableDownloads": "Téléchargements Disponibles",
+    "favoriteSheets": "Partitions Favorites",
+    "inquiries": "Demandes 1:1",
+    "customOrders": "Commandes Personnalisées"
+  },
+  "profile": {
+    "title": "Gestion du Profil",
+    "memberInfo": "Informations du Membre",
+    "nameNotSet": "Nom non défini",
+    "joinedOn": "Rejoint le",
+    "cashBalance": "Solde d'Espèces",
+    "cashBalanceDescription": "Disponible pour votre prochain achat de partitions.",
+    "chargeCash": "Recharger des Espèces",
+    "email": "E-mail",
+    "name": "Nom",
+    "namePlaceholder": "Entrez votre nom",
+    "phoneNumber": "Numéro de Téléphone",
+    "phonePlaceholder": "Entrez votre numéro de téléphone",
+    "joinDate": "Date d'Inscription",
+    "saving": "Enregistrement...",
+    "updateProfile": "Mettre à Jour le Profil"
+  },
+  "purchases": {
+    "title": "Historique des Achats",
+    "description": "Trié par commandes les plus récentes.",
+    "browseMore": "Parcourir Plus de Partitions",
+    "noPurchases": "Aucune partition achetée pour le moment.",
+    "orderNumber": "Numéro de Commande",
+    "total": "Total",
+    "downloadAllInOrder": "Télécharger Tout dans Cette Commande",
+    "downloading": "Téléchargement...",
+    "selectAll": "Tout Sélectionner",
+    "deselectAll": "Tout Désélectionner",
+    "selected": "Sélectionné",
+    "downloadSelected": "Télécharger la Sélection",
+    "download": "Télécharger",
+    "viewDetails": "Voir les Détails",
+    "categoryNotSet": "Catégorie non définie",
+    "deletedSheet": "Partition supprimée"
+  },
+  "downloads": {
+    "title": "Gestion des Téléchargements",
+    "description": "Vous pouvez retélécharger les partitions achetées à tout moment.",
+    "totalItems": "Total {{count}} éléments",
+    "selectedItems": "{{count}} éléments sélectionnés",
+    "selectAll": "Tout Sélectionner",
+    "deselectAll": "Tout Désélectionner",
+    "downloadSelected": "Télécharger la Sélection",
+    "downloadAll": "Tout Télécharger",
+    "downloading": "Téléchargement...",
+    "noDownloads": "Aucune partition téléchargeable disponible.",
+    "purchaseDate": "Date d'Achat",
+    "preview": "Aperçu",
+    "downloadUnavailable": "Téléchargement Indisponible"
+  },
+  "favorites": {
+    "title": "Partitions Favorites",
+    "description": "Trouvez rapidement vos partitions favorites.",
+    "totalCount": "Total {{count}} éléments",
+    "noFavorites": "Aucune partition favorite pour le moment.",
+    "addFavorites": "Ajoutez vos partitions favorites !",
+    "viewDetails": "Voir les Détails",
+    "inCart": "Dans le Panier",
+    "cart": "Ajouter au Panier",
+    "removeFavorite": "Retirer des Favoris",
+    "deletedSheet": "Partition supprimée"
+  },
+  "inquiries": {
+    "title": "Demande 1:1",
+    "description": "Soumettez une demande et recevez des réponses de l'administrateur directement dans Ma Page.",
+    "name": "Nom",
+    "namePlaceholder": "Entrez votre nom",
+    "email": "E-mail",
+    "emailPlaceholder": "Entrez votre e-mail de contact",
+    "category": "Type de Demande",
+    "categoryPlaceholder": "Sélectionnez le type de demande",
+    "categories": {
+      "orderPayment": "Demande de Commande/Paiement",
+      "sheetDownload": "Demande de Partition/Téléchargement",
+      "customOrder": "Demande de Commande Personnalisée",
+      "technical": "Support Technique",
+      "other": "Autre Demande"
+    },
+    "subject": "Sujet",
+    "subjectPlaceholder": "Entrez le sujet de la demande",
+    "message": "Message",
+    "messagePlaceholder": "Veuillez écrire votre demande en détail (max 500 caractères)",
+    "characters": "caractères",
+    "submitting": "Envoi...",
+    "submit": "Soumettre la Demande",
+    "history": {
+      "title": "Mon Historique de Demandes",
+      "description": "Consultez vos demandes soumises et les réponses de l'administrateur.",
+      "total": "Total {{count}} demandes",
+      "loading": "Chargement de l'historique des demandes...",
+      "noInquiries": "Aucune demande soumise pour le moment.",
+      "noInquiriesDescription": "Si vous avez des questions, veuillez soumettre une demande en utilisant le formulaire ci-dessus.",
+      "category": "Demande",
+      "received": "Reçu",
+      "adminReply": "Réponse de l'Administrateur",
+      "replied": "Répondu",
+      "preparing": "La réponse est en cours de préparation. Nous vous contacterons après révision."
+    }
+  },
+  "cash": {
+    "title": "Historique des Espèces",
+    "description": "Consultez votre solde d'espèces et votre historique d'utilisation.",
+    "chargeCash": "Recharger des Espèces",
+    "availableCash": "Espèces Disponibles",
+    "loadingHistory": "Chargement de l'historique des espèces...",
+    "noHistory": "Aucun historique d'espèces à afficher.",
+    "noHistoryDescription": "Les transactions d'espèces seront enregistrées ici lorsque vous rechargerez ou utiliserez des espèces.",
+    "types": {
+      "charge": "Recharge d'Espèces",
+      "use": "Utilisation d'Espèces",
+      "adminAdd": "Ajout par l'Administrateur",
+      "adminDeduct": "Déduction par l'Administrateur",
+      "record": "Enregistrement"
+    },
+    "bonus": "Bonus",
+    "balance": "Solde",
+    "sheet": "Partition",
+    "noDescription": "Aucune description enregistrée."
+  },
+  "customOrders": {
+    "title": "Historique des Commandes Personnalisées",
+    "description": "Consultez le statut de vos demandes de commandes personnalisées.",
+    "newOrderRequest": "Nouvelle Demande de Commande",
+    "noOrders": "Aucun historique de commandes personnalisées.",
+    "serviceDescription": "Utilisez notre service de commande personnalisée pour créer des partitions spéciales.",
+    "requestDate": "Date de Demande",
+    "lastUpdate": "Dernière Mise à Jour",
+    "viewDetails": "Voir les Détails",
+    "quoteConfirm": "Confirmer le Devis",
+    "workCompleted": "Travail Terminé",
+    "quotePending": "Devis en Attente"
+  },
+  "status": {
+    "order": {
+      "completed": "Terminé",
+      "pending": "En Attente",
+      "cancelled": "Annulé",
+      "refunded": "Remboursé",
+      "undetermined": "Indéterminé"
+    },
+    "customOrder": {
+      "pending": "Devis en Attente",
+      "quoted": "Paiement en Attente",
+      "paymentConfirmed": "Paiement Confirmé",
+      "inProgress": "En Cours",
+      "completed": "Terminé",
+      "cancelled": "Annulé",
+      "undetermined": "Indéterminé"
+    },
+    "inquiry": {
+      "pending": "En Attente de Réponse",
+      "answered": "Répondu",
+      "processing": "En Traitement"
+    }
+  },
+  "cashCharge": {
+    "title": "Recharge d'Espèces",
+    "currentCash": "Solde d'Espèces Actuel",
+    "paymentAmount": "Montant du Paiement",
+    "bankTransferInfo": {
+      "title": "Informations de Virement Bancaire",
+      "bank": "Banque",
+      "accountNumber": "Numéro de Compte",
+      "accountHolder": "Titulaire du Compte",
+      "amount": "Montant du Dépôt",
+      "depositorName": "Nom du Déposant"
+    },
+    "depositorName": "Nom du Déposant",
+    "depositorNamePlaceholder": "Entrez le nom du déposant",
+    "depositorNameHint": "* Si le nom du déposant diffère de votre nom de membre, veuillez entrer le nom du déposant.",
+    "bankTransferNotice": {
+      "title": "Avis de Virement Bancaire",
+      "line1": "• Les espèces seront rechargées manuellement par l'administrateur après confirmation du dépôt.",
+      "line2": "• La confirmation peut être retardée si le nom du déposant ne correspond pas.",
+      "line3": "• La confirmation du dépôt peut prendre 1 à 2 jours ouvrables."
+    },
+    "back": "Retour",
+    "confirm": "Confirmer",
+    "processing": "Traitement...",
+    "paymentMethod": "Méthode de Paiement",
+    "paymentAmountTitle": "Montant du Paiement",
+    "agreement": "J'ai examiné les détails du paiement et j'accepte les conditions.",
+    "next": "Suivant",
+    "bankTransferGuide": {
+      "title": "Guide de Virement Bancaire",
+      "bank": "Banque",
+      "accountNumber": "Numéro de Compte",
+      "accountHolder": "Titulaire du Compte",
+      "amount": "Montant du Dépôt"
+    }
+  },
+  "guest": {
+    "title": "Connexion Requise",
+    "description": "Veuillez vous connecter pour utiliser les fonctionnalités de Ma Page telles que l'historique des achats, les téléchargements et les partitions favorites.",
+    "login": "Aller à la Connexion",
+    "signup": "S'Inscrire"
+  },
+  "loading": {
+    "message": "Chargement des données de Ma Page..."
+  },
+  "errors": {
+    "loginRequired": "La connexion est requise.",
+    "agreementRequired": "Veuillez accepter les conditions de paiement.",
+    "amountNotFound": "Le montant de recharge sélectionné n'a pas pu être trouvé.",
+    "paymentMethodNotReady": "Cette méthode de paiement est actuellement en cours de préparation.",
+    "paymentWindowOpen": "La fenêtre de paiement s'ouvrira. Veuillez compléter le paiement.",
+    "paymentError": "Une erreur s'est produite lors du traitement du paiement.",
+    "depositorNameRequired": "Veuillez entrer le nom du déposant.",
+    "orderReceived": "La commande a été reçue.\\nLes espèces seront rechargées après confirmation du dépôt par l'administrateur.",
+    "allFieldsRequired": "Veuillez remplir tous les champs.",
+    "inquirySubmitted": "La demande a été soumise. Nous répondrons dans les plus brefs délais.",
+    "inquiryError": "Une erreur s'est produite lors de l'envoi de la demande. Veuillez réessayer.",
+    "profileUpdated": "Les informations du profil ont été mises à jour.",
+    "profileUpdateError": "Échec de la mise à jour du profil. Veuillez réessayer plus tard.",
+    "downloadRestricted": "Cette commande a été remboursée ou le téléchargement est restreint.",
+    "selectDownloadItems": "Veuillez sélectionner des partitions à télécharger.",
+    "noDownloadableItems": "Aucune partition téléchargeable disponible.",
+    "downloadRestrictedMultiple": "Les partitions remboursées ou restreintes ne peuvent pas être téléchargées.",
+    "loginRequiredForDownload": "La connexion est requise. Veuillez vous reconnecter.",
+    "downloadFailed": "Échec du téléchargement de {{count}} fichiers. Veuillez réessayer plus tard.",
+    "downloadFailedSingle": "Échec du téléchargement du fichier. Veuillez réessayer plus tard.",
+    "previewNotFound": "Fichier d'aperçu introuvable.",
+    "favoriteRemoveFailed": "Échec du retrait des favoris.",
+    "sheetInfoNotFound": "Informations de partition téléchargeable introuvables.",
+    "downloadLinkNotFound": "Lien de téléchargement introuvable. Veuillez contacter l'administrateur."
+  },
+  "console": {
+    "cashHistoryError": "Erreur de chargement de l'historique des espèces :",
+    "inquiryHistoryError": "Erreur de chargement de l'historique des demandes :",
+    "profileLoadError": "Erreur de chargement du profil :",
+    "orderHistoryError": "Erreur de chargement de l'historique des commandes :",
+    "favoritesLoadError": "Erreur de chargement des favoris :",
+    "customOrderHistoryError": "Erreur de chargement de l'historique des commandes personnalisées :",
+    "initError": "Erreur d'initialisation de Ma Page :",
+    "cashChargeError": "Erreur de recharge d'espèces :",
+    "inquirySubmitError": "Erreur de soumission de demande :",
+    "profileUpdateError": "Erreur de mise à jour du profil :",
+    "favoriteRemoveError": "Erreur de retrait des favoris :"
+  },
+  "paymentMethods": {
+    "creditCard": "Carte de Crédit",
+    "kakaoPay": "Kakao Pay",
+    "bankTransfer": "Virement Bancaire",
+    "preparing": "En Préparation"
+  },
+  "cart": "Panier"
+}

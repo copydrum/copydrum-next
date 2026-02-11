@@ -1,0 +1,65 @@
+{
+  "title": "Riwayat Pembelian Partitur",
+  "description": "Ini adalah daftar partitur yang telah Anda beli, diurutkan berdasarkan yang terbaru.",
+  "totalPurchased": "Anda telah membeli total {{count}} partitur.",
+  "loginRequired": "Login Diperlukan",
+  "loginRequiredMessage": "Silakan login untuk melihat riwayat pembelian Anda.",
+  "orderNumber": "Nomor Pesanan",
+  "categoryNotSet": "Kategori Tidak Ditetapkan",
+  "deletedSheet": "Partitur Dihapus",
+  "status": {
+    "pending": "Pembayaran Tertunda",
+    "pendingDesc": "Menunggu konfirmasi pembayaran.",
+    "processing": "Sedang Diproses",
+    "processingDesc": "Pesanan Anda sedang diproses.",
+    "completed": "Selesai",
+    "completedDesc": "Pesanan selesai. Unduhan tersedia.",
+    "cancelled": "Dibatalkan",
+    "cancelledDesc": "Pesanan telah dibatalkan.",
+    "paymentPending": "Pembayaran Tertunda",
+    "paymentPendingDesc": "Menunggu konfirmasi setoran.",
+    "paymentConfirmed": "Pembayaran Dikonfirmasi",
+    "paymentConfirmedDesc": "Pembayaran dikonfirmasi. Unduhan tersedia.",
+    "paid": "Dibayar",
+    "paidDesc": "Pembayaran selesai. Unduhan tersedia.",
+    "refunded": "Dikembalikan",
+    "refundedDesc": "Pesanan telah dikembalikan."
+  },
+  "paymentMethod": {
+    "card": "Kartu Kredit",
+    "bankTransfer": "Transfer Bank",
+    "virtualAccount": "Akun Virtual",
+    "cash": "Saldo Tersedia",
+    "points": "Poin"
+  },
+  "empty": {
+    "title": "Tidak Ada Partitur yang Dibeli",
+    "message": "Temukan partitur favorit Anda dan tambahkan ke keranjang.",
+    "browseButton": "Jelajahi Partitur"
+  },
+  "actions": {
+    "downloadAll": "Unduh Semua dalam Pesanan Ini",
+    "downloadSelected": "Unduh yang Dipilih",
+    "selectAll": "Pilih Semua",
+    "deselectAll": "Batalkan Pilihan Semua",
+    "clearSelection": "Hapus Pilihan",
+    "download": "Unduh",
+    "downloadNotAvailable": "Unduhan Tidak Tersedia",
+    "downloading": "Mengunduh...",
+    "viewDetails": "Lihat Detail",
+    "purchaseDate": "Tanggal Pembelian {{date}}",
+    "selectedCount": "{{count}} dipilih",
+    "cart": "Keranjang"
+  },
+  "messages": {
+    "selectSheetsToDownload": "Silakan pilih partitur untuk diunduh.",
+    "refundedOrRestricted": "Pesanan ini telah dikembalikan atau unduhan dibatasi.",
+    "loginRequired": "Login diperlukan.",
+    "downloadFailed": "Gagal mengunduh {{count}} partitur.",
+    "refundedOrder": "Pesanan yang dikembalikan tidak dapat diunduh.",
+    "noSheetsToDownload": "Tidak ada partitur yang tersedia untuk diunduh.",
+    "sheetInfoNotFound": "Informasi partitur tidak ditemukan.",
+    "fileNotFound": "File tidak ditemukan.",
+    "downloadError": "Gagal mengunduh file. Silakan coba lagi nanti."
+  }
+}

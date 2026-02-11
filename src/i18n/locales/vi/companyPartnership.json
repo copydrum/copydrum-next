@@ -1,0 +1,25 @@
+{
+  "title": "Thông tin đối tác",
+  "description": "COPYDRUM mang nội dung tốt nhất đến nhiều tay trống hơn thông qua các đối tác.",
+  "benefits": {
+    "title": "Lợi ích đối tác",
+    "exclusiveLicense": {
+      "title": "Giấy phép bản nhạc độc quyền",
+      "description": "Chúng tôi cung cấp giấy phép tùy chỉnh để sử dụng trong các môi trường khác nhau như biểu diễn, bài học và bán hàng."
+    },
+    "premiumSupport": {
+      "title": "Hỗ trợ cao cấp",
+      "description": "Chúng tôi cung cấp hỗ trợ chuyên dụng cho các đối tác bao gồm yêu cầu bản nhạc mới, phiên âm tùy chỉnh và tiếp thị chung."
+    },
+    "sharedGrowth": {
+      "title": "Tăng trưởng chung",
+      "description": "Chúng tôi mở rộng cộng đồng tay trống cùng nhau thông qua các dự án và sự kiện chung."
+    }
+  },
+  "inquiry": {
+    "title": "Yêu cầu đối tác",
+    "description": "Bạn đã sẵn sàng phát triển cùng nhau thông qua đối tác với COPYDRUM? Vui lòng liên hệ với chúng tôi bằng thông tin bên dưới.",
+    "emailLabel": "Email",
+    "note": "Vui lòng cung cấp thông tin chi tiết trong yêu cầu của bạn để nhận được phản hồi nhanh chóng từ đội ngũ của chúng tôi."
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "badge": "免費鼓課程",
+  "title": "免費鼓課程樂譜",
+  "description": "免費探索鼓課程類別中的所有樂譜！透過 YouTube 課程練習，更快提升您的技能。從各種學習主題中選擇，例如鼓技巧、基礎練習、鼓獨奏等。",
+  "features": {
+    "freeDownload": "免費完整下載",
+    "categoryLearning": "按類別學習",
+    "youtubeLesson": "YouTube 課程連結"
+  },
+  "categories": {
+    "all": "全部",
+    "drumTechnique": "鼓技巧",
+    "rudiment": "基礎練習",
+    "drumSolo": "鼓獨奏",
+    "beginnerBasics": "初學者/基礎",
+    "rhythmPattern": "節奏型",
+    "fillIn": "過門",
+    "drumLesson": "鼓課程",
+    "categoryPending": "類別待定"
+  },
+  "search": {
+    "placeholder": "依標題、藝人或標籤搜尋"
+  },
+  "sort": {
+    "label": "排序",
+    "latest": "最新",
+    "title": "標題",
+    "difficulty": "難度"
+  },
+  "difficulty": {
+    "beginner": "初學者",
+    "intermediate": "中級",
+    "advanced": "進階",
+    "notAvailable": "難度不可用"
+  },
+  "loading": "正在載入免費鼓課程樂譜...",
+  "empty": {
+    "title": "沒有符合您條件的免費樂譜。",
+    "description": "請嘗試選擇不同的類別或更改您的搜尋詞。"
+  },
+  "actions": {
+    "viewFreeSheet": "查看免費樂譜",
+    "viewYoutubeLesson": "查看 YouTube 課程",
+    "goToDetail": "前往詳情頁面",
+    "closeDetail": "關閉免費樂譜詳情"
+  },
+  "errors": {
+    "lessonCategoryLoadError": "載入鼓課程類別失敗。請稍後再試。",
+    "lessonCategoryNotFound": "鼓課程類別不存在。請聯絡管理員。",
+    "sheetsLoadError": "載入免費鼓課程樂譜失敗。請稍後再試。",
+    "generalError": "載入免費鼓課程樂譜時發生錯誤。",
+    "loginRequired": "需要登入。",
+    "favoriteError": "處理我的最愛時發生錯誤。請稍後再試。",
+    "pdfNotReady": "PDF 連結尚未準備好。",
+    "youtubeNotAvailable": "未註冊 YouTube 影片。"
+  },
+  "mobile": {
+    "freeSheet": "免費樂譜",
+    "upload": "上傳",
+    "pages": "頁",
+    "youtubeLessonIncluded": "包含 YouTube 課程",
+    "freeDownload": "免費下載",
+    "practiceWithPdf": "使用 PDF 樂譜練習。",
+    "favorite": "我的最愛",
+    "unfavorite": "取消我的最愛"
+  },
+  "console": {
+    "lessonCategoryError": "鼓課程類別查詢錯誤：",
+    "primarySheetsError": "主要鼓課程樂譜載入錯誤：",
+    "relationsError": "鼓課程類別關係載入錯誤：",
+    "additionalSheetsError": "額外鼓課程樂譜載入錯誤：",
+    "extraCategoriesError": "額外類別載入錯誤：",
+    "generalError": "免費樂譜頁面處理錯誤：",
+    "favoritesLoadError": "我的最愛載入錯誤：",
+    "favoriteToggleError": "我的最愛切換錯誤：",
+    "userLoadError": "載入使用者資訊失敗：",
+    "youtubeUrlParseError": "YouTube URL 解析失敗："
+  }
+}

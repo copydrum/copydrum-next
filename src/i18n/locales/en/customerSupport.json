@@ -1,0 +1,146 @@
+{
+  "title": "Customer Support",
+  "subtitle": "If you have any questions, please contact us anytime. We will provide quick and accurate answers.",
+  "tabs": {
+    "faq": "FAQ",
+    "contact": "Contact Us"
+  },
+  "contact": {
+    "title": "Contact Us",
+    "description": "If you have any questions or issues, please fill out the form below. We will respond as soon as possible.",
+    "form": {
+      "name": "Name",
+      "namePlaceholder": "Enter your name",
+      "email": "Email",
+      "emailPlaceholder": "Enter your email",
+      "inquiryType": "Inquiry Type",
+      "inquiryTypePlaceholder": "Select inquiry type",
+      "subject": "Subject",
+      "subjectPlaceholder": "Enter inquiry subject",
+      "message": "Message",
+      "messagePlaceholder": "Please write your inquiry in detail (max 500 characters)",
+      "characters": "characters",
+      "submit": "Send Inquiry",
+      "submitting": "Sending...",
+      "note": "We will respond to your inquiry within 24 hours on business days."
+    },
+    "categories": {
+      "orderPayment": "Order/Payment Inquiry",
+      "sheetDownload": "Sheet Music/Download Inquiry",
+      "customOrder": "Custom Order Inquiry",
+      "technical": "Technical Support",
+      "other": "Other Inquiry"
+    }
+  },
+  "contactInfo": {
+    "title": "Contact Information",
+    "subtitle": "You can contact us through various methods",
+    "email": {
+      "title": "Email Inquiry",
+      "address": "copydrum@hanmail.net",
+      "description": "24/7 reception, response within 1 day"
+    },
+    "kakao": {
+      "title": "KakaoTalk Consultation",
+      "description": "You can use real-time chat consultation.",
+      "button": "Open KakaoTalk Chat"
+    },
+    "hours": {
+      "title": "Business Hours",
+      "weekdays": "Weekdays 09:00 - 17:00",
+      "closed": "Closed on weekends and holidays"
+    }
+  },
+  "faq": {
+    "categories": {
+      "orderPayment": {
+        "name": "Order/Payment",
+        "items": {
+          "download": {
+            "question": "When can I download the sheet music after purchase?",
+            "answer": "You can download immediately after payment is completed from My Page. Purchased sheet music can be re-downloaded anytime."
+          },
+          "payment": {
+            "question": "What payment methods are available?",
+            "answer": "We support credit cards, debit cards, bank transfers, and convenient payment methods (Kakao Pay)."
+          },
+          "refund": {
+            "question": "How can I get a refund?",
+            "answer": "Due to the nature of digital products, refunds are only available before download. Refunds are difficult after download, so please purchase carefully."
+          }
+        }
+      },
+      "sheetDownload": {
+        "name": "Sheet Music/Download",
+        "items": {
+          "format": {
+            "question": "What file format are the sheet music files?",
+            "answer": "All sheet music is provided in high-quality PDF format. Optimized for both printing and digital devices."
+          },
+          "print": {
+            "question": "Can I print the downloaded sheet music?",
+            "answer": "Yes, you can print for personal practice use. However, commercial use or redistribution is prohibited."
+          },
+          "difficulty": {
+            "question": "How are difficulty levels classified?",
+            "answer": "They are classified as Beginner (basic patterns), Intermediate (including variation patterns), and Advanced (including complex techniques)."
+          }
+        }
+      },
+      "customOrder": {
+        "name": "Custom Order",
+        "items": {
+          "what": {
+            "question": "What is the custom order service?",
+            "answer": "It is a customized service where professionals create drum sheet music for your desired song."
+          },
+          "duration": {
+            "question": "How long does production take?",
+            "answer": "It usually takes 1-7 days depending on the complexity of the song. Exact schedule will be provided individually after application."
+          },
+          "cost": {
+            "question": "How is the production cost determined?",
+            "answer": "We provide quotes by comprehensively considering the song's length, complexity, and difficulty level."
+          }
+        }
+      }
+    }
+  },
+  "errors": {
+    "fillAllFields": "Please fill in all fields.",
+    "submitError": "An error occurred while sending your inquiry. Please try again."
+  },
+  "messages": {
+    "submitSuccess": "Your inquiry has been successfully submitted. We will respond as soon as possible."
+  },
+  "console": {
+    "inquiryError": "고객 문의 저장 실패:"
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

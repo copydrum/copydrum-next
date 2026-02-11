@@ -1,0 +1,79 @@
+{
+  "badge": "BÀI HỌC DRUM MIỄN PHÍ",
+  "title": "Sheet bài học drum miễn phí",
+  "description": "Khám phá tất cả sheet music trong danh mục bài học drum miễn phí! Luyện tập với các bài học YouTube để cải thiện kỹ năng của bạn nhanh hơn. Chọn từ nhiều chủ đề học tập như kỹ thuật drum, rudiment, drum solo, và nhiều hơn nữa.",
+  "features": {
+    "freeDownload": "Tải xuống đầy đủ miễn phí",
+    "categoryLearning": "Học tập theo danh mục",
+    "youtubeLesson": "Liên kết bài học YouTube"
+  },
+  "categories": {
+    "all": "Tất cả",
+    "drumTechnique": "Kỹ thuật Drum",
+    "rudiment": "Rudiment",
+    "drumSolo": "Drum Solo",
+    "beginnerBasics": "Người mới bắt đầu/Cơ bản",
+    "rhythmPattern": "Mẫu nhịp điệu",
+    "fillIn": "Fill-in",
+    "drumLesson": "Bài học Drum",
+    "categoryPending": "Danh mục đang chờ"
+  },
+  "search": {
+    "placeholder": "Tìm kiếm theo tiêu đề, nghệ sĩ hoặc thẻ"
+  },
+  "sort": {
+    "label": "Sắp xếp",
+    "latest": "Mới nhất",
+    "title": "Tiêu đề",
+    "difficulty": "Độ khó"
+  },
+  "difficulty": {
+    "beginner": "Người mới bắt đầu",
+    "intermediate": "Trung cấp",
+    "advanced": "Nâng cao",
+    "notAvailable": "Độ khó không có sẵn"
+  },
+  "loading": "Đang tải sheet bài học drum miễn phí...",
+  "empty": {
+    "title": "Không có sheet miễn phí nào phù hợp với tiêu chí của bạn.",
+    "description": "Thử chọn một danh mục khác hoặc thay đổi từ khóa tìm kiếm của bạn."
+  },
+  "actions": {
+    "viewFreeSheet": "Xem Sheet miễn phí",
+    "viewYoutubeLesson": "Xem bài học YouTube",
+    "goToDetail": "Đi đến trang chi tiết",
+    "closeDetail": "Đóng chi tiết Sheet miễn phí"
+  },
+  "errors": {
+    "lessonCategoryLoadError": "Không thể tải danh mục bài học drum. Vui lòng thử lại sau.",
+    "lessonCategoryNotFound": "Danh mục bài học drum không tồn tại. Vui lòng liên hệ quản trị viên.",
+    "sheetsLoadError": "Không thể tải sheet bài học drum miễn phí. Vui lòng thử lại sau.",
+    "generalError": "Đã xảy ra lỗi khi tải sheet bài học drum miễn phí.",
+    "loginRequired": "Yêu cầu đăng nhập.",
+    "favoriteError": "Đã xảy ra lỗi khi xử lý yêu thích. Vui lòng thử lại sau.",
+    "pdfNotReady": "Liên kết PDF chưa sẵn sàng.",
+    "youtubeNotAvailable": "Không có video YouTube nào được đăng ký."
+  },
+  "mobile": {
+    "freeSheet": "Sheet miễn phí",
+    "upload": "Tải lên",
+    "pages": "trang",
+    "youtubeLessonIncluded": "Bao gồm bài học YouTube",
+    "freeDownload": "Tải xuống miễn phí",
+    "practiceWithPdf": "Luyện tập với sheet music PDF.",
+    "favorite": "Yêu thích",
+    "unfavorite": "Bỏ yêu thích"
+  },
+  "console": {
+    "lessonCategoryError": "Lỗi tra cứu danh mục bài học drum:",
+    "primarySheetsError": "Lỗi tải sheet bài học drum chính:",
+    "relationsError": "Lỗi tải quan hệ danh mục bài học drum:",
+    "additionalSheetsError": "Lỗi tải sheet bài học drum bổ sung:",
+    "extraCategoriesError": "Lỗi tải danh mục bổ sung:",
+    "generalError": "Lỗi xử lý trang sheet miễn phí:",
+    "favoritesLoadError": "Lỗi tải yêu thích:",
+    "favoriteToggleError": "Lỗi chuyển đổi yêu thích:",
+    "userLoadError": "Không thể tải thông tin người dùng:",
+    "youtubeUrlParseError": "Phân tích URL YouTube thất bại:"
+  }
+}

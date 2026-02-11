@@ -1,0 +1,72 @@
+{
+  "loading": "Chargement de la collection...",
+  "errors": {
+    "noCollectionInfo": "Les informations de la collection demandée ne sont pas disponibles.",
+    "collectionNotFound": "La collection demandée est introuvable.",
+    "loadError": "Une erreur s'est produite lors du chargement des informations de la collection.",
+    "collectionNotAvailable": "La collection de partitions demandée n'existe pas ou a été désactivée."
+  },
+  "backToList": "Retour aux collections",
+  "free": "Gratuit",
+  "discount": "{{percentage}}% DE RÉDUCTION",
+  "badge": "Collection de partitions",
+  "includedSheets": {
+    "count": "Partitions incluses",
+    "number": "{{count}} chansons",
+    "title": "Partitions incluses",
+    "description": "Consultez toutes les partitions incluses dans cette collection et explorez celles que vous souhaitez.",
+    "empty": "Aucune partition n'a encore été ajoutée à cette collection."
+  },
+  "sheet": {
+    "difficulty": "Difficulté {{difficulty}}",
+    "free": "Gratuit"
+  },
+  "purchase": {
+    "priceInfo": "Informations sur le prix de la collection",
+    "totalIndividual": "Total des partitions individuelles",
+    "noInfo": "Aucune information",
+    "collectionPrice": "Prix de la collection",
+    "buyNow": "Acheter maintenant",
+    "save": "Économisez {{amount}} !",
+    "processing": "Traitement en cours...",
+    "note": "Les collections ne peuvent être achetées qu'au prix réduit.",
+    "inactive": "Cette collection est actuellement inactive. Veuillez contacter l'administrateur.",
+    "mobilePrice": "Prix de la collection",
+    "mobileSave": "Économisez {{amount}} par rapport à l'achat individuel",
+    "mobileInactive": "Cette collection est actuellement inactive.",
+    "buyCollection": "Buy Collection",
+    "goToCart": "Go to Cart"
+  },
+  "alerts": {
+    "noSheetInfo": "Les informations sur les partitions incluses dans la collection n'ont pas pu être trouvées.",
+    "duplicatePurchase": "Vous avez déjà acheté certaines partitions incluses dans cette collection, donc l'achat en double n'est pas possible.",
+    "duplicateList": "Partitions en double :",
+    "checkMyPage": "Veuillez vérifier votre historique d'achat dans Ma Page.",
+    "insufficientCredit": "Solde insuffisant.",
+    "currentBalance": "Solde actuel : {{amount}}P",
+    "chargeCash": "Veuillez recharger votre solde et réessayer.",
+    "purchaseSuccess": "Achat terminé. Veuillez vérifier le contenu dans Ma Page.",
+    "purchaseError": "Une erreur s'est produite lors de l'achat."
+  },
+  "navigation": {
+    "title": "Explorer d'autres pages",
+    "viewCategories": "Voir les catégories de partitions",
+    "eventSale": "Partitions en promotion",
+    "customOrder": "Demande de commande personnalisée"
+  },
+  "purchaseDescription": "Achat de collection de partitions : {{title}}",
+  "sheetTitle": "Partition",
+  "viewSheet": "Voir la partition",
+  "difficulty": {
+    "beginner": "Débutant",
+    "intermediate": "Intermédiaire",
+    "advanced": "Avancé"
+  },
+  "features": {
+    "title": "Ce qui est inclus",
+    "allSheets": "Toutes les partitions à prix réduit",
+    "highQuality": "Format PDF haute qualité",
+    "instantDownload": "Téléchargement instantané",
+    "lifetimeAccess": "Accès à vie"
+  }
+}

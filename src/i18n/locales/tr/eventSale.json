@@ -1,0 +1,61 @@
+{
+  "header": {
+    "badge": "Popüler Davul Notalarını Sadece 100 Won'a Alın!",
+    "title": "100 Won Özel Satış ETKİNLİĞİ",
+    "description": "Bu sınırlı süreli süper indirimli davul notalarını kaçırmayın. Popüler şarkıları sadece 100 won'a alın ve bugün çalmaya başlayın!"
+  },
+  "countdownNotice": "Gerçek zamanlı geri sayım zamanlayıcısını kontrol edin!",
+  "loading": "Etkinlik bilgileri yükleniyor...",
+  "countdown": {
+    "startingSoon": "Yakında başlıyor",
+    "startsIn": "Başlıyor",
+    "timeLeft": "⏰ Kalan süre",
+    "dayUnit": "g",
+    "starts": "Başlıyor"
+  },
+  "buttons": {
+    "only100Won": "Sadece 100 Won!",
+    "addToFavorites": "Favorilere ekle",
+    "removeFromFavorites": "Favorilerden çıkar",
+    "viewDetails": "Detayları Görüntüle",
+    "buyNow": "Hemen Satın Al",
+    "processing": "İşleniyor...",
+    "saleEnded": "Satış Bitti"
+  },
+  "labels": {
+    "eventSheet": "Etkinlik Notası",
+    "saleEnded": "Satış Bitti",
+    "only100WonBadge": "Sadece 100 Won!",
+    "100Won": "100 Won",
+    "discount": "İndirim",
+    "startingSoon": "Yakında Başlıyor"
+  },
+  "sections": {
+    "ongoing": {
+      "title": "Devam Eden 100 Won Özel Satış",
+      "description": "Şu anda satın alınabilir etkinlik notaları.",
+      "activeCount": "{{count}} Aktif",
+      "noEvents": "Devam eden etkinlik yok. Aşağıdaki planlanmış etkinlikleri kontrol edin!"
+    },
+    "scheduled": {
+      "title": "Planlanmış Etkinlikler",
+      "description": "Yaklaşan etkinlikleri kontrol edin ve bildirimler için hazırlanın.",
+      "scheduledCount": "{{count}} Planlandı"
+    },
+    "ended": {
+      "title": "Biten Etkinlikler"
+    }
+  },
+  "messages": {
+    "loginRequired": "Giriş gerekli.",
+    "loginRequiredConfirm": "Giriş gerekli. Giriş sayfasına gidilsin mi?",
+    "checkDownloadPage": "Notanızı indirme sayfasında kontrol edin.",
+    "paymentError": "Ödeme sırasında bir hata oluştu.",
+    "favoriteError": "Favorileriniz işlenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin."
+  },
+  "console": {
+    "loadEventsError": "Etkinlik indirimli nota listesi yükleme hatası:",
+    "loadFavoritesError": "Favoriler listesi yükleme hatası:",
+    "toggleFavoriteError": "Favori değiştirme işleme hatası:"
+  }
+}

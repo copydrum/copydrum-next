@@ -1,0 +1,36 @@
+{
+  "title": "Rückerstattung & Lieferung (Digitale Produktrichtlinie)",
+  "sections": {
+    "productType": {
+      "title": "1. Produkttyp",
+      "description": "Alle auf CopyDrum verkauften Produkte sind digitale Inhalte (PDF Schlagzeug-Notenblätter). Dies sind nicht-physische elektronische Produkte, die nach Zahlung sofort zum Download verfügbar sind."
+    },
+    "deliveryMethod": {
+      "title": "2. Liefermethode",
+      "description1": "Nach erfolgreicher Zahlung sind Dateien sofort zum Download verfügbar unter",
+      "description2": "Meine Seite > Bestellhistorie",
+      "description3": "Wenn der Download nicht funktioniert, stellen wir auf Anfrage neu ausgestellte Download-Links bereit oder senden die Dateien manuell erneut."
+    },
+    "refundPolicy": {
+      "title": "3. Rückerstattungsrichtlinie",
+      "description": "Aufgrund der Natur digitaler Produkte sind Rückerstattungen nicht verfügbar, sobald die Datei heruntergeladen oder aufgerufen wurde.",
+      "exceptionNote": "Wir bieten jedoch Rückerstattungen oder Umtausch in den folgenden Ausnahmefällen an:",
+      "exceptions": {
+        "exception1": "Innerhalb von 7 Tagen nach dem Kauf, wenn die Datei nicht heruntergeladen wurde",
+        "exception2": "Falsche Datei bereitgestellt oder technische Fehler, die die Datei unbrauchbar machen",
+        "exception3": "Doppelte Zahlungen für dasselbe Produkt"
+      }
+    },
+    "customerProtection": {
+      "title": "4. Kundenschutz",
+      "description": "Wir bemühen uns, Probleme sofort zu lösen:",
+      "protections": {
+        "protection1": "Kostenloser Ersatz bei Dateifehlern",
+        "protection2": "Neuausstellung von Download-Links bei Zugriffsproblemen",
+        "protection3": "Sofortige Rückerstattung bei doppelten Transaktionen"
+      },
+      "contact": "Kundensupport:",
+      "email": "support@copydrum.com"
+    }
+  }
+}

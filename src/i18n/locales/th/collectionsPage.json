@@ -1,0 +1,21 @@
+{
+  "loading": "กำลังโหลด...",
+  "title": "คอลเลกชันแผ่นเพลง",
+  "subtitle": "ค้นพบคอลเลกชันแผ่นเพลงกลองที่คัดสรรเป็นพิเศษตามธีม",
+  "filter": {
+    "all": "ทั้งหมด"
+  },
+  "empty": {
+    "noCollections": "ยังไม่มีคอลเลกชันที่ลงทะเบียน",
+    "noCollectionsForCategory": "ไม่มีคอลเลกชันสำหรับประเภทที่เลือก"
+  },
+  "collection": {
+    "badge": "คอลเลกชัน",
+    "discount": "ลด {{percentage}}%",
+    "free": "ฟรี",
+    "songs": "{{count}} เพลง"
+  },
+  "pagination": {
+    "pageInfo": "{{current}} / {{total}}"
+  }
+}

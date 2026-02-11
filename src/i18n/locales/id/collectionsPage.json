@@ -1,0 +1,21 @@
+{
+  "loading": "Memuat...",
+  "title": "Koleksi Lembaran Musik",
+  "subtitle": "Temukan koleksi lembaran musik drum yang dikurasi khusus kami berdasarkan tema.",
+  "filter": {
+    "all": "Semua"
+  },
+  "empty": {
+    "noCollections": "Tidak ada koleksi yang terdaftar.",
+    "noCollectionsForCategory": "Tidak ada koleksi tersedia untuk genre yang dipilih."
+  },
+  "collection": {
+    "badge": "Koleksi",
+    "discount": "{{percentage}}% OFF",
+    "free": "Gratis",
+    "songs": "{{count}} lagu"
+  },
+  "pagination": {
+    "pageInfo": "{{current}} / {{total}}"
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "title": "Spartito per batteria personalizzato",
+  "description": {
+    "line1": "Cerchi una canzone specifica?",
+    "line2": "I nostri professionisti analizzeranno e creeranno spartiti per batteria di alta qualità per te.",
+    "line3": "Forniamo preventivi personalizzati in base alla difficoltà e alla struttura della canzone."
+  },
+  "login": {
+    "required": "Accesso richiesto",
+    "description": "Accedi per inviare una richiesta di ordine personalizzato.",
+    "button": "Accedi"
+  },
+  "pricing": {
+    "title": "Informazioni sui prezzi",
+    "note": "* Il prezzo finale sarà fornito come preventivo individuale dopo aver analizzato la difficoltà e la lunghezza della canzone.",
+    "grades": {
+      "c": {
+        "name": "Grado C",
+        "price": "$10+",
+        "description": "Canzoni K-pop, pop, adult contemporary generali sotto i 5 minuti"
+      },
+      "b": {
+        "name": "Grado B",
+        "price": "$30+",
+        "description": "Difficoltà leggermente superiore all'intermedio o canzoni oltre i 5 minuti"
+      },
+      "a": {
+        "name": "Grado A",
+        "price": "$50+",
+        "description": "Canzoni di difficoltà avanzata"
+      }
+    }
+  },
+  "form": {
+    "title": "Modulo richiesta ordine personalizzato",
+    "applicantId": "ID richiedente",
+    "applicantIdPlaceholder": "ID connesso",
+    "songInfo": "Informazioni canzone",
+    "songTitle": "Titolo canzone",
+    "songTitlePlaceholder": "Inserisci il titolo della canzone che desideri ordinare",
+    "artist": "Artista",
+    "artistPlaceholder": "Inserisci il nome dell'artista",
+    "youtubeUrl": "URL YouTube",
+    "youtubeUrlPlaceholder": "Inserisci l'URL YouTube per una creazione accurata dello spartito (opzionale)",
+    "youtubeUrlHint": "Inserisci un URL YouTube per una creazione accurata dello spartito. (Opzionale)",
+    "memo": "Memo",
+    "memoPlaceholder": "Inserisci eventuali note o memo (massimo 500 caratteri)",
+    "characters": "caratteri",
+    "submit": "Invia richiesta ordine personalizzato",
+    "submitting": "Invio in corso...",
+    "note": "Dopo l'invio, puoi controllare lo stato di avanzamento nella Mia pagina \"Cronologia ordini personalizzati\" e scaricare lo spartito una volta completato."
+  },
+  "process": {
+    "title": "Processo ordine personalizzato",
+    "steps": {
+      "request": {
+        "title": "Richiesta ricevuta",
+        "description": "La tua richiesta di ordine personalizzato viene ricevuta all'invio."
+      },
+      "quote": {
+        "title": "Preventivo inviato",
+        "description": "Analizziamo la canzone e forniamo un preventivo tramite la Mia pagina."
+      },
+      "payment": {
+        "title": "Pagamento confermato",
+        "description": "Dopo aver confermato il preventivo e il pagamento, inizia la produzione."
+      },
+      "completed": {
+        "title": "Completato",
+        "description": "Scarica lo spartito completato dalla Mia pagina."
+      }
+    }
+  },
+  "faq": {
+    "title": "Domande frequenti",
+    "questions": {
+      "quote": {
+        "question": "Come controllo il preventivo?",
+        "answer": "Puoi controllare il preventivo in \"Cronologia ordini personalizzati\" nella Mia pagina. Forniremo un preventivo entro 24 ore dalla tua richiesta."
+      },
+      "production": {
+        "question": "Quanto tempo richiede la produzione?",
+        "answer": "Generalmente, richiede 1-3 giorni dopo la conferma del pagamento. La durata può variare a seconda della difficoltà e della lunghezza della canzone, e forniremo il programma esatto nel preventivo."
+      },
+      "payment": {
+        "question": "Quali metodi di pagamento sono disponibili?",
+        "answer": "Attualmente, è disponibile solo il bonifico bancario. Forniremo le informazioni del conto bancario insieme al preventivo."
+      }
+    }
+  },
+  "errors": {
+    "loginRequired": "L'accesso è richiesto.",
+    "submitError": "Si è verificato un errore durante l'invio. Riprova."
+  },
+  "messages": {
+    "submitSuccess": "La richiesta di ordine personalizzato è stata inviata. Puoi controllare lo stato di avanzamento nella Mia pagina."
+  },
+  "console": {
+    "submitError": "Errore nell'invio dell'ordine:"
+  }
+}

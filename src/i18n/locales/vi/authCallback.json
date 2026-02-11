@@ -1,0 +1,14 @@
+{
+  "loading": "Đang xử lý đăng nhập...",
+  "errors": {
+    "oauthError": "Đăng nhập thất bại",
+    "callbackError": "Đã xảy ra lỗi khi xử lý đăng nhập. Vui lòng thử lại.",
+    "profileCreationError": "Lỗi tạo hồ sơ"
+  },
+  "console": {
+    "oauthError": "Lỗi OAuth:",
+    "callbackError": "Lỗi xử lý callback xác thực:",
+    "profileCreationError": "Lỗi tạo hồ sơ:"
+  },
+  "defaultUserName": "Người dùng"
+}

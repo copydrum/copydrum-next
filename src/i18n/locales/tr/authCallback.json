@@ -1,0 +1,14 @@
+{
+  "loading": "Giriş işleniyor...",
+  "errors": {
+    "oauthError": "Giriş başarısız",
+    "callbackError": "Giriş işlenirken bir hata oluştu. Lütfen tekrar deneyin.",
+    "profileCreationError": "Profil oluşturma hatası"
+  },
+  "console": {
+    "oauthError": "OAuth hatası:",
+    "callbackError": "Kimlik doğrulama geri çağrısı işleme hatası:",
+    "profileCreationError": "Profil oluşturma hatası:"
+  },
+  "defaultUserName": "Kullanıcı"
+}

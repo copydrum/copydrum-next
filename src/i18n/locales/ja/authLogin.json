@@ -1,0 +1,45 @@
+{
+  "title": "ログイン",
+  "noAccount": "アカウントをお持ちでないですか？",
+  "signUp": "新規登録",
+  "notice": "🔔 既存会員様へ: サイトリニューアルにより、初回ログイン時にパスワードの再設定が必要です。",
+  "form": {
+    "email": "メールアドレス",
+    "emailPlaceholder": "メールアドレスを入力",
+    "password": "パスワード",
+    "passwordPlaceholder": "パスワードを入力",
+    "rememberMe": "ログイン状態を保持",
+    "forgotPassword": "パスワードをお忘れですか？",
+    "submit": "ログイン",
+    "submitting": "ログイン中..."
+  },
+  "divider": "または",
+  "social": {
+    "google": "Google",
+    "kakao": "Kakao"
+  },
+  "errors": {
+    "kakaoLoginFailed": "カカオログインに失敗しました。もう一度お試しください。",
+    "googleLoginFailed": "Googleログインに失敗しました。もう一度お試しください。",
+    "invalidCredentials": "メールアドレスまたはパスワードが正しくありません。",
+    "emailNotConfirmed": "メール認証が必要です。メールをご確認ください。",
+    "loginFailed": "ログインに失敗しました。もう一度お試しください。",
+    "resetPasswordEmailError": "パスワード再設定メールの送信中にエラーが発生しました。もう一度お試しください。",
+    "profileError": "プロフィール検索エラー",
+    "profileCreationError": "プロフィール作成エラー",
+    "migrationCheckError": "移行ユーザー確認エラー"
+  },
+  "messages": {
+    "passwordResetEmailSent": "既存の会員様です！パスワード再設定メールを送信しました。メールボックスをご確認ください。"
+  },
+  "console": {
+    "kakaoLoginError": "カカオログインエラー:",
+    "googleLoginError": "Googleログインエラー:",
+    "profileLookupError": "プロフィール検索エラー:",
+    "profileCreationError": "プロフィール作成エラー:",
+    "resetPasswordEmailError": "パスワード再設定メール送信エラー:",
+    "migrationCheckError": "移行ユーザー確認エラー:",
+    "loginError": "ログインエラー:"
+  },
+  "defaultUserName": "ユーザー"
+}

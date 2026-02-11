@@ -1,0 +1,65 @@
+{
+  "title": "Nota Satın Alma Geçmişi",
+  "description": "Bu, en yenilerden başlayarak sıralanmış satın aldığınız notaların listesidir.",
+  "totalPurchased": "Toplam {{count}} nota satın aldınız.",
+  "loginRequired": "Giriş Gerekli",
+  "loginRequiredMessage": "Satın alma geçmişinizi görmek için lütfen giriş yapın.",
+  "orderNumber": "Sipariş Numarası",
+  "categoryNotSet": "Kategori Belirlenmemiş",
+  "deletedSheet": "Silinmiş Nota",
+  "status": {
+    "pending": "Ödeme Bekleniyor",
+    "pendingDesc": "Ödeme onayı bekleniyor.",
+    "processing": "İşleniyor",
+    "processingDesc": "Siparişiniz işleniyor.",
+    "completed": "Tamamlandı",
+    "completedDesc": "Sipariş tamamlandı. İndirmeler mevcut.",
+    "cancelled": "İptal Edildi",
+    "cancelledDesc": "Sipariş iptal edildi.",
+    "paymentPending": "Ödeme Bekleniyor",
+    "paymentPendingDesc": "Para yatırma onayı bekleniyor.",
+    "paymentConfirmed": "Ödeme Onaylandı",
+    "paymentConfirmedDesc": "Ödeme onaylandı. İndirmeler mevcut.",
+    "paid": "Ödendi",
+    "paidDesc": "Ödeme tamamlandı. İndirmeler mevcut.",
+    "refunded": "İade Edildi",
+    "refundedDesc": "Sipariş iade edildi."
+  },
+  "paymentMethod": {
+    "card": "Kredi Kartı",
+    "bankTransfer": "Banka Havalesi",
+    "virtualAccount": "Sanal Hesap",
+    "cash": "Mevcut Bakiye",
+    "points": "Puanlar"
+  },
+  "empty": {
+    "title": "Satın Alınan Nota Yok",
+    "message": "Favori notalarınızı bulun ve sepete ekleyin.",
+    "browseButton": "Notaları Gözat"
+  },
+  "actions": {
+    "downloadAll": "Bu Siparişteki Tümünü İndir",
+    "downloadSelected": "Seçilenleri İndir",
+    "selectAll": "Tümünü Seç",
+    "deselectAll": "Tümünü Seçimi Kaldır",
+    "clearSelection": "Seçimi Temizle",
+    "download": "İndir",
+    "downloadNotAvailable": "İndirme Mevcut Değil",
+    "downloading": "İndiriliyor...",
+    "viewDetails": "Detayları Görüntüle",
+    "purchaseDate": "Satın Alma Tarihi {{date}}",
+    "selectedCount": "{{count}} seçildi",
+    "cart": "Sepet"
+  },
+  "messages": {
+    "selectSheetsToDownload": "Lütfen indirmek için notalar seçin.",
+    "refundedOrRestricted": "Bu sipariş iade edildi veya indirme kısıtlandı.",
+    "loginRequired": "Giriş gereklidir.",
+    "downloadFailed": "{{count}} nota indirilemedi.",
+    "refundedOrder": "İade edilen siparişler indirilemez.",
+    "noSheetsToDownload": "İndirilecek nota mevcut değil.",
+    "sheetInfoNotFound": "Nota bilgisi bulunamadı.",
+    "fileNotFound": "Dosya bulunamadı.",
+    "downloadError": "Dosya indirilemedi. Lütfen daha sonra tekrar deneyin."
+  }
+}

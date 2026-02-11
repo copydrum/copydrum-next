@@ -1,0 +1,21 @@
+{
+  "loading": "Đang tải...",
+  "title": "Bộ sưu tập bản nhạc",
+  "subtitle": "Khám phá các bộ sưu tập bản nhạc trống được tuyển chọn đặc biệt theo chủ đề của chúng tôi.",
+  "filter": {
+    "all": "Tất cả"
+  },
+  "empty": {
+    "noCollections": "Chưa có bộ sưu tập nào được đăng ký.",
+    "noCollectionsForCategory": "Không có bộ sưu tập nào cho thể loại đã chọn."
+  },
+  "collection": {
+    "badge": "Bộ sưu tập",
+    "discount": "Giảm {{percentage}}%",
+    "free": "Miễn phí",
+    "songs": "{{count}} bài hát"
+  },
+  "pagination": {
+    "pageInfo": "{{current}} / {{total}}"
+  }
+}

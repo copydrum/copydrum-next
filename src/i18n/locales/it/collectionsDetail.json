@@ -1,0 +1,72 @@
+{
+  "loading": "Caricamento collezione...",
+  "errors": {
+    "noCollectionInfo": "Le informazioni sulla collezione richiesta non sono disponibili.",
+    "collectionNotFound": "La collezione richiesta non è stata trovata.",
+    "loadError": "Si è verificato un errore durante il caricamento delle informazioni sulla collezione.",
+    "collectionNotAvailable": "La collezione di spartiti richiesta non esiste o è stata disattivata."
+  },
+  "backToList": "Torna alle collezioni",
+  "free": "Gratuito",
+  "discount": "{{percentage}}% di sconto",
+  "badge": "Collezione spartiti",
+  "includedSheets": {
+    "count": "Spartiti inclusi",
+    "number": "{{count}} canzoni",
+    "title": "Spartiti inclusi",
+    "description": "Visualizza tutti gli spartiti inclusi in questa collezione ed esplora quelli che desideri.",
+    "empty": "Nessuno spartito è stato ancora aggiunto a questa collezione."
+  },
+  "sheet": {
+    "difficulty": "Difficoltà {{difficulty}}",
+    "free": "Gratuito"
+  },
+  "purchase": {
+    "priceInfo": "Informazioni prezzo collezione",
+    "totalIndividual": "Totale spartiti individuali",
+    "noInfo": "Nessuna informazione",
+    "collectionPrice": "Prezzo collezione",
+    "buyNow": "Acquista ora",
+    "save": "Risparmia {{amount}}!",
+    "processing": "Elaborazione in corso...",
+    "note": "Le collezioni possono essere acquistate solo al prezzo scontato.",
+    "inactive": "Questa collezione è attualmente inattiva. Contatta l'amministratore.",
+    "mobilePrice": "Prezzo collezione",
+    "mobileSave": "Risparmia {{amount}} rispetto all'acquisto individuale",
+    "mobileInactive": "Questa collezione è attualmente inattiva.",
+    "buyCollection": "Buy Collection",
+    "goToCart": "Go to Cart"
+  },
+  "alerts": {
+    "noSheetInfo": "Impossibile trovare le informazioni sugli spartiti inclusi nella collezione.",
+    "duplicatePurchase": "Hai già acquistato alcuni spartiti inclusi in questa collezione, quindi l'acquisto duplicato non è possibile.",
+    "duplicateList": "Spartiti duplicati:",
+    "checkMyPage": "Controlla la tua cronologia degli acquisti nella Mia pagina.",
+    "insufficientCredit": "Saldo insufficiente.",
+    "currentBalance": "Saldo attuale: {{amount}}P",
+    "chargeCash": "Ricarica il saldo e riprova.",
+    "purchaseSuccess": "Acquisto completato. Controlla il contenuto nella Mia pagina.",
+    "purchaseError": "Si è verificato un errore durante l'acquisto."
+  },
+  "navigation": {
+    "title": "Esplora altre pagine",
+    "viewCategories": "Visualizza categorie spartiti",
+    "eventSale": "Spartiti in promozione",
+    "customOrder": "Richiesta ordine personalizzato"
+  },
+  "purchaseDescription": "Acquisto collezione spartiti: {{title}}",
+  "sheetTitle": "Spartito",
+  "viewSheet": "Visualizza spartito",
+  "difficulty": {
+    "beginner": "Principiante",
+    "intermediate": "Intermedio",
+    "advanced": "Avanzato"
+  },
+  "features": {
+    "title": "Cosa è incluso",
+    "allSheets": "Tutti gli spartiti a prezzo scontato",
+    "highQuality": "Formato PDF di alta qualità",
+    "instantDownload": "Download istantaneo",
+    "lifetimeAccess": "Accesso a vita"
+  }
+}

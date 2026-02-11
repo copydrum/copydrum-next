@@ -1,0 +1,25 @@
+{
+  "title": "Ortaklık Bilgisi",
+  "description": "COPYDRUM, ortaklıklar aracılığıyla daha fazla davulcuya en iyi içeriği sunar.",
+  "benefits": {
+    "title": "Ortaklık Avantajları",
+    "exclusiveLicense": {
+      "title": "Özel Nota Lisansı",
+      "description": "Performanslar, dersler ve satışlar gibi çeşitli ortamlarda kullanım için özelleştirilmiş lisanslar sağlıyoruz."
+    },
+    "premiumSupport": {
+      "title": "Premium Destek",
+      "description": "Yeni nota talepleri, özel transkripsiyonlar ve ortak pazarlama dahil olmak üzere ortaklar için özel destek sağlıyoruz."
+    },
+    "sharedGrowth": {
+      "title": "Paylaşılan Büyüme",
+      "description": "Ortak projeler ve etkinlikler aracılığıyla davulcu topluluğunu birlikte genişletiyoruz."
+    }
+  },
+  "inquiry": {
+    "title": "Ortaklık Sorgusu",
+    "description": "COPYDRUM ile ortaklık yoluyla birlikte büyümeye hazır mısınız? Lütfen aşağıdaki bilgileri kullanarak bizimle iletişime geçin.",
+    "emailLabel": "E-posta",
+    "note": "Ekibimizden hızlı yanıt almak için sorgunuzda detaylı bilgi sağlayın."
+  }
+}

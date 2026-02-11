@@ -1,0 +1,79 @@
+{
+  "title": "Sign Up",
+  "hasAccount": "Already have an account?",
+  "signIn": "Sign In",
+  "form": {
+    "name": "Name",
+    "namePlaceholder": "Enter your name",
+    "email": "Email Address",
+    "emailPlaceholder": "Enter your email",
+    "password": "Password",
+    "passwordPlaceholder": "Enter your password (8+ characters)",
+    "passwordHint": "8+ characters, letters, numbers, and special characters",
+    "confirmPassword": "Confirm Password",
+    "confirmPasswordPlaceholder": "Re-enter your password",
+    "agreeTerms": "I agree to the Terms of Service",
+    "viewTerms": "(View)",
+    "agreePrivacy": "I agree to the Privacy Policy",
+    "viewPrivacy": "(View)",
+    "agreeMarketing": "I agree to receive marketing information (Optional)",
+    "submit": "Sign Up",
+    "submitting": "Signing up..."
+  },
+  "divider": "or",
+  "social": {
+    "google": "Google",
+    "kakao": "Kakao"
+  },
+  "errors": {
+    "passwordMismatch": "Passwords do not match.",
+    "passwordTooShort": "Password must be at least 8 characters long.",
+    "termsRequired": "Please agree to the required terms.",
+    "profileCreationFailed": "Failed to create profile. Please try again.",
+    "emailAlreadyRegistered": "This email is already registered.",
+    "invalidEmail": "Please enter a valid email address.",
+    "signUpFailed": "Sign up failed. Please try again.",
+    "kakaoLoginFailed": "Kakao login failed. Please try again.",
+    "googleLoginFailed": "Google login failed. Please try again."
+  },
+  "messages": {
+    "signUpSuccess": "Sign up completed! Please check your email and sign in."
+  },
+  "console": {
+    "kakaoLoginError": "Kakao login error:",
+    "googleLoginError": "Google login error:",
+    "profileError": "Profile creation/update error:",
+    "rollbackFunctionError": "Rollback function call error:",
+    "rollbackComplete": "Sign up rollback completed",
+    "rollbackError": "Error during rollback:",
+    "profileSuccess": "Profile created/updated successfully",
+    "signUpError": "Sign up error:"
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

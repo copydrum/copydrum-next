@@ -1,26 +1,73 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@layer components {
+  .sheet-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 88px;
+    height: 40px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 6px;
+    white-space: nowrap;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    cursor: pointer;
+  }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  .btn-cart {
+    background-color: #0B0D17;
+    color: white;
+  }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  .btn-cart:hover:not(:disabled) {
+    background-color: #1a1d2e;
+  }
+
+  .btn-cart:disabled {
+    background-color: #9ca3af;
+    cursor: not-allowed;
+  }
+
+  .btn-buy {
+    background-color: #1D4ED8;
+    color: white;
+  }
+
+  .btn-buy:hover:not(:disabled) {
+    background-color: #1e40af;
+  }
+
+  .btn-buy:disabled {
+    background-color: #d1d5db;
+    color: #9ca3af;
+    cursor: not-allowed;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  * {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'system-ui', 'Roboto', 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
+  }
+
+  body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'system-ui', 'Roboto', 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: 'kern' 1;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'system-ui', 'Roboto', 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+    font-weight: 600;
+  }
+
+  .font-logo {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'system-ui', 'Roboto', 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
 }

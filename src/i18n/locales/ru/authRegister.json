@@ -1,0 +1,52 @@
+{
+  "title": "Регистрация",
+  "hasAccount": "Уже есть аккаунт?",
+  "signIn": "Войти",
+  "form": {
+    "name": "Имя",
+    "namePlaceholder": "Введите ваше имя",
+    "email": "Адрес электронной почты",
+    "emailPlaceholder": "Введите ваш email",
+    "password": "Пароль",
+    "passwordPlaceholder": "Введите пароль (8+ символов)",
+    "passwordHint": "8+ символов, буквы, цифры и специальные символы",
+    "confirmPassword": "Подтвердите пароль",
+    "confirmPasswordPlaceholder": "Повторите пароль",
+    "agreeTerms": "Я согласен с Условиями использования",
+    "viewTerms": "(Просмотр)",
+    "agreePrivacy": "Я согласен с Политикой конфиденциальности",
+    "viewPrivacy": "(Просмотр)",
+    "agreeMarketing": "Я согласен получать маркетинговую информацию (Необязательно)",
+    "submit": "Зарегистрироваться",
+    "submitting": "Регистрация..."
+  },
+  "divider": "или",
+  "social": {
+    "google": "Google",
+    "kakao": "Kakao"
+  },
+  "errors": {
+    "passwordMismatch": "Пароли не совпадают.",
+    "passwordTooShort": "Пароль должен содержать не менее 8 символов.",
+    "termsRequired": "Пожалуйста, согласитесь с необходимыми условиями.",
+    "profileCreationFailed": "Не удалось создать профиль. Пожалуйста, попробуйте снова.",
+    "emailAlreadyRegistered": "Этот email уже зарегистрирован.",
+    "invalidEmail": "Пожалуйста, введите действительный адрес электронной почты.",
+    "signUpFailed": "Ошибка регистрации. Пожалуйста, попробуйте снова.",
+    "kakaoLoginFailed": "Не удалось войти через Kakao. Пожалуйста, попробуйте снова.",
+    "googleLoginFailed": "Не удалось войти через Google. Пожалуйста, попробуйте снова."
+  },
+  "messages": {
+    "signUpSuccess": "Регистрация завершена! Пожалуйста, проверьте вашу почту и войдите."
+  },
+  "console": {
+    "kakaoLoginError": "Ошибка входа через Kakao:",
+    "googleLoginError": "Ошибка входа через Google:",
+    "profileError": "Ошибка создания/обновления профиля:",
+    "rollbackFunctionError": "Ошибка вызова функции отката:",
+    "rollbackComplete": "Откат регистрации завершен",
+    "rollbackError": "Ошибка при откате:",
+    "profileSuccess": "Профиль успешно создан/обновлен",
+    "signUpError": "Ошибка регистрации:"
+  }
+}

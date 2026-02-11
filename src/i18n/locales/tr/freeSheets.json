@@ -1,0 +1,79 @@
+{
+  "badge": "ÜCRETSİZ DAVUL DERSLERİ",
+  "title": "Ücretsiz Davul Dersi Notaları",
+  "description": "Davul dersi kategorisindeki tüm notaları ücretsiz keşfedin! Becerilerinizi daha hızlı geliştirmek için YouTube dersleriyle pratik yapın. Davul teknikleri, rudimentler, davul soloları ve daha fazlası gibi çeşitli öğrenme konularından seçim yapın.",
+  "features": {
+    "freeDownload": "Ücretsiz Tam İndirme",
+    "categoryLearning": "Kategori Bazlı Öğrenme",
+    "youtubeLesson": "YouTube Ders Bağlantıları"
+  },
+  "categories": {
+    "all": "Tümü",
+    "drumTechnique": "Davul Tekniği",
+    "rudiment": "Rudiment",
+    "drumSolo": "Davul Solo",
+    "beginnerBasics": "Başlangıç/Temeller",
+    "rhythmPattern": "Ritim Kalıbı",
+    "fillIn": "Doldurma",
+    "drumLesson": "Davul Dersi",
+    "categoryPending": "Kategori bekleniyor"
+  },
+  "search": {
+    "placeholder": "Başlık, sanatçı veya etiket ile ara"
+  },
+  "sort": {
+    "label": "Sırala",
+    "latest": "En Yeni",
+    "title": "Başlık",
+    "difficulty": "Zorluk"
+  },
+  "difficulty": {
+    "beginner": "Başlangıç",
+    "intermediate": "Orta",
+    "advanced": "İleri",
+    "notAvailable": "Zorluk mevcut değil"
+  },
+  "loading": "Ücretsiz davul dersi notaları yükleniyor...",
+  "empty": {
+    "title": "Kriterlerinize uyan ücretsiz nota yok.",
+    "description": "Farklı bir kategori seçmeyi veya arama teriminizi değiştirmeyi deneyin."
+  },
+  "actions": {
+    "viewFreeSheet": "Ücretsiz Notayı Görüntüle",
+    "viewYoutubeLesson": "YouTube Dersini Görüntüle",
+    "goToDetail": "Detay Sayfasına Git",
+    "closeDetail": "Ücretsiz Nota Detayını Kapat"
+  },
+  "errors": {
+    "lessonCategoryLoadError": "Davul dersi kategorisi yüklenemedi. Lütfen daha sonra tekrar deneyin.",
+    "lessonCategoryNotFound": "Davul dersi kategorisi mevcut değil. Lütfen yöneticiye başvurun.",
+    "sheetsLoadError": "Ücretsiz davul dersi notaları yüklenemedi. Lütfen daha sonra tekrar deneyin.",
+    "generalError": "Ücretsiz davul dersi notaları yüklenirken bir hata oluştu.",
+    "loginRequired": "Giriş gerekli.",
+    "favoriteError": "Favoriler işlenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.",
+    "pdfNotReady": "PDF bağlantısı hazır değil.",
+    "youtubeNotAvailable": "YouTube videosu kayıtlı değil."
+  },
+  "mobile": {
+    "freeSheet": "Ücretsiz Nota",
+    "upload": "Yükle",
+    "pages": "sayfa",
+    "youtubeLessonIncluded": "YouTube dersi dahil",
+    "freeDownload": "Ücretsiz İndir",
+    "practiceWithPdf": "PDF nota ile pratik yapın.",
+    "favorite": "Favori",
+    "unfavorite": "Favori Değil"
+  },
+  "console": {
+    "lessonCategoryError": "Davul dersi kategorisi arama hatası:",
+    "primarySheetsError": "Birincil davul dersi notaları yükleme hatası:",
+    "relationsError": "Davul dersi kategorisi ilişkileri yükleme hatası:",
+    "additionalSheetsError": "Ek davul dersi notaları yükleme hatası:",
+    "extraCategoriesError": "Ek kategoriler yükleme hatası:",
+    "generalError": "Ücretsiz notalar sayfası işleme hatası:",
+    "favoritesLoadError": "Favoriler yükleme hatası:",
+    "favoriteToggleError": "Favori değiştirme hatası:",
+    "userLoadError": "Kullanıcı bilgileri yüklenemedi:",
+    "youtubeUrlParseError": "YouTube URL ayrıştırma başarısız:"
+  }
+}

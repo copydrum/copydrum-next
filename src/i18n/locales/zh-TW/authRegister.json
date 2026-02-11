@@ -1,0 +1,52 @@
+{
+  "title": "註冊",
+  "hasAccount": "已有帳號？",
+  "signIn": "登入",
+  "form": {
+    "name": "姓名",
+    "namePlaceholder": "輸入您的姓名",
+    "email": "電子郵件地址",
+    "emailPlaceholder": "輸入您的電子郵件",
+    "password": "密碼",
+    "passwordPlaceholder": "輸入您的密碼（8 個字元以上）",
+    "passwordHint": "8 個字元以上，包含字母、數字和特殊字元",
+    "confirmPassword": "確認密碼",
+    "confirmPasswordPlaceholder": "再次輸入您的密碼",
+    "agreeTerms": "我同意服務條款",
+    "viewTerms": "（查看）",
+    "agreePrivacy": "我同意隱私權政策",
+    "viewPrivacy": "（查看）",
+    "agreeMarketing": "我同意接收行銷資訊（選填）",
+    "submit": "註冊",
+    "submitting": "正在註冊..."
+  },
+  "divider": "或",
+  "social": {
+    "google": "Google",
+    "kakao": "Kakao"
+  },
+  "errors": {
+    "passwordMismatch": "密碼不相符。",
+    "passwordTooShort": "密碼長度必須至少 8 個字元。",
+    "termsRequired": "請同意必要的條款。",
+    "profileCreationFailed": "建立個人資料失敗。請再試一次。",
+    "emailAlreadyRegistered": "此電子郵件已註冊。",
+    "invalidEmail": "請輸入有效的電子郵件地址。",
+    "signUpFailed": "註冊失敗。請再試一次。",
+    "kakaoLoginFailed": "Kakao 登入失敗。請再試一次。",
+    "googleLoginFailed": "Google 登入失敗。請再試一次。"
+  },
+  "messages": {
+    "signUpSuccess": "註冊完成！請檢查您的電子郵件並登入。"
+  },
+  "console": {
+    "kakaoLoginError": "Kakao 登入錯誤：",
+    "googleLoginError": "Google 登入錯誤：",
+    "profileError": "個人資料建立/更新錯誤：",
+    "rollbackFunctionError": "回滾函數呼叫錯誤：",
+    "rollbackComplete": "註冊回滾完成",
+    "rollbackError": "回滾期間發生錯誤：",
+    "profileSuccess": "個人資料建立/更新成功",
+    "signUpError": "註冊錯誤："
+  }
+}

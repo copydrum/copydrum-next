@@ -1,0 +1,66 @@
+{
+  "title": "악보 구매 내역",
+  "description": "최근 순으로 정렬된 악보 구입 목록입니다.",
+  "totalPurchased": "총 {{count}}개의 악보를 구매하셨습니다.",
+  "loginRequired": "로그인이 필요합니다",
+  "loginRequiredMessage": "악보 구매 내역을 확인하려면 로그인해주세요.",
+  "orderNumber": "주문번호",
+  "categoryNotSet": "카테고리 미설정",
+  "deletedSheet": "삭제된 악보",
+  "status": {
+    "pending": "결제 대기",
+    "pendingDesc": "결제 확인을 기다리고 있습니다.",
+    "processing": "처리 중",
+    "processingDesc": "주문이 처리되고 있습니다.",
+    "completed": "완료",
+    "completedDesc": "주문이 완료되었습니다. 다운로드 가능합니다.",
+    "cancelled": "취소됨",
+    "cancelledDesc": "주문이 취소되었습니다.",
+    "paymentPending": "결제 대기",
+    "paymentPendingDesc": "입금 확인을 기다리고 있습니다.",
+    "paymentConfirmed": "결제 확인",
+    "paymentConfirmedDesc": "결제가 확인되었습니다. 다운로드 가능합니다.",
+    "paid": "결제 완료",
+    "paidDesc": "결제가 완료되었습니다. 다운로드 가능합니다.",
+    "refunded": "환불됨",
+    "refundedDesc": "주문이 환불되었습니다."
+  },
+  "paymentMethod": {
+    "card": "카드 결제",
+    "bankTransfer": "무통장입금",
+    "virtualAccount": "가상계좌",
+    "cash": "보유 캐시",
+    "points": "포인트"
+  },
+  "empty": {
+    "title": "구매한 악보가 없습니다",
+    "message": "마음에 드는 악보를 찾아 장바구니에 담아보세요.",
+    "browseButton": "악보 둘러보기"
+  },
+  "actions": {
+    "downloadAll": "이 주문 전체 다운로드",
+    "downloadSelected": "선택 다운로드",
+    "selectAll": "전체 선택",
+    "deselectAll": "전체 해제",
+    "clearSelection": "선택 해제",
+    "download": "다운로드",
+    "downloadNotAvailable": "다운로드 불가",
+    "downloading": "다운로드 중...",
+    "viewDetails": "상세보기",
+    "purchaseDate": "구매일 {{date}}",
+    "selectedCount": "선택 {{count}}개",
+    "cart": "장바구니"
+  },
+  "messages": {
+    "selectSheetsToDownload": "다운로드할 악보를 선택해주세요.",
+    "refundedOrRestricted": "환불되었거나 다운로드가 제한된 주문입니다.",
+    "loginRequired": "로그인이 필요합니다.",
+    "downloadFailed": "{{count}}개의 악보 다운로드에 실패했습니다.",
+    "refundedOrder": "환불된 주문은 다운로드할 수 없습니다.",
+    "noSheetsToDownload": "다운로드할 악보가 없습니다.",
+    "sheetInfoNotFound": "악보 정보를 찾을 수 없습니다.",
+    "fileNotFound": "파일을 찾을 수 없습니다.",
+    "downloadError": "파일 다운로드에 실패했습니다. 잠시 후 다시 시도해주세요."
+  }
+}
+

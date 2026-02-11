@@ -1,0 +1,14 @@
+{
+  "loading": "लॉगिन प्रसंस्करण...",
+  "errors": {
+    "oauthError": "लॉगिन विफल",
+    "callbackError": "लॉगिन प्रसंस्करण के दौरान एक त्रुटि हुई। कृपया पुनः प्रयास करें।",
+    "profileCreationError": "प्रोफ़ाइल निर्माण त्रुटि"
+  },
+  "console": {
+    "oauthError": "OAuth त्रुटि:",
+    "callbackError": "प्रमाणीकरण कॉलबैक प्रसंस्करण त्रुटि:",
+    "profileCreationError": "प्रोफ़ाइल निर्माण त्रुटि:"
+  },
+  "defaultUserName": "उपयोगकर्ता"
+}

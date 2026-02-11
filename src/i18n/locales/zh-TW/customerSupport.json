@@ -1,0 +1,119 @@
+{
+  "title": "客戶支援",
+  "subtitle": "如有任何問題，請隨時與我們聯絡。我們將提供快速準確的回應。",
+  "tabs": {
+    "faq": "常見問題",
+    "contact": "聯絡我們"
+  },
+  "contact": {
+    "title": "聯絡我們",
+    "description": "如有任何問題或疑問，請填寫以下表單。我們將盡快回應。",
+    "form": {
+      "name": "姓名",
+      "namePlaceholder": "輸入您的姓名",
+      "email": "電子郵件",
+      "emailPlaceholder": "輸入您的電子郵件",
+      "inquiryType": "詢問類型",
+      "inquiryTypePlaceholder": "選擇詢問類型",
+      "subject": "主旨",
+      "subjectPlaceholder": "輸入詢問主旨",
+      "message": "訊息",
+      "messagePlaceholder": "請詳細寫下您的詢問（最多 500 個字元）",
+      "characters": "字元",
+      "submit": "發送詢問",
+      "submitting": "正在發送...",
+      "note": "我們將在工作日的 24 小時內回應您的詢問。"
+    },
+    "categories": {
+      "orderPayment": "訂單/付款詢問",
+      "sheetDownload": "樂譜/下載詢問",
+      "customOrder": "客製訂單詢問",
+      "technical": "技術支援",
+      "other": "其他詢問"
+    }
+  },
+  "contactInfo": {
+    "title": "聯絡資訊",
+    "subtitle": "您可以透過各種方式與我們聯絡",
+    "email": {
+      "title": "電子郵件詢問",
+      "address": "copydrum@hanmail.net",
+      "description": "24/7 接收，1 天內回應"
+    },
+    "kakao": {
+      "title": "KakaoTalk 諮詢",
+      "description": "您可以使用即時聊天諮詢。",
+      "button": "開啟 KakaoTalk 聊天"
+    },
+    "hours": {
+      "title": "營業時間",
+      "weekdays": "平日 09:00 - 17:00",
+      "closed": "週末和假日休息"
+    }
+  },
+  "faq": {
+    "categories": {
+      "orderPayment": {
+        "name": "訂單/付款",
+        "items": {
+          "download": {
+            "question": "購買後何時可以下載樂譜？",
+            "answer": "付款完成後，您可以立即從我的頁面下載。已購買的樂譜可以隨時重新下載。"
+          },
+          "payment": {
+            "question": "有哪些付款方式？",
+            "answer": "我們支援信用卡、金融卡、銀行轉帳和便利付款方式（Kakao Pay）。"
+          },
+          "refund": {
+            "question": "如何申請退款？",
+            "answer": "由於數位產品的性質，下載後無法退款。下載後退款困難，請謹慎購買。"
+          }
+        }
+      },
+      "sheetDownload": {
+        "name": "樂譜/下載",
+        "items": {
+          "format": {
+            "question": "樂譜檔案是什麼格式？",
+            "answer": "所有樂譜均以高品質 PDF 格式提供。針對列印和數位裝置進行了優化。"
+          },
+          "print": {
+            "question": "我可以列印下載的樂譜嗎？",
+            "answer": "是的，您可以列印用於個人練習。但是，禁止商業使用或重新分發。"
+          },
+          "difficulty": {
+            "question": "難度等級如何分類？",
+            "answer": "分為初學者（基本節奏型）、中級（包括變化節奏型）和進階（包括複雜技巧）。"
+          }
+        }
+      },
+      "customOrder": {
+        "name": "客製訂單",
+        "items": {
+          "what": {
+            "question": "什麼是客製訂單服務？",
+            "answer": "這是一項客製化服務，專業人員為您想要的歌曲製作鼓譜。"
+          },
+          "duration": {
+            "question": "製作需要多長時間？",
+            "answer": "通常需要 1-7 天，具體取決於歌曲的複雜度。確切的時間表將在申請後個別提供。"
+          },
+          "cost": {
+            "question": "製作費用如何確定？",
+            "answer": "我們會綜合考慮歌曲的長度、複雜度和難度等級來提供報價。"
+          }
+        }
+      }
+    }
+  },
+  "errors": {
+    "fillAllFields": "請填寫所有欄位。",
+    "submitError": "發送您的詢問時發生錯誤。請再試一次。"
+  },
+  "messages": {
+    "submitSuccess": "您的詢問已成功提交。我們將盡快回應。"
+  },
+  "console": {
+    "inquiryError": "客戶詢問儲存失敗："
+  }
+}

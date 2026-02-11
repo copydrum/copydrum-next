@@ -1,0 +1,61 @@
+{
+  "header": {
+    "badge": "Erhalten Sie beliebte Schlagzeug-Notenblätter für nur 100 Won!",
+    "title": "100 Won Sonderverkauf EVENT",
+    "description": "Verpassen Sie nicht diese zeitlich begrenzten Super-Verkaufs-Schlagzeug-Notenblätter. Erhalten Sie beliebte Songs für nur 100 Won und beginnen Sie noch heute zu spielen!"
+  },
+  "countdownNotice": "Überprüfen Sie den Echtzeit-Countdown-Timer!",
+  "loading": "Event-Informationen werden geladen...",
+  "countdown": {
+    "startingSoon": "Beginnt bald",
+    "startsIn": "Beginnt in",
+    "timeLeft": "⏰ Verbleibende Zeit",
+    "dayUnit": "T",
+    "starts": "Beginnt"
+  },
+  "buttons": {
+    "only100Won": "Nur 100 Won!",
+    "addToFavorites": "Zu Favoriten hinzufügen",
+    "removeFromFavorites": "Aus Favoriten entfernen",
+    "viewDetails": "Details anzeigen",
+    "buyNow": "Jetzt kaufen",
+    "processing": "Wird verarbeitet...",
+    "saleEnded": "Verkauf beendet"
+  },
+  "labels": {
+    "eventSheet": "Event-Notenblatt",
+    "saleEnded": "Verkauf beendet",
+    "only100WonBadge": "Nur 100 Won!",
+    "100Won": "100 Won",
+    "discount": "Rabatt",
+    "startingSoon": "Beginnt bald"
+  },
+  "sections": {
+    "ongoing": {
+      "title": "Laufender 100 Won Sonderverkauf",
+      "description": "Event-Notenblätter jetzt verfügbar zum Kauf.",
+      "activeCount": "{{count}} Aktiv",
+      "noEvents": "Es gibt keine laufenden Events. Überprüfen Sie die geplanten Events unten!"
+    },
+    "scheduled": {
+      "title": "Geplante Events",
+      "description": "Überprüfen Sie bevorstehende Events und bereiten Sie sich auf Benachrichtigungen vor.",
+      "scheduledCount": "{{count}} Geplant"
+    },
+    "ended": {
+      "title": "Beendete Events"
+    }
+  },
+  "messages": {
+    "loginRequired": "Anmeldung erforderlich.",
+    "loginRequiredConfirm": "Anmeldung erforderlich. Zur Anmeldeseite gehen?",
+    "checkDownloadPage": "Überprüfen Sie Ihr Notenblatt auf der Download-Seite.",
+    "paymentError": "Bei der Zahlung ist ein Fehler aufgetreten.",
+    "favoriteError": "Beim Verarbeiten Ihrer Favoriten ist ein Fehler aufgetreten. Bitte versuchen Sie es später erneut."
+  },
+  "console": {
+    "loadEventsError": "Fehler beim Laden der Event-Rabatt-Notenblatt-Liste:",
+    "loadFavoritesError": "Fehler beim Laden der Favoriten-Liste:",
+    "toggleFavoriteError": "Fehler bei der Favoriten-Umschaltung:"
+  }
+}

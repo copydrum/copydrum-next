@@ -1,0 +1,45 @@
+{
+  "title": "Giriş",
+  "noAccount": "Hesabınız yok mu?",
+  "signUp": "Kayıt Ol",
+  "notice": "🔔 Mevcut üyeler için: Site yenileme nedeniyle ilk girişte şifre sıfırlama gereklidir.",
+  "form": {
+    "email": "E-posta Adresi",
+    "emailPlaceholder": "E-postanızı girin",
+    "password": "Şifre",
+    "passwordPlaceholder": "Şifrenizi girin",
+    "rememberMe": "Beni Hatırla",
+    "forgotPassword": "Şifrenizi mi unuttunuz?",
+    "submit": "Giriş Yap",
+    "submitting": "Giriş yapılıyor..."
+  },
+  "divider": "veya",
+  "social": {
+    "google": "Google",
+    "kakao": "Kakao"
+  },
+  "errors": {
+    "kakaoLoginFailed": "Kakao girişi başarısız oldu. Lütfen tekrar deneyin.",
+    "googleLoginFailed": "Google girişi başarısız oldu. Lütfen tekrar deneyin.",
+    "invalidCredentials": "E-posta veya şifre hatalı.",
+    "emailNotConfirmed": "E-posta doğrulaması gereklidir. Lütfen e-postanızı kontrol edin.",
+    "loginFailed": "Giriş başarısız oldu. Lütfen tekrar deneyin.",
+    "resetPasswordEmailError": "Şifre sıfırlama e-postası gönderilirken bir hata oluştu. Lütfen tekrar deneyin.",
+    "profileError": "Profil arama hatası",
+    "profileCreationError": "Profil oluşturma hatası",
+    "migrationCheckError": "Geçiş kullanıcısı kontrol hatası"
+  },
+  "messages": {
+    "passwordResetEmailSent": "Mevcut bir üyesiniz! Şifre sıfırlama e-postası gönderdik. Lütfen gelen kutunuzu kontrol edin."
+  },
+  "console": {
+    "kakaoLoginError": "Kakao giriş hatası:",
+    "googleLoginError": "Google giriş hatası:",
+    "profileLookupError": "Profil arama hatası:",
+    "profileCreationError": "Profil oluşturma hatası:",
+    "resetPasswordEmailError": "Şifre sıfırlama e-postası gönderme hatası:",
+    "migrationCheckError": "Geçiş kullanıcısı kontrol hatası:",
+    "loginError": "Giriş hatası:"
+  },
+  "defaultUserName": "Kullanıcı"
+}

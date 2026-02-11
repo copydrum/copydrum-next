@@ -1,0 +1,72 @@
+{
+  "loading": "正在載入收藏...",
+  "errors": {
+    "noCollectionInfo": "找不到請求的收藏資訊。",
+    "collectionNotFound": "找不到請求的收藏。",
+    "loadError": "載入收藏資訊時發生錯誤。",
+    "collectionNotAvailable": "請求的樂譜收藏不存在或已被停用。"
+  },
+  "backToList": "返回收藏列表",
+  "free": "免費",
+  "discount": "{{percentage}}% 折扣",
+  "badge": "樂譜收藏",
+  "includedSheets": {
+    "count": "包含的樂譜",
+    "number": "{{count}} 首歌曲",
+    "title": "包含的樂譜",
+    "description": "查看此收藏中包含的所有樂譜，並探索您想要的樂譜。",
+    "empty": "此收藏尚未新增任何樂譜。"
+  },
+  "sheet": {
+    "difficulty": "難度 {{difficulty}}",
+    "free": "免費"
+  },
+  "purchase": {
+    "priceInfo": "收藏價格資訊",
+    "totalIndividual": "個別樂譜總計",
+    "noInfo": "無資訊",
+    "collectionPrice": "收藏價格",
+    "buyNow": "立即購買",
+    "save": "節省 {{amount}}！",
+    "processing": "處理中...",
+    "note": "收藏只能以折扣價格購買。",
+    "inactive": "此收藏目前未啟用。請聯絡管理員。",
+    "mobilePrice": "收藏價格",
+    "mobileSave": "與個別購買相比節省 {{amount}}",
+    "mobileInactive": "此收藏目前未啟用。",
+    "buyCollection": "Buy Collection",
+    "goToCart": "Go to Cart"
+  },
+  "alerts": {
+    "noSheetInfo": "找不到收藏中包含的樂譜資訊。",
+    "duplicatePurchase": "您已購買此收藏中包含的部分樂譜，因此無法重複購買。",
+    "duplicateList": "重複的樂譜：",
+    "checkMyPage": "請在我的頁面檢查您的購買記錄。",
+    "insufficientCredit": "現金餘額不足。",
+    "currentBalance": "目前餘額：{{amount}}P",
+    "chargeCash": "請儲值現金後再試。",
+    "purchaseSuccess": "購買完成。請在我的頁面檢查內容。",
+    "purchaseError": "購買期間發生錯誤。"
+  },
+  "navigation": {
+    "title": "探索其他頁面",
+    "viewCategories": "查看樂譜類別",
+    "eventSale": "活動特價樂譜",
+    "customOrder": "客製訂單詢問"
+  },
+  "purchaseDescription": "樂譜收藏購買：{{title}}",
+  "sheetTitle": "樂譜",
+  "viewSheet": "查看樂譜",
+  "difficulty": {
+    "beginner": "初級",
+    "intermediate": "中級",
+    "advanced": "高級"
+  },
+  "features": {
+    "title": "包含內容",
+    "allSheets": "以折扣價購買所有樂譜",
+    "highQuality": "提供高品質PDF格式",
+    "instantDownload": "可立即下載",
+    "lifetimeAccess": "可永久保存"
+  }
+}

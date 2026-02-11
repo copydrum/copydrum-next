@@ -1,0 +1,21 @@
+{
+  "loading": "読み込み中...",
+  "title": "楽譜コレクション",
+  "subtitle": "テーマ別に厳選されたドラム楽譜コレクションをご紹介します。",
+  "filter": {
+    "all": "すべて"
+  },
+  "empty": {
+    "noCollections": "登録されたコレクションがありません。",
+    "noCollectionsForCategory": "選択したジャンルのコレクションがありません。"
+  },
+  "collection": {
+    "badge": "コレクション",
+    "discount": "{{percentage}}% OFF",
+    "free": "無料",
+    "songs": "{{count}}曲"
+  },
+  "pagination": {
+    "pageInfo": "{{current}} / {{total}}"
+  }
+}

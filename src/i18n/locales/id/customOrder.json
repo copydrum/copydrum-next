@@ -1,0 +1,101 @@
+{
+  "title": "Lembaran Musik Drum Kustom",
+  "description": {
+    "line1": "Mencari lagu tertentu?",
+    "line2": "Profesional kami akan menganalisis dan membuat lembaran musik drum berkualitas tinggi untuk Anda.",
+    "line3": "Kami menyediakan penawaran kustom berdasarkan kesulitan dan struktur lagu."
+  },
+  "login": {
+    "required": "Login diperlukan",
+    "description": "Silakan masuk untuk mengirim permintaan pesanan kustom.",
+    "button": "Masuk"
+  },
+  "pricing": {
+    "title": "Informasi Harga",
+    "note": "* Harga akhir akan diberikan sebagai penawaran individual setelah menganalisis kesulitan dan panjang lagu.",
+    "grades": {
+      "c": {
+        "name": "Kelas C",
+        "price": "$10+",
+        "description": "K-pop umum, pop, lagu adult contemporary di bawah 5 menit"
+      },
+      "b": {
+        "name": "Kelas B",
+        "price": "$30+",
+        "description": "Sedikit lebih tinggi dari tingkat kesulitan menengah atau lagu lebih dari 5 menit"
+      },
+      "a": {
+        "name": "Kelas A",
+        "price": "$50+",
+        "description": "Lagu dengan tingkat kesulitan lanjutan"
+      }
+    }
+  },
+  "form": {
+    "title": "Formulir Permintaan Pesanan Kustom",
+    "applicantId": "ID Pemohon",
+    "applicantIdPlaceholder": "ID yang masuk",
+    "songInfo": "Informasi Lagu",
+    "songTitle": "Judul Lagu",
+    "songTitlePlaceholder": "Masukkan judul lagu yang ingin Anda pesan",
+    "artist": "Artis",
+    "artistPlaceholder": "Masukkan nama artis",
+    "youtubeUrl": "URL YouTube",
+    "youtubeUrlPlaceholder": "Masukkan URL YouTube untuk pembuatan lembaran musik yang akurat (opsional)",
+    "youtubeUrlHint": "Silakan masukkan URL YouTube untuk pembuatan lembaran musik yang akurat. (Opsional)",
+    "memo": "Memo",
+    "memoPlaceholder": "Masukkan catatan atau memo (maks 500 karakter)",
+    "characters": "karakter",
+    "submit": "Kirim Permintaan Pesanan Kustom",
+    "submitting": "Mengirim...",
+    "note": "Setelah pengiriman, Anda dapat memeriksa kemajuan di Halaman Saya \"Riwayat Pesanan Kustom\" dan mengunduh lembaran musik setelah selesai."
+  },
+  "process": {
+    "title": "Proses Pesanan Kustom",
+    "steps": {
+      "request": {
+        "title": "Permintaan Diterima",
+        "description": "Permintaan pesanan kustom Anda diterima saat pengiriman."
+      },
+      "quote": {
+        "title": "Penawaran Dikirim",
+        "description": "Kami menganalisis lagu dan memberikan penawaran melalui Halaman Saya."
+      },
+      "payment": {
+        "title": "Pembayaran Dikonfirmasi",
+        "description": "Setelah mengonfirmasi penawaran dan pembayaran, produksi dimulai."
+      },
+      "completed": {
+        "title": "Selesai",
+        "description": "Unduh lembaran musik yang selesai dari Halaman Saya."
+      }
+    }
+  },
+  "faq": {
+    "title": "Pertanyaan yang Sering Diajukan",
+    "questions": {
+      "quote": {
+        "question": "Bagaimana cara memeriksa penawaran?",
+        "answer": "Anda dapat memeriksa penawaran di \"Riwayat Pesanan Kustom\" di Halaman Saya. Kami akan memberikan penawaran dalam 24 jam setelah permintaan Anda."
+      },
+      "production": {
+        "question": "Berapa lama produksi berlangsung?",
+        "answer": "Umumnya, memakan waktu 1-3 hari setelah konfirmasi pembayaran. Durasi dapat bervariasi tergantung pada kesulitan dan panjang lagu, dan kami akan memberikan jadwal pasti dalam penawaran."
+      },
+      "payment": {
+        "question": "Metode pembayaran apa yang tersedia?",
+        "answer": "Saat ini, hanya transfer bank yang tersedia. Kami akan memberikan informasi rekening bank bersama dengan penawaran."
+      }
+    }
+  },
+  "errors": {
+    "loginRequired": "Login diperlukan.",
+    "submitError": "Terjadi kesalahan saat mengirim. Silakan coba lagi."
+  },
+  "messages": {
+    "submitSuccess": "Permintaan pesanan kustom telah dikirim. Anda dapat memeriksa kemajuan di Halaman Saya."
+  },
+  "console": {
+    "submitError": "Kesalahan mengirim pesanan:"
+  }
+}

@@ -1,0 +1,106 @@
+{
+  "badge": "FREE DRUM LESSONS",
+  "title": "Free Drum Lesson Sheets",
+  "description": "Explore all sheet music in the drum lesson category for free! Practice with YouTube lessons to improve your skills faster. Choose from various learning topics such as drum techniques, rudiments, drum solos, and more.",
+  "features": {
+    "freeDownload": "Free Full Download",
+    "categoryLearning": "Category-based Learning",
+    "youtubeLesson": "YouTube Lesson Links"
+  },
+  "categories": {
+    "all": "All",
+    "drumTechnique": "Drum Technique",
+    "rudiment": "Rudiment",
+    "drumSolo": "Drum Solo",
+    "beginnerBasics": "Beginner/Basics",
+    "rhythmPattern": "Rhythm Pattern",
+    "fillIn": "Fill-in",
+    "drumLesson": "Drum Lesson",
+    "categoryPending": "Category pending"
+  },
+  "search": {
+    "placeholder": "Search by title, artist, or tag"
+  },
+  "sort": {
+    "label": "Sort",
+    "latest": "Latest",
+    "title": "Title",
+    "difficulty": "Difficulty"
+  },
+  "difficulty": {
+    "beginner": "Beginner",
+    "intermediate": "Intermediate",
+    "advanced": "Advanced",
+    "notAvailable": "Difficulty not available"
+  },
+  "loading": "Loading free drum lesson sheets...",
+  "empty": {
+    "title": "No free sheets match your criteria.",
+    "description": "Try selecting a different category or changing your search term."
+  },
+  "actions": {
+    "viewFreeSheet": "View Free Sheet",
+    "viewYoutubeLesson": "View YouTube Lesson",
+    "goToDetail": "Go to Detail Page",
+    "closeDetail": "Close Free Sheet Detail"
+  },
+  "errors": {
+    "lessonCategoryLoadError": "Failed to load drum lesson category. Please try again later.",
+    "lessonCategoryNotFound": "Drum lesson category does not exist. Please contact the administrator.",
+    "sheetsLoadError": "Failed to load free drum lesson sheets. Please try again later.",
+    "generalError": "An error occurred while loading free drum lesson sheets.",
+    "loginRequired": "Login required.",
+    "favoriteError": "An error occurred while processing favorites. Please try again later.",
+    "pdfNotReady": "PDF link is not ready.",
+    "youtubeNotAvailable": "No YouTube video is registered."
+  },
+  "mobile": {
+    "freeSheet": "Free Sheet",
+    "upload": "Upload",
+    "pages": "pages",
+    "youtubeLessonIncluded": "YouTube lesson included",
+    "freeDownload": "Free Download",
+    "practiceWithPdf": "Practice with PDF sheet music.",
+    "favorite": "Favorite",
+    "unfavorite": "Unfavorite"
+  },
+  "console": {
+    "lessonCategoryError": "Drum lesson category lookup error:",
+    "primarySheetsError": "Primary drum lesson sheets load error:",
+    "relationsError": "Drum lesson category relations load error:",
+    "additionalSheetsError": "Additional drum lesson sheets load error:",
+    "extraCategoriesError": "Extra categories load error:",
+    "generalError": "Free sheets page processing error:",
+    "favoritesLoadError": "Favorites load error:",
+    "favoriteToggleError": "Favorite toggle error:",
+    "userLoadError": "Failed to load user information:",
+    "youtubeUrlParseError": "YouTube URL parsing failed:"
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,52 @@
+{
+  "title": "Cadastrar",
+  "hasAccount": "Já tem uma conta?",
+  "signIn": "Entrar",
+  "form": {
+    "name": "Nome",
+    "namePlaceholder": "Digite seu nome",
+    "email": "Endereço de E-mail",
+    "emailPlaceholder": "Digite seu e-mail",
+    "password": "Senha",
+    "passwordPlaceholder": "Digite sua senha (8+ caracteres)",
+    "passwordHint": "8+ caracteres, letras, números e caracteres especiais",
+    "confirmPassword": "Confirmar Senha",
+    "confirmPasswordPlaceholder": "Digite sua senha novamente",
+    "agreeTerms": "Concordo com os Termos de Serviço",
+    "viewTerms": "(Ver)",
+    "agreePrivacy": "Concordo com a Política de Privacidade",
+    "viewPrivacy": "(Ver)",
+    "agreeMarketing": "Concordo em receber informações de marketing (Opcional)",
+    "submit": "Cadastrar",
+    "submitting": "Cadastrando..."
+  },
+  "divider": "ou",
+  "social": {
+    "google": "Google",
+    "kakao": "Kakao"
+  },
+  "errors": {
+    "passwordMismatch": "As senhas não coincidem.",
+    "passwordTooShort": "A senha deve ter pelo menos 8 caracteres.",
+    "termsRequired": "Por favor, concorde com os termos obrigatórios.",
+    "profileCreationFailed": "Falha ao criar perfil. Por favor, tente novamente.",
+    "emailAlreadyRegistered": "Este e-mail já está cadastrado.",
+    "invalidEmail": "Por favor, digite um endereço de e-mail válido.",
+    "signUpFailed": "Falha no cadastro. Por favor, tente novamente.",
+    "kakaoLoginFailed": "Falha no login do Kakao. Por favor, tente novamente.",
+    "googleLoginFailed": "Falha no login do Google. Por favor, tente novamente."
+  },
+  "messages": {
+    "signUpSuccess": "Cadastro concluído! Por favor, verifique seu e-mail e faça login."
+  },
+  "console": {
+    "kakaoLoginError": "Erro no login do Kakao:",
+    "googleLoginError": "Erro no login do Google:",
+    "profileError": "Erro na criação/atualização do perfil:",
+    "rollbackFunctionError": "Erro na chamada da função de rollback:",
+    "rollbackComplete": "Rollback do cadastro concluído",
+    "rollbackError": "Erro durante o rollback:",
+    "profileSuccess": "Perfil criado/atualizado com sucesso",
+    "signUpError": "Erro no cadastro:"
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "loading": "로딩 중...",
+  "title": "악보 모음집",
+  "subtitle": "테마별로 엄선한 특별한 드럼 악보 컬렉션을 만나보세요.",
+  "filter": {
+    "all": "전체"
+  },
+  "empty": {
+    "noCollections": "등록된 모음집이 없습니다.",
+    "noCollectionsForCategory": "선택한 장르에 해당하는 모음집이 없습니다."
+  },
+  "collection": {
+    "badge": "모음집",
+    "discount": "{{percentage}}% 할인",
+    "free": "무료",
+    "songs": "{{count}}곡"
+  },
+  "pagination": {
+    "pageInfo": "{{current}} / {{total}}"
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

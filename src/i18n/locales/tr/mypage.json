@@ -1,0 +1,287 @@
+{
+  "title": "Sayfam",
+  "subtitle": "Nota satın alımlarından özel siparişlere kadar tüm etkinliklerinizi bir bakışta görüntüleyin.",
+  "tabs": {
+    "profile": {
+      "label": "Profil Yönetimi",
+      "description": "Kişisel bilgilerinizi ve iletişim detaylarınızı yönetin."
+    },
+    "purchases": {
+      "label": "Satın Alma Geçmişi",
+      "description": "Satın aldığınız nota sipariş bilgilerinizi kontrol edin."
+    },
+    "downloads": {
+      "label": "İndirme Yönetimi",
+      "description": "Satın aldığınız notaları indirin ve önizleyin."
+    },
+    "favorites": {
+      "label": "Favori Notalar",
+      "description": "Favori notalarınızı görüntüleyin."
+    },
+    "cash": {
+      "label": "Bakiye Geçmişi",
+      "description": "Bakiyenizi ve kullanım geçmişinizi kontrol edin."
+    },
+    "inquiries": {
+      "label": "1:1 Sorgu",
+      "description": "Sorgularınızı ve yanıtlarınızı kontrol edin."
+    },
+    "customOrders": {
+      "label": "Özel Siparişler",
+      "description": "Özel sipariş taleplerinizin durumunu kontrol edin."
+    }
+  },
+  "stats": {
+    "purchasedSheets": "Satın Alınan Notalar",
+    "availableDownloads": "Mevcut İndirmeler",
+    "favoriteSheets": "Favori Notalar",
+    "inquiries": "1:1 Sorgular",
+    "customOrders": "Özel Siparişler"
+  },
+  "profile": {
+    "title": "Profil Yönetimi",
+    "memberInfo": "Üye Bilgisi",
+    "nameNotSet": "Ad ayarlanmamış",
+    "joinedOn": "Katılım tarihi",
+    "cashBalance": "Bakiye",
+    "cashBalanceDescription": "Bir sonraki nota satın alımınız için kullanılabilir.",
+    "chargeCash": "Bakiye Yükle",
+    "email": "E-posta",
+    "name": "Ad",
+    "namePlaceholder": "Adınızı girin",
+    "phoneNumber": "Telefon Numarası",
+    "phonePlaceholder": "Telefon numaranızı girin",
+    "joinDate": "Katılım Tarihi",
+    "saving": "Kaydediliyor...",
+    "updateProfile": "Profili Güncelle"
+  },
+  "purchases": {
+    "title": "Satın Alma Geçmişi",
+    "description": "En son siparişlere göre sıralanmıştır.",
+    "browseMore": "Daha Fazla Nota Gözat",
+    "noPurchases": "Henüz satın alınmış nota yok.",
+    "orderNumber": "Sipariş Numarası",
+    "total": "Toplam",
+    "downloadAllInOrder": "Bu Siparişteki Tümünü İndir",
+    "downloading": "İndiriliyor...",
+    "selectAll": "Tümünü Seç",
+    "deselectAll": "Tümünü Kaldır",
+    "selected": "Seçili",
+    "downloadSelected": "Seçilenleri İndir",
+    "download": "İndir",
+    "viewDetails": "Detayları Görüntüle",
+    "categoryNotSet": "Kategori ayarlanmamış",
+    "deletedSheet": "Silinmiş nota"
+  },
+  "downloads": {
+    "title": "İndirme Yönetimi",
+    "description": "Satın aldığınız notaları istediğiniz zaman yeniden indirebilirsiniz.",
+    "totalItems": "Toplam {{count}} öğe",
+    "selectedItems": "Seçili {{count}} öğe",
+    "selectAll": "Tümünü Seç",
+    "deselectAll": "Tümünü Kaldır",
+    "downloadSelected": "Seçilenleri İndir",
+    "downloadAll": "Tümünü İndir",
+    "downloading": "İndiriliyor...",
+    "noDownloads": "İndirilebilir nota mevcut değil.",
+    "purchaseDate": "Satın Alma Tarihi",
+    "preview": "Önizleme",
+    "downloadUnavailable": "İndirme Mevcut Değil"
+  },
+  "favorites": {
+    "title": "Favori Notalar",
+    "description": "Favori notalarınızı hızlıca bulun.",
+    "totalCount": "Toplam {{count}} öğe",
+    "noFavorites": "Henüz favori nota yok.",
+    "addFavorites": "Favori notalarınızı ekleyin!",
+    "viewDetails": "Detayları Görüntüle",
+    "inCart": "Sepette",
+    "cart": "Sepete Ekle",
+    "removeFavorite": "Favoriden Kaldır",
+    "deletedSheet": "Silinmiş nota"
+  },
+  "inquiries": {
+    "title": "1:1 Sorgu",
+    "description": "Bir sorgu gönderin ve yönetici yanıtlarını doğrudan Sayfam'da alın.",
+    "name": "Ad",
+    "namePlaceholder": "Adınızı girin",
+    "email": "E-posta",
+    "emailPlaceholder": "İletişim e-postanızı girin",
+    "category": "Sorgu Türü",
+    "categoryPlaceholder": "Sorgu türünü seçin",
+    "categories": {
+      "orderPayment": "Sipariş/Ödeme Sorgusu",
+      "sheetDownload": "Nota/İndirme Sorgusu",
+      "customOrder": "Özel Sipariş Sorgusu",
+      "technical": "Teknik Destek",
+      "other": "Diğer Sorgu"
+    },
+    "subject": "Konu",
+    "subjectPlaceholder": "Sorgu konusunu girin",
+    "message": "Mesaj",
+    "messagePlaceholder": "Lütfen sorgunuzu detaylı olarak yazın (maksimum 500 karakter)",
+    "characters": "karakter",
+    "submitting": "Gönderiliyor...",
+    "submit": "Sorgu Gönder",
+    "history": {
+      "title": "Sorgu Geçmişim",
+      "description": "Gönderdiğiniz sorguları ve yönetici yanıtlarını kontrol edin.",
+      "total": "Toplam {{count}} sorgu",
+      "loading": "Sorgu geçmişi yükleniyor...",
+      "noInquiries": "Henüz sorgu gönderilmemiş.",
+      "noInquiriesDescription": "Herhangi bir sorunuz varsa, lütfen yukarıdaki formu kullanarak bir sorgu gönderin.",
+      "category": "Sorgu",
+      "received": "Alındı",
+      "adminReply": "Yönetici Yanıtı",
+      "replied": "Yanıtlandı",
+      "preparing": "Yanıt hazırlanıyor. İnceleme sonrası size ulaşacağız."
+    }
+  },
+  "cash": {
+    "title": "Bakiye Geçmişi",
+    "description": "Bakiyenizi ve kullanım geçmişinizi kontrol edin.",
+    "chargeCash": "Bakiye Yükle",
+    "availableCash": "Mevcut Bakiye",
+    "loadingHistory": "Bakiye geçmişi yükleniyor...",
+    "noHistory": "Görüntülenecek bakiye geçmişi yok.",
+    "noHistoryDescription": "Bakiye yüklediğinizde veya kullandığınızda bakiye işlemleri burada kaydedilecektir.",
+    "types": {
+      "charge": "Bakiye Yükleme",
+      "use": "Bakiye Kullanımı",
+      "adminAdd": "Yönetici Ekleme",
+      "adminDeduct": "Yönetici Düşürme",
+      "record": "Kayıt"
+    },
+    "bonus": "Bonus",
+    "balance": "Bakiye",
+    "sheet": "Nota",
+    "noDescription": "Kayıtlı açıklama yok."
+  },
+  "customOrders": {
+    "title": "Özel Sipariş Geçmişi",
+    "description": "Özel sipariş taleplerinizin durumunu kontrol edin.",
+    "newOrderRequest": "Yeni Sipariş Talebi",
+    "noOrders": "Özel sipariş geçmişi yok.",
+    "serviceDescription": "Özel notalar oluşturmak için özel sipariş hizmetimizi kullanın.",
+    "requestDate": "Talep Tarihi",
+    "lastUpdate": "Son Güncelleme",
+    "viewDetails": "Detayları Görüntüle",
+    "quoteConfirm": "Teklif Onayı",
+    "workCompleted": "İş Tamamlandı",
+    "quotePending": "Teklif Bekleniyor"
+  },
+  "status": {
+    "order": {
+      "completed": "Tamamlandı",
+      "pending": "Beklemede",
+      "cancelled": "İptal Edildi",
+      "refunded": "İade Edildi",
+      "undetermined": "Belirlenmemiş"
+    },
+    "customOrder": {
+      "pending": "Teklif Bekleniyor",
+      "quoted": "Ödeme Bekleniyor",
+      "paymentConfirmed": "Ödeme Onaylandı",
+      "inProgress": "Devam Ediyor",
+      "completed": "Tamamlandı",
+      "cancelled": "İptal Edildi",
+      "undetermined": "Belirlenmemiş"
+    },
+    "inquiry": {
+      "pending": "Yanıt Bekleniyor",
+      "answered": "Yanıtlandı",
+      "processing": "İşleniyor"
+    }
+  },
+  "cashCharge": {
+    "title": "Bakiye Yükleme",
+    "currentCash": "Mevcut Bakiye",
+    "paymentAmount": "Ödeme Tutarı",
+    "bankTransferInfo": {
+      "title": "Banka Havalesi Bilgileri",
+      "bank": "Banka",
+      "accountNumber": "Hesap Numarası",
+      "accountHolder": "Hesap Sahibi",
+      "amount": "Yatırılacak Tutar",
+      "depositorName": "Gönderen Adı"
+    },
+    "depositorName": "Gönderen Adı",
+    "depositorNamePlaceholder": "Gönderen adını girin",
+    "depositorNameHint": "* Gönderen adı üye adınızdan farklıysa, lütfen gönderen adını girin.",
+    "bankTransferNotice": {
+      "title": "Banka Havalesi Bildirimi",
+      "line1": "• Bakiye, yatırma onayından sonra yönetici tarafından manuel olarak yüklenecektir.",
+      "line2": "• Gönderen adı eşleşmezse onay gecikebilir.",
+      "line3": "• Yatırma onayı 1-2 iş günü sürebilir."
+    },
+    "back": "Geri",
+    "confirm": "Onayla",
+    "processing": "İşleniyor...",
+    "paymentMethod": "Ödeme Yöntemi",
+    "paymentAmountTitle": "Ödeme Tutarı",
+    "agreement": "Ödeme detaylarını inceledim ve şartları kabul ediyorum.",
+    "next": "İleri",
+    "bankTransferGuide": {
+      "title": "Banka Havalesi Rehberi",
+      "bank": "Banka",
+      "accountNumber": "Hesap Numarası",
+      "accountHolder": "Hesap Sahibi",
+      "amount": "Yatırılacak Tutar"
+    }
+  },
+  "guest": {
+    "title": "Giriş Gerekli",
+    "description": "Satın alma geçmişi, indirmeler ve favori notalar gibi Sayfam özelliklerini kullanmak için lütfen giriş yapın.",
+    "login": "Girişe Git",
+    "signup": "Kayıt Ol"
+  },
+  "loading": {
+    "message": "Sayfam verileri yükleniyor..."
+  },
+  "errors": {
+    "loginRequired": "Giriş gerekli.",
+    "agreementRequired": "Lütfen ödeme şartlarını kabul edin.",
+    "amountNotFound": "Seçilen yükleme tutarı bulunamadı.",
+    "paymentMethodNotReady": "Bu ödeme yöntemi şu anda hazırlanıyor.",
+    "paymentWindowOpen": "Ödeme penceresi açılacak. Lütfen ödemeyi tamamlayın.",
+    "paymentError": "Ödeme işlemi sırasında bir hata oluştu.",
+    "depositorNameRequired": "Lütfen gönderen adını girin.",
+    "orderReceived": "Sipariş alındı.\\nBakiye, yönetici tarafından yatırma onayından sonra yüklenecektir.",
+    "allFieldsRequired": "Lütfen tüm alanları doldurun.",
+    "inquirySubmitted": "Sorgu gönderildi. En kısa sürede yanıt vereceğiz.",
+    "inquiryError": "Sorgu gönderilirken bir hata oluştu. Lütfen tekrar deneyin.",
+    "profileUpdated": "Profil bilgileri güncellendi.",
+    "profileUpdateError": "Profil güncellenemedi. Lütfen daha sonra tekrar deneyin.",
+    "downloadRestricted": "Bu sipariş iade edildi veya indirme kısıtlandı.",
+    "selectDownloadItems": "Lütfen indirilecek notaları seçin.",
+    "noDownloadableItems": "İndirilebilir nota mevcut değil.",
+    "downloadRestrictedMultiple": "İade edilen veya kısıtlanan notalar indirilemez.",
+    "loginRequiredForDownload": "Giriş gerekli. Lütfen tekrar giriş yapın.",
+    "downloadFailed": "{{count}} dosya indirilemedi. Lütfen daha sonra tekrar deneyin.",
+    "downloadFailedSingle": "Dosya indirme başarısız oldu. Lütfen daha sonra tekrar deneyin.",
+    "previewNotFound": "Önizleme dosyası bulunamadı.",
+    "favoriteRemoveFailed": "Favorilerden kaldırılamadı.",
+    "sheetInfoNotFound": "İndirilebilir nota bilgisi bulunamadı.",
+    "downloadLinkNotFound": "İndirme bağlantısı bulunamadı. Lütfen yöneticiye başvurun."
+  },
+  "console": {
+    "cashHistoryError": "Bakiye geçmişi yükleme hatası:",
+    "inquiryHistoryError": "Sorgu geçmişi yükleme hatası:",
+    "profileLoadError": "Profil yükleme hatası:",
+    "orderHistoryError": "Sipariş geçmişi yükleme hatası:",
+    "favoritesLoadError": "Favoriler yükleme hatası:",
+    "customOrderHistoryError": "Özel sipariş geçmişi yükleme hatası:",
+    "initError": "Sayfam başlatma hatası:",
+    "cashChargeError": "Bakiye yükleme hatası:",
+    "inquirySubmitError": "Sorgu gönderme hatası:",
+    "profileUpdateError": "Profil güncelleme hatası:",
+    "favoriteRemoveError": "Favori kaldırma hatası:"
+  },
+  "paymentMethods": {
+    "creditCard": "Kredi Kartı",
+    "kakaoPay": "Kakao Pay",
+    "bankTransfer": "Banka Havalesi",
+    "preparing": "Hazırlanıyor"
+  },
+  "cart": "Sepet"
+}

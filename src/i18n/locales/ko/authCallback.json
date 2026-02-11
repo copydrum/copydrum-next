@@ -1,0 +1,41 @@
+{
+  "loading": "로그인 처리 중...",
+  "errors": {
+    "oauthError": "로그인에 실패했습니다",
+    "callbackError": "로그인 처리 중 오류가 발생했습니다. 다시 시도해주세요.",
+    "profileCreationError": "프로필 생성 오류"
+  },
+  "console": {
+    "oauthError": "OAuth 오류:",
+    "callbackError": "인증 콜백 처리 오류:",
+    "profileCreationError": "프로필 생성 오류:"
+  },
+  "defaultUserName": "사용자"
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

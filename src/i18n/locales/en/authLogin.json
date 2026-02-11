@@ -1,0 +1,72 @@
+{
+  "title": "Login",
+  "noAccount": "Don't have an account?",
+  "signUp": "Sign Up",
+  "notice": "🔔 For existing members: Password reset is required on first login due to site renewal.",
+  "form": {
+    "email": "Email Address",
+    "emailPlaceholder": "Enter your email",
+    "password": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "rememberMe": "Remember Me",
+    "forgotPassword": "Forgot your password?",
+    "submit": "Login",
+    "submitting": "Logging in..."
+  },
+  "divider": "or",
+  "social": {
+    "google": "Google",
+    "kakao": "Kakao"
+  },
+  "errors": {
+    "kakaoLoginFailed": "Kakao login failed. Please try again.",
+    "googleLoginFailed": "Google login failed. Please try again.",
+    "invalidCredentials": "Email or password is incorrect.",
+    "emailNotConfirmed": "Email verification is required. Please check your email.",
+    "loginFailed": "Login failed. Please try again.",
+    "resetPasswordEmailError": "An error occurred while sending password reset email. Please try again.",
+    "profileError": "Profile lookup error",
+    "profileCreationError": "Profile creation error",
+    "migrationCheckError": "Error checking migration user"
+  },
+  "messages": {
+    "passwordResetEmailSent": "You're an existing member! We've sent a password reset email. Please check your inbox."
+  },
+  "console": {
+    "kakaoLoginError": "Kakao login error:",
+    "googleLoginError": "Google login error:",
+    "profileLookupError": "Profile lookup error:",
+    "profileCreationError": "Profile creation error:",
+    "resetPasswordEmailError": "Password reset email sending error:",
+    "migrationCheckError": "Migration user check error:",
+    "loginError": "Login error:"
+  },
+  "defaultUserName": "User"
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

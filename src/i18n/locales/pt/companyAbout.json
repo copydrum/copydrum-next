@@ -1,0 +1,49 @@
+{
+  "title": "Sobre COPYDRUM",
+  "intro": "Apresentamos o COPYDRUM, que produz e oferece as melhores partituras para bateristas profissionais e entusiastas de bateria desde 2010.",
+  "mission": {
+    "title": "Nossa Missão",
+    "description": "O COPYDRUM visa ajudar bateristas a obter inspiração musical e melhorar seu desempenho através de partituras confiáveis disponíveis a qualquer momento, em qualquer lugar. Fornecemos a todos os bateristas os recursos necessários através de notação precisa, PDFs de alta qualidade e arranjos práticos."
+  },
+  "expertise": {
+    "title": "Mais de 10 Anos de Expertise",
+    "description": "O COPYDRUM, operando desde 2010, cresceu junto com inúmeros bateristas nacional e internacionalmente. Com anos de experiência e expertise acumuladas em notação, fornecemos partituras para músicos de todos os níveis, desde iniciantes até músicos profissionais."
+  },
+  "network": {
+    "title": "Expansão da Rede Global",
+    "description": "O COPYDRUM tem fornecido partituras para bateristas em todo o mundo, incluindo Ásia, América do Norte e Europa, construindo uma rede global. Estamos nos tornando uma plataforma global de partituras confiável e procurada por bateristas de vários gêneros e estilos."
+  },
+  "features": {
+    "notationTeam": {
+      "title": "Equipe Profissional de Notação",
+      "description": "Nossa equipe profissional de notação com mais de 10 anos de experiência e bateristas ativos revisam diretamente e fornecem partituras de alta qualidade."
+    },
+    "genres": {
+      "title": "Vários Gêneros",
+      "description": "Temos partituras para vários gêneros, incluindo K-pop, pop, rock, jazz, CCM e OST, e atualizamos rapidamente com as músicas mais recentes."
+    },
+    "updates": {
+      "title": "Atualizações Contínuas",
+      "description": "Com base em dados acumulados ao longo de anos de operação e feedback dos usuários, atualizamos consistentemente com novas partituras."
+    }
+  },
+  "values": {
+    "title": "Valores que o COPYDRUM Promete",
+    "accuracy": {
+      "label": "Precisão",
+      "description": "— Notação precisa baseada em performance real reduz o tempo de prática."
+    },
+    "accessibility": {
+      "label": "Acessibilidade",
+      "description": "— Fornecemos PDFs de alta qualidade otimizados para dispositivos móveis e tablets."
+    },
+    "connectivity": {
+      "label": "Conectividade",
+      "description": "— Crescemos junto com a comunidade de bateristas e fornecemos rapidamente o conteúdo que você precisa."
+    }
+  },
+  "partner": {
+    "title": "Parceiro de Crescimento para Bateristas",
+    "description": "O COPYDRUM será um parceiro na criação do palco que os bateristas sonham. Continuaremos ao seu lado com as melhores partituras e serviços."
+  }
+}

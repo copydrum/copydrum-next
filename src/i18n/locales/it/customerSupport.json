@@ -1,0 +1,119 @@
+{
+  "title": "Assistenza clienti",
+  "subtitle": "Se hai domande, contattaci in qualsiasi momento. Forniremo risposte rapide e accurate.",
+  "tabs": {
+    "faq": "FAQ",
+    "contact": "Contattaci"
+  },
+  "contact": {
+    "title": "Contattaci",
+    "description": "Se hai domande o problemi, compila il modulo qui sotto. Risponderemo il prima possibile.",
+    "form": {
+      "name": "Nome",
+      "namePlaceholder": "Inserisci il tuo nome",
+      "email": "Email",
+      "emailPlaceholder": "Inserisci la tua email",
+      "inquiryType": "Tipo di richiesta",
+      "inquiryTypePlaceholder": "Seleziona il tipo di richiesta",
+      "subject": "Oggetto",
+      "subjectPlaceholder": "Inserisci l'oggetto della richiesta",
+      "message": "Messaggio",
+      "messagePlaceholder": "Scrivi la tua richiesta in dettaglio (massimo 500 caratteri)",
+      "characters": "caratteri",
+      "submit": "Invia richiesta",
+      "submitting": "Invio in corso...",
+      "note": "Risponderemo alla tua richiesta entro 24 ore nei giorni lavorativi."
+    },
+    "categories": {
+      "orderPayment": "Richiesta ordine/pagamento",
+      "sheetDownload": "Richiesta spartito/download",
+      "customOrder": "Richiesta ordine personalizzato",
+      "technical": "Supporto tecnico",
+      "other": "Altra richiesta"
+    }
+  },
+  "contactInfo": {
+    "title": "Informazioni di contatto",
+    "subtitle": "Puoi contattarci attraverso vari metodi",
+    "email": {
+      "title": "Richiesta via email",
+      "address": "copydrum@hanmail.net",
+      "description": "Ricezione 24/7, risposta entro 1 giorno"
+    },
+    "kakao": {
+      "title": "Consultazione KakaoTalk",
+      "description": "Puoi utilizzare la consultazione chat in tempo reale.",
+      "button": "Apri chat KakaoTalk"
+    },
+    "hours": {
+      "title": "Orari di apertura",
+      "weekdays": "Giorni feriali 09:00 - 17:00",
+      "closed": "Chiuso nei fine settimana e nei giorni festivi"
+    }
+  },
+  "faq": {
+    "categories": {
+      "orderPayment": {
+        "name": "Ordine/Pagamento",
+        "items": {
+          "download": {
+            "question": "Quando posso scaricare lo spartito dopo l'acquisto?",
+            "answer": "Puoi scaricare immediatamente dopo il completamento del pagamento dalla Mia pagina. Gli spartiti acquistati possono essere scaricati nuovamente in qualsiasi momento."
+          },
+          "payment": {
+            "question": "Quali metodi di pagamento sono disponibili?",
+            "answer": "Supportiamo carte di credito, carte di debito, bonifici bancari e metodi di pagamento convenienti (Kakao Pay)."
+          },
+          "refund": {
+            "question": "Come posso ottenere un rimborso?",
+            "answer": "A causa della natura dei prodotti digitali, i rimborsi sono disponibili solo prima del download. I rimborsi sono difficili dopo il download, quindi acquista con attenzione."
+          }
+        }
+      },
+      "sheetDownload": {
+        "name": "Spartito/Download",
+        "items": {
+          "format": {
+            "question": "Quale formato di file sono i file degli spartiti?",
+            "answer": "Tutti gli spartiti sono forniti in formato PDF di alta qualità. Ottimizzati sia per la stampa che per i dispositivi digitali."
+          },
+          "print": {
+            "question": "Posso stampare gli spartiti scaricati?",
+            "answer": "Sì, puoi stampare per uso personale di pratica. Tuttavia, l'uso commerciale o la ridistribuzione sono vietati."
+          },
+          "difficulty": {
+            "question": "Come sono classificati i livelli di difficoltà?",
+            "answer": "Sono classificati come Principiante (pattern di base), Intermedio (inclusi pattern di variazione) e Avanzato (inclusi tecniche complesse)."
+          }
+        }
+      },
+      "customOrder": {
+        "name": "Ordine personalizzato",
+        "items": {
+          "what": {
+            "question": "Cos'è il servizio di ordine personalizzato?",
+            "answer": "È un servizio personalizzato in cui i professionisti creano spartiti per batteria per la canzone che desideri."
+          },
+          "duration": {
+            "question": "Quanto tempo richiede la produzione?",
+            "answer": "Di solito richiede 1-7 giorni a seconda della complessità della canzone. Il programma esatto sarà fornito individualmente dopo la richiesta."
+          },
+          "cost": {
+            "question": "Come viene determinato il costo di produzione?",
+            "answer": "Forniamo preventivi considerando complessivamente la lunghezza della canzone, la complessità e il livello di difficoltà."
+          }
+        }
+      }
+    }
+  },
+  "errors": {
+    "fillAllFields": "Compila tutti i campi.",
+    "submitError": "Si è verificato un errore durante l'invio della tua richiesta. Riprova."
+  },
+  "messages": {
+    "submitSuccess": "La tua richiesta è stata inviata con successo. Risponderemo il prima possibile."
+  },
+  "console": {
+    "inquiryError": "고객 문의 저장 실패:"
+  }
+}

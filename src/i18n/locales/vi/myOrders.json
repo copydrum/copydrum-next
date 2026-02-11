@@ -1,0 +1,65 @@
+{
+  "title": "Lịch sử mua bản nhạc",
+  "description": "Đây là danh sách bản nhạc bạn đã mua, được sắp xếp theo mới nhất.",
+  "totalPurchased": "Bạn đã mua tổng cộng {{count}} bản nhạc.",
+  "loginRequired": "Yêu cầu đăng nhập",
+  "loginRequiredMessage": "Vui lòng đăng nhập để xem lịch sử mua hàng của bạn.",
+  "orderNumber": "Số đơn hàng",
+  "categoryNotSet": "Chưa đặt danh mục",
+  "deletedSheet": "Bản nhạc đã xóa",
+  "status": {
+    "pending": "Đang chờ thanh toán",
+    "pendingDesc": "Đang chờ xác nhận thanh toán.",
+    "processing": "Đang xử lý",
+    "processingDesc": "Đơn hàng của bạn đang được xử lý.",
+    "completed": "Hoàn thành",
+    "completedDesc": "Đơn hàng đã hoàn thành. Có thể tải xuống.",
+    "cancelled": "Đã hủy",
+    "cancelledDesc": "Đơn hàng đã bị hủy.",
+    "paymentPending": "Đang chờ thanh toán",
+    "paymentPendingDesc": "Đang chờ xác nhận nạp tiền.",
+    "paymentConfirmed": "Đã xác nhận thanh toán",
+    "paymentConfirmedDesc": "Đã xác nhận thanh toán. Có thể tải xuống.",
+    "paid": "Đã thanh toán",
+    "paidDesc": "Thanh toán đã hoàn thành. Có thể tải xuống.",
+    "refunded": "Đã hoàn tiền",
+    "refundedDesc": "Đơn hàng đã được hoàn tiền."
+  },
+  "paymentMethod": {
+    "card": "Thẻ tín dụng",
+    "bankTransfer": "Chuyển khoản ngân hàng",
+    "virtualAccount": "Tài khoản ảo",
+    "cash": "Số dư khả dụng",
+    "points": "Điểm"
+  },
+  "empty": {
+    "title": "Không có bản nhạc đã mua",
+    "message": "Tìm bản nhạc yêu thích của bạn và thêm vào giỏ hàng.",
+    "browseButton": "Duyệt bản nhạc"
+  },
+  "actions": {
+    "downloadAll": "Tải xuống tất cả trong đơn hàng này",
+    "downloadSelected": "Tải xuống đã chọn",
+    "selectAll": "Chọn tất cả",
+    "deselectAll": "Bỏ chọn tất cả",
+    "clearSelection": "Xóa lựa chọn",
+    "download": "Tải xuống",
+    "downloadNotAvailable": "Không thể tải xuống",
+    "downloading": "Đang tải xuống...",
+    "viewDetails": "Xem chi tiết",
+    "purchaseDate": "Ngày mua {{date}}",
+    "selectedCount": "Đã chọn {{count}}",
+    "cart": "Giỏ hàng"
+  },
+  "messages": {
+    "selectSheetsToDownload": "Vui lòng chọn bản nhạc để tải xuống.",
+    "refundedOrRestricted": "Đơn hàng này đã được hoàn tiền hoặc việc tải xuống bị hạn chế.",
+    "loginRequired": "Yêu cầu đăng nhập.",
+    "downloadFailed": "Không thể tải xuống {{count}} bản nhạc.",
+    "refundedOrder": "Đơn hàng đã hoàn tiền không thể tải xuống.",
+    "noSheetsToDownload": "Không có bản nhạc nào có thể tải xuống.",
+    "sheetInfoNotFound": "Không tìm thấy thông tin bản nhạc.",
+    "fileNotFound": "Không tìm thấy tệp.",
+    "downloadError": "Không thể tải xuống tệp. Vui lòng thử lại sau."
+  }
+}

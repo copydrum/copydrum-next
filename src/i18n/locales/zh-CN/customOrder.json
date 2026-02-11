@@ -1,0 +1,101 @@
+{
+  "title": "定制鼓谱乐谱",
+  "description": {
+    "line1": "在寻找特定歌曲？",
+    "line2": "我们的专业人士将为您分析和创建高质量的鼓谱乐谱。",
+    "line3": "我们根据歌曲的难度和结构提供定制报价。"
+  },
+  "login": {
+    "required": "需要登录",
+    "description": "请登录以提交定制订单请求。",
+    "button": "登录"
+  },
+  "pricing": {
+    "title": "价格信息",
+    "note": "* 最终价格将在分析歌曲难度和长度后作为单独报价提供。",
+    "grades": {
+      "c": {
+        "name": "C级",
+        "price": "$10+",
+        "description": "一般K-pop、流行、成人当代歌曲，5分钟以下"
+      },
+      "b": {
+        "name": "B级",
+        "price": "$30+",
+        "description": "略高于中级难度或超过5分钟的歌曲"
+      },
+      "a": {
+        "name": "A级",
+        "price": "$50+",
+        "description": "高级难度歌曲"
+      }
+    }
+  },
+  "form": {
+    "title": "定制订单申请表",
+    "applicantId": "申请人ID",
+    "applicantIdPlaceholder": "已登录ID",
+    "songInfo": "歌曲信息",
+    "songTitle": "歌曲标题",
+    "songTitlePlaceholder": "请输入您要订购的歌曲标题",
+    "artist": "艺术家",
+    "artistPlaceholder": "请输入艺术家名称",
+    "youtubeUrl": "YouTube URL",
+    "youtubeUrlPlaceholder": "请输入YouTube URL以准确创建乐谱（可选）",
+    "youtubeUrlHint": "请输入YouTube URL以准确创建乐谱。（可选）",
+    "memo": "备注",
+    "memoPlaceholder": "请输入任何备注或说明（最多500个字符）",
+    "characters": "个字符",
+    "submit": "提交定制订单请求",
+    "submitting": "正在提交...",
+    "note": "提交后，您可以在\"我的页面\"的\"定制订单历史\"中查看进度，完成后即可下载乐谱。"
+  },
+  "process": {
+    "title": "定制订单流程",
+    "steps": {
+      "request": {
+        "title": "收到请求",
+        "description": "您的定制订单请求在提交时收到。"
+      },
+      "quote": {
+        "title": "发送报价",
+        "description": "我们分析歌曲并通过\"我的页面\"提供报价。"
+      },
+      "payment": {
+        "title": "确认支付",
+        "description": "确认报价和支付后，开始制作。"
+      },
+      "completed": {
+        "title": "完成",
+        "description": "从\"我的页面\"下载完成的乐谱。"
+      }
+    }
+  },
+  "faq": {
+    "title": "常见问题",
+    "questions": {
+      "quote": {
+        "question": "如何查看报价？",
+        "answer": "您可以在\"我的页面\"的\"定制订单历史\"中查看报价。我们将在您请求后24小时内提供报价。"
+      },
+      "production": {
+        "question": "制作需要多长时间？",
+        "answer": "通常在支付确认后需要1-3天。持续时间可能因歌曲的难度和长度而异，我们将在报价中提供确切的日程安排。"
+      },
+      "payment": {
+        "question": "有哪些支付方式？",
+        "answer": "目前仅支持银行转账。我们将随报价一起提供银行账户信息。"
+      }
+    }
+  },
+  "errors": {
+    "loginRequired": "需要登录。",
+    "submitError": "提交时发生错误。请重试。"
+  },
+  "messages": {
+    "submitSuccess": "定制订单请求已提交。您可以在\"我的页面\"中查看进度。"
+  },
+  "console": {
+    "submitError": "提交订单错误："
+  }
+}

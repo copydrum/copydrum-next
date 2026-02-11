@@ -1,0 +1,52 @@
+{
+  "title": "Daftar",
+  "hasAccount": "Sudah punya akun?",
+  "signIn": "Masuk",
+  "form": {
+    "name": "Nama",
+    "namePlaceholder": "Masukkan nama Anda",
+    "email": "Alamat Email",
+    "emailPlaceholder": "Masukkan email Anda",
+    "password": "Kata Sandi",
+    "passwordPlaceholder": "Masukkan kata sandi Anda (8+ karakter)",
+    "passwordHint": "8+ karakter, huruf, angka, dan karakter khusus",
+    "confirmPassword": "Konfirmasi Kata Sandi",
+    "confirmPasswordPlaceholder": "Masukkan ulang kata sandi Anda",
+    "agreeTerms": "Saya menyetujui Syarat Layanan",
+    "viewTerms": "(Lihat)",
+    "agreePrivacy": "Saya menyetujui Kebijakan Privasi",
+    "viewPrivacy": "(Lihat)",
+    "agreeMarketing": "Saya menyetujui untuk menerima informasi pemasaran (Opsional)",
+    "submit": "Daftar",
+    "submitting": "Mendaftar..."
+  },
+  "divider": "atau",
+  "social": {
+    "google": "Google",
+    "kakao": "Kakao"
+  },
+  "errors": {
+    "passwordMismatch": "Kata sandi tidak cocok.",
+    "passwordTooShort": "Kata sandi harus minimal 8 karakter.",
+    "termsRequired": "Silakan setujui syarat yang diperlukan.",
+    "profileCreationFailed": "Gagal membuat profil. Silakan coba lagi.",
+    "emailAlreadyRegistered": "Email ini sudah terdaftar.",
+    "invalidEmail": "Silakan masukkan alamat email yang valid.",
+    "signUpFailed": "Pendaftaran gagal. Silakan coba lagi.",
+    "kakaoLoginFailed": "Login Kakao gagal. Silakan coba lagi.",
+    "googleLoginFailed": "Login Google gagal. Silakan coba lagi."
+  },
+  "messages": {
+    "signUpSuccess": "Pendaftaran selesai! Silakan periksa email Anda dan masuk."
+  },
+  "console": {
+    "kakaoLoginError": "Kesalahan login Kakao:",
+    "googleLoginError": "Kesalahan login Google:",
+    "profileError": "Kesalahan pembuatan/pembaruan profil:",
+    "rollbackFunctionError": "Kesalahan pemanggilan fungsi rollback:",
+    "rollbackComplete": "Rollback pendaftaran selesai",
+    "rollbackError": "Kesalahan selama rollback:",
+    "profileSuccess": "Profil berhasil dibuat/diperbarui",
+    "signUpError": "Kesalahan pendaftaran:"
+  }
+}

@@ -1,0 +1,11 @@
+import ClientLayout from './layout-client';
+
+export default function LocaleLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: { locale: string };
+}) {
+  return <ClientLayout>{children}</ClientLayout>;
+}

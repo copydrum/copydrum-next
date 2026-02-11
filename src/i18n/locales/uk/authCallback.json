@@ -1,0 +1,14 @@
+{
+  "loading": "Обробка входу...",
+  "errors": {
+    "oauthError": "Помилка входу",
+    "callbackError": "Під час обробки входу сталася помилка. Будь ласка, спробуйте ще раз.",
+    "profileCreationError": "Помилка створення профілю"
+  },
+  "console": {
+    "oauthError": "Помилка OAuth:",
+    "callbackError": "Помилка обробки зворотного виклику автентифікації:",
+    "profileCreationError": "Помилка створення профілю:"
+  },
+  "defaultUserName": "Користувач"
+}

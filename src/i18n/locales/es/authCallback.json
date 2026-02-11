@@ -1,0 +1,14 @@
+{
+  "loading": "Procesando inicio de sesión...",
+  "errors": {
+    "oauthError": "Error en el inicio de sesión",
+    "callbackError": "Ocurrió un error al procesar el inicio de sesión. Por favor, inténtelo de nuevo.",
+    "profileCreationError": "Error al crear el perfil"
+  },
+  "console": {
+    "oauthError": "Error de OAuth:",
+    "callbackError": "Error al procesar la llamada de autenticación:",
+    "profileCreationError": "Error al crear el perfil:"
+  },
+  "defaultUserName": "Usuario"
+}

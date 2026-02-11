@@ -1,0 +1,49 @@
+{
+  "title": "À propos de COPYDRUM",
+  "intro": "Nous vous présentons COPYDRUM, qui produit et fournit les meilleures partitions pour les batteurs professionnels et les passionnés de batterie depuis 2010.",
+  "mission": {
+    "title": "Notre mission",
+    "description": "COPYDRUM vise à aider les batteurs à obtenir une inspiration musicale et à améliorer leurs performances grâce à des partitions fiables disponibles à tout moment, n'importe où. Nous fournissons à tous les batteurs les ressources dont ils ont besoin grâce à une notation précise, des PDF de haute qualité et des arrangements pratiques."
+  },
+  "expertise": {
+    "title": "Plus de 10 ans d'expertise",
+    "description": "COPYDRUM, en activité depuis 2010, a grandi avec de nombreux batteurs tant au niveau national qu'international. Avec des années d'expérience et d'expertise en notation accumulées, nous fournissons des partitions pour les joueurs de tous niveaux, des débutants aux musiciens professionnels."
+  },
+  "network": {
+    "title": "Expansion du réseau mondial",
+    "description": "COPYDRUM a fourni des partitions à des batteurs du monde entier, notamment en Asie, en Amérique du Nord et en Europe, en construisant un réseau mondial. Nous devenons une plateforme de partitions mondiale de confiance et recherchée par les batteurs de divers genres et styles."
+  },
+  "features": {
+    "notationTeam": {
+      "title": "Équipe de notation professionnelle",
+      "description": "Notre équipe de notation professionnelle avec plus de 10 ans d'expérience et des batteurs actifs examinent directement et fournissent des partitions de haute qualité."
+    },
+    "genres": {
+      "title": "Divers genres",
+      "description": "Nous avons des partitions pour divers genres, notamment K-pop, pop, rock, jazz, CCM et OST, et nous mettons rapidement à jour avec les dernières chansons."
+    },
+    "updates": {
+      "title": "Mises à jour continues",
+      "description": "Basé sur les données accumulées au fil des années d'exploitation et les commentaires des utilisateurs, nous mettons régulièrement à jour avec de nouvelles partitions."
+    }
+  },
+  "values": {
+    "title": "Valeurs que COPYDRUM promet",
+    "accuracy": {
+      "label": "Précision",
+      "description": "— Une notation précise basée sur une performance réelle réduit le temps de pratique."
+    },
+    "accessibility": {
+      "label": "Accessibilité",
+      "description": "— Nous fournissons des PDF de haute qualité optimisés pour les appareils mobiles et tablettes."
+    },
+    "connectivity": {
+      "label": "Connectivité",
+      "description": "— Nous grandissons ensemble avec la communauté des batteurs et fournissons rapidement le contenu dont vous avez besoin."
+    }
+  },
+  "partner": {
+    "title": "Partenaire de croissance pour les batteurs",
+    "description": "COPYDRUM sera un partenaire dans la création de la scène dont rêvent les batteurs. Nous continuerons à être à vos côtés avec les meilleures partitions et services."
+  }
+}

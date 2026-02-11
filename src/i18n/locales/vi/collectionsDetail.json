@@ -1,0 +1,72 @@
+{
+  "loading": "Đang tải bộ sưu tập...",
+  "errors": {
+    "noCollectionInfo": "Thông tin bộ sưu tập được yêu cầu không có sẵn.",
+    "collectionNotFound": "Không tìm thấy bộ sưu tập được yêu cầu.",
+    "loadError": "Đã xảy ra lỗi khi tải thông tin bộ sưu tập.",
+    "collectionNotAvailable": "Bộ sưu tập bản nhạc được yêu cầu không tồn tại hoặc đã bị vô hiệu hóa."
+  },
+  "backToList": "Quay lại Bộ sưu tập",
+  "free": "Miễn phí",
+  "discount": "Giảm {{percentage}}%",
+  "badge": "Bộ sưu tập bản nhạc",
+  "includedSheets": {
+    "count": "Bản nhạc bao gồm",
+    "number": "{{count}} bài hát",
+    "title": "Bản nhạc bao gồm",
+    "description": "Xem tất cả các bản nhạc được bao gồm trong bộ sưu tập này và khám phá những bản bạn muốn.",
+    "empty": "Chưa có bản nhạc nào được thêm vào bộ sưu tập này."
+  },
+  "sheet": {
+    "difficulty": "Độ khó {{difficulty}}",
+    "free": "Miễn phí"
+  },
+  "purchase": {
+    "priceInfo": "Thông tin giá bộ sưu tập",
+    "totalIndividual": "Tổng bản nhạc riêng lẻ",
+    "noInfo": "Không có thông tin",
+    "collectionPrice": "Giá bộ sưu tập",
+    "buyNow": "Mua ngay",
+    "save": "Tiết kiệm {{amount}}!",
+    "processing": "Đang xử lý...",
+    "note": "Bộ sưu tập chỉ có thể được mua với giá đã giảm.",
+    "inactive": "Bộ sưu tập này hiện không hoạt động. Vui lòng liên hệ quản trị viên.",
+    "mobilePrice": "Giá bộ sưu tập",
+    "mobileSave": "Tiết kiệm {{amount}} so với mua riêng lẻ",
+    "mobileInactive": "Bộ sưu tập này hiện không hoạt động.",
+    "buyCollection": "Buy Collection",
+    "goToCart": "Go to Cart"
+  },
+  "alerts": {
+    "noSheetInfo": "Không tìm thấy thông tin bản nhạc được bao gồm trong bộ sưu tập.",
+    "duplicatePurchase": "Bạn đã mua một số bản nhạc được bao gồm trong bộ sưu tập này, vì vậy không thể mua trùng lặp.",
+    "duplicateList": "Bản nhạc trùng lặp:",
+    "checkMyPage": "Vui lòng kiểm tra lịch sử mua hàng của bạn trong Trang của tôi.",
+    "insufficientCredit": "Số dư không đủ.",
+    "currentBalance": "Số dư hiện tại: {{amount}}P",
+    "chargeCash": "Vui lòng nạp tiền và thử lại.",
+    "purchaseSuccess": "Mua hàng hoàn tất. Vui lòng kiểm tra nội dung trong Trang của tôi.",
+    "purchaseError": "Đã xảy ra lỗi trong quá trình mua hàng."
+  },
+  "navigation": {
+    "title": "Khám phá các trang khác",
+    "viewCategories": "Xem thể loại bản nhạc",
+    "eventSale": "Bản nhạc giảm giá sự kiện",
+    "customOrder": "Yêu cầu đặt hàng tùy chỉnh"
+  },
+  "purchaseDescription": "Mua bộ sưu tập bản nhạc: {{title}}",
+  "sheetTitle": "Bản nhạc",
+  "viewSheet": "Xem bản nhạc",
+  "difficulty": {
+    "beginner": "Người mới bắt đầu",
+    "intermediate": "Trung cấp",
+    "advanced": "Nâng cao"
+  },
+  "features": {
+    "title": "Nội dung bao gồm",
+    "allSheets": "Tất cả bản nhạc với giá ưu đãi",
+    "highQuality": "Định dạng PDF chất lượng cao",
+    "instantDownload": "Tải xuống ngay lập tức",
+    "lifetimeAccess": "Truy cập trọn đời"
+  }
+}

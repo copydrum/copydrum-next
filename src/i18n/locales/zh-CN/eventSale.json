@@ -1,0 +1,61 @@
+{
+  "header": {
+    "badge": "仅需100韩元即可获得热门鼓谱！",
+    "title": "100韩元特价活动",
+    "description": "不要错过这些限时超级促销鼓谱。仅需100韩元即可获得热门歌曲，立即开始演奏！"
+  },
+  "countdownNotice": "查看实时倒计时！",
+  "loading": "正在加载活动信息...",
+  "countdown": {
+    "startingSoon": "即将开始",
+    "startsIn": "开始于",
+    "timeLeft": "⏰ 剩余时间",
+    "dayUnit": "天",
+    "starts": "开始"
+  },
+  "buttons": {
+    "only100Won": "仅需100韩元！",
+    "addToFavorites": "添加到收藏",
+    "removeFromFavorites": "从收藏中移除",
+    "viewDetails": "查看详情",
+    "buyNow": "立即购买",
+    "processing": "处理中...",
+    "saleEnded": "活动已结束"
+  },
+  "labels": {
+    "eventSheet": "活动乐谱",
+    "saleEnded": "活动已结束",
+    "only100WonBadge": "仅需100韩元！",
+    "100Won": "100韩元",
+    "discount": "折扣",
+    "startingSoon": "即将开始"
+  },
+  "sections": {
+    "ongoing": {
+      "title": "进行中的100韩元特价",
+      "description": "现在可以购买的活动乐谱。",
+      "activeCount": "{{count}}个进行中",
+      "noEvents": "目前没有进行中的活动。请查看下面的预定活动！"
+    },
+    "scheduled": {
+      "title": "预定活动",
+      "description": "查看即将举行的活动并准备接收通知。",
+      "scheduledCount": "{{count}}个预定"
+    },
+    "ended": {
+      "title": "已结束的活动"
+    }
+  },
+  "messages": {
+    "loginRequired": "需要登录。",
+    "loginRequiredConfirm": "需要登录。前往登录页面？",
+    "checkDownloadPage": "在下载页面查看您的乐谱。",
+    "paymentError": "支付期间发生错误。",
+    "favoriteError": "处理您的收藏时发生错误。请稍后重试。"
+  },
+  "console": {
+    "loadEventsError": "活动折扣乐谱列表加载错误：",
+    "loadFavoritesError": "收藏列表加载错误：",
+    "toggleFavoriteError": "收藏切换处理错误："
+  }
+}

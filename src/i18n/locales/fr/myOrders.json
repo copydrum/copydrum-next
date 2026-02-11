@@ -1,0 +1,65 @@
+{
+  "title": "Historique d'achat de partitions",
+  "description": "Voici la liste des partitions que vous avez achetées, triées par les plus récentes.",
+  "totalPurchased": "Vous avez acheté un total de {{count}} partitions.",
+  "loginRequired": "Connexion requise",
+  "loginRequiredMessage": "Veuillez vous connecter pour voir votre historique d'achats.",
+  "orderNumber": "Numéro de commande",
+  "categoryNotSet": "Catégorie non définie",
+  "deletedSheet": "Partition supprimée",
+  "status": {
+    "pending": "Paiement en attente",
+    "pendingDesc": "En attente de confirmation du paiement.",
+    "processing": "En cours de traitement",
+    "processingDesc": "Votre commande est en cours de traitement.",
+    "completed": "Terminé",
+    "completedDesc": "Commande terminée. Les téléchargements sont disponibles.",
+    "cancelled": "Annulé",
+    "cancelledDesc": "La commande a été annulée.",
+    "paymentPending": "Paiement en attente",
+    "paymentPendingDesc": "En attente de confirmation du dépôt.",
+    "paymentConfirmed": "Paiement confirmé",
+    "paymentConfirmedDesc": "Paiement confirmé. Les téléchargements sont disponibles.",
+    "paid": "Payé",
+    "paidDesc": "Paiement terminé. Les téléchargements sont disponibles.",
+    "refunded": "Remboursé",
+    "refundedDesc": "La commande a été remboursée."
+  },
+  "paymentMethod": {
+    "card": "Carte de crédit",
+    "bankTransfer": "Virement bancaire",
+    "virtualAccount": "Compte virtuel",
+    "cash": "Solde disponible",
+    "points": "Points"
+  },
+  "empty": {
+    "title": "Aucune partition achetée",
+    "message": "Trouvez vos partitions préférées et ajoutez-les à votre panier.",
+    "browseButton": "Parcourir les partitions"
+  },
+  "actions": {
+    "downloadAll": "Tout télécharger dans cette commande",
+    "downloadSelected": "Télécharger la sélection",
+    "selectAll": "Tout sélectionner",
+    "deselectAll": "Tout désélectionner",
+    "clearSelection": "Effacer la sélection",
+    "download": "Télécharger",
+    "downloadNotAvailable": "Téléchargement indisponible",
+    "downloading": "Téléchargement en cours...",
+    "viewDetails": "Voir les détails",
+    "purchaseDate": "Date d'achat {{date}}",
+    "selectedCount": "{{count}} sélectionnées",
+    "cart": "Panier"
+  },
+  "messages": {
+    "selectSheetsToDownload": "Veuillez sélectionner des partitions à télécharger.",
+    "refundedOrRestricted": "Cette commande a été remboursée ou le téléchargement est restreint.",
+    "loginRequired": "La connexion est requise.",
+    "downloadFailed": "Échec du téléchargement de {{count}} partition(s).",
+    "refundedOrder": "Les commandes remboursées ne peuvent pas être téléchargées.",
+    "noSheetsToDownload": "Aucune partition disponible au téléchargement.",
+    "sheetInfoNotFound": "Informations de partition introuvables.",
+    "fileNotFound": "Fichier introuvable.",
+    "downloadError": "Échec du téléchargement du fichier. Veuillez réessayer plus tard."
+  }
+}

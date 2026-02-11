@@ -1,0 +1,9 @@
+{
+  "detailTitle": "{{title}} - {{artist}} | ドラム楽譜 PDF | COPYDRUM",
+  "detailDescription": "「{{title}}」({{artist}}) のドラム楽譜をPDFでダウンロード。高品質スコア、即時ダウンロード。{{genre}}、{{pages}}ページ、{{bpm}}BPM、{{difficulty}}レベル。",
+  "detailKeywords": "{{title}}, {{artist}}, ドラム楽譜, ドラムスコア, ドラム譜, COPYDRUM",
+  "homeTitle": "COPYDRUM | ドラム楽譜ストア",
+  "homeDescription": "ポップス、ロック、K-POP、CCMなど、世界中の人気曲の高品質ドラム楽譜をPDFで提供。ドラマー向け即時ダウンロードサービス。",
+  "categoryTitle": "{{category}} ドラム楽譜 | COPYDRUM",
+  "categoryDescription": "{{category}} 曲のドラム楽譜をPDFでダウンロード。練習やライブにすぐ使える即時ダウンロード楽譜です."
+}

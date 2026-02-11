@@ -1,0 +1,79 @@
+{
+  "badge": "PELAJARAN DRUM GRATIS",
+  "title": "Lembaran Pelajaran Drum Gratis",
+  "description": "Jelajahi semua lembaran musik dalam kategori pelajaran drum secara gratis! Berlatih dengan pelajaran YouTube untuk meningkatkan keterampilan Anda lebih cepat. Pilih dari berbagai topik pembelajaran seperti teknik drum, rudiment, drum solo, dan lainnya.",
+  "features": {
+    "freeDownload": "Unduhan Penuh Gratis",
+    "categoryLearning": "Pembelajaran Berbasis Kategori",
+    "youtubeLesson": "Tautan Pelajaran YouTube"
+  },
+  "categories": {
+    "all": "Semua",
+    "drumTechnique": "Teknik Drum",
+    "rudiment": "Rudiment",
+    "drumSolo": "Drum Solo",
+    "beginnerBasics": "Pemula/Dasar",
+    "rhythmPattern": "Pola Ritme",
+    "fillIn": "Fill-in",
+    "drumLesson": "Pelajaran Drum",
+    "categoryPending": "Kategori tertunda"
+  },
+  "search": {
+    "placeholder": "Cari berdasarkan judul, artis, atau tag"
+  },
+  "sort": {
+    "label": "Urutkan",
+    "latest": "Terbaru",
+    "title": "Judul",
+    "difficulty": "Tingkat Kesulitan"
+  },
+  "difficulty": {
+    "beginner": "Pemula",
+    "intermediate": "Menengah",
+    "advanced": "Lanjutan",
+    "notAvailable": "Tingkat kesulitan tidak tersedia"
+  },
+  "loading": "Memuat lembaran pelajaran drum gratis...",
+  "empty": {
+    "title": "Tidak ada lembaran gratis yang sesuai dengan kriteria Anda.",
+    "description": "Coba pilih kategori yang berbeda atau ubah istilah pencarian Anda."
+  },
+  "actions": {
+    "viewFreeSheet": "Lihat Lembaran Gratis",
+    "viewYoutubeLesson": "Lihat Pelajaran YouTube",
+    "goToDetail": "Pergi ke Halaman Detail",
+    "closeDetail": "Tutup Detail Lembaran Gratis"
+  },
+  "errors": {
+    "lessonCategoryLoadError": "Gagal memuat kategori pelajaran drum. Silakan coba lagi nanti.",
+    "lessonCategoryNotFound": "Kategori pelajaran drum tidak ada. Silakan hubungi administrator.",
+    "sheetsLoadError": "Gagal memuat lembaran pelajaran drum gratis. Silakan coba lagi nanti.",
+    "generalError": "Terjadi kesalahan saat memuat lembaran pelajaran drum gratis.",
+    "loginRequired": "Login diperlukan.",
+    "favoriteError": "Terjadi kesalahan saat memproses favorit. Silakan coba lagi nanti.",
+    "pdfNotReady": "Tautan PDF belum siap.",
+    "youtubeNotAvailable": "Tidak ada video YouTube yang terdaftar."
+  },
+  "mobile": {
+    "freeSheet": "Lembaran Gratis",
+    "upload": "Unggah",
+    "pages": "halaman",
+    "youtubeLessonIncluded": "Pelajaran YouTube disertakan",
+    "freeDownload": "Unduhan Gratis",
+    "practiceWithPdf": "Berlatih dengan lembaran musik PDF.",
+    "favorite": "Favorit",
+    "unfavorite": "Hapus Favorit"
+  },
+  "console": {
+    "lessonCategoryError": "Kesalahan pencarian kategori pelajaran drum:",
+    "primarySheetsError": "Kesalahan memuat lembaran pelajaran drum utama:",
+    "relationsError": "Kesalahan memuat relasi kategori pelajaran drum:",
+    "additionalSheetsError": "Kesalahan memuat lembaran pelajaran drum tambahan:",
+    "extraCategoriesError": "Kesalahan memuat kategori ekstra:",
+    "generalError": "Kesalahan pemrosesan halaman lembaran gratis:",
+    "favoritesLoadError": "Kesalahan memuat favorit:",
+    "favoriteToggleError": "Kesalahan toggle favorit:",
+    "userLoadError": "Gagal memuat informasi pengguna:",
+    "youtubeUrlParseError": "Parsing URL YouTube gagal:"
+  }
+}

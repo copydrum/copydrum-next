@@ -23,6 +23,7 @@
 # misc
 .DS_Store
 *.pem
+nul
 
 # debug
 npm-debug.log*
@@ -30,8 +31,9 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files (keep .env.example as template)
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -39,3 +41,33 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# IDE / Editor
+.claude/
+.cursor/
+.vscode/
+
+# DB migration scripts (already applied, reference only)
+*.sql
+
+# Development notes & docs (not needed in production)
+CHECKOUT_*.md
+DODO_*.md
+DODO_*.txt
+ENVIRONMENT_VARIABLES_GUIDE.md
+IMPLEMENTATION_SUMMARY.md
+PORTONE_INTEGRATION_UPDATE.md
+SLUG_SETUP_GUIDE.md
+*.csv
+ANALYZE_SESSION_BEHAVIOR*.txt
+CHECK_BOT_FILTERING*.txt
+CHECK_INQUIRIES_STATUS*.txt
+
+# One-time scripts
+/scripts/
+
+# Supabase temp files
+supabase/.temp/
+
+# Test page
+src/app/test/

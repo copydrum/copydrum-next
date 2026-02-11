@@ -1,0 +1,291 @@
+{
+  "title": "마이페이지",
+  "subtitle": "악보 구매부터 주문제작까지, 나의 활동을 한눈에 살펴보세요.",
+  "tabs": {
+    "profile": {
+      "label": "프로필 관리",
+      "description": "개인 정보 및 연락처를 관리하세요."
+    },
+    "purchases": {
+      "label": "구매 내역",
+      "description": "구매한 악보 주문 정보를 확인하세요."
+    },
+    "downloads": {
+      "label": "다운로드 관리",
+      "description": "구매한 악보를 다운로드하고 미리보기 하세요."
+    },
+    "favorites": {
+      "label": "찜한 악보",
+      "description": "관심 있는 악보를 모아보세요."
+    },
+    "cash": {
+      "label": "캐시 내역",
+      "description": "보유 캐시와 사용 내역을 확인하세요."
+    },
+    "inquiries": {
+      "label": "1:1 문의",
+      "description": "문의와 답변을 확인하세요."
+    },
+    "customOrders": {
+      "label": "주문제작 신청",
+      "description": "맞춤 제작 신청 현황을 확인하세요."
+    }
+  },
+  "stats": {
+    "purchasedSheets": "구매한 악보",
+    "availableDownloads": "다운로드 가능",
+    "favoriteSheets": "찜한 악보",
+    "inquiries": "1:1 문의",
+    "customOrders": "주문제작 신청"
+  },
+  "profile": {
+    "title": "프로필 관리",
+    "memberInfo": "회원 정보",
+    "nameNotSet": "이름 미설정",
+    "joinedOn": "가입일",
+    "cashBalance": "보유 캐시",
+    "cashBalanceDescription": "다음 악보 구매 시 사용 가능합니다.",
+    "chargeCash": "포인트 충전",
+    "email": "이메일",
+    "name": "이름",
+    "namePlaceholder": "이름을 입력하세요",
+    "phoneNumber": "전화번호",
+    "phonePlaceholder": "전화번호를 입력하세요",
+    "joinDate": "가입 날짜",
+    "saving": "저장 중...",
+    "updateProfile": "프로필 업데이트"
+  },
+  "purchases": {
+    "title": "구매 내역",
+    "description": "최근 주문 순으로 정렬되었습니다.",
+    "browseMore": "악보 더 둘러보기",
+    "noPurchases": "아직 구매한 악보가 없습니다.",
+    "orderNumber": "주문 번호",
+    "total": "총",
+    "downloadAllInOrder": "이 주문 전체 다운로드",
+    "downloading": "다운로드 중...",
+    "selectAll": "전체 선택",
+    "deselectAll": "전체 해제",
+    "selected": "선택",
+    "downloadSelected": "선택 다운로드",
+    "download": "다운로드",
+    "viewDetails": "상세보기",
+    "categoryNotSet": "카테고리 미지정",
+    "deletedSheet": "삭제된 악보"
+  },
+  "downloads": {
+    "title": "다운로드 관리",
+    "description": "구매한 악보를 언제든지 다시 다운로드할 수 있습니다.",
+    "totalItems": "총 {{count}}개",
+    "selectedItems": "선택 {{count}}개",
+    "selectAll": "전체 선택",
+    "deselectAll": "전체 해제",
+    "downloadSelected": "선택 다운로드",
+    "downloadAll": "전체 다운로드",
+    "downloading": "다운로드 중...",
+    "noDownloads": "다운로드 가능한 악보가 없습니다.",
+    "purchaseDate": "구매일",
+    "download": "다운로드",
+    "preview": "미리보기",
+    "downloadUnavailable": "다운로드 불가",
+    "goToPurchaseHistory": "구매내역 페이지로 이동"
+  },
+  "favorites": {
+    "title": "찜한 악보",
+    "description": "관심 있는 악보를 빠르게 찾아보세요.",
+    "totalCount": "총 {{count}}개",
+    "noFavorites": "찜한 악보가 없습니다.",
+    "addFavorites": "마음에 드는 악보를 찜해보세요!",
+    "viewDetails": "상세보기",
+    "inCart": "장바구니에 있음",
+    "cart": "장바구니",
+    "removeFavorite": "찜 해제",
+    "deletedSheet": "삭제된 악보"
+  },
+  "inquiries": {
+    "title": "1:1 문의하기",
+    "description": "문의를 등록하면 관리자 답변을 마이페이지에서 바로 확인할 수 있습니다.",
+    "name": "이름",
+    "namePlaceholder": "이름을 입력하세요",
+    "email": "이메일",
+    "emailPlaceholder": "연락 가능한 이메일을 입력하세요",
+    "category": "문의 유형",
+    "categoryPlaceholder": "문의 유형을 선택하세요",
+    "categories": {
+      "orderPayment": "주문/결제 문의",
+      "sheetDownload": "악보/다운로드 문의",
+      "customOrder": "주문제작 문의",
+      "technical": "기술지원",
+      "other": "기타 문의"
+    },
+    "subject": "제목",
+    "subjectPlaceholder": "문의 제목을 입력하세요",
+    "message": "문의 내용",
+    "messagePlaceholder": "문의 내용을 자세히 작성해 주세요 (최대 500자)",
+    "characters": "자",
+    "submitting": "전송 중...",
+    "submit": "문의 등록",
+    "history": {
+      "title": "내 문의 내역",
+      "description": "등록된 문의와 관리자 답변을 확인하세요.",
+      "total": "총 {{count}}건",
+      "loading": "문의 내역을 불러오는 중입니다...",
+      "noInquiries": "등록된 문의가 없습니다.",
+      "noInquiriesDescription": "궁금한 점이 있다면 위 양식을 통해 문의를 남겨주세요.",
+      "category": "문의",
+      "received": "접수",
+      "adminReply": "관리자 답변",
+      "replied": "답변",
+      "preparing": "답변 준비 중입니다. 담당자가 확인 후 안내드리겠습니다."
+    }
+  },
+  "cash": {
+    "title": "캐시 내역",
+    "description": "보유 캐시와 사용 내역을 확인하세요.",
+    "chargeCash": "포인트 충전",
+    "availableCash": "보유 캐시",
+    "loadingHistory": "캐쉬 내역을 불러오는 중입니다...",
+    "noHistory": "표시할 캐시 내역이 없습니다.",
+    "noHistoryDescription": "캐시를 충전하거나 사용하면 이곳에 기록됩니다.",
+    "types": {
+      "charge": "캐쉬 충전",
+      "use": "캐쉬 사용",
+      "adminAdd": "관리자 추가",
+      "adminDeduct": "관리자 차감",
+      "record": "기록"
+    },
+    "bonus": "보너스",
+    "balance": "잔액",
+    "sheet": "악보",
+    "noDescription": "기록된 설명이 없습니다."
+  },
+  "customOrders": {
+    "title": "주문제작 신청 내역",
+    "description": "맞춤 제작 진행 상황을 확인하세요.",
+    "newOrderRequest": "새 주문 신청",
+    "noOrders": "주문제작 신청 내역이 없습니다.",
+    "serviceDescription": "맞춤 제작 서비스를 이용해 특별한 악보를 만들어보세요.",
+    "requestDate": "신청일",
+    "lastUpdate": "최근 업데이트",
+    "viewDetails": "상세 보기",
+    "quoteConfirm": "견적 확인",
+    "workCompleted": "작업완료",
+    "quotePending": "견적 미정"
+  },
+  "status": {
+    "order": {
+      "completed": "완료",
+      "pending": "대기",
+      "cancelled": "취소",
+      "refunded": "환불",
+      "undetermined": "미정"
+    },
+    "customOrder": {
+      "pending": "견적중",
+      "quoted": "결제대기",
+      "paymentConfirmed": "입금확인",
+      "inProgress": "작업중",
+      "completed": "작업완료",
+      "cancelled": "취소됨",
+      "undetermined": "미정"
+    },
+    "inquiry": {
+      "pending": "답변 대기",
+      "answered": "답변 완료",
+      "processing": "처리 중"
+    }
+  },
+  "cashCharge": {
+    "title": "포인트 충전",
+    "currentCash": "보유 포인트",
+    "paymentAmount": "결제금액",
+    "bankTransferInfo": {
+      "title": "무통장 입금 정보",
+      "bank": "은행",
+      "accountNumber": "계좌번호",
+      "accountHolder": "예금주",
+      "amount": "입금하실 금액",
+      "depositorName": "입금자명"
+    },
+    "depositorName": "입금자명",
+    "depositorNamePlaceholder": "입금자명을 입력하세요",
+    "depositorNameHint": "* 회원명과 입금자가 다른 경우, 입금자명을 기입해 주시기 바랍니다.",
+    "bankTransferNotice": {
+      "title": "무통장입금 안내",
+      "line1": "• 입금 확인 후 관리자가 수동으로 포인트 충전을 완료합니다.",
+      "line2": "• 입금자명이 일치하지 않으면 확인이 지연될 수 있습니다.",
+      "line3": "• 입금 확인은 영업일 기준 1~2일 소요될 수 있습니다."
+    },
+    "back": "이전",
+    "confirm": "확인",
+    "processing": "처리 중...",
+    "paymentMethod": "결제방법",
+    "paymentAmountTitle": "결제금액",
+    "agreement": "결제 내용을 확인하였으며, 약관에 동의합니다.",
+    "next": "다음",
+    "bankTransferGuide": {
+      "title": "무통장입금 안내",
+      "bank": "은행",
+      "accountNumber": "계좌번호",
+      "accountHolder": "예금주",
+      "amount": "입금금액"
+    }
+  },
+  "guest": {
+    "title": "로그인이 필요합니다",
+    "description": "구매 내역, 다운로드, 찜한 악보 등 마이페이지 기능을 이용하려면 로그인해주세요.",
+    "login": "로그인하러 가기",
+    "signup": "회원가입"
+  },
+  "loading": {
+    "message": "마이페이지 데이터를 불러오는 중이에요..."
+  },
+  "errors": {
+    "loginRequired": "로그인이 필요합니다.",
+    "agreementRequired": "결제 약관에 동의해 주세요.",
+    "amountNotFound": "선택한 충전 금액을 확인할 수 없습니다.",
+    "paymentMethodNotReady": "해당 결제수단은 현재 준비 중입니다.",
+    "paymentWindowOpen": "결제창이 열립니다. 결제를 완료해 주세요.",
+    "paymentError": "결제 처리 중 오류가 발생했습니다.",
+    "depositorNameRequired": "입금자명을 입력해 주세요.",
+    "orderReceived": "주문이 접수되었습니다.\\n입금 확인 후 관리자가 포인트 충전을 완료합니다.",
+    "allFieldsRequired": "모든 필드를 입력해주세요.",
+    "inquirySubmitted": "문의가 접수되었습니다. 빠른 시일 내에 답변드리겠습니다.",
+    "inquiryError": "문의 전송 중 오류가 발생했습니다. 다시 시도해주세요.",
+    "profileUpdated": "프로필 정보가 업데이트되었습니다.",
+    "profileUpdateError": "프로필 업데이트에 실패했습니다. 잠시 후 다시 시도해주세요.",
+    "downloadRestricted": "환불되었거나 다운로드가 제한된 주문입니다.",
+    "selectDownloadItems": "다운로드할 악보를 선택해주세요.",
+    "noDownloadableItems": "다운로드 가능한 악보가 없습니다.",
+    "downloadRestrictedMultiple": "환불되었거나 다운로드가 제한된 악보는 다운로드할 수 없습니다.",
+    "loginRequiredForDownload": "로그인이 필요합니다. 다시 로그인한 후 이용해주세요.",
+    "downloadFailed": "{{count}}개의 파일을 다운로드하지 못했습니다. 잠시 후 다시 시도해주세요.",
+    "downloadFailedSingle": "파일 다운로드에 실패했습니다. 잠시 후 다시 시도해주세요.",
+    "previewNotFound": "미리보기 파일을 찾을 수 없습니다.",
+    "favoriteRemoveFailed": "찜 해제에 실패했습니다.",
+    "sheetInfoNotFound": "다운로드 가능한 악보 정보를 찾을 수 없습니다.",
+    "downloadLinkNotFound": "다운로드 링크를 찾을 수 없습니다. 관리자에게 문의해주세요."
+  },
+  "console": {
+    "cashHistoryError": "캐쉬 내역 로드 오류:",
+    "inquiryHistoryError": "문의 내역 로드 오류:",
+    "profileLoadError": "프로필 로드 오류:",
+    "orderHistoryError": "구매 내역 로드 오류:",
+    "favoritesLoadError": "찜한 악보 로드 오류:",
+    "customOrderHistoryError": "주문제작 내역 로드 오류:",
+    "initError": "마이페이지 초기화 오류:",
+    "cashChargeError": "캐쉬 충전 오류:",
+    "inquirySubmitError": "문의 등록 실패:",
+    "profileUpdateError": "프로필 업데이트 오류:",
+    "favoriteRemoveError": "찜 해제 오류:"
+  },
+  "paymentMethods": {
+    "creditCard": "신용카드",
+    "kakaoPay": "카카오페이",
+    "bankTransfer": "무통장입금",
+    "preparing": "준비 중"
+  },
+  "cart": "장바구니"
+}
+
+

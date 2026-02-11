@@ -1,0 +1,121 @@
+{
+  "header": {
+    "badge": "Get Popular Drum Sheets for Just 100 Won!",
+    "title": "100 Won Special Sale EVENT",
+    "description": "Don't miss out on these limited-time super sale drum sheets. Get popular songs for just 100 won and start playing today!"
+  },
+  "countdownNotice": "Check the real-time countdown timer!",
+  "loading": "Loading event information...",
+  "countdown": {
+    "startingSoon": "Starting soon",
+    "startsIn": "Starts in",
+    "timeLeft": "⏰ Time left",
+    "dayUnit": "d",
+    "starts": "Starts"
+  },
+  "buttons": {
+    "only100Won": "Only 100 Won!",
+    "addToFavorites": "Add to favorites",
+    "removeFromFavorites": "Remove from favorites",
+    "viewDetails": "View Details",
+    "buyNow": "Buy Now",
+    "processing": "Processing...",
+    "saleEnded": "Sale Ended"
+  },
+  "labels": {
+    "eventSheet": "Event Sheet",
+    "saleEnded": "Sale Ended",
+    "only100WonBadge": "Only 100 Won!",
+    "100Won": "100 Won",
+    "discount": "Off",
+    "startingSoon": "Starting Soon"
+  },
+  "sections": {
+    "ongoing": {
+      "title": "Ongoing 100 Won Special Sale",
+      "description": "Event sheets available for purchase now.",
+      "activeCount": "{{count}} Active",
+      "noEvents": "There are no ongoing events. Check the scheduled events below!"
+    },
+    "scheduled": {
+      "title": "Scheduled Events",
+      "description": "Check upcoming events and prepare for notifications.",
+      "scheduledCount": "{{count}} Scheduled"
+    },
+    "ended": {
+      "title": "Ended Events"
+    }
+  },
+  "messages": {
+    "loginRequired": "Login required.",
+    "loginRequiredConfirm": "Login required. Go to login page?",
+    "checkDownloadPage": "Check your sheet in the download page.",
+    "paymentError": "An error occurred during payment.",
+    "favoriteError": "An error occurred while processing your favorite. Please try again later."
+  },
+  "console": {
+    "loadEventsError": "Event discount sheet list load error:",
+    "loadFavoritesError": "Favorites list load error:",
+    "toggleFavoriteError": "Favorite toggle processing error:"
+  },
+  "detail": {
+    "loading": "Loading event information...",
+    "notFound": "The requested event could not be found.",
+    "loadError": "Event discount sheet detail load error:",
+    "loadErrorMessage": "An error occurred while loading event information.",
+    "eventNotFound": "Event information not found.",
+    "backToList": "Back to Event List",
+    "badge": "100 Won Special Event Sheet",
+    "eventSheet": "Event Sheet",
+    "originalPrice": "Original Price",
+    "eventPrice": "Event Price",
+    "discountPercent": "{{percent}}% Off",
+    "eventInfo": {
+      "title": "Event Information",
+      "description": "You can own this sheet for 100 won during the event period.",
+      "status": {
+        "active": "Active",
+        "scheduled": "Scheduled",
+        "ended": "Ended"
+      },
+      "period": "Event Period",
+      "timeLeft": "Time Left",
+      "startsAt": "Event starts at: {{date}}",
+      "ended": "The event has ended.",
+      "timeRemaining": "Time remaining {{days}}d {{time}}"
+    },
+    "features": {
+      "title": "Features of This Sheet",
+      "instantDownload": "Instant download available for 100 won during the event period",
+      "redownload": "Redownload support available in My Page > Purchase History after payment",
+      "priceChange": "Price may return to regular price after the event ends."
+    },
+    "payment": {
+      "title": "Payment Information",
+      "originalPrice": "Original Price",
+      "eventPrice": "Event Price",
+      "note": "Other coupons or points may be restricted during the event period.",
+      "processing": "Processing...",
+      "buyNow": "Buy Now for 100 Won",
+      "eventEnded": "Event Ended",
+      "viewOtherEvents": "View Other Events",
+      "favorite": "Add to Favorites",
+      "unfavorite": "Remove from Favorites"
+    },
+    "purchase": {
+      "loginRequired": "Login required. Go to login page?",
+      "eventEnded": "The event has ended or is disabled.",
+      "sheetNotFound": "Unable to find sheet information for purchase.",
+      "alreadyPurchased": "You have already purchased this sheet.\nPlease download it from My Page.",
+      "purchaseHistoryError": "Event sheet purchase history check error:",
+      "purchaseHistoryErrorMessage": "An error occurred while checking purchase history. Please try again later.",
+      "purchaseDescription": "Event sheet purchase: {{title}}",
+      "eventSheet": "Event Sheet",
+      "insufficientCredits": "Insufficient credits.\nCurrent balance: {{balance}}\nPlease charge credits and try again.",
+      "purchaseComplete": "Purchase completed.\nCheck your sheet in My Page.",
+      "paymentError": "An error occurred during payment.",
+      "favoriteError": "An error occurred while processing your favorite. Please try again later.",
+      "favoriteLoadError": "Favorite status load error:"
+    }
+  }
+}

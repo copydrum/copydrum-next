@@ -1,0 +1,79 @@
+{
+  "badge": "บทเรียนกลองฟรี",
+  "title": "แผ่นเพลงบทเรียนกลองฟรี",
+  "description": "สำรวจแผ่นเพลงทั้งหมดในหมวดหมู่บทเรียนกลองได้ฟรี! ฝึกซ้อมด้วยบทเรียน YouTube เพื่อพัฒนาทักษะของคุณให้เร็วขึ้น เลือกจากหัวข้อการเรียนรู้ต่างๆ เช่น เทคนิคกลอง รูดิเมนต์ โซโลกลอง และอื่นๆ",
+  "features": {
+    "freeDownload": "ดาวน์โหลดเต็มรูปแบบฟรี",
+    "categoryLearning": "การเรียนรู้ตามหมวดหมู่",
+    "youtubeLesson": "ลิงก์บทเรียน YouTube"
+  },
+  "categories": {
+    "all": "ทั้งหมด",
+    "drumTechnique": "เทคนิคกลอง",
+    "rudiment": "รูดิเมนต์",
+    "drumSolo": "Drum Solo",
+    "beginnerBasics": "ผู้เริ่มต้น/พื้นฐาน",
+    "rhythmPattern": "แพทเทิร์นจังหวะ",
+    "fillIn": "Fill-in",
+    "drumLesson": "บทเรียนกลอง",
+    "categoryPending": "หมวดหมู่รอดำเนินการ"
+  },
+  "search": {
+    "placeholder": "ค้นหาตามชื่อเพลง ศิลปิน หรือแท็ก"
+  },
+  "sort": {
+    "label": "เรียงลำดับ",
+    "latest": "ล่าสุด",
+    "title": "ชื่อเพลง",
+    "difficulty": "ระดับความยาก"
+  },
+  "difficulty": {
+    "beginner": "เริ่มต้น",
+    "intermediate": "ปานกลาง",
+    "advanced": "ขั้นสูง",
+    "notAvailable": "ระดับความยากไม่พร้อมใช้งาน"
+  },
+  "loading": "กำลังโหลดแผ่นเพลงบทเรียนกลองฟรี...",
+  "empty": {
+    "title": "ไม่มีแผ่นเพลงฟรีที่ตรงกับเกณฑ์ของคุณ",
+    "description": "ลองเลือกหมวดหมู่อื่นหรือเปลี่ยนคำค้นหาของคุณ"
+  },
+  "actions": {
+    "viewFreeSheet": "ดูแผ่นเพลงฟรี",
+    "viewYoutubeLesson": "ดูบทเรียน YouTube",
+    "goToDetail": "ไปที่หน้ารายละเอียด",
+    "closeDetail": "ปิดรายละเอียดแผ่นเพลงฟรี"
+  },
+  "errors": {
+    "lessonCategoryLoadError": "โหลดหมวดหมู่บทเรียนกลองล้มเหลว กรุณาลองอีกครั้งในภายหลัง",
+    "lessonCategoryNotFound": "หมวดหมู่บทเรียนกลองไม่มีอยู่ กรุณาติดต่อผู้ดูแลระบบ",
+    "sheetsLoadError": "โหลดแผ่นเพลงบทเรียนกลองฟรีล้มเหลว กรุณาลองอีกครั้งในภายหลัง",
+    "generalError": "เกิดข้อผิดพลาดขณะโหลดแผ่นเพลงบทเรียนกลองฟรี",
+    "loginRequired": "จำเป็นต้องเข้าสู่ระบบ",
+    "favoriteError": "เกิดข้อผิดพลาดขณะประมวลผลรายการโปรด กรุณาลองอีกครั้งในภายหลัง",
+    "pdfNotReady": "ลิงก์ PDF ยังไม่พร้อม",
+    "youtubeNotAvailable": "ไม่มีวิดีโอ YouTube ที่ลงทะเบียน"
+  },
+  "mobile": {
+    "freeSheet": "แผ่นเพลงฟรี",
+    "upload": "อัปโหลด",
+    "pages": "หน้า",
+    "youtubeLessonIncluded": "รวมบทเรียน YouTube",
+    "freeDownload": "ดาวน์โหลดฟรี",
+    "practiceWithPdf": "ฝึกซ้อมด้วยแผ่นเพลง PDF",
+    "favorite": "รายการโปรด",
+    "unfavorite": "ลบออกจากรายการโปรด"
+  },
+  "console": {
+    "lessonCategoryError": "ข้อผิดพลาดการค้นหาหมวดหมู่บทเรียนกลอง:",
+    "primarySheetsError": "ข้อผิดพลาดการโหลดแผ่นเพลงบทเรียนกลองหลัก:",
+    "relationsError": "ข้อผิดพลาดการโหลดความสัมพันธ์หมวดหมู่บทเรียนกลอง:",
+    "additionalSheetsError": "ข้อผิดพลาดการโหลดแผ่นเพลงบทเรียนกลองเพิ่มเติม:",
+    "extraCategoriesError": "ข้อผิดพลาดการโหลดหมวดหมู่พิเศษ:",
+    "generalError": "ข้อผิดพลาดการประมวลผลหน้าแผ่นเพลงฟรี:",
+    "favoritesLoadError": "ข้อผิดพลาดการโหลดรายการโปรด:",
+    "favoriteToggleError": "ข้อผิดพลาดการสลับรายการโปรด:",
+    "userLoadError": "โหลดข้อมูลผู้ใช้ล้มเหลว:",
+    "youtubeUrlParseError": "การแยกวิเคราะห์ URL YouTube ล้มเหลว:"
+  }
+}

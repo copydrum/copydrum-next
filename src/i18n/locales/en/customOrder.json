@@ -1,0 +1,128 @@
+{
+  "title": "Custom Drum Sheet Music",
+  "description": {
+    "line1": "Looking for a specific song?",
+    "line2": "Our professionals will analyze and create high-quality drum sheet music for you.",
+    "line3": "We provide custom quotes based on the song's difficulty and structure."
+  },
+  "login": {
+    "required": "Login is required",
+    "description": "Please log in to submit a custom order request.",
+    "button": "Log In"
+  },
+  "pricing": {
+    "title": "Pricing Information",
+    "note": "* Final price will be provided as an individual quote after analyzing the song's difficulty and length.",
+    "grades": {
+      "c": {
+        "name": "Grade C",
+        "price": "$10+",
+        "description": "General K-pop, pop, adult contemporary songs under 5 minutes"
+      },
+      "b": {
+        "name": "Grade B",
+        "price": "$30+",
+        "description": "Slightly higher than intermediate difficulty or songs over 5 minutes"
+      },
+      "a": {
+        "name": "Grade A",
+        "price": "$50+",
+        "description": "Advanced difficulty songs"
+      }
+    }
+  },
+  "form": {
+    "title": "Custom Order Request Form",
+    "applicantId": "Applicant ID",
+    "applicantIdPlaceholder": "Logged in ID",
+    "songInfo": "Song Information",
+    "songTitle": "Song Title",
+    "songTitlePlaceholder": "Enter the song title you want to order",
+    "artist": "Artist",
+    "artistPlaceholder": "Enter artist name",
+    "youtubeUrl": "YouTube URL",
+    "youtubeUrlPlaceholder": "Enter YouTube URL for accurate sheet music creation (optional)",
+    "youtubeUrlHint": "Please enter a YouTube URL for accurate sheet music creation. (Optional)",
+    "memo": "Memo",
+    "memoPlaceholder": "Enter any notes or memos (max 500 characters)",
+    "characters": "characters",
+    "submit": "Submit Custom Order Request",
+    "submitting": "Submitting...",
+    "note": "After submission, you can check the progress in My Page \"Custom Order History\" and download the sheet music once completed."
+  },
+  "process": {
+    "title": "Custom Order Process",
+    "steps": {
+      "request": {
+        "title": "Request Received",
+        "description": "Your custom order request is received upon submission."
+      },
+      "quote": {
+        "title": "Quote Sent",
+        "description": "We analyze the song and provide a quote through My Page."
+      },
+      "payment": {
+        "title": "Payment Confirmed",
+        "description": "After confirming the quote and payment, production begins."
+      },
+      "completed": {
+        "title": "Completed",
+        "description": "Download the completed sheet music from My Page."
+      }
+    }
+  },
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "questions": {
+      "quote": {
+        "question": "How do I check the quote?",
+        "answer": "You can check the quote in \"Custom Order History\" in My Page. We will provide a quote within 24 hours after your request."
+      },
+      "production": {
+        "question": "How long does production take?",
+        "answer": "Generally, it takes 1-3 days after payment confirmation. The duration may vary depending on the song's difficulty and length, and we will provide the exact schedule in the quote."
+      },
+      "payment": {
+        "question": "What payment methods are available?",
+        "answer": "Currently, only bank transfer is available. We will provide bank account information along with the quote."
+      }
+    }
+  },
+  "errors": {
+    "loginRequired": "Login is required.",
+    "submitError": "An error occurred while submitting. Please try again."
+  },
+  "messages": {
+    "submitSuccess": "Custom order request has been submitted. You can check the progress in My Page."
+  },
+  "console": {
+    "submitError": "Error submitting order:"
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

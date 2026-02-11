@@ -1,0 +1,72 @@
+{
+  "loading": "正在加载合集...",
+  "errors": {
+    "noCollectionInfo": "请求的合集信息不可用。",
+    "collectionNotFound": "未找到请求的合集。",
+    "loadError": "加载合集信息时发生错误。",
+    "collectionNotAvailable": "请求的乐谱合集不存在或已被停用。"
+  },
+  "backToList": "返回合集列表",
+  "free": "免费",
+  "discount": "{{percentage}}%折扣",
+  "badge": "乐谱合集",
+  "includedSheets": {
+    "count": "包含的乐谱",
+    "number": "{{count}}首歌曲",
+    "title": "包含的乐谱",
+    "description": "查看此合集中包含的所有乐谱，并探索您想要的乐谱。",
+    "empty": "此合集尚未添加任何乐谱。"
+  },
+  "sheet": {
+    "difficulty": "难度{{difficulty}}",
+    "free": "免费"
+  },
+  "purchase": {
+    "priceInfo": "合集价格信息",
+    "totalIndividual": "单独购买总价",
+    "noInfo": "无信息",
+    "collectionPrice": "合集价格",
+    "buyNow": "立即购买",
+    "buyCollection": "购买合集",
+    "goToCart": "前往购物车",
+    "save": "节省{{amount}}！",
+    "processing": "处理中...",
+    "note": "合集只能以折扣价购买。",
+    "inactive": "此合集目前未激活。请联系管理员。",
+    "mobilePrice": "合集价格",
+    "mobileSave": "相比单独购买节省{{amount}}",
+    "mobileInactive": "此合集目前未激活。"
+  },
+  "alerts": {
+    "noSheetInfo": "未找到合集中包含的乐谱信息。",
+    "duplicatePurchase": "您已购买此合集中包含的部分乐谱，因此无法重复购买。",
+    "duplicateList": "重复的乐谱：",
+    "checkMyPage": "请在\"我的页面\"中查看您的购买历史。",
+    "insufficientCredit": "余额不足。",
+    "currentBalance": "当前余额：{{amount}}P",
+    "chargeCash": "请充值后重试。",
+    "purchaseSuccess": "购买完成。请在\"我的页面\"中查看内容。",
+    "purchaseError": "购买期间发生错误。"
+  },
+  "navigation": {
+    "title": "探索其他页面",
+    "viewCategories": "查看乐谱类别",
+    "eventSale": "活动促销乐谱",
+    "customOrder": "定制订单咨询"
+  },
+  "purchaseDescription": "乐谱合集购买：{{title}}",
+  "sheetTitle": "乐谱",
+  "viewSheet": "查看乐谱",
+  "difficulty": {
+    "beginner": "初级",
+    "intermediate": "中级",
+    "advanced": "高级"
+  },
+  "features": {
+    "title": "包含内容",
+    "allSheets": "以折扣价购买所有乐谱",
+    "highQuality": "提供高质量PDF格式",
+    "instantDownload": "可立即下载",
+    "lifetimeAccess": "可永久保存"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "detailTitle": "{{title}} – {{artist}} | Partition batterie PDF | COPYDRUM",
+  "detailDescription": "Téléchargez la partition de batterie de « {{title}} » de {{artist}} en PDF haute qualité. Partition {{genre}}, {{pages}} pages, {{bpm}} BPM, niveau {{difficulty}}.",
+  "detailKeywords": "{{title}}, {{artist}}, partition batterie, drum sheet music, transcription batterie, COPYDRUM",
+  "homeTitle": "COPYDRUM | Boutique de partitions batterie",
+  "homeDescription": "Partitions de batterie de haute qualité pour le pop, rock, K-POP, CCM et plus encore. Téléchargement immédiat en PDF pour les batteurs du monde entier.",
+  "categoryTitle": "Partitions batterie {{category}} | COPYDRUM",
+  "categoryDescription": "Téléchargez en PDF des partitions de batterie pour des morceaux {{category}}. Idéal pour la pratique et les performances."
+}

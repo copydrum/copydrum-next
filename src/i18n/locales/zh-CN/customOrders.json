@@ -1,0 +1,71 @@
+{
+  "title": "定制订单历史",
+  "nav": {
+    "home": "首页",
+    "categories": "乐谱类别",
+    "customOrder": "定制订单",
+    "customOrderHistory": "定制订单历史"
+  },
+  "loading": "正在加载...",
+  "empty": {
+    "message": "没有定制订单历史。",
+    "button": "请求定制订单"
+  },
+  "status": {
+    "pending": {
+      "label": "报价中",
+      "message": "我们正在审核您的请求并准备定制报价。"
+    },
+    "quoted": {
+      "label": "待支付",
+      "message": "报价已到达。请按报价金额存款以开始制作。"
+    },
+    "payment_confirmed": {
+      "label": "支付已确认",
+      "message": "支付已确认。我们正在按制作顺序准备。"
+    },
+    "in_progress": {
+      "label": "进行中",
+      "message": "我们的专业人士正在创建乐谱。完成后我们会通知您。"
+    },
+    "completed": {
+      "label": "已完成",
+      "message": "乐谱制作已完成。请下载下面的PDF文件。"
+    },
+    "cancelled": {
+      "label": "已取消"
+    }
+  },
+  "order": {
+    "artist": "艺术家",
+    "applicationDate": "申请日期",
+    "estimatedPrice": "预估价格",
+    "requirements": "要求",
+    "noRequirements": "无额外要求。",
+    "referenceVideo": "参考视频",
+    "adminReply": "管理员回复",
+    "replyDate": "回复日期",
+    "completedSheet": "已完成的乐谱",
+    "completedSheetFilename": "已完成的乐谱.pdf",
+    "sheetMusicSuffix": "乐谱",
+    "download": "下载",
+    "downloadCount": "下载",
+    "times": "次",
+    "expiryDate": "到期日期",
+    "recentUpdate": "最近更新",
+    "viewDetails": "查看详情",
+    "quote": "报价",
+    "checkQuote": "查看报价",
+    "workCompleted": "工作已完成"
+  },
+  "alerts": {
+    "downloadLimitExceeded": "您已用完所有下载次数。请联系客户服务。",
+    "downloadExpired": "下载期限已过期。请联系客户服务。",
+    "downloadSuccess": "乐谱下载完成。",
+    "downloadFailed": "下载失败。请重试。"
+  },
+  "warnings": {
+    "downloadLimitExceeded": "下载次数已超限。如果您需要额外下载，请联系客户服务。",
+    "downloadPeriodExpired": "下载期限已过期。请联系客户服务。"
+  }
+}

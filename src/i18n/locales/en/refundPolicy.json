@@ -1,0 +1,37 @@
+{
+  "title": "Refund & Delivery (Digital Product Policy)",
+  "sections": {
+    "productType": {
+      "title": "1. Product Type",
+      "description": "All products sold on CopyDrum are digital contents (PDF drum sheet music). These are non-physical electronic products available for immediate download after payment."
+    },
+    "deliveryMethod": {
+      "title": "2. Delivery Method",
+      "description1": "After successful payment, files are available for instant download under",
+      "description2": "My Page > Order History",
+      "description3": "If the download does not work, we provide reissued download links or resend the files manually upon request."
+    },
+    "refundPolicy": {
+      "title": "3. Refund Policy",
+      "description": "Due to the nature of digital products, refunds are not available once the file has been downloaded or accessed.",
+      "exceptionNote": "However, we offer refunds or exchanges in the following exceptional cases:",
+      "exceptions": {
+        "exception1": "Within 7 days of purchase if the file has not been downloaded",
+        "exception2": "Incorrect file provided or technical errors that make the file unusable",
+        "exception3": "Duplicate payments for the same product"
+      }
+    },
+    "customerProtection": {
+      "title": "4. Customer Protection",
+      "description": "We strive to resolve issues immediately:",
+      "protections": {
+        "protection1": "Free replacement for file errors",
+        "protection2": "Reissue of download links if access issues occur",
+        "protection3": "Immediate refund for duplicate transactions"
+      },
+      "contact": "Customer Support:",
+      "email": "support@copydrum.com"
+    }
+  }
+}
+

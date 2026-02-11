@@ -1,0 +1,71 @@
+{
+  "title": "Historial de pedidos personalizados",
+  "nav": {
+    "home": "Inicio",
+    "categories": "Categorías de partituras",
+    "customOrder": "Pedido personalizado",
+    "customOrderHistory": "Historial de pedidos personalizados"
+  },
+  "loading": "Cargando...",
+  "empty": {
+    "message": "No hay historial de pedidos personalizados.",
+    "button": "Solicitar pedido personalizado"
+  },
+  "status": {
+    "pending": {
+      "label": "Cotizando",
+      "message": "Estamos revisando su solicitud y preparando una cotización personalizada."
+    },
+    "quoted": {
+      "label": "Pago pendiente",
+      "message": "Ha llegado la cotización. Por favor, realice un depósito por el monto cotizado para comenzar la producción."
+    },
+    "payment_confirmed": {
+      "label": "Pago confirmado",
+      "message": "El pago ha sido confirmado. Estamos preparando según el orden de producción."
+    },
+    "in_progress": {
+      "label": "En progreso",
+      "message": "Nuestros profesionales están creando la partitura. Le notificaremos cuando esté completada."
+    },
+    "completed": {
+      "label": "Completado",
+      "message": "La producción de la partitura está completa. Por favor, descargue el archivo PDF a continuación."
+    },
+    "cancelled": {
+      "label": "Cancelado"
+    }
+  },
+  "order": {
+    "artist": "Artista",
+    "applicationDate": "Fecha de solicitud",
+    "estimatedPrice": "Precio estimado",
+    "requirements": "Requisitos",
+    "noRequirements": "No hay requisitos adicionales.",
+    "referenceVideo": "Video de referencia",
+    "adminReply": "Respuesta del administrador",
+    "replyDate": "Fecha de respuesta",
+    "completedSheet": "Partitura completada",
+    "completedSheetFilename": "Partitura completada.pdf",
+    "sheetMusicSuffix": "Partitura",
+    "download": "Descargar",
+    "downloadCount": "Descargar",
+    "times": "veces",
+    "expiryDate": "Fecha de vencimiento",
+    "recentUpdate": "Actualización reciente",
+    "viewDetails": "Ver detalles",
+    "quote": "Cotización",
+    "checkQuote": "Verificar cotización",
+    "workCompleted": "Trabajo completado"
+  },
+  "alerts": {
+    "downloadLimitExceeded": "Ha utilizado todos los intentos de descarga. Por favor, contacte al servicio al cliente.",
+    "downloadExpired": "El período de descarga ha expirado. Por favor, contacte al servicio al cliente.",
+    "downloadSuccess": "Descarga de partitura completada.",
+    "downloadFailed": "Error en la descarga. Por favor, inténtelo de nuevo."
+  },
+  "warnings": {
+    "downloadLimitExceeded": "Límite de descarga excedido. Por favor, contacte al servicio al cliente si necesita descargas adicionales.",
+    "downloadPeriodExpired": "El período de descarga ha expirado. Por favor, contacte al servicio al cliente."
+  }
+}

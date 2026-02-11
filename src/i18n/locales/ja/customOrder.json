@@ -1,0 +1,101 @@
+{
+  "title": "カスタムドラム楽譜",
+  "description": {
+    "line1": "特定の曲をお探しですか？",
+    "line2": "専門家が分析し、高品質なドラム楽譜を制作いたします。",
+    "line3": "曲の難易度と構成に基づいて、カスタム見積もりを提供します。"
+  },
+  "login": {
+    "required": "ログインが必要です",
+    "description": "カスタム注文リクエストを送信するにはログインしてください。",
+    "button": "ログイン"
+  },
+  "pricing": {
+    "title": "価格情報",
+    "note": "* 最終価格は、曲の難易度と長さを分析した後、個別見積もりとして提供されます。",
+    "grades": {
+      "c": {
+        "name": "グレードC",
+        "price": "$10+",
+        "description": "一般的なK-pop、ポップス、歌謡曲、5分未満"
+      },
+      "b": {
+        "name": "グレードB",
+        "price": "$30+",
+        "description": "中級よりやや高い難易度、または5分以上の曲"
+      },
+      "a": {
+        "name": "グレードA",
+        "price": "$50+",
+        "description": "上級難易度の曲"
+      }
+    }
+  },
+  "form": {
+    "title": "カスタム注文リクエストフォーム",
+    "applicantId": "申請者ID",
+    "applicantIdPlaceholder": "ログイン中のID",
+    "songInfo": "曲情報",
+    "songTitle": "曲名",
+    "songTitlePlaceholder": "注文したい曲名を入力",
+    "artist": "アーティスト",
+    "artistPlaceholder": "アーティスト名を入力",
+    "youtubeUrl": "YouTube URL",
+    "youtubeUrlPlaceholder": "正確な楽譜制作のためのYouTube URLを入力（任意）",
+    "youtubeUrlHint": "正確な楽譜制作のため、YouTube URLを入力してください。（任意）",
+    "memo": "メモ",
+    "memoPlaceholder": "備考やメモを入力（最大500文字）",
+    "characters": "文字",
+    "submit": "カスタム注文リクエストを送信",
+    "submitting": "送信中...",
+    "note": "送信後、マイページの「カスタム注文履歴」で進捗を確認でき、完了後は楽譜をダウンロードできます。"
+  },
+  "process": {
+    "title": "カスタム注文プロセス",
+    "steps": {
+      "request": {
+        "title": "リクエスト受付",
+        "description": "カスタム注文リクエストは送信時に受付されます。"
+      },
+      "quote": {
+        "title": "見積もり送信",
+        "description": "曲を分析し、マイページを通じて見積もりを提供します。"
+      },
+      "payment": {
+        "title": "決済確認",
+        "description": "見積もりと決済を確認後、制作が開始されます。"
+      },
+      "completed": {
+        "title": "完了",
+        "description": "マイページから完成した楽譜をダウンロードできます。"
+      }
+    }
+  },
+  "faq": {
+    "title": "よくある質問",
+    "questions": {
+      "quote": {
+        "question": "見積もりはどこで確認できますか？",
+        "answer": "マイページの「カスタム注文履歴」で見積もりを確認できます。リクエスト後24時間以内に見積もりを提供します。"
+      },
+      "production": {
+        "question": "制作にはどのくらいかかりますか？",
+        "answer": "一般的に、決済確認後1〜3日かかります。曲の難易度と長さによって期間は異なり、見積もりで正確なスケジュールを提供します。"
+      },
+      "payment": {
+        "question": "利用可能な決済方法は？",
+        "answer": "現在、銀行振込のみ利用可能です。見積もりと一緒に銀行口座情報を提供します。"
+      }
+    }
+  },
+  "errors": {
+    "loginRequired": "ログインが必要です。",
+    "submitError": "送信中にエラーが発生しました。もう一度お試しください。"
+  },
+  "messages": {
+    "submitSuccess": "カスタム注文リクエストが送信されました。マイページで進捗を確認できます。"
+  },
+  "console": {
+    "submitError": "注文送信エラー:"
+  }
+}

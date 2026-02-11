@@ -1,0 +1,6 @@
+{
+  "title": "Dettaglio ordine personalizzato",
+  "description": "Controlla lo stato di avanzamento, comunica con l'amministratore e scarica gli spartiti completati.",
+  "backToList": "Torna all'elenco",
+  "loginRequired": "Accedi per visualizzare i dettagli dell'ordine personalizzato."
+}

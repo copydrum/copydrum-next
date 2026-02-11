@@ -1,0 +1,65 @@
+{
+  "title": "История покупок нот",
+  "description": "Это список купленных вами нот, отсортированный по самым последним.",
+  "totalPurchased": "Вы купили всего {{count}} нот.",
+  "loginRequired": "Требуется вход",
+  "loginRequiredMessage": "Пожалуйста, войдите в систему, чтобы просмотреть историю покупок.",
+  "orderNumber": "Номер заказа",
+  "categoryNotSet": "Категория не установлена",
+  "deletedSheet": "Удаленная нота",
+  "status": {
+    "pending": "Ожидание оплаты",
+    "pendingDesc": "Ожидание подтверждения оплаты.",
+    "processing": "Обработка",
+    "processingDesc": "Ваш заказ обрабатывается.",
+    "completed": "Завершено",
+    "completedDesc": "Заказ завершен. Загрузки доступны.",
+    "cancelled": "Отменено",
+    "cancelledDesc": "Заказ был отменен.",
+    "paymentPending": "Ожидание оплаты",
+    "paymentPendingDesc": "Ожидание подтверждения депозита.",
+    "paymentConfirmed": "Оплата подтверждена",
+    "paymentConfirmedDesc": "Оплата подтверждена. Загрузки доступны.",
+    "paid": "Оплачено",
+    "paidDesc": "Оплата завершена. Загрузки доступны.",
+    "refunded": "Возвращено",
+    "refundedDesc": "Заказ был возвращен."
+  },
+  "paymentMethod": {
+    "card": "Кредитная карта",
+    "bankTransfer": "Банковский перевод",
+    "virtualAccount": "Виртуальный счет",
+    "cash": "Доступный баланс",
+    "points": "Баллы"
+  },
+  "empty": {
+    "title": "Нет купленных нот",
+    "message": "Найдите свои любимые ноты и добавьте их в корзину.",
+    "browseButton": "Просмотреть ноты"
+  },
+  "actions": {
+    "downloadAll": "Скачать все в этом заказе",
+    "downloadSelected": "Скачать выбранные",
+    "selectAll": "Выбрать все",
+    "deselectAll": "Снять выбор со всех",
+    "clearSelection": "Очистить выбор",
+    "download": "Скачать",
+    "downloadNotAvailable": "Загрузка недоступна",
+    "downloading": "Загрузка...",
+    "viewDetails": "Просмотреть детали",
+    "purchaseDate": "Дата покупки {{date}}",
+    "selectedCount": "{{count}} выбрано",
+    "cart": "Корзина"
+  },
+  "messages": {
+    "selectSheetsToDownload": "Пожалуйста, выберите ноты для загрузки.",
+    "refundedOrRestricted": "Этот заказ был возвращен или загрузка ограничена.",
+    "loginRequired": "Требуется вход в систему.",
+    "downloadFailed": "Не удалось загрузить {{count}} нот(ы).",
+    "refundedOrder": "Возвращенные заказы не могут быть загружены.",
+    "noSheetsToDownload": "Нет нот, доступных для загрузки.",
+    "sheetInfoNotFound": "Информация о нотах не найдена.",
+    "fileNotFound": "Файл не найден.",
+    "downloadError": "Не удалось загрузить файл. Пожалуйста, попробуйте позже."
+  }
+}

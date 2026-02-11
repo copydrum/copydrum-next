@@ -1,0 +1,21 @@
+{
+  "loading": "Cargando...",
+  "title": "Colecciones de partituras",
+  "subtitle": "Descubra nuestras colecciones de partituras de batería especialmente curadas por tema.",
+  "filter": {
+    "all": "Todas"
+  },
+  "empty": {
+    "noCollections": "No hay colecciones registradas.",
+    "noCollectionsForCategory": "No hay colecciones disponibles para el género seleccionado."
+  },
+  "collection": {
+    "badge": "Colección",
+    "discount": "{{percentage}}% DESCUENTO",
+    "free": "Gratis",
+    "songs": "{{count}} canciones"
+  },
+  "pagination": {
+    "pageInfo": "{{current}} / {{total}}"
+  }
+}

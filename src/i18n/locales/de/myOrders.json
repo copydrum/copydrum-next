@@ -1,0 +1,65 @@
+{
+  "title": "Noten-Kaufhistorie",
+  "description": "Dies ist die Liste der von Ihnen gekauften Noten, sortiert nach den neuesten.",
+  "totalPurchased": "Sie haben insgesamt {{count}} Noten gekauft.",
+  "loginRequired": "Anmeldung erforderlich",
+  "loginRequiredMessage": "Bitte melden Sie sich an, um Ihre Kaufhistorie anzuzeigen.",
+  "orderNumber": "Bestellnummer",
+  "categoryNotSet": "Kategorie nicht festgelegt",
+  "deletedSheet": "Gelöschte Noten",
+  "status": {
+    "pending": "Zahlung ausstehend",
+    "pendingDesc": "Warten auf Zahlungsbestätigung.",
+    "processing": "Wird bearbeitet",
+    "processingDesc": "Ihre Bestellung wird bearbeitet.",
+    "completed": "Abgeschlossen",
+    "completedDesc": "Bestellung abgeschlossen. Downloads sind verfügbar.",
+    "cancelled": "Storniert",
+    "cancelledDesc": "Bestellung wurde storniert.",
+    "paymentPending": "Zahlung ausstehend",
+    "paymentPendingDesc": "Warten auf Einzahlungsbestätigung.",
+    "paymentConfirmed": "Zahlung bestätigt",
+    "paymentConfirmedDesc": "Zahlung bestätigt. Downloads sind verfügbar.",
+    "paid": "Bezahlt",
+    "paidDesc": "Zahlung abgeschlossen. Downloads sind verfügbar.",
+    "refunded": "Erstattet",
+    "refundedDesc": "Bestellung wurde erstattet."
+  },
+  "paymentMethod": {
+    "card": "Kreditkarte",
+    "bankTransfer": "Banküberweisung",
+    "virtualAccount": "Virtuelles Konto",
+    "cash": "Guthaben",
+    "points": "Punkte"
+  },
+  "empty": {
+    "title": "Keine gekauften Noten",
+    "message": "Finden Sie Ihre Lieblingsnoten und fügen Sie sie zu Ihrem Warenkorb hinzu.",
+    "browseButton": "Noten durchsuchen"
+  },
+  "actions": {
+    "downloadAll": "Alle in dieser Bestellung herunterladen",
+    "downloadSelected": "Ausgewählte herunterladen",
+    "selectAll": "Alle auswählen",
+    "deselectAll": "Alle abwählen",
+    "clearSelection": "Auswahl löschen",
+    "download": "Herunterladen",
+    "downloadNotAvailable": "Download nicht verfügbar",
+    "downloading": "Wird heruntergeladen...",
+    "viewDetails": "Details anzeigen",
+    "purchaseDate": "Kaufdatum {{date}}",
+    "selectedCount": "{{count}} ausgewählt",
+    "cart": "Warenkorb"
+  },
+  "messages": {
+    "selectSheetsToDownload": "Bitte wählen Sie Noten zum Herunterladen aus.",
+    "refundedOrRestricted": "Diese Bestellung wurde erstattet oder der Download ist eingeschränkt.",
+    "loginRequired": "Anmeldung ist erforderlich.",
+    "downloadFailed": "Fehler beim Herunterladen von {{count}} Noten.",
+    "refundedOrder": "Erstattete Bestellungen können nicht heruntergeladen werden.",
+    "noSheetsToDownload": "Keine Noten zum Herunterladen verfügbar.",
+    "sheetInfoNotFound": "Noteninformationen nicht gefunden.",
+    "fileNotFound": "Datei nicht gefunden.",
+    "downloadError": "Fehler beim Herunterladen der Datei. Bitte versuchen Sie es später erneut."
+  }
+}

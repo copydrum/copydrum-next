@@ -1,0 +1,121 @@
+{
+  "header": {
+    "badge": "人気のドラム楽譜を100円でゲット！",
+    "title": "100円特別セール イベント",
+    "description": "期間限定のスーパーセールドラム楽譜をお見逃しなく。人気曲を100円でゲットして、今日から演奏を始めましょう！"
+  },
+  "countdownNotice": "リアルタイムカウントダウンタイマーを確認！",
+  "loading": "イベント情報を読み込み中...",
+  "countdown": {
+    "startingSoon": "まもなく開始",
+    "startsIn": "開始まで",
+    "timeLeft": "⏰ 残り時間",
+    "dayUnit": "日",
+    "starts": "開始"
+  },
+  "buttons": {
+    "only100Won": "100円のみ！",
+    "addToFavorites": "お気に入りに追加",
+    "removeFromFavorites": "お気に入りから削除",
+    "viewDetails": "詳細を見る",
+    "buyNow": "今すぐ購入",
+    "processing": "処理中...",
+    "saleEnded": "セール終了"
+  },
+  "labels": {
+    "eventSheet": "イベント楽譜",
+    "saleEnded": "セール終了",
+    "only100WonBadge": "100円のみ！",
+    "100Won": "100円",
+    "discount": "OFF",
+    "startingSoon": "まもなく開始"
+  },
+  "sections": {
+    "ongoing": {
+      "title": "開催中の100円特別セール",
+      "description": "現在購入可能なイベント楽譜です。",
+      "activeCount": "{{count}}件 開催中",
+      "noEvents": "開催中のイベントがありません。下記の予定イベントをご確認ください！"
+    },
+    "scheduled": {
+      "title": "予定イベント",
+      "description": "今後のイベントを確認し、通知の準備をしてください。",
+      "scheduledCount": "{{count}}件 予定"
+    },
+    "ended": {
+      "title": "終了したイベント"
+    }
+  },
+  "messages": {
+    "loginRequired": "ログインが必要です。",
+    "loginRequiredConfirm": "ログインが必要です。ログインページに移動しますか？",
+    "checkDownloadPage": "ダウンロードページで楽譜をご確認ください。",
+    "paymentError": "決済中にエラーが発生しました。",
+    "favoriteError": "お気に入り処理中にエラーが発生しました。後でもう一度お試しください。"
+  },
+  "console": {
+    "loadEventsError": "イベント割引楽譜リスト読み込みエラー:",
+    "loadFavoritesError": "お気に入りリスト読み込みエラー:",
+    "toggleFavoriteError": "お気に入り切り替え処理エラー:"
+  },
+  "detail": {
+    "loading": "イベント情報を読み込み中...",
+    "notFound": "リクエストされたイベントが見つかりませんでした。",
+    "loadError": "イベント割引楽譜詳細読み込みエラー:",
+    "loadErrorMessage": "イベント情報の読み込み中に問題が発生しました。",
+    "eventNotFound": "イベント情報が見つかりません。",
+    "backToList": "イベント一覧に戻る",
+    "badge": "100円特別イベント楽譜",
+    "eventSheet": "イベント楽譜",
+    "originalPrice": "定価",
+    "eventPrice": "イベント価格",
+    "discountPercent": "{{percent}}% OFF",
+    "eventInfo": {
+      "title": "イベント案内",
+      "description": "イベント期間中、100円でこの楽譜を所有できます。",
+      "status": {
+        "active": "開催中",
+        "scheduled": "予定",
+        "ended": "終了"
+      },
+      "period": "イベント期間",
+      "timeLeft": "残り時間",
+      "startsAt": "イベント開始予定: {{date}}",
+      "ended": "イベントが終了しました。",
+      "timeRemaining": "残り時間 {{days}}日 {{time}}"
+    },
+    "features": {
+      "title": "この楽譜の特徴",
+      "instantDownload": "イベント期間中、100円で即座にダウンロード可能",
+      "redownload": "決済完了後、マイページ > 購入履歴から再ダウンロード可能",
+      "priceChange": "イベント終了後、通常価格に戻る場合があります。"
+    },
+    "payment": {
+      "title": "決済情報",
+      "originalPrice": "定価",
+      "eventPrice": "イベント価格",
+      "note": "イベント期間中は、他のクーポンやポイントの適用が制限される場合があります。",
+      "processing": "処理中...",
+      "buyNow": "100円で今すぐ購入",
+      "eventEnded": "イベント終了",
+      "viewOtherEvents": "他のイベントを見る",
+      "favorite": "お気に入りに追加",
+      "unfavorite": "お気に入りから削除"
+    },
+    "purchase": {
+      "loginRequired": "ログインが必要です。ログインページに移動しますか？",
+      "eventEnded": "イベントが終了したか、無効になっています。",
+      "sheetNotFound": "購入する楽譜情報を確認できません。",
+      "alreadyPurchased": "すでに購入済みの楽譜です。\nマイページからダウンロードしてください。",
+      "purchaseHistoryError": "イベント楽譜購入履歴確認エラー:",
+      "purchaseHistoryErrorMessage": "購入履歴の確認中に問題が発生しました。しばらくしてから再度お試しください。",
+      "purchaseDescription": "イベント楽譜購入: {{title}}",
+      "eventSheet": "イベント楽譜",
+      "insufficientCredits": "クレジットが不足しています。\n現在の残高: {{balance}}\nクレジットをチャージしてから再度お試しください。",
+      "purchaseComplete": "購入が完了しました。\nマイページで楽譜をご確認ください。",
+      "paymentError": "決済中にエラーが発生しました。",
+      "favoriteError": "お気に入り処理中にエラーが発生しました。後でもう一度お試しください。",
+      "favoriteLoadError": "お気に入り状態読み込みエラー:"
+    }
+  }
+}

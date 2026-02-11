@@ -1,0 +1,287 @@
+{
+  "title": "माई पेज",
+  "subtitle": "शीट म्यूजिक खरीदारी से लेकर कस्टम ऑर्डर तक अपनी सभी गतिविधियों को एक नजर में देखें।",
+  "tabs": {
+    "profile": {
+      "label": "प्रोफ़ाइल प्रबंधन",
+      "description": "अपनी व्यक्तिगत जानकारी और संपर्क विवरण प्रबंधित करें।"
+    },
+    "purchases": {
+      "label": "खरीदारी इतिहास",
+      "description": "अपनी खरीदी गई शीट म्यूजिक ऑर्डर जानकारी जांचें।"
+    },
+    "downloads": {
+      "label": "डाउनलोड प्रबंधन",
+      "description": "अपनी खरीदी गई शीट म्यूजिक डाउनलोड और पूर्वावलोकन करें।"
+    },
+    "favorites": {
+      "label": "पसंदीदा शीट",
+      "description": "अपनी पसंदीदा शीट म्यूजिक देखें।"
+    },
+    "cash": {
+      "label": "कैश इतिहास",
+      "description": "अपना कैश बैलेंस और उपयोग इतिहास जांचें।"
+    },
+    "inquiries": {
+      "label": "1:1 पूछताछ",
+      "description": "अपनी पूछताछ और उत्तर जांचें।"
+    },
+    "customOrders": {
+      "label": "कस्टम ऑर्डर",
+      "description": "अपने कस्टम ऑर्डर अनुरोधों की स्थिति जांचें।"
+    }
+  },
+  "stats": {
+    "purchasedSheets": "खरीदी गई शीट",
+    "availableDownloads": "उपलब्ध डाउनलोड",
+    "favoriteSheets": "पसंदीदा शीट",
+    "inquiries": "1:1 पूछताछ",
+    "customOrders": "कस्टम ऑर्डर"
+  },
+  "profile": {
+    "title": "प्रोफ़ाइल प्रबंधन",
+    "memberInfo": "सदस्य जानकारी",
+    "nameNotSet": "नाम सेट नहीं है",
+    "joinedOn": "शामिल हुए",
+    "cashBalance": "कैश बैलेंस",
+    "cashBalanceDescription": "आपकी अगली शीट म्यूजिक खरीदारी के लिए उपलब्ध।",
+    "chargeCash": "कैश चार्ज करें",
+    "email": "ईमेल",
+    "name": "नाम",
+    "namePlaceholder": "अपना नाम दर्ज करें",
+    "phoneNumber": "फोन नंबर",
+    "phonePlaceholder": "अपना फोन नंबर दर्ज करें",
+    "joinDate": "शामिल होने की तिथि",
+    "saving": "सहेजा जा रहा है...",
+    "updateProfile": "प्रोफ़ाइल अपडेट करें"
+  },
+  "purchases": {
+    "title": "खरीदारी इतिहास",
+    "description": "सबसे हाल के ऑर्डर द्वारा क्रमबद्ध।",
+    "browseMore": "और शीट ब्राउज़ करें",
+    "noPurchases": "अभी तक कोई खरीदी गई शीट म्यूजिक नहीं है।",
+    "orderNumber": "ऑर्डर नंबर",
+    "total": "कुल",
+    "downloadAllInOrder": "इस ऑर्डर में सभी डाउनलोड करें",
+    "downloading": "डाउनलोड हो रहा है...",
+    "selectAll": "सभी चुनें",
+    "deselectAll": "सभी अचयनित करें",
+    "selected": "चयनित",
+    "downloadSelected": "चयनित डाउनलोड करें",
+    "download": "डाउनलोड",
+    "viewDetails": "विवरण देखें",
+    "categoryNotSet": "श्रेणी सेट नहीं है",
+    "deletedSheet": "हटाई गई शीट"
+  },
+  "downloads": {
+    "title": "डाउनलोड प्रबंधन",
+    "description": "आप कभी भी खरीदी गई शीट म्यूजिक को पुनः डाउनलोड कर सकते हैं।",
+    "totalItems": "कुल {{count}} आइटम",
+    "selectedItems": "चयनित {{count}} आइटम",
+    "selectAll": "सभी चुनें",
+    "deselectAll": "सभी अचयनित करें",
+    "downloadSelected": "चयनित डाउनलोड करें",
+    "downloadAll": "सभी डाउनलोड करें",
+    "downloading": "डाउनलोड हो रहा है...",
+    "noDownloads": "कोई डाउनलोड करने योग्य शीट म्यूजिक उपलब्ध नहीं है।",
+    "purchaseDate": "खरीदारी तिथि",
+    "preview": "पूर्वावलोकन",
+    "downloadUnavailable": "डाउनलोड उपलब्ध नहीं है"
+  },
+  "favorites": {
+    "title": "पसंदीदा शीट",
+    "description": "अपनी पसंदीदा शीट म्यूजिक को जल्दी से खोजें।",
+    "totalCount": "कुल {{count}} आइटम",
+    "noFavorites": "अभी तक कोई पसंदीदा शीट नहीं है।",
+    "addFavorites": "अपनी पसंदीदा शीट म्यूजिक जोड़ें!",
+    "viewDetails": "विवरण देखें",
+    "inCart": "कार्ट में",
+    "cart": "कार्ट में जोड़ें",
+    "removeFavorite": "पसंदीदा हटाएं",
+    "deletedSheet": "हटाई गई शीट"
+  },
+  "inquiries": {
+    "title": "1:1 पूछताछ",
+    "description": "एक पूछताछ जमा करें और माई पेज में सीधे प्रशासक उत्तर प्राप्त करें।",
+    "name": "नाम",
+    "namePlaceholder": "अपना नाम दर्ज करें",
+    "email": "ईमेल",
+    "emailPlaceholder": "अपना संपर्क ईमेल दर्ज करें",
+    "category": "पूछताछ प्रकार",
+    "categoryPlaceholder": "पूछताछ प्रकार चुनें",
+    "categories": {
+      "orderPayment": "ऑर्डर/भुगतान पूछताछ",
+      "sheetDownload": "शीट म्यूजिक/डाउनलोड पूछताछ",
+      "customOrder": "कस्टम ऑर्डर पूछताछ",
+      "technical": "तकनीकी सहायता",
+      "other": "अन्य पूछताछ"
+    },
+    "subject": "विषय",
+    "subjectPlaceholder": "पूछताछ विषय दर्ज करें",
+    "message": "संदेश",
+    "messagePlaceholder": "कृपया अपनी पूछताछ विस्तार से लिखें (अधिकतम 500 वर्ण)",
+    "characters": "वर्ण",
+    "submitting": "जमा किया जा रहा है...",
+    "submit": "पूछताछ जमा करें",
+    "history": {
+      "title": "मेरी पूछताछ इतिहास",
+      "description": "अपनी जमा की गई पूछताछ और प्रशासक उत्तर जांचें।",
+      "total": "कुल {{count}} पूछताछ",
+      "loading": "पूछताछ इतिहास लोड हो रहा है...",
+      "noInquiries": "अभी तक कोई पूछताछ जमा नहीं की गई है।",
+      "noInquiriesDescription": "यदि आपके कोई प्रश्न हैं, तो कृपया ऊपर दिए गए फॉर्म का उपयोग करके एक पूछताछ जमा करें।",
+      "category": "पूछताछ",
+      "received": "प्राप्त",
+      "adminReply": "प्रशासक उत्तर",
+      "replied": "उत्तर दिया गया",
+      "preparing": "उत्तर तैयार किया जा रहा है। समीक्षा के बाद हम आपसे संपर्क करेंगे।"
+    }
+  },
+  "cash": {
+    "title": "कैश इतिहास",
+    "description": "अपना कैश बैलेंस और उपयोग इतिहास जांचें।",
+    "chargeCash": "कैश चार्ज करें",
+    "availableCash": "उपलब्ध कैश",
+    "loadingHistory": "कैश इतिहास लोड हो रहा है...",
+    "noHistory": "दिखाने के लिए कोई कैश इतिहास नहीं है।",
+    "noHistoryDescription": "जब आप कैश चार्ज करते हैं या उपयोग करते हैं, तो कैश लेनदेन यहां दर्ज किए जाएंगे।",
+    "types": {
+      "charge": "कैश चार्ज",
+      "use": "कैश उपयोग",
+      "adminAdd": "प्रशासक जोड़",
+      "adminDeduct": "प्रशासक कटौती",
+      "record": "रिकॉर्ड"
+    },
+    "bonus": "बोनस",
+    "balance": "बैलेंस",
+    "sheet": "शीट",
+    "noDescription": "कोई विवरण दर्ज नहीं किया गया है।"
+  },
+  "customOrders": {
+    "title": "कस्टम ऑर्डर इतिहास",
+    "description": "अपने कस्टम ऑर्डर अनुरोधों की स्थिति जांचें।",
+    "newOrderRequest": "नया ऑर्डर अनुरोध",
+    "noOrders": "कोई कस्टम ऑर्डर इतिहास नहीं है।",
+    "serviceDescription": "विशेष शीट म्यूजिक बनाने के लिए हमारी कस्टम ऑर्डर सेवा का उपयोग करें।",
+    "requestDate": "अनुरोध तिथि",
+    "lastUpdate": "अंतिम अपडेट",
+    "viewDetails": "विवरण देखें",
+    "quoteConfirm": "उद्धरण पुष्टि",
+    "workCompleted": "कार्य पूर्ण",
+    "quotePending": "उद्धरण लंबित"
+  },
+  "status": {
+    "order": {
+      "completed": "पूर्ण",
+      "pending": "लंबित",
+      "cancelled": "रद्द",
+      "refunded": "रिफंड",
+      "undetermined": "अनिर्धारित"
+    },
+    "customOrder": {
+      "pending": "उद्धरण लंबित",
+      "quoted": "भुगतान लंबित",
+      "paymentConfirmed": "भुगतान पुष्ट",
+      "inProgress": "प्रगति में",
+      "completed": "पूर्ण",
+      "cancelled": "रद्द",
+      "undetermined": "अनिर्धारित"
+    },
+    "inquiry": {
+      "pending": "उत्तर की प्रतीक्षा",
+      "answered": "उत्तर दिया गया",
+      "processing": "प्रसंस्करण"
+    }
+  },
+  "cashCharge": {
+    "title": "कैश चार्ज",
+    "currentCash": "वर्तमान कैश बैलेंस",
+    "paymentAmount": "भुगतान राशि",
+    "bankTransferInfo": {
+      "title": "बैंक ट्रांसफर जानकारी",
+      "bank": "बैंक",
+      "accountNumber": "खाता संख्या",
+      "accountHolder": "खाता धारक",
+      "amount": "जमा राशि",
+      "depositorName": "जमाकर्ता नाम"
+    },
+    "depositorName": "जमाकर्ता नाम",
+    "depositorNamePlaceholder": "जमाकर्ता नाम दर्ज करें",
+    "depositorNameHint": "* यदि जमाकर्ता नाम आपके सदस्य नाम से भिन्न है, तो कृपया जमाकर्ता नाम दर्ज करें।",
+    "bankTransferNotice": {
+      "title": "बैंक ट्रांसफर सूचना",
+      "line1": "• जमा पुष्टि के बाद कैश को प्रशासक द्वारा मैन्युअल रूप से चार्ज किया जाएगा।",
+      "line2": "• यदि जमाकर्ता नाम मेल नहीं खाता है, तो पुष्टि में देरी हो सकती है।",
+      "line3": "• जमा पुष्टि में 1-2 व्यावसायिक दिन लग सकते हैं।"
+    },
+    "back": "वापस",
+    "confirm": "पुष्टि करें",
+    "processing": "प्रसंस्करण...",
+    "paymentMethod": "भुगतान विधि",
+    "paymentAmountTitle": "भुगतान राशि",
+    "agreement": "मैंने भुगतान विवरण की समीक्षा की है और शर्तों से सहमत हूं।",
+    "next": "अगला",
+    "bankTransferGuide": {
+      "title": "बैंक ट्रांसफर गाइड",
+      "bank": "बैंक",
+      "accountNumber": "खाता संख्या",
+      "accountHolder": "खाता धारक",
+      "amount": "जमा राशि"
+    }
+  },
+  "guest": {
+    "title": "लॉगिन आवश्यक है",
+    "description": "खरीदारी इतिहास, डाउनलोड, और पसंदीदा शीट जैसी माई पेज सुविधाओं का उपयोग करने के लिए कृपया लॉगिन करें।",
+    "login": "लॉगिन पर जाएं",
+    "signup": "साइन अप करें"
+  },
+  "loading": {
+    "message": "माई पेज डेटा लोड हो रहा है..."
+  },
+  "errors": {
+    "loginRequired": "लॉगिन आवश्यक है।",
+    "agreementRequired": "कृपया भुगतान शर्तों से सहमत हों।",
+    "amountNotFound": "चयनित चार्ज राशि नहीं मिली।",
+    "paymentMethodNotReady": "यह भुगतान विधि वर्तमान में तैयार की जा रही है।",
+    "paymentWindowOpen": "भुगतान विंडो खुलेगी। कृपया भुगतान पूरा करें।",
+    "paymentError": "भुगतान प्रसंस्करण के दौरान एक त्रुटि हुई।",
+    "depositorNameRequired": "कृपया जमाकर्ता नाम दर्ज करें।",
+    "orderReceived": "ऑर्डर प्राप्त हो गया है।\\nप्रशासक द्वारा जमा पुष्टि के बाद कैश चार्ज किया जाएगा।",
+    "allFieldsRequired": "कृपया सभी फ़ील्ड भरें।",
+    "inquirySubmitted": "पूछताछ जमा कर दी गई है। हम जल्द से जल्द उत्तर देंगे।",
+    "inquiryError": "पूछताछ भेजते समय एक त्रुटि हुई। कृपया पुनः प्रयास करें।",
+    "profileUpdated": "प्रोफ़ाइल जानकारी अपडेट हो गई है।",
+    "profileUpdateError": "प्रोफ़ाइल अपडेट करने में विफल। कृपया बाद में पुनः प्रयास करें।",
+    "downloadRestricted": "इस ऑर्डर को रिफंड कर दिया गया है या डाउनलोड प्रतिबंधित है।",
+    "selectDownloadItems": "कृपया डाउनलोड करने के लिए शीट म्यूजिक चुनें।",
+    "noDownloadableItems": "कोई डाउनलोड करने योग्य शीट म्यूजिक उपलब्ध नहीं है।",
+    "downloadRestrictedMultiple": "रिफंड या प्रतिबंधित शीट म्यूजिक डाउनलोड नहीं की जा सकती।",
+    "loginRequiredForDownload": "लॉगिन आवश्यक है। कृपया फिर से लॉगिन करें।",
+    "downloadFailed": "{{count}} फ़ाइलें डाउनलोड करने में विफल। कृपया बाद में पुनः प्रयास करें।",
+    "downloadFailedSingle": "फ़ाइल डाउनलोड विफल हो गई। कृपया बाद में पुनः प्रयास करें।",
+    "previewNotFound": "पूर्वावलोकन फ़ाइल नहीं मिली।",
+    "favoriteRemoveFailed": "पसंदीदा से हटाने में विफल।",
+    "sheetInfoNotFound": "डाउनलोड करने योग्य शीट म्यूजिक जानकारी नहीं मिली।",
+    "downloadLinkNotFound": "डाउनलोड लिंक नहीं मिला। कृपया प्रशासक से संपर्क करें।"
+  },
+  "console": {
+    "cashHistoryError": "कैश इतिहास लोड त्रुटि:",
+    "inquiryHistoryError": "पूछताछ इतिहास लोड त्रुटि:",
+    "profileLoadError": "प्रोफ़ाइल लोड त्रुटि:",
+    "orderHistoryError": "ऑर्डर इतिहास लोड त्रुटि:",
+    "favoritesLoadError": "पसंदीदा लोड त्रुटि:",
+    "customOrderHistoryError": "कस्टम ऑर्डर इतिहास लोड त्रुटि:",
+    "initError": "माई पेज प्रारंभिकरण त्रुटि:",
+    "cashChargeError": "कैश चार्ज त्रुटि:",
+    "inquirySubmitError": "पूछताछ जमा त्रुटि:",
+    "profileUpdateError": "प्रोफ़ाइल अपडेट त्रुटि:",
+    "favoriteRemoveError": "पसंदीदा हटाने की त्रुटि:"
+  },
+  "paymentMethods": {
+    "creditCard": "क्रेडिट कार्ड",
+    "kakaoPay": "Kakao Pay",
+    "bankTransfer": "बैंक ट्रांसफर",
+    "preparing": "तैयारी"
+  },
+  "cart": "कार्ट"
+}

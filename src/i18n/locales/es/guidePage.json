@@ -1,0 +1,206 @@
+{
+  "hero": {
+    "badge": "Desde la búsqueda hasta la descarga, todo en un solo lugar",
+    "title": "Guía de búsqueda y compra de COPYDRUM",
+    "description": "Encuentre su partitura de batería deseada rápidamente, compre razonablemente,<br />y descargue sin problemas: todos los métodos reunidos en un solo lugar.<br />Consulte los consejos esenciales para una práctica eficiente, desde nuevos usuarios hasta miembros existentes."
+  },
+  "sections": {
+    "firstPurchase": {
+      "title": "Primera compra en 3 minutos",
+      "description": "Un resumen rápido para visitantes por primera vez. Siga los pasos a continuación para completar su primera compra de partitura de inmediato.",
+      "steps": {
+        "account": {
+          "title": "1 min – Crear cuenta",
+          "detail": "Cree rápidamente una cuenta a través del registro o inicio de sesión social.",
+          "highlight": "Después del inicio de sesión, se activarán los menús de carrito y descarga."
+        },
+        "findSheet": {
+          "title": "1 min – Encontrar partitura",
+          "detail": "Ingrese el título de la canción o el nombre del artista en el cuadro de búsqueda y seleccione la partitura que le guste."
+        },
+        "payment": {
+          "title": "1 min – Pago y descarga",
+          "detail": "Añada al carrito, complete el pago y puede descargar la partitura PDF inmediatamente."
+        }
+      },
+      "cta": {
+        "register": "Registrarse ahora",
+        "popular": "Ver partituras populares"
+      }
+    },
+    "effectiveSearch": {
+      "title": "Buscar partituras de manera efectiva",
+      "description": "Si los resultados de búsqueda son demasiados o no puede encontrar la canción que desea, intente ajustar su búsqueda más precisamente con los siguientes métodos.",
+      "steps": {
+        "keyword": {
+          "title": "Combinación de palabras clave",
+          "detail": "Combinar dos o más palabras como título de canción + artista aumenta la precisión.",
+          "highlight": "Ejemplo: \"Spring Day batería\", \"arreglo rock de BTS\""
+        },
+        "filter": {
+          "title": "Reducir con filtros",
+          "detail": "Seleccione género, rango de precios y nivel de dificultad en la página de categoría para filtrar solo las partituras que necesita."
+        },
+        "noResults": {
+          "title": "Manejo de sin resultados",
+          "detail": "Verifique la ortografía e intente buscar nuevamente con palabras clave similares."
+        }
+      },
+      "cta": {
+        "categories": "Ver categorías",
+        "freeSheets": "Verificar partituras gratis"
+      }
+    },
+    "chooseSheet": {
+      "title": "Elija la partitura correcta para usted",
+      "description": "Compare el nivel de dificultad, el estilo de arreglo y la composición de la partitura para seleccionar partituras que coincidan con sus objetivos de práctica.",
+      "steps": {
+        "difficulty": {
+          "title": "Verificar dificultad",
+          "detail": "Dividido en principiante/intermedio/avanzado, y puede verificar las técnicas requeridas en la descripción detallada.",
+          "highlight": "Principiante: Patrones básicos, Intermedio: Incluye rellenos, Avanzado: Enfatiza velocidad y técnica"
+        },
+        "preview": {
+          "title": "Usar vista previa",
+          "detail": "Verifique si es el estilo que desea a través de páginas de muestra y videos de demostración."
+        },
+        "price": {
+          "title": "Comparar precios",
+          "detail": "Puede hacer una elección más razonable comparando partituras individuales, colecciones y partituras de eventos juntas."
+        }
+      },
+      "cta": {
+        "eventSale": "Explorar partituras de eventos",
+        "collections": "Ver colecciones"
+      }
+    },
+    "purchaseProcess": {
+      "title": "Guía completa del proceso de compra",
+      "description": "Guía paso a paso para proceder sin errores desde el carrito hasta la finalización del pago.",
+      "steps": {
+        "cart": {
+          "title": "Añadir al carrito",
+          "detail": "Haga clic en el botón del carrito en la página de detalles de la partitura para pagar múltiples partituras a la vez.",
+          "highlight": "El código de promoción se puede ingresar en la parte superior del carrito"
+        },
+        "paymentInfo": {
+          "title": "Verificar información de pago",
+          "detail": "Asegúrese de verificar los detalles del pedido, la aplicación de descuento y los términos de servicio antes del pago."
+        },
+        "paymentMethod": {
+          "title": "Seleccionar método de pago",
+          "detail": "Soporta tarjeta de crédito, transferencia bancaria, Kakao Pay, etc., y se enviará un correo de notificación después de completar el pago."
+        }
+      },
+      "cta": {
+        "cart": "Ir al carrito"
+      }
+    },
+    "download": {
+      "title": "Descargar partituras",
+      "description": "Las partituras compradas se pueden descargar inmediatamente como PDF y se pueden volver a descargar en cualquier momento.",
+      "steps": {
+        "immediate": {
+          "title": "Descarga inmediata",
+          "detail": "Puede descargar el archivo PDF inmediatamente desde la página de finalización de compra justo después de la compra."
+        },
+        "redownload": {
+          "title": "Volver a descargar desde Mi Página",
+          "detail": "Puede volver a descargar partituras ya compradas desde el historial de compras en Mi Página.",
+          "highlight": "Las partituras compradas se pueden volver a descargar sin límite."
+        },
+        "pdf": {
+          "title": "Usar PDF",
+          "detail": "Proporcionado como archivos PDF de alta calidad, puede practicar directamente en tabletas o laptops, o imprimir en el tamaño que desee."
+        }
+      },
+      "cta": {
+        "mypage": "Abrir Mi Página",
+        "orders": "Verificar historial de compras"
+      }
+    },
+    "discounts": {
+      "title": "Maximizar descuentos y beneficios",
+      "description": "Cree un entorno de práctica más rico utilizando ventas de eventos especiales, bonos de recarga de efectivo de partituras y servicios de pedido personalizado.",
+      "steps": {
+        "event": {
+          "title": "Partituras de eventos",
+          "detail": "Consulte las partituras ofrecidas a 100 wones o precios con descuento por tiempo limitado en la sección de superventa.",
+          "highlight": "¡Las partituras de eventos son de cantidad/período limitado, así que verifique rápidamente!"
+        },
+        "cash": {
+          "title": "Recarga de efectivo de partituras",
+          "detail": "Se proporcionan bonos adicionales según el monto de recarga. Si planea hacer compras a granel, recargue con anticipación."
+        },
+        "customOrder": {
+          "title": "Comparar pedidos personalizados",
+          "detail": "Si no puede encontrar la partitura que busca, puede obtener un arreglo preciso a través de pedidos personalizados. Elija según su presupuesto y horario."
+        }
+      },
+      "cta": {
+        "customOrder": "Solicitar pedido personalizado",
+        "customOrders": "Verificar pedidos en curso"
+      }
+    }
+  },
+  "searchTips": {
+    "title": "Colección de consejos de búsqueda",
+    "items": {
+      "keyword": {
+        "title": "Palabras clave recomendadas",
+        "description": "Buscar con título de canción + artista aumenta la precisión."
+      },
+      "filter": {
+        "title": "Combinación de filtros",
+        "description": "Configurar género + dificultad + rango de precios juntos deja solo las partituras que necesita."
+      },
+      "noResults": {
+        "title": "Sin resultados de búsqueda",
+        "description": "Verifique la ortografía nuevamente o busque con género/artista similar y luego intente pedidos personalizados."
+      }
+    }
+  },
+  "purchaseComparison": {
+    "title": "Comparación de métodos de compra",
+    "regular": {
+      "title": "Compra regular",
+      "badge": "Recomendado",
+      "items": [
+        "Descarga inmediata de PDF después del pago",
+        "Ahorre costos con partituras de eventos/gratis",
+        "Amplia selección de géneros y niveles de dificultad"
+      ]
+    },
+    "custom": {
+      "title": "Pedido personalizado",
+      "badge": "Personalizado",
+      "items": [
+        "Produzca exactamente la canción y el estilo de arreglo que desea",
+        "Período de producción de 1 a 7 días, varía según la dificultad",
+        "Proceda con el pago después de la confirmación de la cotización"
+      ]
+    }
+  },
+  "helpNeeded": {
+    "title": "¿Necesita más ayuda?",
+    "description": "Consulte preguntas frecuentes en atención al cliente o solicite consulta directa a través de consulta.",
+    "cta": {
+      "findSheets": "Encontrar partituras ahora",
+      "eventSale": "Ver partituras con descuento en curso"
+    }
+  },
+  "terms": {
+    "title": "Términos de servicio",
+    "content": [
+      "Todos los clientes que usan los servicios de COPYDRUM deben respetar los derechos de autor y usar las partituras dentro del alcance de los propósitos de práctica personal. La distribución no autorizada, reproducción o intercambio de partituras compradas está sujeto a sanciones legales, y se requiere una licencia separada para uso comercial.",
+      "Dado que las descargas se proporcionan inmediatamente después del pago, los reembolsos pueden estar limitados después de completar la descarga debido a la naturaleza del contenido digital. Las políticas detalladas relacionadas con el uso del servicio, incluyendo pagos, pedidos personalizados y beneficios de eventos, se actualizan regularmente a través de anuncios del servicio al cliente."
+    ]
+  },
+  "privacy": {
+    "title": "Resumen de la política de privacidad",
+    "content": [
+      "Recopilamos información personal mínima como correo electrónico, nombre e información de pago para el registro de cuenta, procesamiento de pedidos y atención al cliente. Esta información se almacena de forma segura en un entorno de seguridad basado en Supabase. No usamos información personal para otros propósitos que no sean proporcionar servicios, y cumplimos estrictamente con los procedimientos de consentimiento previo al compartir con terceros.",
+      "Los clientes pueden solicitar ver, modificar o eliminar su información personal a través de Mi Página o Atención al Cliente, y tales solicitudes se procesarán sin demora. Para consultas sobre protección de información personal, por favor contáctenos a través de la consulta 1:1 de Atención al Cliente o correo electrónico."
+    ]
+  }
+}

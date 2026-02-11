@@ -1,0 +1,61 @@
+{
+  "header": {
+    "badge": "Obtenha Partituras de Bateria Populares por Apenas 100 Won!",
+    "title": "EVENTO Promoção Especial de 100 Won",
+    "description": "Não perca estas partituras de bateria em super promoção por tempo limitado. Obtenha músicas populares por apenas 100 won e comece a tocar hoje!"
+  },
+  "countdownNotice": "Verifique o cronômetro em tempo real!",
+  "loading": "Carregando informações do evento...",
+  "countdown": {
+    "startingSoon": "Começando em breve",
+    "startsIn": "Começa em",
+    "timeLeft": "⏰ Tempo restante",
+    "dayUnit": "d",
+    "starts": "Começa"
+  },
+  "buttons": {
+    "only100Won": "Apenas 100 Won!",
+    "addToFavorites": "Adicionar aos favoritos",
+    "removeFromFavorites": "Remover dos favoritos",
+    "viewDetails": "Ver Detalhes",
+    "buyNow": "Comprar Agora",
+    "processing": "Processando...",
+    "saleEnded": "Promoção Encerrada"
+  },
+  "labels": {
+    "eventSheet": "Partitura do Evento",
+    "saleEnded": "Promoção Encerrada",
+    "only100WonBadge": "Apenas 100 Won!",
+    "100Won": "100 Won",
+    "discount": "OFF",
+    "startingSoon": "Começando em Breve"
+  },
+  "sections": {
+    "ongoing": {
+      "title": "Promoção Especial de 100 Won em Andamento",
+      "description": "Partituras do evento disponíveis para compra agora.",
+      "activeCount": "{{count}} Ativas",
+      "noEvents": "Não há eventos em andamento. Verifique os eventos agendados abaixo!"
+    },
+    "scheduled": {
+      "title": "Eventos Agendados",
+      "description": "Verifique os próximos eventos e prepare-se para notificações.",
+      "scheduledCount": "{{count}} Agendados"
+    },
+    "ended": {
+      "title": "Eventos Encerrados"
+    }
+  },
+  "messages": {
+    "loginRequired": "Login necessário.",
+    "loginRequiredConfirm": "Login necessário. Ir para a página de login?",
+    "checkDownloadPage": "Verifique sua partitura na página de download.",
+    "paymentError": "Ocorreu um erro durante o pagamento.",
+    "favoriteError": "Ocorreu um erro ao processar seu favorito. Por favor, tente novamente mais tarde."
+  },
+  "console": {
+    "loadEventsError": "Erro ao carregar lista de partituras com desconto do evento:",
+    "loadFavoritesError": "Erro ao carregar lista de favoritos:",
+    "toggleFavoriteError": "Erro no processamento de alternância de favorito:"
+  }
+}

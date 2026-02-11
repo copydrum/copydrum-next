@@ -1,0 +1,9 @@
+{
+  "detailTitle": "{{title}} – {{artist}} | Spartiti batteria PDF | COPYDRUM",
+  "detailDescription": "Scarica lo spartito di batteria di \"{{title}}\" di {{artist}} in PDF di alta qualità. Partitura {{genre}}, {{pages}} pagine, {{bpm}} BPM, livello {{difficulty}}.",
+  "detailKeywords": "{{title}}, {{artist}}, spartiti batteria, drum sheet music, trascrizione batteria, COPYDRUM",
+  "homeTitle": "COPYDRUM | Negozio di spartiti per batteria",
+  "homeDescription": "Spartiti per batteria di alta qualità per pop, rock, K-POP, CCM e altro. Download immediato in PDF per batteristi di tutto il mondo.",
+  "categoryTitle": "Spartiti batteria {{category}} | COPYDRUM",
+  "categoryDescription": "Scarica gli spartiti di batteria in PDF per brani {{category}}. Ideali per lo studio e le esibizioni dal vivo."
+}

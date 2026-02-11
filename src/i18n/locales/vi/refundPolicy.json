@@ -1,0 +1,36 @@
+{
+  "title": "Hoàn tiền & Giao hàng (Chính sách sản phẩm kỹ thuật số)",
+  "sections": {
+    "productType": {
+      "title": "1. Loại sản phẩm",
+      "description": "Tất cả sản phẩm được bán trên CopyDrum là nội dung kỹ thuật số (PDF sheet music drum). Đây là các sản phẩm điện tử không có vật lý có sẵn để tải xuống ngay lập tức sau thanh toán."
+    },
+    "deliveryMethod": {
+      "title": "2. Phương thức giao hàng",
+      "description1": "Sau khi thanh toán thành công, file có sẵn để tải xuống ngay lập tức trong",
+      "description2": "Trang của tôi > Lịch sử đơn hàng",
+      "description3": "Nếu tải xuống không hoạt động, chúng tôi cung cấp liên kết tải xuống được phát hành lại hoặc gửi lại file thủ công theo yêu cầu."
+    },
+    "refundPolicy": {
+      "title": "3. Chính sách hoàn tiền",
+      "description": "Do bản chất của sản phẩm kỹ thuật số, hoàn tiền không có sẵn sau khi file đã được tải xuống hoặc truy cập.",
+      "exceptionNote": "Tuy nhiên, chúng tôi cung cấp hoàn tiền hoặc đổi trong các trường hợp ngoại lệ sau:",
+      "exceptions": {
+        "exception1": "Trong vòng 7 ngày kể từ ngày mua nếu file chưa được tải xuống",
+        "exception2": "File không chính xác được cung cấp hoặc lỗi kỹ thuật khiến file không thể sử dụng",
+        "exception3": "Thanh toán trùng lặp cho cùng một sản phẩm"
+      }
+    },
+    "customerProtection": {
+      "title": "4. Bảo vệ khách hàng",
+      "description": "Chúng tôi nỗ lực giải quyết vấn đề ngay lập tức:",
+      "protections": {
+        "protection1": "Thay thế miễn phí cho lỗi file",
+        "protection2": "Phát hành lại liên kết tải xuống nếu xảy ra vấn đề truy cập",
+        "protection3": "Hoàn tiền ngay lập tức cho giao dịch trùng lặp"
+      },
+      "contact": "Hỗ trợ khách hàng:",
+      "email": "support@copydrum.com"
+    }
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "title": "Özel Davul Notası",
+  "description": {
+    "line1": "Belirli bir şarkı mı arıyorsunuz?",
+    "line2": "Profesyonellerimiz analiz edip sizin için yüksek kaliteli davul notası oluşturacak.",
+    "line3": "Şarkının zorluğu ve yapısına göre özel teklifler sağlıyoruz."
+  },
+  "login": {
+    "required": "Giriş gerekli",
+    "description": "Özel sipariş talebi göndermek için lütfen giriş yapın.",
+    "button": "Giriş Yap"
+  },
+  "pricing": {
+    "title": "Fiyatlandırma Bilgisi",
+    "note": "* Final fiyat, şarkının zorluğu ve uzunluğu analiz edildikten sonra bireysel teklif olarak sağlanacaktır.",
+    "grades": {
+      "c": {
+        "name": "C Sınıfı",
+        "price": "$10+",
+        "description": "5 dakikanın altında genel K-pop, pop, yetişkin çağdaş şarkılar"
+      },
+      "b": {
+        "name": "B Sınıfı",
+        "price": "$30+",
+        "description": "Orta seviyenin biraz üzerinde zorluk veya 5 dakikadan uzun şarkılar"
+      },
+      "a": {
+        "name": "A Sınıfı",
+        "price": "$50+",
+        "description": "İleri seviye zorluk şarkıları"
+      }
+    }
+  },
+  "form": {
+    "title": "Özel Sipariş Talep Formu",
+    "applicantId": "Başvuran ID",
+    "applicantIdPlaceholder": "Giriş yapılan ID",
+    "songInfo": "Şarkı Bilgisi",
+    "songTitle": "Şarkı Başlığı",
+    "songTitlePlaceholder": "Sipariş etmek istediğiniz şarkı başlığını girin",
+    "artist": "Sanatçı",
+    "artistPlaceholder": "Sanatçı adını girin",
+    "youtubeUrl": "YouTube URL",
+    "youtubeUrlPlaceholder": "Doğru nota oluşturma için YouTube URL'sini girin (isteğe bağlı)",
+    "youtubeUrlHint": "Doğru nota oluşturma için lütfen bir YouTube URL'si girin. (İsteğe bağlı)",
+    "memo": "Not",
+    "memoPlaceholder": "Herhangi bir not veya hatırlatma girin (maksimum 500 karakter)",
+    "characters": "karakter",
+    "submit": "Özel Sipariş Talebi Gönder",
+    "submitting": "Gönderiliyor...",
+    "note": "Gönderimden sonra, Sayfam \"Özel Sipariş Geçmişi\" bölümünde ilerlemeyi kontrol edebilir ve tamamlandığında notayı indirebilirsiniz."
+  },
+  "process": {
+    "title": "Özel Sipariş Süreci",
+    "steps": {
+      "request": {
+        "title": "Talep Alındı",
+        "description": "Özel sipariş talebiniz gönderildiğinde alınır."
+      },
+      "quote": {
+        "title": "Teklif Gönderildi",
+        "description": "Şarkıyı analiz edip Sayfam aracılığıyla teklif sağlıyoruz."
+      },
+      "payment": {
+        "title": "Ödeme Onaylandı",
+        "description": "Teklifi onaylayıp ödeme yaptıktan sonra üretim başlar."
+      },
+      "completed": {
+        "title": "Tamamlandı",
+        "description": "Tamamlanan notayı Sayfam'dan indirin."
+      }
+    }
+  },
+  "faq": {
+    "title": "Sık Sorulan Sorular",
+    "questions": {
+      "quote": {
+        "question": "Teklifi nasıl kontrol edebilirim?",
+        "answer": "Teklifi Sayfam'daki \"Özel Sipariş Geçmişi\" bölümünde kontrol edebilirsiniz. Talebinizden sonra 24 saat içinde teklif sağlayacağız."
+      },
+      "production": {
+        "question": "Üretim ne kadar sürer?",
+        "answer": "Genellikle ödeme onayından sonra 1-3 gün sürer. Süre, şarkının zorluğu ve uzunluğuna bağlı olarak değişebilir ve kesin program teklifte sağlanacaktır."
+      },
+      "payment": {
+        "question": "Hangi ödeme yöntemleri mevcut?",
+        "answer": "Şu anda yalnızca banka havalesi mevcuttur. Teklifle birlikte banka hesap bilgilerini sağlayacağız."
+      }
+    }
+  },
+  "errors": {
+    "loginRequired": "Giriş gerekli.",
+    "submitError": "Gönderim sırasında bir hata oluştu. Lütfen tekrar deneyin."
+  },
+  "messages": {
+    "submitSuccess": "Özel sipariş talebi gönderildi. İlerlemeyi Sayfam'da kontrol edebilirsiniz."
+  },
+  "console": {
+    "submitError": "Sipariş gönderme hatası:"
+  }
+}

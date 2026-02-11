@@ -1,0 +1,52 @@
+{
+  "title": "新規登録",
+  "hasAccount": "すでにアカウントをお持ちですか？",
+  "signIn": "ログイン",
+  "form": {
+    "name": "お名前",
+    "namePlaceholder": "お名前を入力",
+    "email": "メールアドレス",
+    "emailPlaceholder": "メールアドレスを入力",
+    "password": "パスワード",
+    "passwordPlaceholder": "パスワードを入力（8文字以上）",
+    "passwordHint": "8文字以上、英字、数字、特殊文字を含む",
+    "confirmPassword": "パスワード確認",
+    "confirmPasswordPlaceholder": "パスワードを再入力",
+    "agreeTerms": "利用規約に同意します",
+    "viewTerms": "（閲覧）",
+    "agreePrivacy": "プライバシーポリシーに同意します",
+    "viewPrivacy": "（閲覧）",
+    "agreeMarketing": "マーケティング情報の受信に同意します（任意）",
+    "submit": "新規登録",
+    "submitting": "登録中..."
+  },
+  "divider": "または",
+  "social": {
+    "google": "Google",
+    "kakao": "Kakao"
+  },
+  "errors": {
+    "passwordMismatch": "パスワードが一致しません。",
+    "passwordTooShort": "パスワードは8文字以上である必要があります。",
+    "termsRequired": "必須の約款に同意してください。",
+    "profileCreationFailed": "プロフィールの作成に失敗しました。もう一度お試しください。",
+    "emailAlreadyRegistered": "このメールアドレスは既に登録されています。",
+    "invalidEmail": "有効なメールアドレスを入力してください。",
+    "signUpFailed": "新規登録に失敗しました。もう一度お試しください。",
+    "kakaoLoginFailed": "カカオログインに失敗しました。もう一度お試しください。",
+    "googleLoginFailed": "Googleログインに失敗しました。もう一度お試しください。"
+  },
+  "messages": {
+    "signUpSuccess": "新規登録が完了しました！メールをご確認の上、ログインしてください。"
+  },
+  "console": {
+    "kakaoLoginError": "カカオログインエラー:",
+    "googleLoginError": "Googleログインエラー:",
+    "profileError": "プロフィール作成/更新エラー:",
+    "rollbackFunctionError": "ロールバック関数呼び出しエラー:",
+    "rollbackComplete": "新規登録ロールバック完了",
+    "rollbackError": "ロールバック中にエラーが発生しました:",
+    "profileSuccess": "プロフィールの作成/更新が成功しました",
+    "signUpError": "新規登録エラー:"
+  }
+}

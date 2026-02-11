@@ -1,0 +1,78 @@
+{
+  "title": "장바구니",
+  "loginRequired": "로그인이 필요합니다",
+  "loginRequiredDescription": "장바구니를 이용하려면 로그인해주세요.",
+  "selectItemsToDelete": "삭제할 항목을 선택해주세요.",
+  "confirmDelete": "선택한 {{count}}개의 항목을 삭제하시겠습니까?",
+  "confirmClear": "장바구니의 모든 항목을 삭제하시겠습니까?",
+  "selectItemsToPurchase": "구매할 항목을 선택해주세요.",
+  "itemsNotFound": "선택한 항목을 찾을 수 없습니다.",
+  "onlyPurchasedItems": "이미 구매한 항목만 있습니다.",
+  "duplicateSheets": "중복된 악보:",
+  "excludePurchased": "이미 구매한 항목은 제외하고 구매를 진행합니다.",
+  "excludedSheets": "제외된 악보:",
+  "purchaseCheckError": "구매 이력 확인 중 오류가 발생했습니다.",
+  "noNewItems": "구매할 새로운 항목이 없습니다.",
+  "purchaseDescription": "{{title}} 구매",
+  "cartPurchaseDescription": "장바구니 {{count}}개 항목 구매",
+  "bankTransferCreated": "무통장입금 계좌가 생성되었습니다.",
+  "paymentWindowOpen": "결제창이 열립니다. 결제를 완료해주세요.",
+  "insufficientCash": "캐시가 부족합니다. 현재 보유 캐시: {{amount}}원",
+  "purchaseComplete": "구매가 완료되었습니다.",
+  "paymentError": "결제 처리 중 오류가 발생했습니다.",
+  "bankTransferInfo": "무통장입금 정보",
+  "close": "닫기",
+  "bank": "은행",
+  "accountNumber": "계좌번호",
+  "accountHolder": "예금주",
+  "depositAmount": "입금금액",
+  "depositorName": "입금자명",
+  "totalItems": "총 {{count}}개",
+  "empty": "장바구니가 비어있습니다",
+  "emptyDescription": "장바구니에 담긴 항목이 없습니다.",
+  "browseSheets": "악보 둘러보기",
+  "selectAll": "전체 선택 ({{selected}}/{{total}})",
+  "deleteSelected": "선택 삭제",
+  "deleteAll": "전체 삭제",
+  "confirmDeleteItem": "'{{title}}'을(를) 장바구니에서 삭제하시겠습니까?",
+  "removeItem": "삭제",
+  "selectedItems": "선택한 항목 ({{count}}개)",
+  "processing": "처리 중...",
+  "orderSelected": "선택 주문",
+  "orderAll": "전체 주문",
+  "continueShopping": "쇼핑 계속하기",
+  "console": {
+    "purchaseCheckError": "장바구니 구매 전 구매 이력 확인 오류:",
+    "cartUpdateAfterPaymentError": "결제 후 장바구니 업데이트에 실패했습니다.",
+    "cartUpdateAfterPurchaseError": "구매 후 장바구니 업데이트에 실패했습니다.",
+    "paymentProcessingError": "장바구니 결제 처리 오류:",
+    "bankTransferProcessingError": "무통장입금 결제 처리 오류:"
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

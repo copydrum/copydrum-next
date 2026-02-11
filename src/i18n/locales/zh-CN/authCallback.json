@@ -1,0 +1,14 @@
+{
+  "loading": "正在处理登录...",
+  "errors": {
+    "oauthError": "登录失败",
+    "callbackError": "处理登录时发生错误。请重试。",
+    "profileCreationError": "创建个人资料错误"
+  },
+  "console": {
+    "oauthError": "OAuth错误：",
+    "callbackError": "身份验证回调处理错误：",
+    "profileCreationError": "创建个人资料错误："
+  },
+  "defaultUserName": "用户"
+}

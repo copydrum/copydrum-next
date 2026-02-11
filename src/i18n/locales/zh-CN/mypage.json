@@ -1,0 +1,287 @@
+{
+  "title": "我的页面",
+  "subtitle": "一目了然地查看您的所有活动，从乐谱购买到定制订单。",
+  "tabs": {
+    "profile": {
+      "label": "个人资料管理",
+      "description": "管理您的个人信息和联系方式。"
+    },
+    "purchases": {
+      "label": "购买历史",
+      "description": "查看您购买的乐谱订单信息。"
+    },
+    "downloads": {
+      "label": "下载管理",
+      "description": "下载并预览您购买的乐谱。"
+    },
+    "favorites": {
+      "label": "收藏的乐谱",
+      "description": "查看您收藏的乐谱。"
+    },
+    "cash": {
+      "label": "现金历史",
+      "description": "查看您的现金余额和使用历史。"
+    },
+    "inquiries": {
+      "label": "1:1咨询",
+      "description": "查看您的咨询和回复。"
+    },
+    "customOrders": {
+      "label": "定制订单",
+      "description": "查看您的定制订单请求状态。"
+    }
+  },
+  "stats": {
+    "purchasedSheets": "已购买的乐谱",
+    "availableDownloads": "可下载",
+    "favoriteSheets": "收藏的乐谱",
+    "inquiries": "1:1咨询",
+    "customOrders": "定制订单"
+  },
+  "profile": {
+    "title": "个人资料管理",
+    "memberInfo": "会员信息",
+    "nameNotSet": "未设置姓名",
+    "joinedOn": "加入日期",
+    "cashBalance": "现金余额",
+    "cashBalanceDescription": "可用于您的下一次乐谱购买。",
+    "chargeCash": "充值现金",
+    "email": "电子邮件",
+    "name": "姓名",
+    "namePlaceholder": "请输入您的姓名",
+    "phoneNumber": "电话号码",
+    "phonePlaceholder": "请输入您的电话号码",
+    "joinDate": "加入日期",
+    "saving": "正在保存...",
+    "updateProfile": "更新个人资料"
+  },
+  "purchases": {
+    "title": "购买历史",
+    "description": "按最近订单排序。",
+    "browseMore": "浏览更多乐谱",
+    "noPurchases": "尚未购买任何乐谱。",
+    "orderNumber": "订单号",
+    "total": "总计",
+    "downloadAllInOrder": "下载此订单中的所有内容",
+    "downloading": "正在下载...",
+    "selectAll": "全选",
+    "deselectAll": "取消全选",
+    "selected": "已选中",
+    "downloadSelected": "下载选中",
+    "download": "下载",
+    "viewDetails": "查看详情",
+    "categoryNotSet": "类别未设置",
+    "deletedSheet": "已删除的乐谱"
+  },
+  "downloads": {
+    "title": "下载管理",
+    "description": "您可以随时重新下载已购买的乐谱。",
+    "totalItems": "共{{count}}项",
+    "selectedItems": "已选中{{count}}项",
+    "selectAll": "全选",
+    "deselectAll": "取消全选",
+    "downloadSelected": "下载选中",
+    "downloadAll": "下载全部",
+    "downloading": "正在下载...",
+    "noDownloads": "没有可下载的乐谱。",
+    "purchaseDate": "购买日期",
+    "preview": "预览",
+    "downloadUnavailable": "下载不可用"
+  },
+  "favorites": {
+    "title": "收藏的乐谱",
+    "description": "快速找到您收藏的乐谱。",
+    "totalCount": "共{{count}}项",
+    "noFavorites": "尚未收藏任何乐谱。",
+    "addFavorites": "添加您收藏的乐谱！",
+    "viewDetails": "查看详情",
+    "inCart": "在购物车中",
+    "cart": "加入购物车",
+    "removeFavorite": "移除收藏",
+    "deletedSheet": "已删除的乐谱"
+  },
+  "inquiries": {
+    "title": "1:1咨询",
+    "description": "提交咨询并在\"我的页面\"中直接接收管理员回复。",
+    "name": "姓名",
+    "namePlaceholder": "请输入您的姓名",
+    "email": "电子邮件",
+    "emailPlaceholder": "请输入您的联系电子邮件",
+    "category": "咨询类型",
+    "categoryPlaceholder": "选择咨询类型",
+    "categories": {
+      "orderPayment": "订单/支付咨询",
+      "sheetDownload": "乐谱/下载咨询",
+      "customOrder": "定制订单咨询",
+      "technical": "技术支持",
+      "other": "其他咨询"
+    },
+    "subject": "主题",
+    "subjectPlaceholder": "请输入咨询主题",
+    "message": "留言",
+    "messagePlaceholder": "请详细描述您的咨询（最多500个字符）",
+    "characters": "个字符",
+    "submitting": "正在提交...",
+    "submit": "提交咨询",
+    "history": {
+      "title": "我的咨询历史",
+      "description": "查看您提交的咨询和管理员回复。",
+      "total": "共{{count}}次咨询",
+      "loading": "正在加载咨询历史...",
+      "noInquiries": "尚未提交任何咨询。",
+      "noInquiriesDescription": "如有任何问题，请使用上面的表单提交咨询。",
+      "category": "咨询",
+      "received": "已收到",
+      "adminReply": "管理员回复",
+      "replied": "已回复",
+      "preparing": "正在准备回复。审核后我们将与您联系。"
+    }
+  },
+  "cash": {
+    "title": "现金历史",
+    "description": "查看您的现金余额和使用历史。",
+    "chargeCash": "充值现金",
+    "availableCash": "可用现金",
+    "loadingHistory": "正在加载现金历史...",
+    "noHistory": "没有可显示的现金历史。",
+    "noHistoryDescription": "当您充值或使用现金时，现金交易将记录在这里。",
+    "types": {
+      "charge": "现金充值",
+      "use": "现金使用",
+      "adminAdd": "管理员添加",
+      "adminDeduct": "管理员扣除",
+      "record": "记录"
+    },
+    "bonus": "奖励",
+    "balance": "余额",
+    "sheet": "乐谱",
+    "noDescription": "未记录描述。"
+  },
+  "customOrders": {
+    "title": "定制订单历史",
+    "description": "查看您的定制订单请求状态。",
+    "newOrderRequest": "新订单请求",
+    "noOrders": "没有定制订单历史。",
+    "serviceDescription": "使用我们的定制订单服务创建特殊乐谱。",
+    "requestDate": "请求日期",
+    "lastUpdate": "最后更新",
+    "viewDetails": "查看详情",
+    "quoteConfirm": "确认报价",
+    "workCompleted": "工作已完成",
+    "quotePending": "报价待定"
+  },
+  "status": {
+    "order": {
+      "completed": "已完成",
+      "pending": "待处理",
+      "cancelled": "已取消",
+      "refunded": "已退款",
+      "undetermined": "未确定"
+    },
+    "customOrder": {
+      "pending": "报价待定",
+      "quoted": "待支付",
+      "paymentConfirmed": "支付已确认",
+      "inProgress": "进行中",
+      "completed": "已完成",
+      "cancelled": "已取消",
+      "undetermined": "未确定"
+    },
+    "inquiry": {
+      "pending": "等待回复",
+      "answered": "已回复",
+      "processing": "处理中"
+    }
+  },
+  "cashCharge": {
+    "title": "现金充值",
+    "currentCash": "当前现金余额",
+    "paymentAmount": "支付金额",
+    "bankTransferInfo": {
+      "title": "银行转账信息",
+      "bank": "银行",
+      "accountNumber": "账户号码",
+      "accountHolder": "账户持有人",
+      "amount": "存款金额",
+      "depositorName": "存款人姓名"
+    },
+    "depositorName": "存款人姓名",
+    "depositorNamePlaceholder": "请输入存款人姓名",
+    "depositorNameHint": "* 如果存款人姓名与您的会员姓名不同，请输入存款人姓名。",
+    "bankTransferNotice": {
+      "title": "银行转账通知",
+      "line1": "• 存款确认后，管理员将手动充值现金。",
+      "line2": "• 如果存款人姓名不匹配，确认可能会延迟。",
+      "line3": "• 存款确认可能需要1-2个工作日。"
+    },
+    "back": "返回",
+    "confirm": "确认",
+    "processing": "处理中...",
+    "paymentMethod": "支付方式",
+    "paymentAmountTitle": "支付金额",
+    "agreement": "我已查看支付详情并同意条款。",
+    "next": "下一步",
+    "bankTransferGuide": {
+      "title": "银行转账指南",
+      "bank": "银行",
+      "accountNumber": "账户号码",
+      "accountHolder": "账户持有人",
+      "amount": "存款金额"
+    }
+  },
+  "guest": {
+    "title": "需要登录",
+    "description": "请登录以使用\"我的页面\"功能，如购买历史、下载和收藏的乐谱。",
+    "login": "前往登录",
+    "signup": "注册"
+  },
+  "loading": {
+    "message": "正在加载\"我的页面\"数据..."
+  },
+  "errors": {
+    "loginRequired": "需要登录。",
+    "agreementRequired": "请同意支付条款。",
+    "amountNotFound": "未找到选中的充值金额。",
+    "paymentMethodNotReady": "此支付方式目前正在准备中。",
+    "paymentWindowOpen": "支付窗口将打开。请完成支付。",
+    "paymentError": "支付处理期间发生错误。",
+    "depositorNameRequired": "请输入存款人姓名。",
+    "orderReceived": "订单已收到。\\n存款确认后，管理员将充值现金。",
+    "allFieldsRequired": "请填写所有字段。",
+    "inquirySubmitted": "咨询已提交。我们将尽快回复。",
+    "inquiryError": "发送咨询时发生错误。请重试。",
+    "profileUpdated": "个人资料信息已更新。",
+    "profileUpdateError": "更新个人资料失败。请稍后重试。",
+    "downloadRestricted": "此订单已退款或下载受限。",
+    "selectDownloadItems": "请选择要下载的乐谱。",
+    "noDownloadableItems": "没有可下载的乐谱。",
+    "downloadRestrictedMultiple": "已退款或受限的乐谱无法下载。",
+    "loginRequiredForDownload": "需要登录。请重新登录。",
+    "downloadFailed": "{{count}}个文件下载失败。请稍后重试。",
+    "downloadFailedSingle": "文件下载失败。请稍后重试。",
+    "previewNotFound": "未找到预览文件。",
+    "favoriteRemoveFailed": "从收藏中移除失败。",
+    "sheetInfoNotFound": "未找到可下载的乐谱信息。",
+    "downloadLinkNotFound": "未找到下载链接。请联系管理员。"
+  },
+  "console": {
+    "cashHistoryError": "现金历史加载错误：",
+    "inquiryHistoryError": "咨询历史加载错误：",
+    "profileLoadError": "个人资料加载错误：",
+    "orderHistoryError": "订单历史加载错误：",
+    "favoritesLoadError": "收藏加载错误：",
+    "customOrderHistoryError": "定制订单历史加载错误：",
+    "initError": "我的页面初始化错误：",
+    "cashChargeError": "现金充值错误：",
+    "inquirySubmitError": "咨询提交错误：",
+    "profileUpdateError": "个人资料更新错误：",
+    "favoriteRemoveError": "移除收藏错误："
+  },
+  "paymentMethods": {
+    "creditCard": "信用卡",
+    "kakaoPay": "Kakao Pay",
+    "bankTransfer": "银行转账",
+    "preparing": "准备中"
+  },
+  "cart": "购物车"
+}

@@ -1,0 +1,36 @@
+{
+  "title": "İade ve Teslimat (Dijital Ürün Politikası)",
+  "sections": {
+    "productType": {
+      "title": "1. Ürün Türü",
+      "description": "CopyDrum'da satılan tüm ürünler dijital içeriklerdir (PDF davul notası). Bunlar ödeme sonrası anında indirilebilen fiziksel olmayan elektronik ürünlerdir."
+    },
+    "deliveryMethod": {
+      "title": "2. Teslimat Yöntemi",
+      "description1": "Başarılı ödeme sonrası, dosyalar",
+      "description2": "Sayfam > Sipariş Geçmişi",
+      "description3": "altında anında indirme için mevcuttur. İndirme çalışmazsa, talep üzerine yeniden verilen indirme bağlantıları sağlıyoruz veya dosyaları manuel olarak yeniden gönderiyoruz."
+    },
+    "refundPolicy": {
+      "title": "3. İade Politikası",
+      "description": "Dijital ürünlerin doğası gereği, dosya indirildikten veya erişildikten sonra iadeler mevcut değildir.",
+      "exceptionNote": "Ancak, aşağıdaki istisnai durumlarda iade veya değişim sunuyoruz:",
+      "exceptions": {
+        "exception1": "Dosya indirilmediyse satın alma tarihinden itibaren 7 gün içinde",
+        "exception2": "Yanlış dosya sağlandı veya dosyayı kullanılamaz hale getiren teknik hatalar",
+        "exception3": "Aynı ürün için yinelenen ödemeler"
+      }
+    },
+    "customerProtection": {
+      "title": "4. Müşteri Koruması",
+      "description": "Sorunları hemen çözmeye çalışıyoruz:",
+      "protections": {
+        "protection1": "Dosya hataları için ücretsiz değiştirme",
+        "protection2": "Erişim sorunları oluşursa indirme bağlantılarının yeniden verilmesi",
+        "protection3": "Yinelenen işlemler için anında iade"
+      },
+      "contact": "Müşteri Desteği:",
+      "email": "support@copydrum.com"
+    }
+  }
+}

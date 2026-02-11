@@ -1,0 +1,49 @@
+{
+  "title": "COPYDRUM Hakkında",
+  "intro": "2010'dan beri profesyonel davulcular ve davul severler için en iyi notaları üreten ve sunan COPYDRUM'u tanıtıyoruz.",
+  "mission": {
+    "title": "Misyonumuz",
+    "description": "COPYDRUM, davulcuların her zaman, her yerde güvenilir notalar aracılığıyla müzikal ilham kazanmasına ve performanslarını geliştirmesine yardımcı olmayı amaçlamaktadır. Hassas notasyon, yüksek kaliteli PDF'ler ve pratik düzenlemeler aracılığıyla tüm davulculara ihtiyaç duydukları kaynakları sağlıyoruz."
+  },
+  "expertise": {
+    "title": "10 Yıldan Fazla Uzmanlık",
+    "description": "2010'dan beri faaliyet gösteren COPYDRUM, yurt içi ve yurt dışında sayısız davulcuyla birlikte büyüdü. Yıllarca biriken notasyon deneyimi ve uzmanlığıyla, başlangıç seviyesinden profesyonel müzisyenlere kadar her seviyedeki oyuncular için nota sağlıyoruz."
+  },
+  "network": {
+    "title": "Küresel Ağ Genişlemesi",
+    "description": "COPYDRUM, Asya, Kuzey Amerika ve Avrupa dahil olmak üzere dünya çapındaki davulculara nota tedarik ederek küresel bir ağ oluşturdu. Çeşitli tür ve tarzlardaki davulcuların güvendiği ve aradığı küresel bir nota platformuna dönüşüyoruz."
+  },
+  "features": {
+    "notationTeam": {
+      "title": "Profesyonel Notasyon Ekibi",
+      "description": "10 yıldan fazla deneyime sahip profesyonel notasyon ekibimiz ve aktif davulcular doğrudan inceleme yaparak yüksek kaliteli notalar sağlıyor."
+    },
+    "genres": {
+      "title": "Çeşitli Türler",
+      "description": "K-pop, pop, rock, caz, CCM ve OST dahil olmak üzere çeşitli türlerde notalarımız var ve en son şarkılarla hızlı bir şekilde güncelliyoruz."
+    },
+    "updates": {
+      "title": "Sürekli Güncellemeler",
+      "description": "Yıllarca süren operasyonlardan biriken verilere ve kullanıcı geri bildirimlerine dayanarak, yeni notalarla tutarlı bir şekilde güncelliyoruz."
+    }
+  },
+  "values": {
+    "title": "COPYDRUM'un Taahhüt Ettiği Değerler",
+    "accuracy": {
+      "label": "Doğruluk",
+      "description": "— Gerçek performansa dayalı hassas notasyon, pratik süresini azaltır."
+    },
+    "accessibility": {
+      "label": "Erişilebilirlik",
+      "description": "— Mobil ve tablet cihazlar için optimize edilmiş yüksek kaliteli PDF'ler sağlıyoruz."
+    },
+    "connectivity": {
+      "label": "Bağlantı",
+      "description": "— Davulcu topluluğuyla birlikte büyüyoruz ve ihtiyacınız olan içeriği hızlı bir şekilde sağlıyoruz."
+    }
+  },
+  "partner": {
+    "title": "Davulcular için Büyüme Ortağı",
+    "description": "COPYDRUM, davulcuların hayal ettiği sahneyi yaratmak için bir ortak olacaktır. En iyi notalar ve hizmetle yanınızda olmaya devam edeceğiz."
+  }
+}

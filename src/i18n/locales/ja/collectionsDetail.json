@@ -1,0 +1,72 @@
+{
+  "loading": "コレクションを読み込み中...",
+  "errors": {
+    "noCollectionInfo": "リクエストされたコレクション情報が利用できません。",
+    "collectionNotFound": "リクエストされたコレクションが見つかりませんでした。",
+    "loadError": "コレクション情報の読み込み中にエラーが発生しました。",
+    "collectionNotAvailable": "リクエストされた楽譜コレクションが存在しないか、無効化されています。"
+  },
+  "backToList": "コレクションに戻る",
+  "free": "無料",
+  "discount": "{{percentage}}% OFF",
+  "badge": "楽譜コレクション",
+  "includedSheets": {
+    "count": "収録楽譜",
+    "number": "{{count}}曲",
+    "title": "収録楽譜",
+    "description": "このコレクションに含まれるすべての楽譜を確認し、希望する楽譜を探すことができます。",
+    "empty": "このコレクションにはまだ楽譜が追加されていません。"
+  },
+  "sheet": {
+    "difficulty": "難易度 {{difficulty}}",
+    "free": "無料"
+  },
+  "purchase": {
+    "priceInfo": "コレクション価格情報",
+    "totalIndividual": "個別楽譜合計",
+    "noInfo": "情報なし",
+    "collectionPrice": "コレクション価格",
+    "buyNow": "今すぐ購入",
+    "buyCollection": "コレクションを購入",
+    "goToCart": "カートに移動",
+    "save": "{{amount}} お得！",
+    "processing": "処理中...",
+    "note": "コレクションは割引価格でのみ購入できます。",
+    "inactive": "このコレクションは現在無効です。管理者にお問い合わせください。",
+    "mobilePrice": "コレクション価格",
+    "mobileSave": "個別購入と比較して{{amount}}お得",
+    "mobileInactive": "このコレクションは現在無効です。"
+  },
+  "alerts": {
+    "noSheetInfo": "コレクションに含まれる楽譜情報が見つかりませんでした。",
+    "duplicatePurchase": "このコレクションに含まれる一部の楽譜はすでに購入済みのため、重複購入はできません。",
+    "duplicateList": "重複楽譜:",
+    "checkMyPage": "マイページの購入履歴をご確認ください。",
+    "insufficientCredit": "ドラムキャッシュ残高が不足しています。",
+    "currentBalance": "現在の残高: {{amount}}P",
+    "chargeCash": "ドラムキャッシュをチャージしてから再度お試しください。",
+    "purchaseSuccess": "購入が完了しました。マイページでコンテンツをご確認ください。",
+    "purchaseError": "購入中にエラーが発生しました。"
+  },
+  "navigation": {
+    "title": "他のページを探索",
+    "viewCategories": "楽譜カテゴリーを見る",
+    "eventSale": "イベントセール楽譜",
+    "customOrder": "カスタム注文お問い合わせ"
+  },
+  "purchaseDescription": "楽譜コレクション購入: {{title}}",
+  "sheetTitle": "楽譜",
+  "viewSheet": "楽譜を見る",
+  "difficulty": {
+    "beginner": "初級",
+    "intermediate": "中級",
+    "advanced": "上級"
+  },
+  "features": {
+    "title": "含まれる内容",
+    "allSheets": "すべての楽譜を割引価格で購入",
+    "highQuality": "高品質PDFフォーマット提供",
+    "instantDownload": "即時ダウンロード可能",
+    "lifetimeAccess": "永久保存可能"
+  }
+}

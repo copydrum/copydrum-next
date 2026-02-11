@@ -1,0 +1,233 @@
+{
+  "hero": {
+    "badge": "From search to download, all in one place",
+    "title": "COPYDRUM Search & Purchase Guide",
+    "description": "Find your desired drum sheet music quickly, purchase reasonably,<br />and download without any issues—all methods gathered in one place.<br />Check out the essential tips for efficient practice, from new users to existing members."
+  },
+  "sections": {
+    "firstPurchase": {
+      "title": "First Purchase in 3 Minutes",
+      "description": "A quick summary for first-time visitors. Follow the steps below to complete your first sheet music purchase right away.",
+      "steps": {
+        "account": {
+          "title": "1 min – Create Account",
+          "detail": "Quickly create an account through sign-up or social login.",
+          "highlight": "After login, cart and download menus will be activated."
+        },
+        "findSheet": {
+          "title": "1 min – Find Sheet Music",
+          "detail": "Enter the song title or artist name in the search box and select the sheet music you like."
+        },
+        "payment": {
+          "title": "1 min – Payment & Download",
+          "detail": "Add to cart, complete payment, and you can download the PDF sheet music immediately."
+        }
+      },
+      "cta": {
+        "register": "Sign Up Now",
+        "popular": "View Popular Sheets"
+      }
+    },
+    "effectiveSearch": {
+      "title": "Search Sheet Music Effectively",
+      "description": "If search results are too many or you can't find the song you want, try adjusting your search more precisely with the following methods.",
+      "steps": {
+        "keyword": {
+          "title": "Keyword Combination",
+          "detail": "Combining two or more words like song title + artist increases accuracy.",
+          "highlight": "Example: \"Spring Day drums\", \"BTS rock arrangement\""
+        },
+        "filter": {
+          "title": "Narrow with Filters",
+          "detail": "Select genre, price range, and difficulty level on the category page to filter only the sheet music you need."
+        },
+        "noResults": {
+          "title": "No Results Handling",
+          "detail": "Check spelling and try searching again with similar keywords."
+        }
+      },
+      "cta": {
+        "categories": "View Categories",
+        "freeSheets": "Check Free Sheets"
+      }
+    },
+    "chooseSheet": {
+      "title": "Choose the Right Sheet Music for You",
+      "description": "Compare difficulty level, arrangement style, and sheet music composition to select sheet music that matches your practice goals.",
+      "steps": {
+        "difficulty": {
+          "title": "Check Difficulty",
+          "detail": "Divided into beginner/intermediate/advanced, and you can check the required techniques in the detailed description.",
+          "highlight": "Beginner: Basic patterns, Intermediate: Includes fills, Advanced: Emphasizes speed and technique"
+        },
+        "preview": {
+          "title": "Use Preview",
+          "detail": "Check if it's the style you want through sample pages and demo videos."
+        },
+        "price": {
+          "title": "Compare Prices",
+          "detail": "You can make a more reasonable choice by comparing individual sheets, collections, and event sheets together."
+        }
+      },
+      "cta": {
+        "eventSale": "Browse Event Sheets",
+        "collections": "View Collections"
+      }
+    },
+    "purchaseProcess": {
+      "title": "Complete Purchase Process Guide",
+      "description": "Step-by-step guide to proceed without mistakes from cart to payment completion.",
+      "steps": {
+        "cart": {
+          "title": "Add to Cart",
+          "detail": "Click the cart button on the sheet music detail page to pay for multiple sheets at once.",
+          "highlight": "Promotion code can be entered at the top of the cart"
+        },
+        "paymentInfo": {
+          "title": "Check Payment Information",
+          "detail": "Be sure to check order details, discount application, and terms of service before payment."
+        },
+        "paymentMethod": {
+          "title": "Select Payment Method",
+          "detail": "Supports credit card, bank transfer, Kakao Pay, etc., and a notification email will be sent after payment completion."
+        }
+      },
+      "cta": {
+        "cart": "Go to Cart"
+      }
+    },
+    "download": {
+      "title": "Download Sheet Music",
+      "description": "Purchased sheet music can be downloaded immediately as PDF and can be downloaded again anytime.",
+      "steps": {
+        "immediate": {
+          "title": "Immediate Download",
+          "detail": "You can download the PDF file immediately from the purchase completion page right after purchase."
+        },
+        "redownload": {
+          "title": "Re-download from My Page",
+          "detail": "You can re-download already purchased sheet music from the purchase history in My Page.",
+          "highlight": "Purchased sheet music can be re-downloaded without limit."
+        },
+        "pdf": {
+          "title": "Use PDF",
+          "detail": "Provided as high-quality PDF files, you can practice directly on tablets or laptops, or print in your desired size."
+        }
+      },
+      "cta": {
+        "mypage": "Open My Page",
+        "orders": "Check Purchase History"
+      }
+    },
+    "discounts": {
+      "title": "Maximize Discounts and Benefits",
+      "description": "Create a richer practice environment by utilizing special event sales, sheet cash recharge bonuses, and custom order services.",
+      "steps": {
+        "event": {
+          "title": "Event Sheets",
+          "detail": "Check out sheet music offered at 100 won or discounted prices for a limited time in the special sale section.",
+          "highlight": "Event sheets are limited quantity/period, so check quickly!"
+        },
+        "cash": {
+          "title": "Sheet Cash Recharge",
+          "detail": "Additional bonuses are provided according to the recharge amount. If you plan to make bulk purchases, recharge in advance."
+        },
+        "customOrder": {
+          "title": "Compare Custom Orders",
+          "detail": "If you can't find the sheet music you're looking for, you can get an accurate arrangement through custom orders. Choose according to your budget and schedule."
+        }
+      },
+      "cta": {
+        "customOrder": "Apply for Custom Order",
+        "customOrders": "Check Ongoing Orders"
+      }
+    }
+  },
+  "searchTips": {
+    "title": "Search Tips Collection",
+    "items": {
+      "keyword": {
+        "title": "Recommended Keywords",
+        "description": "Searching with song title + artist increases accuracy."
+      },
+      "filter": {
+        "title": "Filter Combination",
+        "description": "Setting genre + difficulty + price range together leaves only the sheet music you need."
+      },
+      "noResults": {
+        "title": "No Search Results",
+        "description": "Check spelling again or search with similar genre/artist and then try custom orders."
+      }
+    }
+  },
+  "purchaseComparison": {
+    "title": "Purchase Method Comparison",
+    "regular": {
+      "title": "Regular Purchase",
+      "badge": "Recommended",
+      "items": [
+        "Immediate PDF download after payment",
+        "Save costs with event/free sheets",
+        "Wide selection of genres and difficulty levels"
+      ]
+    },
+    "custom": {
+      "title": "Custom Order",
+      "badge": "Customized",
+      "items": [
+        "Produce exactly the song and arrangement style you want",
+        "Production period 1-7 days, varies by difficulty",
+        "Proceed with payment after quote confirmation"
+      ]
+    }
+  },
+  "helpNeeded": {
+    "title": "Need More Help?",
+    "description": "Check frequently asked questions in customer support or request direct consultation through inquiry.",
+    "cta": {
+      "findSheets": "Find Sheet Music Now",
+      "eventSale": "View Ongoing Discount Sheets"
+    }
+  },
+  "terms": {
+    "title": "Terms of Service",
+    "content": [
+      "All customers using COPYDRUM services must respect copyright and use sheet music within the scope of personal practice purposes. Unauthorized distribution, reproduction, or sharing of purchased sheet music is subject to legal sanctions, and a separate license is required for commercial use.",
+      "Since downloads are provided immediately after payment, refunds may be limited after download completion due to the nature of digital content. Detailed policies related to service use, including payments, custom orders, and event benefits, are updated regularly through customer service announcements."
+    ]
+  },
+  "privacy": {
+    "title": "Privacy Policy Summary",
+    "content": [
+      "We collect minimal personal information such as email, name, and payment information for account registration, order processing, and customer support. This information is securely stored in a Supabase-based security environment. We do not use personal information for purposes other than providing services, and we strictly comply with prior consent procedures when sharing with third parties.",
+      "Customers can request to view, modify, or delete their personal information through the My Page or Customer Support, and such requests will be processed without delay. For inquiries regarding personal information protection, please contact us through Customer Support 1:1 inquiry or email."
+    ]
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

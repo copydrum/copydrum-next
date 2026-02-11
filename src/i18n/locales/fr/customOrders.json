@@ -1,0 +1,71 @@
+{
+  "title": "Historique des commandes personnalisées",
+  "nav": {
+    "home": "Accueil",
+    "categories": "Catégories de partitions",
+    "customOrder": "Commande personnalisée",
+    "customOrderHistory": "Historique des commandes personnalisées"
+  },
+  "loading": "Chargement...",
+  "empty": {
+    "message": "Aucun historique de commande personnalisée.",
+    "button": "Demander une commande personnalisée"
+  },
+  "status": {
+    "pending": {
+      "label": "En cours de devis",
+      "message": "Nous examinons votre demande et préparons un devis personnalisé."
+    },
+    "quoted": {
+      "label": "En attente de paiement",
+      "message": "Le devis est arrivé. Veuillez effectuer un dépôt pour le montant du devis pour commencer la production."
+    },
+    "payment_confirmed": {
+      "label": "Paiement confirmé",
+      "message": "Le paiement a été confirmé. Nous préparons selon l'ordre de production."
+    },
+    "in_progress": {
+      "label": "En cours",
+      "message": "Nos professionnels créent la partition. Nous vous informerons lorsqu'elle sera terminée."
+    },
+    "completed": {
+      "label": "Terminé",
+      "message": "La production de la partition est terminée. Veuillez télécharger le fichier PDF ci-dessous."
+    },
+    "cancelled": {
+      "label": "Annulé"
+    }
+  },
+  "order": {
+    "artist": "Artiste",
+    "applicationDate": "Date de demande",
+    "estimatedPrice": "Prix estimé",
+    "requirements": "Exigences",
+    "noRequirements": "Aucune exigence supplémentaire.",
+    "referenceVideo": "Vidéo de référence",
+    "adminReply": "Réponse de l'administrateur",
+    "replyDate": "Date de réponse",
+    "completedSheet": "Partition terminée",
+    "completedSheetFilename": "Partition terminée.pdf",
+    "sheetMusicSuffix": "Partition",
+    "download": "Télécharger",
+    "downloadCount": "Téléchargement",
+    "times": "fois",
+    "expiryDate": "Date d'expiration",
+    "recentUpdate": "Mise à jour récente",
+    "viewDetails": "Voir les détails",
+    "quote": "Devis",
+    "checkQuote": "Vérifier le devis",
+    "workCompleted": "Travail terminé"
+  },
+  "alerts": {
+    "downloadLimitExceeded": "Vous avez utilisé toutes les tentatives de téléchargement. Veuillez contacter le service client.",
+    "downloadExpired": "La période de téléchargement a expiré. Veuillez contacter le service client.",
+    "downloadSuccess": "Téléchargement de la partition terminé.",
+    "downloadFailed": "Le téléchargement a échoué. Veuillez réessayer."
+  },
+  "warnings": {
+    "downloadLimitExceeded": "Limite de téléchargement dépassée. Veuillez contacter le service client si vous avez besoin de téléchargements supplémentaires.",
+    "downloadPeriodExpired": "La période de téléchargement a expiré. Veuillez contacter le service client."
+  }
+}

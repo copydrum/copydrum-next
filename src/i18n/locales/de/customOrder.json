@@ -1,0 +1,101 @@
+{
+  "title": "Individuelle Schlagzeug-Notenblätter",
+  "description": {
+    "line1": "Suchen Sie nach einem bestimmten Song?",
+    "line2": "Unsere Profis werden für Sie hochwertige Schlagzeug-Notenblätter analysieren und erstellen.",
+    "line3": "Wir bieten individuelle Angebote basierend auf der Schwierigkeit und Struktur des Songs."
+  },
+  "login": {
+    "required": "Anmeldung erforderlich",
+    "description": "Bitte melden Sie sich an, um eine individuelle Bestellungsanfrage zu stellen.",
+    "button": "Anmelden"
+  },
+  "pricing": {
+    "title": "Preisinformationen",
+    "note": "* Der endgültige Preis wird nach Analyse der Schwierigkeit und Länge des Songs als individuelles Angebot bereitgestellt.",
+    "grades": {
+      "c": {
+        "name": "Klasse C",
+        "price": "$10+",
+        "description": "Allgemeine K-Pop-, Pop-, Adult-Contemporary-Songs unter 5 Minuten"
+      },
+      "b": {
+        "name": "Klasse B",
+        "price": "$30+",
+        "description": "Etwas höher als mittlere Schwierigkeit oder Songs über 5 Minuten"
+      },
+      "a": {
+        "name": "Klasse A",
+        "price": "$50+",
+        "description": "Songs mit fortgeschrittener Schwierigkeit"
+      }
+    }
+  },
+  "form": {
+    "title": "Formular für individuelle Bestellungsanfrage",
+    "applicantId": "Antragsteller-ID",
+    "applicantIdPlaceholder": "Angemeldete ID",
+    "songInfo": "Song-Informationen",
+    "songTitle": "Song-Titel",
+    "songTitlePlaceholder": "Geben Sie den Song-Titel ein, den Sie bestellen möchten",
+    "artist": "Künstler",
+    "artistPlaceholder": "Geben Sie den Künstlernamen ein",
+    "youtubeUrl": "YouTube-URL",
+    "youtubeUrlPlaceholder": "Geben Sie die YouTube-URL für die genaue Notenblatterstellung ein (optional)",
+    "youtubeUrlHint": "Bitte geben Sie eine YouTube-URL für die genaue Notenblatterstellung ein. (Optional)",
+    "memo": "Notiz",
+    "memoPlaceholder": "Geben Sie beliebige Notizen oder Memos ein (max. 500 Zeichen)",
+    "characters": "Zeichen",
+    "submit": "Individuelle Bestellungsanfrage senden",
+    "submitting": "Wird gesendet...",
+    "note": "Nach der Übermittlung können Sie den Fortschritt in Meine Seite \"Individuelle Bestellhistorie\" überprüfen und die Notenblätter nach Abschluss herunterladen."
+  },
+  "process": {
+    "title": "Prozess für individuelle Bestellung",
+    "steps": {
+      "request": {
+        "title": "Anfrage erhalten",
+        "description": "Ihre individuelle Bestellungsanfrage wird bei Übermittlung erhalten."
+      },
+      "quote": {
+        "title": "Angebot gesendet",
+        "description": "Wir analysieren den Song und stellen ein Angebot über Meine Seite bereit."
+      },
+      "payment": {
+        "title": "Zahlung bestätigt",
+        "description": "Nach Bestätigung des Angebots und der Zahlung beginnt die Produktion."
+      },
+      "completed": {
+        "title": "Abgeschlossen",
+        "description": "Laden Sie die fertigen Notenblätter von Meine Seite herunter."
+      }
+    }
+  },
+  "faq": {
+    "title": "Häufig gestellte Fragen",
+    "questions": {
+      "quote": {
+        "question": "Wie überprüfe ich das Angebot?",
+        "answer": "Sie können das Angebot in \"Individuelle Bestellhistorie\" in Meine Seite überprüfen. Wir stellen innerhalb von 24 Stunden nach Ihrer Anfrage ein Angebot bereit."
+      },
+      "production": {
+        "question": "Wie lange dauert die Produktion?",
+        "answer": "Im Allgemeinen dauert es 1-3 Tage nach Zahlungsbestätigung. Die Dauer kann je nach Schwierigkeit und Länge des Songs variieren, und wir stellen den genauen Zeitplan im Angebot bereit."
+      },
+      "payment": {
+        "question": "Welche Zahlungsmethoden sind verfügbar?",
+        "answer": "Derzeit ist nur Banküberweisung verfügbar. Wir stellen die Bankkontoinformationen zusammen mit dem Angebot bereit."
+      }
+    }
+  },
+  "errors": {
+    "loginRequired": "Anmeldung erforderlich.",
+    "submitError": "Beim Senden ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut."
+  },
+  "messages": {
+    "submitSuccess": "Individuelle Bestellungsanfrage wurde übermittelt. Sie können den Fortschritt in Meine Seite überprüfen."
+  },
+  "console": {
+    "submitError": "Fehler beim Senden der Bestellung:"
+  }
+}

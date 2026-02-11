@@ -1,0 +1,25 @@
+{
+  "title": "Informazioni partnership",
+  "description": "COPYDRUM offre il miglior contenuto a più batteristi attraverso partnership.",
+  "benefits": {
+    "title": "Vantaggi della partnership",
+    "exclusiveLicense": {
+      "title": "Licenza esclusiva spartiti",
+      "description": "Forniamo licenze personalizzate per l'uso in vari ambienti come spettacoli, lezioni e vendite."
+    },
+    "premiumSupport": {
+      "title": "Supporto premium",
+      "description": "Forniamo supporto dedicato per i partner inclusi richieste di nuovi spartiti, trascrizioni personalizzate e marketing congiunto."
+    },
+    "sharedGrowth": {
+      "title": "Crescita condivisa",
+      "description": "Espandiamo insieme la comunità dei batteristi attraverso progetti ed eventi congiunti."
+    }
+  },
+  "inquiry": {
+    "title": "Richiesta partnership",
+    "description": "Sei pronto a crescere insieme attraverso una partnership con COPYDRUM? Contattaci utilizzando le informazioni di seguito.",
+    "emailLabel": "Email",
+    "note": "Fornisci informazioni dettagliate nella tua richiesta per una risposta rapida dal nostro team."
+  }
+}

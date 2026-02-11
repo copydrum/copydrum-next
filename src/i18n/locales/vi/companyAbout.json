@@ -1,0 +1,49 @@
+{
+  "title": "Về COPYDRUM",
+  "intro": "Chúng tôi giới thiệu COPYDRUM, đã sản xuất và phục vụ những bản nhạc tốt nhất cho các tay trống chuyên nghiệp và những người đam mê trống từ năm 2010.",
+  "mission": {
+    "title": "Sứ mệnh của chúng tôi",
+    "description": "COPYDRUM nhằm giúp các tay trống có được cảm hứng âm nhạc và cải thiện hiệu suất của họ thông qua các bản nhạc đáng tin cậy có sẵn bất cứ lúc nào, bất cứ nơi đâu. Chúng tôi cung cấp cho tất cả các tay trống những tài nguyên họ cần thông qua ký hiệu chính xác, PDF chất lượng cao và các bản phối thực tế."
+  },
+  "expertise": {
+    "title": "Hơn 10 năm kinh nghiệm",
+    "description": "COPYDRUM, hoạt động từ năm 2010, đã phát triển cùng với nhiều tay trống trong và ngoài nước. Với nhiều năm kinh nghiệm và chuyên môn ký hiệu tích lũy, chúng tôi cung cấp bản nhạc cho người chơi ở mọi cấp độ, từ người mới bắt đầu đến nhạc sĩ chuyên nghiệp."
+  },
+  "network": {
+    "title": "Mở rộng mạng lưới toàn cầu",
+    "description": "COPYDRUM đã cung cấp bản nhạc cho các tay trống trên toàn thế giới, bao gồm châu Á, Bắc Mỹ và châu Âu, xây dựng một mạng lưới toàn cầu. Chúng tôi đang phát triển thành một nền tảng bản nhạc toàn cầu được tin tưởng và tìm kiếm bởi các tay trống thuộc nhiều thể loại và phong cách khác nhau."
+  },
+  "features": {
+    "notationTeam": {
+      "title": "Đội ngũ ký hiệu chuyên nghiệp",
+      "description": "Đội ngũ ký hiệu chuyên nghiệp của chúng tôi với hơn 10 năm kinh nghiệm và các tay trống đang hoạt động trực tiếp xem xét và cung cấp bản nhạc chất lượng cao."
+    },
+    "genres": {
+      "title": "Nhiều thể loại",
+      "description": "Chúng tôi có bản nhạc cho nhiều thể loại bao gồm K-pop, pop, rock, jazz, CCM và OST, và chúng tôi cập nhật nhanh chóng với những bài hát mới nhất."
+    },
+    "updates": {
+      "title": "Cập nhật liên tục",
+      "description": "Dựa trên dữ liệu tích lũy qua nhiều năm hoạt động và phản hồi của người dùng, chúng tôi liên tục cập nhật với bản nhạc mới."
+    }
+  },
+  "values": {
+    "title": "Giá trị COPYDRUM cam kết",
+    "accuracy": {
+      "label": "Độ chính xác",
+      "description": "— Ký hiệu chính xác dựa trên hiệu suất thực tế giảm thời gian luyện tập."
+    },
+    "accessibility": {
+      "label": "Khả năng tiếp cận",
+      "description": "— Chúng tôi cung cấp PDF chất lượng cao được tối ưu hóa cho thiết bị di động và máy tính bảng."
+    },
+    "connectivity": {
+      "label": "Kết nối",
+      "description": "— Chúng tôi phát triển cùng với cộng đồng tay trống và nhanh chóng cung cấp nội dung bạn cần."
+    }
+  },
+  "partner": {
+    "title": "Đối tác phát triển cho các tay trống",
+    "description": "COPYDRUM sẽ là đối tác trong việc tạo ra sân khấu mà các tay trống mơ ước. Chúng tôi sẽ tiếp tục đồng hành cùng bạn với bản nhạc và dịch vụ tốt nhất."
+  }
+}

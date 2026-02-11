@@ -1,0 +1,287 @@
+{
+  "title": "マイページ",
+  "subtitle": "楽譜購入からカスタム注文まで、すべての活動を一目で確認できます。",
+  "tabs": {
+    "profile": {
+      "label": "プロフィール管理",
+      "description": "個人情報と連絡先を管理します。"
+    },
+    "purchases": {
+      "label": "購入履歴",
+      "description": "購入した楽譜の注文情報を確認します。"
+    },
+    "downloads": {
+      "label": "ダウンロード管理",
+      "description": "購入した楽譜をダウンロード・プレビューします。"
+    },
+    "favorites": {
+      "label": "お気に入り楽譜",
+      "description": "お気に入りの楽譜を確認します。"
+    },
+    "cash": {
+      "label": "ドラムキャッシュ履歴",
+      "description": "ドラムキャッシュ残高と使用履歴を確認します。"
+    },
+    "inquiries": {
+      "label": "1:1 お問い合わせ",
+      "description": "お問い合わせと回答を確認します。"
+    },
+    "customOrders": {
+      "label": "カスタム注文",
+      "description": "カスタム注文の依頼状況を確認します。"
+    }
+  },
+  "stats": {
+    "purchasedSheets": "購入楽譜",
+    "availableDownloads": "ダウンロード可能",
+    "favoriteSheets": "お気に入り",
+    "inquiries": "1:1 お問い合わせ",
+    "customOrders": "カスタム注文"
+  },
+  "profile": {
+    "title": "プロフィール管理",
+    "memberInfo": "会員情報",
+    "nameNotSet": "名前未設定",
+    "joinedOn": "加入日",
+    "cashBalance": "保有ドラムキャッシュ",
+    "cashBalanceDescription": "次回の楽譜購入に使用できます。",
+    "chargeCash": "ドラムキャッシュチャージ",
+    "email": "メールアドレス",
+    "name": "お名前",
+    "namePlaceholder": "お名前を入力",
+    "phoneNumber": "電話番号",
+    "phonePlaceholder": "電話番号を入力",
+    "joinDate": "加入日",
+    "saving": "保存中...",
+    "updateProfile": "プロフィール更新"
+  },
+  "purchases": {
+    "title": "購入履歴",
+    "description": "最新の注文順に表示されます。",
+    "browseMore": "もっと楽譜を探す",
+    "noPurchases": "購入した楽譜がまだありません。",
+    "orderNumber": "注文番号",
+    "total": "合計",
+    "downloadAllInOrder": "この注文の全ファイルをダウンロード",
+    "downloading": "ダウンロード中...",
+    "selectAll": "全選択",
+    "deselectAll": "全選択解除",
+    "selected": "選択済み",
+    "downloadSelected": "選択したファイルをダウンロード",
+    "download": "ダウンロード",
+    "viewDetails": "詳細を見る",
+    "categoryNotSet": "カテゴリー未設定",
+    "deletedSheet": "削除された楽譜"
+  },
+  "downloads": {
+    "title": "ダウンロード管理",
+    "description": "購入した楽譜はいつでも再ダウンロードできます。",
+    "totalItems": "全 {{count}} 件",
+    "selectedItems": "選択 {{count}} 件",
+    "selectAll": "全選択",
+    "deselectAll": "全選択解除",
+    "downloadSelected": "選択ダウンロード",
+    "downloadAll": "すべてダウンロード",
+    "downloading": "ダウンロード中...",
+    "noDownloads": "ダウンロード可能な楽譜がありません。",
+    "purchaseDate": "購入日",
+    "preview": "プレビュー",
+    "downloadUnavailable": "ダウンロード不可"
+  },
+  "favorites": {
+    "title": "お気に入り楽譜",
+    "description": "お気に入りの楽譜をすぐに見つけられます。",
+    "totalCount": "全 {{count}} 件",
+    "noFavorites": "お気に入りの楽譜がまだありません。",
+    "addFavorites": "お気に入りの楽譜を追加してみましょう！",
+    "viewDetails": "詳細を見る",
+    "inCart": "カート内",
+    "cart": "カートに追加",
+    "removeFavorite": "お気に入り削除",
+    "deletedSheet": "削除された楽譜"
+  },
+  "inquiries": {
+    "title": "1:1 お問い合わせ",
+    "description": "お問い合わせを送信し、マイページで管理者の回答を直接確認できます。",
+    "name": "お名前",
+    "namePlaceholder": "お名前を入力",
+    "email": "メールアドレス",
+    "emailPlaceholder": "連絡先メールアドレスを入力",
+    "category": "お問い合わせ種類",
+    "categoryPlaceholder": "種類を選択",
+    "categories": {
+      "orderPayment": "注文/決済に関するお問い合わせ",
+      "sheetDownload": "楽譜/ダウンロードに関するお問い合わせ",
+      "customOrder": "カスタム注文に関するお問い合わせ",
+      "technical": "技術サポート",
+      "other": "その他のお問い合わせ"
+    },
+    "subject": "件名",
+    "subjectPlaceholder": "お問い合わせ件名を入力",
+    "message": "内容",
+    "messagePlaceholder": "お問い合わせ内容を詳しく記入してください（最大500文字）",
+    "characters": "文字",
+    "submitting": "送信中...",
+    "submit": "お問い合わせ送信",
+    "history": {
+      "title": "お問い合わせ履歴",
+      "description": "送信したお問い合わせと管理者の回答を確認します。",
+      "total": "全 {{count}} 件のお問い合わせ",
+      "loading": "お問い合わせ履歴を読み込み中...",
+      "noInquiries": "まだお問い合わせが送信されていません。",
+      "noInquiriesDescription": "ご質問がございましたら、上記のフォームからお問い合わせをお送りください。",
+      "category": "お問い合わせ",
+      "received": "受付日時",
+      "adminReply": "管理者からの回答",
+      "replied": "回答日時",
+      "preparing": "回答を準備中です。確認後、ご連絡いたします。"
+    }
+  },
+  "cash": {
+    "title": "ドラムキャッシュ履歴",
+    "description": "ドラムキャッシュ残高と使用履歴を確認します。",
+    "chargeCash": "ドラムキャッシュチャージ",
+    "availableCash": "保有ドラムキャッシュ",
+    "loadingHistory": "ドラムキャッシュ履歴を読み込み中...",
+    "noHistory": "表示するドラムキャッシュ履歴がありません。",
+    "noHistoryDescription": "ドラムキャッシュのチャージや使用時に、ここに取引履歴が記録されます。",
+    "types": {
+      "charge": "ドラムキャッシュチャージ",
+      "use": "ドラムキャッシュ使用",
+      "adminAdd": "管理者追加",
+      "adminDeduct": "管理者差引",
+      "record": "履歴"
+    },
+    "bonus": "ボーナス",
+    "balance": "残高",
+    "sheet": "楽譜",
+    "noDescription": "説明が記録されていません。"
+  },
+  "customOrders": {
+    "title": "カスタム注文履歴",
+    "description": "カスタム注文の依頼状況を確認します。",
+    "newOrderRequest": "新規注文依頼",
+    "noOrders": "カスタム注文履歴がありません。",
+    "serviceDescription": "カスタム注文サービスを利用して、特別な楽譜を作成しましょう。",
+    "requestDate": "依頼日",
+    "lastUpdate": "最終更新",
+    "viewDetails": "詳細を見る",
+    "quoteConfirm": "見積確認",
+    "workCompleted": "制作完了",
+    "quotePending": "見積待機中"
+  },
+  "status": {
+    "order": {
+      "completed": "完了",
+      "pending": "待機中",
+      "cancelled": "キャンセル",
+      "refunded": "返金済み",
+      "undetermined": "未確定"
+    },
+    "customOrder": {
+      "pending": "見積待機中",
+      "quoted": "決済待機",
+      "paymentConfirmed": "入金確認済み",
+      "inProgress": "制作中",
+      "completed": "完了",
+      "cancelled": "キャンセル",
+      "undetermined": "未確定"
+    },
+    "inquiry": {
+      "pending": "回答待機中",
+      "answered": "回答完了",
+      "processing": "処理中"
+    }
+  },
+  "cashCharge": {
+    "title": "ドラムキャッシュチャージ",
+    "currentCash": "現在のドラムキャッシュ残高",
+    "paymentAmount": "決済金額",
+    "bankTransferInfo": {
+      "title": "銀行振込情報",
+      "bank": "銀行",
+      "accountNumber": "口座番号",
+      "accountHolder": "口座名義",
+      "amount": "振込金額",
+      "depositorName": "振込人名"
+    },
+    "depositorName": "振込人名",
+    "depositorNamePlaceholder": "振込人名を入力",
+    "depositorNameHint": "* 振込人名が会員名と異なる場合は、振込人名を入力してください。",
+    "bankTransferNotice": {
+      "title": "銀行振込に関する注意事項",
+      "line1": "• 入金確認後、管理者が手動でドラムキャッシュをチャージします。",
+      "line2": "• 振込人名が一致しない場合、確認が遅れることがあります。",
+      "line3": "• 入金確認には営業日で1〜2日かかる場合があります。"
+    },
+    "back": "戻る",
+    "confirm": "確認",
+    "processing": "処理中...",
+    "paymentMethod": "決済手段",
+    "paymentAmountTitle": "決済金額",
+    "agreement": "決済内容を確認し、約款に同意します。",
+    "next": "次へ",
+    "bankTransferGuide": {
+      "title": "銀行振込ガイド",
+      "bank": "銀行",
+      "accountNumber": "口座番号",
+      "accountHolder": "口座名義",
+      "amount": "振込金額"
+    }
+  },
+  "guest": {
+    "title": "ログインが必要です",
+    "description": "マイページの機能（購入履歴、ダウンロード、お気に入り楽譜など）を利用するにはログインしてください。",
+    "login": "ログインページへ",
+    "signup": "新規登録"
+  },
+  "loading": {
+    "message": "マイページデータを読み込み中..."
+  },
+  "errors": {
+    "loginRequired": "ログインが必要です。",
+    "agreementRequired": "決済約款に同意してください。",
+    "amountNotFound": "選択したチャージ金額が見つかりませんでした。",
+    "paymentMethodNotReady": "この決済方法は現在準備中です。",
+    "paymentWindowOpen": "決済ウィンドウが開きます。決済を完了してください。",
+    "paymentError": "決済処理中にエラーが発生しました。",
+    "depositorNameRequired": "振込人名を入力してください。",
+    "orderReceived": "注文を受け付けました。\\n入金確認後、管理者がドラムキャッシュをチャージします。",
+    "allFieldsRequired": "すべての項目を入力してください。",
+    "inquirySubmitted": "お問い合わせが送信されました。できるだけ早く回答いたします。",
+    "inquiryError": "お問い合わせ送信中にエラーが発生しました。もう一度お試しください。",
+    "profileUpdated": "プロフィール情報が更新されました。",
+    "profileUpdateError": "プロフィールの更新に失敗しました。後でもう一度お試しください。",
+    "downloadRestricted": "この注文は返金済み、またはダウンロードが制限されています。",
+    "selectDownloadItems": "ダウンロードする楽譜を選択してください。",
+    "noDownloadableItems": "ダウンロード可能な楽譜がありません。",
+    "downloadRestrictedMultiple": "返金済みまたは制限された楽譜はダウンロードできません。",
+    "loginRequiredForDownload": "ログインが必要です。再度ログインしてください。",
+    "downloadFailed": "{{count}}個のファイルのダウンロードに失敗しました。後でもう一度お試しください。",
+    "downloadFailedSingle": "ファイルのダウンロードに失敗しました。後でもう一度お試しください。",
+    "previewNotFound": "プレビューファイルが見つかりません。",
+    "favoriteRemoveFailed": "お気に入りからの削除に失敗しました。",
+    "sheetInfoNotFound": "ダウンロード可能な楽譜情報が見つかりません。",
+    "downloadLinkNotFound": "ダウンロードリンクが見つかりません。管理者にお問い合わせください。"
+  },
+  "console": {
+    "cashHistoryError": "ドラムキャッシュ履歴読み込みエラー:",
+    "inquiryHistoryError": "お問い合わせ履歴読み込みエラー:",
+    "profileLoadError": "プロフィール読み込みエラー:",
+    "orderHistoryError": "注文履歴読み込みエラー:",
+    "favoritesLoadError": "お気に入り読み込みエラー:",
+    "customOrderHistoryError": "カスタム注文履歴読み込みエラー:",
+    "initError": "マイページ初期化エラー:",
+    "cashChargeError": "ドラムキャッシュチャージエラー:",
+    "inquirySubmitError": "お問い合わせ送信エラー:",
+    "profileUpdateError": "プロフィール更新エラー:",
+    "favoriteRemoveError": "お気に入り削除エラー:"
+  },
+  "paymentMethods": {
+    "creditCard": "クレジットカード",
+    "kakaoPay": "Kakao Pay",
+    "bankTransfer": "銀行振込",
+    "preparing": "準備中"
+  },
+  "cart": "カート"
+}

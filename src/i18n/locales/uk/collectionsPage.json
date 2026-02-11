@@ -1,0 +1,21 @@
+{
+  "loading": "Завантаження...",
+  "title": "Колекції нот",
+  "subtitle": "Відкрийте наші спеціально підібрані колекції нот для барабанів за темою.",
+  "filter": {
+    "all": "Всі"
+  },
+  "empty": {
+    "noCollections": "Колекції не зареєстровані.",
+    "noCollectionsForCategory": "Для вибраного жанру немає доступних колекцій."
+  },
+  "collection": {
+    "badge": "Колекція",
+    "discount": "Знижка {{percentage}}%",
+    "free": "Безкоштовно",
+    "songs": "{{count}} пісень"
+  },
+  "pagination": {
+    "pageInfo": "{{current}} / {{total}}"
+  }
+}

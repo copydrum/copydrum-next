@@ -1,0 +1,52 @@
+{
+  "title": "Registrazione",
+  "hasAccount": "Hai già un account?",
+  "signIn": "Accedi",
+  "form": {
+    "name": "Nome",
+    "namePlaceholder": "Inserisci il tuo nome",
+    "email": "Indirizzo email",
+    "emailPlaceholder": "Inserisci la tua email",
+    "password": "Password",
+    "passwordPlaceholder": "Inserisci la tua password (minimo 8 caratteri)",
+    "passwordHint": "Minimo 8 caratteri, lettere, numeri e caratteri speciali",
+    "confirmPassword": "Conferma password",
+    "confirmPasswordPlaceholder": "Reinserisci la tua password",
+    "agreeTerms": "Accetto i Termini di servizio",
+    "viewTerms": "(Visualizza)",
+    "agreePrivacy": "Accetto l'Informativa sulla privacy",
+    "viewPrivacy": "(Visualizza)",
+    "agreeMarketing": "Accetto di ricevere informazioni di marketing (Opzionale)",
+    "submit": "Registrati",
+    "submitting": "Registrazione in corso..."
+  },
+  "divider": "oppure",
+  "social": {
+    "google": "Google",
+    "kakao": "Kakao"
+  },
+  "errors": {
+    "passwordMismatch": "Le password non corrispondono.",
+    "passwordTooShort": "La password deve essere di almeno 8 caratteri.",
+    "termsRequired": "Accetta i termini richiesti.",
+    "profileCreationFailed": "Impossibile creare il profilo. Riprova.",
+    "emailAlreadyRegistered": "Questa email è già registrata.",
+    "invalidEmail": "Inserisci un indirizzo email valido.",
+    "signUpFailed": "Registrazione fallita. Riprova.",
+    "kakaoLoginFailed": "Accesso Kakao fallito. Riprova.",
+    "googleLoginFailed": "Accesso Google fallito. Riprova."
+  },
+  "messages": {
+    "signUpSuccess": "Registrazione completata! Controlla la tua email e accedi."
+  },
+  "console": {
+    "kakaoLoginError": "Errore di accesso Kakao:",
+    "googleLoginError": "Errore di accesso Google:",
+    "profileError": "Errore nella creazione/aggiornamento del profilo:",
+    "rollbackFunctionError": "Errore nella chiamata della funzione di rollback:",
+    "rollbackComplete": "Rollback della registrazione completato",
+    "rollbackError": "Errore durante il rollback:",
+    "profileSuccess": "Profilo creato/aggiornato con successo",
+    "signUpError": "Errore di registrazione:"
+  }
+}

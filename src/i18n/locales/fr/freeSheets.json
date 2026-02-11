@@ -1,0 +1,79 @@
+{
+  "badge": "COURS DE BATTERIE GRATUITS",
+  "title": "Partitions de cours de batterie gratuites",
+  "description": "Explorez toutes les partitions de la catégorie cours de batterie gratuitement ! Pratiquez avec les cours YouTube pour améliorer vos compétences plus rapidement. Choisissez parmi divers sujets d'apprentissage tels que les techniques de batterie, les rudiments, les solos de batterie, et plus encore.",
+  "features": {
+    "freeDownload": "Téléchargement complet gratuit",
+    "categoryLearning": "Apprentissage par catégorie",
+    "youtubeLesson": "Liens vers les cours YouTube"
+  },
+  "categories": {
+    "all": "Tout",
+    "drumTechnique": "Technique de batterie",
+    "rudiment": "Rudiment",
+    "drumSolo": "Solo de batterie",
+    "beginnerBasics": "Débutant/Bases",
+    "rhythmPattern": "Motif rythmique",
+    "fillIn": "Fill-in",
+    "drumLesson": "Cours de batterie",
+    "categoryPending": "Catégorie en attente"
+  },
+  "search": {
+    "placeholder": "Rechercher par titre, artiste ou tag"
+  },
+  "sort": {
+    "label": "Trier",
+    "latest": "Plus récent",
+    "title": "Titre",
+    "difficulty": "Difficulté"
+  },
+  "difficulty": {
+    "beginner": "Débutant",
+    "intermediate": "Intermédiaire",
+    "advanced": "Avancé",
+    "notAvailable": "Difficulté non disponible"
+  },
+  "loading": "Chargement des partitions de cours de batterie gratuites...",
+  "empty": {
+    "title": "Aucune partition gratuite ne correspond à vos critères.",
+    "description": "Essayez de sélectionner une catégorie différente ou de changer votre terme de recherche."
+  },
+  "actions": {
+    "viewFreeSheet": "Voir la partition gratuite",
+    "viewYoutubeLesson": "Voir le cours YouTube",
+    "goToDetail": "Aller à la page de détails",
+    "closeDetail": "Fermer les détails de la partition gratuite"
+  },
+  "errors": {
+    "lessonCategoryLoadError": "Échec du chargement de la catégorie de cours de batterie. Veuillez réessayer plus tard.",
+    "lessonCategoryNotFound": "La catégorie de cours de batterie n'existe pas. Veuillez contacter l'administrateur.",
+    "sheetsLoadError": "Échec du chargement des partitions de cours de batterie gratuites. Veuillez réessayer plus tard.",
+    "generalError": "Une erreur s'est produite lors du chargement des partitions de cours de batterie gratuites.",
+    "loginRequired": "Connexion requise.",
+    "favoriteError": "Une erreur s'est produite lors du traitement des favoris. Veuillez réessayer plus tard.",
+    "pdfNotReady": "Le lien PDF n'est pas prêt.",
+    "youtubeNotAvailable": "Aucune vidéo YouTube n'est enregistrée."
+  },
+  "mobile": {
+    "freeSheet": "Partition gratuite",
+    "upload": "Téléchargement",
+    "pages": "pages",
+    "youtubeLessonIncluded": "Cours YouTube inclus",
+    "freeDownload": "Téléchargement gratuit",
+    "practiceWithPdf": "Pratiquez avec la partition PDF.",
+    "favorite": "Favori",
+    "unfavorite": "Retirer des favoris"
+  },
+  "console": {
+    "lessonCategoryError": "Erreur de recherche de catégorie de cours de batterie :",
+    "primarySheetsError": "Erreur de chargement des partitions de cours de batterie principales :",
+    "relationsError": "Erreur de chargement des relations de catégorie de cours de batterie :",
+    "additionalSheetsError": "Erreur de chargement des partitions de cours de batterie supplémentaires :",
+    "extraCategoriesError": "Erreur de chargement des catégories supplémentaires :",
+    "generalError": "Erreur de traitement de la page des partitions gratuites :",
+    "favoritesLoadError": "Erreur de chargement des favoris :",
+    "favoriteToggleError": "Erreur de basculement des favoris :",
+    "userLoadError": "Échec du chargement des informations utilisateur :",
+    "youtubeUrlParseError": "Échec de l'analyse de l'URL YouTube :"
+  }
+}

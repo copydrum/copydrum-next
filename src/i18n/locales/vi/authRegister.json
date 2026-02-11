@@ -1,0 +1,52 @@
+{
+  "title": "Đăng ký",
+  "hasAccount": "Đã có tài khoản?",
+  "signIn": "Đăng nhập",
+  "form": {
+    "name": "Tên",
+    "namePlaceholder": "Nhập tên của bạn",
+    "email": "Địa chỉ Email",
+    "emailPlaceholder": "Nhập email của bạn",
+    "password": "Mật khẩu",
+    "passwordPlaceholder": "Nhập mật khẩu của bạn (8+ ký tự)",
+    "passwordHint": "8+ ký tự, chữ cái, số và ký tự đặc biệt",
+    "confirmPassword": "Xác nhận mật khẩu",
+    "confirmPasswordPlaceholder": "Nhập lại mật khẩu của bạn",
+    "agreeTerms": "Tôi đồng ý với Điều khoản Dịch vụ",
+    "viewTerms": "(Xem)",
+    "agreePrivacy": "Tôi đồng ý với Chính sách Bảo mật",
+    "viewPrivacy": "(Xem)",
+    "agreeMarketing": "Tôi đồng ý nhận thông tin tiếp thị (Tùy chọn)",
+    "submit": "Đăng ký",
+    "submitting": "Đang đăng ký..."
+  },
+  "divider": "hoặc",
+  "social": {
+    "google": "Google",
+    "kakao": "Kakao"
+  },
+  "errors": {
+    "passwordMismatch": "Mật khẩu không khớp.",
+    "passwordTooShort": "Mật khẩu phải có ít nhất 8 ký tự.",
+    "termsRequired": "Vui lòng đồng ý với các điều khoản bắt buộc.",
+    "profileCreationFailed": "Không thể tạo hồ sơ. Vui lòng thử lại.",
+    "emailAlreadyRegistered": "Email này đã được đăng ký.",
+    "invalidEmail": "Vui lòng nhập địa chỉ email hợp lệ.",
+    "signUpFailed": "Đăng ký thất bại. Vui lòng thử lại.",
+    "kakaoLoginFailed": "Đăng nhập Kakao thất bại. Vui lòng thử lại.",
+    "googleLoginFailed": "Đăng nhập Google thất bại. Vui lòng thử lại."
+  },
+  "messages": {
+    "signUpSuccess": "Đăng ký hoàn tất! Vui lòng kiểm tra email và đăng nhập."
+  },
+  "console": {
+    "kakaoLoginError": "Lỗi đăng nhập Kakao:",
+    "googleLoginError": "Lỗi đăng nhập Google:",
+    "profileError": "Lỗi tạo/cập nhật hồ sơ:",
+    "rollbackFunctionError": "Lỗi gọi hàm rollback:",
+    "rollbackComplete": "Rollback đăng ký hoàn tất",
+    "rollbackError": "Lỗi trong quá trình rollback:",
+    "profileSuccess": "Hồ sơ đã được tạo/cập nhật thành công",
+    "signUpError": "Lỗi đăng ký:"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "title": "Informations sur le partenariat",
+  "description": "COPYDRUM livre le meilleur contenu à plus de batteurs grâce aux partenariats.",
+  "benefits": {
+    "title": "Avantages du partenariat",
+    "exclusiveLicense": {
+      "title": "Licence de partition exclusive",
+      "description": "Nous fournissons des licences personnalisées pour une utilisation dans divers environnements tels que les performances, les cours et les ventes."
+    },
+    "premiumSupport": {
+      "title": "Support premium",
+      "description": "Nous fournissons un support dédié pour les partenaires, notamment les demandes de nouvelles partitions, les transcriptions personnalisées et le marketing conjoint."
+    },
+    "sharedGrowth": {
+      "title": "Croissance partagée",
+      "description": "Nous développons ensemble la communauté des batteurs grâce à des projets et événements conjoints."
+    }
+  },
+  "inquiry": {
+    "title": "Demande de partenariat",
+    "description": "Êtes-vous prêt à grandir ensemble grâce à un partenariat avec COPYDRUM ? Veuillez nous contacter en utilisant les informations ci-dessous.",
+    "emailLabel": "E-mail",
+    "note": "Veuillez fournir des informations détaillées dans votre demande pour une réponse rapide de notre équipe."
+  }
+}

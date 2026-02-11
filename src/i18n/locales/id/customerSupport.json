@@ -1,0 +1,119 @@
+{
+  "title": "Dukungan Pelanggan",
+  "subtitle": "Jika Anda memiliki pertanyaan, silakan hubungi kami kapan saja. Kami akan memberikan jawaban yang cepat dan akurat.",
+  "tabs": {
+    "faq": "FAQ",
+    "contact": "Hubungi Kami"
+  },
+  "contact": {
+    "title": "Hubungi Kami",
+    "description": "Jika Anda memiliki pertanyaan atau masalah, silakan isi formulir di bawah ini. Kami akan merespons secepat mungkin.",
+    "form": {
+      "name": "Nama",
+      "namePlaceholder": "Masukkan nama Anda",
+      "email": "Email",
+      "emailPlaceholder": "Masukkan email Anda",
+      "inquiryType": "Jenis Pertanyaan",
+      "inquiryTypePlaceholder": "Pilih jenis pertanyaan",
+      "subject": "Subjek",
+      "subjectPlaceholder": "Masukkan subjek pertanyaan",
+      "message": "Pesan",
+      "messagePlaceholder": "Silakan tulis pertanyaan Anda secara detail (maks 500 karakter)",
+      "characters": "karakter",
+      "submit": "Kirim Pertanyaan",
+      "submitting": "Mengirim...",
+      "note": "Kami akan merespons pertanyaan Anda dalam 24 jam pada hari kerja."
+    },
+    "categories": {
+      "orderPayment": "Pertanyaan Pesanan/Pembayaran",
+      "sheetDownload": "Pertanyaan Lembaran Musik/Unduhan",
+      "customOrder": "Pertanyaan Pesanan Kustom",
+      "technical": "Dukungan Teknis",
+      "other": "Pertanyaan Lainnya"
+    }
+  },
+  "contactInfo": {
+    "title": "Informasi Kontak",
+    "subtitle": "Anda dapat menghubungi kami melalui berbagai metode",
+    "email": {
+      "title": "Pertanyaan Email",
+      "address": "copydrum@hanmail.net",
+      "description": "Penerimaan 24/7, respons dalam 1 hari"
+    },
+    "kakao": {
+      "title": "Konsultasi KakaoTalk",
+      "description": "Anda dapat menggunakan konsultasi chat real-time.",
+      "button": "Buka Chat KakaoTalk"
+    },
+    "hours": {
+      "title": "Jam Operasional",
+      "weekdays": "Hari kerja 09:00 - 17:00",
+      "closed": "Tutup pada akhir pekan dan hari libur"
+    }
+  },
+  "faq": {
+    "categories": {
+      "orderPayment": {
+        "name": "Pesanan/Pembayaran",
+        "items": {
+          "download": {
+            "question": "Kapan saya bisa mengunduh lembaran musik setelah pembelian?",
+            "answer": "Anda dapat mengunduh segera setelah pembayaran selesai dari Halaman Saya. Lembaran musik yang dibeli dapat diunduh ulang kapan saja."
+          },
+          "payment": {
+            "question": "Metode pembayaran apa yang tersedia?",
+            "answer": "Kami mendukung kartu kredit, kartu debit, transfer bank, dan metode pembayaran yang nyaman (Kakao Pay)."
+          },
+          "refund": {
+            "question": "Bagaimana saya bisa mendapatkan pengembalian dana?",
+            "answer": "Karena sifat produk digital, pengembalian dana hanya tersedia sebelum unduhan. Pengembalian dana sulit setelah unduhan, jadi silakan beli dengan hati-hati."
+          }
+        }
+      },
+      "sheetDownload": {
+        "name": "Lembaran Musik/Unduhan",
+        "items": {
+          "format": {
+            "question": "Format file apa yang digunakan untuk file lembaran musik?",
+            "answer": "Semua lembaran musik disediakan dalam format PDF berkualitas tinggi. Dioptimalkan untuk pencetakan dan perangkat digital."
+          },
+          "print": {
+            "question": "Bisakah saya mencetak lembaran musik yang diunduh?",
+            "answer": "Ya, Anda dapat mencetak untuk penggunaan latihan pribadi. Namun, penggunaan komersial atau redistribusi dilarang."
+          },
+          "difficulty": {
+            "question": "Bagaimana tingkat kesulitan diklasifikasikan?",
+            "answer": "Mereka diklasifikasikan sebagai Pemula (pola dasar), Menengah (termasuk pola variasi), dan Lanjutan (termasuk teknik kompleks)."
+          }
+        }
+      },
+      "customOrder": {
+        "name": "Pesanan Kustom",
+        "items": {
+          "what": {
+            "question": "Apa itu layanan pesanan kustom?",
+            "answer": "Ini adalah layanan yang disesuaikan di mana profesional membuat lembaran musik drum untuk lagu yang Anda inginkan."
+          },
+          "duration": {
+            "question": "Berapa lama produksi berlangsung?",
+            "answer": "Biasanya memakan waktu 1-7 hari tergantung pada kompleksitas lagu. Jadwal pasti akan diberikan secara individual setelah aplikasi."
+          },
+          "cost": {
+            "question": "Bagaimana biaya produksi ditentukan?",
+            "answer": "Kami memberikan penawaran dengan mempertimbangkan panjang lagu, kompleksitas, dan tingkat kesulitan secara komprehensif."
+          }
+        }
+      }
+    }
+  },
+  "errors": {
+    "fillAllFields": "Silakan isi semua bidang.",
+    "submitError": "Terjadi kesalahan saat mengirim pertanyaan Anda. Silakan coba lagi."
+  },
+  "messages": {
+    "submitSuccess": "Pertanyaan Anda telah berhasil dikirim. Kami akan merespons secepat mungkin."
+  },
+  "console": {
+    "inquiryError": "고객 문의 저장 실패:"
+  }
+}

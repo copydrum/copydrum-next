@@ -1,0 +1,119 @@
+{
+  "title": "Hỗ trợ khách hàng",
+  "subtitle": "Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi bất cứ lúc nào. Chúng tôi sẽ cung cấp câu trả lời nhanh chóng và chính xác.",
+  "tabs": {
+    "faq": "Câu hỏi thường gặp",
+    "contact": "Liên hệ với chúng tôi"
+  },
+  "contact": {
+    "title": "Liên hệ với chúng tôi",
+    "description": "Nếu bạn có bất kỳ câu hỏi hoặc vấn đề nào, vui lòng điền vào biểu mẫu bên dưới. Chúng tôi sẽ phản hồi càng sớm càng tốt.",
+    "form": {
+      "name": "Tên",
+      "namePlaceholder": "Nhập tên của bạn",
+      "email": "Email",
+      "emailPlaceholder": "Nhập email của bạn",
+      "inquiryType": "Loại yêu cầu",
+      "inquiryTypePlaceholder": "Chọn loại yêu cầu",
+      "subject": "Chủ đề",
+      "subjectPlaceholder": "Nhập chủ đề yêu cầu",
+      "message": "Tin nhắn",
+      "messagePlaceholder": "Vui lòng viết yêu cầu của bạn chi tiết (tối đa 500 ký tự)",
+      "characters": "ký tự",
+      "submit": "Gửi yêu cầu",
+      "submitting": "Đang gửi...",
+      "note": "Chúng tôi sẽ phản hồi yêu cầu của bạn trong vòng 24 giờ vào ngày làm việc."
+    },
+    "categories": {
+      "orderPayment": "Yêu cầu đặt hàng/Thanh toán",
+      "sheetDownload": "Yêu cầu bản nhạc/Tải xuống",
+      "customOrder": "Yêu cầu đặt hàng tùy chỉnh",
+      "technical": "Hỗ trợ kỹ thuật",
+      "other": "Yêu cầu khác"
+    }
+  },
+  "contactInfo": {
+    "title": "Thông tin liên hệ",
+    "subtitle": "Bạn có thể liên hệ với chúng tôi qua nhiều phương thức",
+    "email": {
+      "title": "Yêu cầu Email",
+      "address": "copydrum@hanmail.net",
+      "description": "Tiếp nhận 24/7, phản hồi trong vòng 1 ngày"
+    },
+    "kakao": {
+      "title": "Tư vấn KakaoTalk",
+      "description": "Bạn có thể sử dụng tư vấn trò chuyện thời gian thực.",
+      "button": "Mở trò chuyện KakaoTalk"
+    },
+    "hours": {
+      "title": "Giờ làm việc",
+      "weekdays": "Ngày trong tuần 09:00 - 17:00",
+      "closed": "Đóng cửa vào cuối tuần và ngày lễ"
+    }
+  },
+  "faq": {
+    "categories": {
+      "orderPayment": {
+        "name": "Đặt hàng/Thanh toán",
+        "items": {
+          "download": {
+            "question": "Khi nào tôi có thể tải xuống bản nhạc sau khi mua?",
+            "answer": "Bạn có thể tải xuống ngay sau khi thanh toán hoàn tất từ Trang của tôi. Bản nhạc đã mua có thể được tải xuống lại bất cứ lúc nào."
+          },
+          "payment": {
+            "question": "Các phương thức thanh toán nào có sẵn?",
+            "answer": "Chúng tôi hỗ trợ thẻ tín dụng, thẻ ghi nợ, chuyển khoản ngân hàng và các phương thức thanh toán tiện lợi (Kakao Pay)."
+          },
+          "refund": {
+            "question": "Làm thế nào tôi có thể được hoàn tiền?",
+            "answer": "Do tính chất của sản phẩm kỹ thuật số, hoàn tiền chỉ có sẵn trước khi tải xuống. Hoàn tiền khó khăn sau khi tải xuống, vì vậy vui lòng mua cẩn thận."
+          }
+        }
+      },
+      "sheetDownload": {
+        "name": "Bản nhạc/Tải xuống",
+        "items": {
+          "format": {
+            "question": "Định dạng tệp của các tệp bản nhạc là gì?",
+            "answer": "Tất cả bản nhạc được cung cấp ở định dạng PDF chất lượng cao. Được tối ưu hóa cho cả in ấn và thiết bị kỹ thuật số."
+          },
+          "print": {
+            "question": "Tôi có thể in bản nhạc đã tải xuống không?",
+            "answer": "Có, bạn có thể in để sử dụng luyện tập cá nhân. Tuy nhiên, sử dụng thương mại hoặc phân phối lại bị cấm."
+          },
+          "difficulty": {
+            "question": "Các cấp độ độ khó được phân loại như thế nào?",
+            "answer": "Chúng được phân loại là Người mới bắt đầu (mẫu cơ bản), Trung cấp (bao gồm mẫu biến thể) và Nâng cao (bao gồm kỹ thuật phức tạp)."
+          }
+        }
+      },
+      "customOrder": {
+        "name": "Đặt hàng tùy chỉnh",
+        "items": {
+          "what": {
+            "question": "Dịch vụ đặt hàng tùy chỉnh là gì?",
+            "answer": "Đây là dịch vụ tùy chỉnh nơi các chuyên gia tạo bản nhạc trống cho bài hát bạn muốn."
+          },
+          "duration": {
+            "question": "Sản xuất mất bao lâu?",
+            "answer": "Thường mất 1-7 ngày tùy thuộc vào độ phức tạp của bài hát. Lịch trình chính xác sẽ được cung cấp riêng sau khi đăng ký."
+          },
+          "cost": {
+            "question": "Chi phí sản xuất được xác định như thế nào?",
+            "answer": "Chúng tôi cung cấp báo giá bằng cách xem xét toàn diện độ dài, độ phức tạp và cấp độ độ khó của bài hát."
+          }
+        }
+      }
+    }
+  },
+  "errors": {
+    "fillAllFields": "Vui lòng điền vào tất cả các trường.",
+    "submitError": "Đã xảy ra lỗi khi gửi yêu cầu của bạn. Vui lòng thử lại."
+  },
+  "messages": {
+    "submitSuccess": "Yêu cầu của bạn đã được gửi thành công. Chúng tôi sẽ phản hồi càng sớm càng tốt."
+  },
+  "console": {
+    "inquiryError": "Lỗi lưu yêu cầu khách hàng:"
+  }
+}

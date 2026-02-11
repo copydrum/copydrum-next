@@ -1,0 +1,21 @@
+{
+  "loading": "正在加载...",
+  "title": "乐谱合集",
+  "subtitle": "发现我们按主题精心策划的鼓谱乐谱合集。",
+  "filter": {
+    "all": "全部"
+  },
+  "empty": {
+    "noCollections": "未注册任何合集。",
+    "noCollectionsForCategory": "所选类型没有可用的合集。"
+  },
+  "collection": {
+    "badge": "合集",
+    "discount": "{{percentage}}%折扣",
+    "free": "免费",
+    "songs": "{{count}}首歌曲"
+  },
+  "pagination": {
+    "pageInfo": "{{current}} / {{total}}"
+  }
+}

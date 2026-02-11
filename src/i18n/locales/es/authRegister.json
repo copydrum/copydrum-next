@@ -1,0 +1,52 @@
+{
+  "title": "Registrarse",
+  "hasAccount": "¿Ya tiene una cuenta?",
+  "signIn": "Iniciar sesión",
+  "form": {
+    "name": "Nombre",
+    "namePlaceholder": "Ingrese su nombre",
+    "email": "Dirección de correo electrónico",
+    "emailPlaceholder": "Ingrese su correo electrónico",
+    "password": "Contraseña",
+    "passwordPlaceholder": "Ingrese su contraseña (8+ caracteres)",
+    "passwordHint": "8+ caracteres, letras, números y caracteres especiales",
+    "confirmPassword": "Confirmar contraseña",
+    "confirmPasswordPlaceholder": "Vuelva a ingresar su contraseña",
+    "agreeTerms": "Acepto los Términos de Servicio",
+    "viewTerms": "(Ver)",
+    "agreePrivacy": "Acepto la Política de Privacidad",
+    "viewPrivacy": "(Ver)",
+    "agreeMarketing": "Acepto recibir información de marketing (Opcional)",
+    "submit": "Registrarse",
+    "submitting": "Registrando..."
+  },
+  "divider": "o",
+  "social": {
+    "google": "Google",
+    "kakao": "Kakao"
+  },
+  "errors": {
+    "passwordMismatch": "Las contraseñas no coinciden.",
+    "passwordTooShort": "La contraseña debe tener al menos 8 caracteres.",
+    "termsRequired": "Por favor, acepte los términos requeridos.",
+    "profileCreationFailed": "Error al crear el perfil. Por favor, inténtelo de nuevo.",
+    "emailAlreadyRegistered": "Este correo electrónico ya está registrado.",
+    "invalidEmail": "Por favor, ingrese una dirección de correo electrónico válida.",
+    "signUpFailed": "Error en el registro. Por favor, inténtelo de nuevo.",
+    "kakaoLoginFailed": "Error en el inicio de sesión con Kakao. Por favor, inténtelo de nuevo.",
+    "googleLoginFailed": "Error en el inicio de sesión con Google. Por favor, inténtelo de nuevo."
+  },
+  "messages": {
+    "signUpSuccess": "¡Registro completado! Por favor, revise su correo electrónico e inicie sesión."
+  },
+  "console": {
+    "kakaoLoginError": "Error de inicio de sesión con Kakao:",
+    "googleLoginError": "Error de inicio de sesión con Google:",
+    "profileError": "Error al crear/actualizar el perfil:",
+    "rollbackFunctionError": "Error al llamar la función de reversión:",
+    "rollbackComplete": "Reversión de registro completada",
+    "rollbackError": "Error durante la reversión:",
+    "profileSuccess": "Perfil creado/actualizado exitosamente",
+    "signUpError": "Error de registro:"
+  }
+}

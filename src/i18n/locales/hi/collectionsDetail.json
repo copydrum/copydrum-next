@@ -1,0 +1,60 @@
+{
+  "loading": "संग्रह लोड हो रहा है...",
+  "errors": {
+    "noCollectionInfo": "अनुरोधित संग्रह जानकारी उपलब्ध नहीं है।",
+    "collectionNotFound": "अनुरोधित संग्रह नहीं मिला।",
+    "loadError": "संग्रह जानकारी लोड करने के दौरान एक त्रुटि हुई।",
+    "collectionNotAvailable": "अनुरोधित शीट म्यूजिक संग्रह मौजूद नहीं है या निष्क्रिय कर दिया गया है।"
+  },
+  "backToList": "संग्रह पर वापस जाएं",
+  "free": "मुफ्त",
+  "discount": "{{percentage}}% छूट",
+  "badge": "शीट म्यूजिक संग्रह",
+  "includedSheets": {
+    "count": "शामिल शीट",
+    "number": "{{count}} गाने",
+    "title": "शामिल शीट",
+    "description": "इस संग्रह में शामिल सभी शीट देखें और जिन्हें आप चाहते हैं उन्हें एक्सप्लोर करें।",
+    "empty": "इस संग्रह में अभी तक कोई शीट नहीं जोड़ी गई है।"
+  },
+  "sheet": {
+    "difficulty": "कठिनाई {{difficulty}}",
+    "free": "मुफ्त"
+  },
+  "purchase": {
+    "priceInfo": "संग्रह मूल्य जानकारी",
+    "totalIndividual": "कुल व्यक्तिगत शीट",
+    "noInfo": "कोई जानकारी नहीं",
+    "collectionPrice": "संग्रह मूल्य",
+    "buyNow": "अभी खरीदें",
+    "save": "{{amount}} बचाएं!",
+    "processing": "प्रसंस्करण...",
+    "note": "संग्रह केवल छूट मूल्य पर खरीदे जा सकते हैं।",
+    "inactive": "यह संग्रह वर्तमान में निष्क्रिय है। कृपया व्यवस्थापक से संपर्क करें।",
+    "mobilePrice": "संग्रह मूल्य",
+    "mobileSave": "व्यक्तिगत खरीदारी की तुलना में {{amount}} बचाएं",
+    "mobileInactive": "यह संग्रह वर्तमान में निष्क्रिय है।",
+    "buyCollection": "Buy Collection",
+    "goToCart": "Go to Cart"
+  },
+  "alerts": {
+    "noSheetInfo": "संग्रह में शामिल शीट जानकारी नहीं मिली।",
+    "duplicatePurchase": "आपने इस संग्रह में शामिल कुछ शीट पहले से खरीद ली हैं, इसलिए डुप्लिकेट खरीदारी संभव नहीं है।",
+    "duplicateList": "डुप्लिकेट शीट:",
+    "checkMyPage": "कृपया मेरे पेज में अपना खरीदारी इतिहास जांचें।",
+    "insufficientCredit": "अपर्याप्त नकदी शेष।",
+    "currentBalance": "वर्तमान शेष: {{amount}}P",
+    "chargeCash": "कृपया नकदी चार्ज करें और पुनः प्रयास करें।",
+    "purchaseSuccess": "खरीदारी पूर्ण। कृपया मेरे पेज में सामग्री जांचें।",
+    "purchaseError": "खरीदारी के दौरान एक त्रुटि हुई।"
+  },
+  "navigation": {
+    "title": "अन्य पेज एक्सप्लोर करें",
+    "viewCategories": "शीट श्रेणियां देखें",
+    "eventSale": "इवेंट सेल शीट",
+    "customOrder": "कस्टम ऑर्डर पूछताछ"
+  },
+  "purchaseDescription": "शीट म्यूजिक संग्रह खरीदारी: {{title}}",
+  "sheetTitle": "शीट",
+  "viewSheet": "View Sheet"
+}

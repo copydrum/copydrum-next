@@ -1,0 +1,100 @@
+{
+  "loading": "Loading collection...",
+  "errors": {
+    "noCollectionInfo": "The requested collection information is not available.",
+    "collectionNotFound": "The requested collection could not be found.",
+    "loadError": "An error occurred while loading the collection information.",
+    "collectionNotAvailable": "The requested sheet music collection does not exist or has been deactivated.",
+    "purchaseFailed": "Failed to create order. Please try again."
+  },
+  "backToList": "Back to Collections",
+  "free": "Free",
+  "discount": "{{percentage}}% OFF",
+  "badge": "Sheet Music Collection",
+  "includedSheets": {
+    "count": "Included Sheets",
+    "number": "{{count}} songs",
+    "title": "Included Sheets",
+    "description": "View all sheets included in this collection and explore the ones you want.",
+    "empty": "No sheets have been added to this collection yet."
+  },
+  "sheet": {
+    "difficulty": "Difficulty {{difficulty}}",
+    "free": "Free"
+  },
+  "purchase": {
+    "priceInfo": "Collection Price Information",
+    "totalIndividual": "Total Individual Sheets",
+    "noInfo": "No information",
+    "collectionPrice": "Collection Price",
+    "buyNow": "Buy Now",
+    "buyCollection": "Buy Collection",
+    "goToCart": "Go to Cart",
+    "save": "Save {{amount}}!",
+    "processing": "Processing...",
+    "note": "Collections can only be purchased at the discounted price.",
+    "inactive": "This collection is currently inactive. Please contact the administrator.",
+    "mobilePrice": "Collection Price",
+    "mobileSave": "Save {{amount}} compared to individual purchase",
+    "mobileInactive": "This collection is currently inactive."
+  },
+  "alerts": {
+    "noSheetInfo": "Sheet information included in the collection could not be found.",
+    "duplicatePurchase": "You have already purchased some sheets included in this collection, so duplicate purchase is not possible.",
+    "duplicateList": "Duplicate sheets:",
+    "checkMyPage": "Please check your purchase history in My Page.",
+    "insufficientCredit": "Insufficient cash balance.",
+    "currentBalance": "Current balance: {{amount}}P",
+    "chargeCash": "Please charge cash and try again.",
+    "purchaseSuccess": "Purchase completed. Please check the content in My Page.",
+    "purchaseError": "An error occurred during purchase."
+  },
+  "navigation": {
+    "title": "Explore Other Pages",
+    "viewCategories": "View Sheet Categories",
+    "eventSale": "Event Sale Sheets",
+    "customOrder": "Custom Order Inquiry"
+  },
+  "purchaseDescription": "Sheet Music Collection Purchase: {{title}}",
+  "sheetTitle": "Sheet",
+  "viewSheet": "View Sheet",
+  "difficulty": {
+    "beginner": "Beginner",
+    "intermediate": "Intermediate",
+    "advanced": "Advanced"
+  },
+  "features": {
+    "title": "What's Included",
+    "allSheets": "All sheets at a discounted price",
+    "highQuality": "High-quality PDF format",
+    "instantDownload": "Instant download",
+    "lifetimeAccess": "Lifetime access"
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

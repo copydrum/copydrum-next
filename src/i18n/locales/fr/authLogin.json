@@ -1,0 +1,45 @@
+{
+  "title": "Connexion",
+  "noAccount": "Vous n'avez pas de compte ?",
+  "signUp": "S'inscrire",
+  "notice": "🔔 Pour les membres existants : La réinitialisation du mot de passe est requise lors de la première connexion en raison du renouvellement du site.",
+  "form": {
+    "email": "Adresse e-mail",
+    "emailPlaceholder": "Entrez votre e-mail",
+    "password": "Mot de passe",
+    "passwordPlaceholder": "Entrez votre mot de passe",
+    "rememberMe": "Se souvenir de moi",
+    "forgotPassword": "Mot de passe oublié ?",
+    "submit": "Se connecter",
+    "submitting": "Connexion en cours..."
+  },
+  "divider": "ou",
+  "social": {
+    "google": "Google",
+    "kakao": "Kakao"
+  },
+  "errors": {
+    "kakaoLoginFailed": "La connexion Kakao a échoué. Veuillez réessayer.",
+    "googleLoginFailed": "La connexion Google a échoué. Veuillez réessayer.",
+    "invalidCredentials": "L'e-mail ou le mot de passe est incorrect.",
+    "emailNotConfirmed": "La vérification de l'e-mail est requise. Veuillez vérifier votre e-mail.",
+    "loginFailed": "La connexion a échoué. Veuillez réessayer.",
+    "resetPasswordEmailError": "Une erreur s'est produite lors de l'envoi de l'e-mail de réinitialisation du mot de passe. Veuillez réessayer.",
+    "profileError": "Erreur de recherche de profil",
+    "profileCreationError": "Erreur de création de profil",
+    "migrationCheckError": "Erreur lors de la vérification de l'utilisateur de migration"
+  },
+  "messages": {
+    "passwordResetEmailSent": "Vous êtes un membre existant ! Nous avons envoyé un e-mail de réinitialisation du mot de passe. Veuillez vérifier votre boîte de réception."
+  },
+  "console": {
+    "kakaoLoginError": "Erreur de connexion Kakao :",
+    "googleLoginError": "Erreur de connexion Google :",
+    "profileLookupError": "Erreur de recherche de profil :",
+    "profileCreationError": "Erreur de création de profil :",
+    "resetPasswordEmailError": "Erreur d'envoi de l'e-mail de réinitialisation du mot de passe :",
+    "migrationCheckError": "Erreur de vérification de l'utilisateur de migration :",
+    "loginError": "Erreur de connexion :"
+  },
+  "defaultUserName": "Utilisateur"
+}

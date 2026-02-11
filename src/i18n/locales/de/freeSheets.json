@@ -1,0 +1,79 @@
+{
+  "badge": "KOSTENLOSE SCHLAGZEUG-LEKTIONEN",
+  "title": "Kostenlose Schlagzeug-Lektions-Notenblätter",
+  "description": "Erkunden Sie alle Notenblätter in der Schlagzeug-Lektions-Kategorie kostenlos! Üben Sie mit YouTube-Lektionen, um Ihre Fähigkeiten schneller zu verbessern. Wählen Sie aus verschiedenen Lernthemen wie Schlagzeug-Techniken, Grundlagen, Schlagzeug-Solos und mehr.",
+  "features": {
+    "freeDownload": "Kostenloser vollständiger Download",
+    "categoryLearning": "Kategoriebasiertes Lernen",
+    "youtubeLesson": "YouTube-Lektions-Links"
+  },
+  "categories": {
+    "all": "Alle",
+    "drumTechnique": "Schlagzeug-Technik",
+    "rudiment": "Grundlage",
+    "drumSolo": "Schlagzeug-Solo",
+    "beginnerBasics": "Anfänger/Grundlagen",
+    "rhythmPattern": "Rhythmus-Muster",
+    "fillIn": "Fill-in",
+    "drumLesson": "Schlagzeug-Lektion",
+    "categoryPending": "Kategorie ausstehend"
+  },
+  "search": {
+    "placeholder": "Suche nach Titel, Künstler oder Tag"
+  },
+  "sort": {
+    "label": "Sortieren",
+    "latest": "Neueste",
+    "title": "Titel",
+    "difficulty": "Schwierigkeit"
+  },
+  "difficulty": {
+    "beginner": "Anfänger",
+    "intermediate": "Mittelstufe",
+    "advanced": "Fortgeschritten",
+    "notAvailable": "Schwierigkeit nicht verfügbar"
+  },
+  "loading": "Kostenlose Schlagzeug-Lektions-Notenblätter werden geladen...",
+  "empty": {
+    "title": "Keine kostenlosen Notenblätter entsprechen Ihren Kriterien.",
+    "description": "Versuchen Sie, eine andere Kategorie auszuwählen oder Ihren Suchbegriff zu ändern."
+  },
+  "actions": {
+    "viewFreeSheet": "Kostenloses Notenblatt anzeigen",
+    "viewYoutubeLesson": "YouTube-Lektion anzeigen",
+    "goToDetail": "Zur Detailseite gehen",
+    "closeDetail": "Kostenloses Notenblatt-Detail schließen"
+  },
+  "errors": {
+    "lessonCategoryLoadError": "Fehler beim Laden der Schlagzeug-Lektions-Kategorie. Bitte versuchen Sie es später erneut.",
+    "lessonCategoryNotFound": "Schlagzeug-Lektions-Kategorie existiert nicht. Bitte kontaktieren Sie den Administrator.",
+    "sheetsLoadError": "Fehler beim Laden der kostenlosen Schlagzeug-Lektions-Notenblätter. Bitte versuchen Sie es später erneut.",
+    "generalError": "Beim Laden der kostenlosen Schlagzeug-Lektions-Notenblätter ist ein Fehler aufgetreten.",
+    "loginRequired": "Anmeldung erforderlich.",
+    "favoriteError": "Beim Verarbeiten der Favoriten ist ein Fehler aufgetreten. Bitte versuchen Sie es später erneut.",
+    "pdfNotReady": "PDF-Link ist nicht bereit.",
+    "youtubeNotAvailable": "Kein YouTube-Video registriert."
+  },
+  "mobile": {
+    "freeSheet": "Kostenloses Notenblatt",
+    "upload": "Hochladen",
+    "pages": "Seiten",
+    "youtubeLessonIncluded": "YouTube-Lektion enthalten",
+    "freeDownload": "Kostenloser Download",
+    "practiceWithPdf": "Mit PDF-Notenblättern üben.",
+    "favorite": "Favorit",
+    "unfavorite": "Nicht favorisiert"
+  },
+  "console": {
+    "lessonCategoryError": "Fehler beim Abrufen der Schlagzeug-Lektions-Kategorie:",
+    "primarySheetsError": "Fehler beim Laden der primären Schlagzeug-Lektions-Notenblätter:",
+    "relationsError": "Fehler beim Laden der Schlagzeug-Lektions-Kategorie-Beziehungen:",
+    "additionalSheetsError": "Fehler beim Laden der zusätzlichen Schlagzeug-Lektions-Notenblätter:",
+    "extraCategoriesError": "Fehler beim Laden der zusätzlichen Kategorien:",
+    "generalError": "Fehler bei der Verarbeitung der kostenlosen Notenblätter-Seite:",
+    "favoritesLoadError": "Fehler beim Laden der Favoriten:",
+    "favoriteToggleError": "Fehler bei der Favoriten-Umschaltung:",
+    "userLoadError": "Fehler beim Laden der Benutzerinformationen:",
+    "youtubeUrlParseError": "YouTube-URL-Parsing fehlgeschlagen:"
+  }
+}

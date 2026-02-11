@@ -1,0 +1,45 @@
+{
+  "title": "Đăng nhập",
+  "noAccount": "Chưa có tài khoản?",
+  "signUp": "Đăng ký",
+  "notice": "🔔 Đối với thành viên hiện có: Cần đặt lại mật khẩu khi đăng nhập lần đầu do đổi mới trang web.",
+  "form": {
+    "email": "Địa chỉ Email",
+    "emailPlaceholder": "Nhập email của bạn",
+    "password": "Mật khẩu",
+    "passwordPlaceholder": "Nhập mật khẩu của bạn",
+    "rememberMe": "Ghi nhớ đăng nhập",
+    "forgotPassword": "Quên mật khẩu?",
+    "submit": "Đăng nhập",
+    "submitting": "Đang đăng nhập..."
+  },
+  "divider": "hoặc",
+  "social": {
+    "google": "Google",
+    "kakao": "Kakao"
+  },
+  "errors": {
+    "kakaoLoginFailed": "Đăng nhập Kakao thất bại. Vui lòng thử lại.",
+    "googleLoginFailed": "Đăng nhập Google thất bại. Vui lòng thử lại.",
+    "invalidCredentials": "Email hoặc mật khẩu không đúng.",
+    "emailNotConfirmed": "Cần xác minh email. Vui lòng kiểm tra email của bạn.",
+    "loginFailed": "Đăng nhập thất bại. Vui lòng thử lại.",
+    "resetPasswordEmailError": "Đã xảy ra lỗi khi gửi email đặt lại mật khẩu. Vui lòng thử lại.",
+    "profileError": "Lỗi tra cứu hồ sơ",
+    "profileCreationError": "Lỗi tạo hồ sơ",
+    "migrationCheckError": "Lỗi kiểm tra người dùng di chuyển"
+  },
+  "messages": {
+    "passwordResetEmailSent": "Bạn là thành viên hiện có! Chúng tôi đã gửi email đặt lại mật khẩu. Vui lòng kiểm tra hộp thư đến."
+  },
+  "console": {
+    "kakaoLoginError": "Lỗi đăng nhập Kakao:",
+    "googleLoginError": "Lỗi đăng nhập Google:",
+    "profileLookupError": "Lỗi tra cứu hồ sơ:",
+    "profileCreationError": "Lỗi tạo hồ sơ:",
+    "resetPasswordEmailError": "Lỗi gửi email đặt lại mật khẩu:",
+    "migrationCheckError": "Lỗi kiểm tra người dùng di chuyển:",
+    "loginError": "Lỗi đăng nhập:"
+  },
+  "defaultUserName": "Người dùng"
+}

@@ -1,0 +1,21 @@
+{
+  "loading": "Yükleniyor...",
+  "title": "Nota Koleksiyonları",
+  "subtitle": "Temaya göre özel olarak seçilmiş davul nota koleksiyonlarımızı keşfedin.",
+  "filter": {
+    "all": "Tümü"
+  },
+  "empty": {
+    "noCollections": "Kayıtlı koleksiyon yok.",
+    "noCollectionsForCategory": "Seçilen tür için koleksiyon mevcut değil."
+  },
+  "collection": {
+    "badge": "Koleksiyon",
+    "discount": "%{{percentage}} İNDİRİM",
+    "free": "Ücretsiz",
+    "songs": "{{count}} şarkı"
+  },
+  "pagination": {
+    "pageInfo": "{{current}} / {{total}}"
+  }
+}

@@ -1,0 +1,206 @@
+{
+  "hero": {
+    "badge": "Dari pencarian hingga unduhan, semuanya dalam satu tempat",
+    "title": "Panduan Pencarian & Pembelian COPYDRUM",
+    "description": "Temukan lembaran musik drum yang Anda inginkan dengan cepat, beli dengan wajar,<br />dan unduh tanpa masalah—semua metode dikumpulkan dalam satu tempat.<br />Lihat tips penting untuk latihan yang efisien, dari pengguna baru hingga anggota yang sudah ada."
+  },
+  "sections": {
+    "firstPurchase": {
+      "title": "Pembelian Pertama dalam 3 Menit",
+      "description": "Ringkasan cepat untuk pengunjung pertama kali. Ikuti langkah-langkah di bawah ini untuk menyelesaikan pembelian lembaran musik pertama Anda segera.",
+      "steps": {
+        "account": {
+          "title": "1 menit – Buat Akun",
+          "detail": "Buat akun dengan cepat melalui pendaftaran atau login sosial.",
+          "highlight": "Setelah login, menu keranjang dan unduhan akan diaktifkan."
+        },
+        "findSheet": {
+          "title": "1 menit – Temukan Lembaran Musik",
+          "detail": "Masukkan judul lagu atau nama artis di kotak pencarian dan pilih lembaran musik yang Anda suka."
+        },
+        "payment": {
+          "title": "1 menit – Pembayaran & Unduhan",
+          "detail": "Tambahkan ke keranjang, selesaikan pembayaran, dan Anda dapat mengunduh lembaran musik PDF segera."
+        }
+      },
+      "cta": {
+        "register": "Daftar Sekarang",
+        "popular": "Lihat Lembaran Populer"
+      }
+    },
+    "effectiveSearch": {
+      "title": "Cari Lembaran Musik dengan Efektif",
+      "description": "Jika hasil pencarian terlalu banyak atau Anda tidak dapat menemukan lagu yang Anda inginkan, coba sesuaikan pencarian Anda lebih tepat dengan metode berikut.",
+      "steps": {
+        "keyword": {
+          "title": "Kombinasi Kata Kunci",
+          "detail": "Menggabungkan dua kata atau lebih seperti judul lagu + artis meningkatkan akurasi.",
+          "highlight": "Contoh: \"Spring Day drums\", \"BTS rock arrangement\""
+        },
+        "filter": {
+          "title": "Persempit dengan Filter",
+          "detail": "Pilih genre, rentang harga, dan tingkat kesulitan di halaman kategori untuk memfilter hanya lembaran musik yang Anda butuhkan."
+        },
+        "noResults": {
+          "title": "Penanganan Tanpa Hasil",
+          "detail": "Periksa ejaan dan coba cari lagi dengan kata kunci serupa."
+        }
+      },
+      "cta": {
+        "categories": "Lihat Kategori",
+        "freeSheets": "Periksa Lembaran Gratis"
+      }
+    },
+    "chooseSheet": {
+      "title": "Pilih Lembaran Musik yang Tepat untuk Anda",
+      "description": "Bandingkan tingkat kesulitan, gaya aransemen, dan komposisi lembaran musik untuk memilih lembaran musik yang sesuai dengan tujuan latihan Anda.",
+      "steps": {
+        "difficulty": {
+          "title": "Periksa Tingkat Kesulitan",
+          "detail": "Dibagi menjadi pemula/menengah/lanjutan, dan Anda dapat memeriksa teknik yang diperlukan dalam deskripsi detail.",
+          "highlight": "Pemula: Pola dasar, Menengah: Termasuk fill, Lanjutan: Menekankan kecepatan dan teknik"
+        },
+        "preview": {
+          "title": "Gunakan Pratinjau",
+          "detail": "Periksa apakah itu gaya yang Anda inginkan melalui halaman sampel dan video demo."
+        },
+        "price": {
+          "title": "Bandingkan Harga",
+          "detail": "Anda dapat membuat pilihan yang lebih wajar dengan membandingkan lembaran individual, koleksi, dan lembaran acara bersama."
+        }
+      },
+      "cta": {
+        "eventSale": "Jelajahi Lembaran Acara",
+        "collections": "Lihat Koleksi"
+      }
+    },
+    "purchaseProcess": {
+      "title": "Panduan Proses Pembelian Lengkap",
+      "description": "Panduan langkah demi langkah untuk melanjutkan tanpa kesalahan dari keranjang hingga penyelesaian pembayaran.",
+      "steps": {
+        "cart": {
+          "title": "Tambah ke Keranjang",
+          "detail": "Klik tombol keranjang di halaman detail lembaran musik untuk membayar beberapa lembaran sekaligus.",
+          "highlight": "Kode promosi dapat dimasukkan di bagian atas keranjang"
+        },
+        "paymentInfo": {
+          "title": "Periksa Informasi Pembayaran",
+          "detail": "Pastikan untuk memeriksa detail pesanan, penerapan diskon, dan syarat layanan sebelum pembayaran."
+        },
+        "paymentMethod": {
+          "title": "Pilih Metode Pembayaran",
+          "detail": "Mendukung kartu kredit, transfer bank, Kakao Pay, dll., dan email notifikasi akan dikirim setelah penyelesaian pembayaran."
+        }
+      },
+      "cta": {
+        "cart": "Pergi ke Keranjang"
+      }
+    },
+    "download": {
+      "title": "Unduh Lembaran Musik",
+      "description": "Lembaran musik yang dibeli dapat diunduh segera sebagai PDF dan dapat diunduh lagi kapan saja.",
+      "steps": {
+        "immediate": {
+          "title": "Unduhan Segera",
+          "detail": "Anda dapat mengunduh file PDF segera dari halaman penyelesaian pembelian tepat setelah pembelian."
+        },
+        "redownload": {
+          "title": "Unduh Ulang dari Halaman Saya",
+          "detail": "Anda dapat mengunduh ulang lembaran musik yang sudah dibeli dari riwayat pembelian di Halaman Saya.",
+          "highlight": "Lembaran musik yang dibeli dapat diunduh ulang tanpa batas."
+        },
+        "pdf": {
+          "title": "Gunakan PDF",
+          "detail": "Disediakan sebagai file PDF berkualitas tinggi, Anda dapat berlatih langsung di tablet atau laptop, atau mencetak dalam ukuran yang Anda inginkan."
+        }
+      },
+      "cta": {
+        "mypage": "Buka Halaman Saya",
+        "orders": "Periksa Riwayat Pembelian"
+      }
+    },
+    "discounts": {
+      "title": "Maksimalkan Diskon dan Manfaat",
+      "description": "Buat lingkungan latihan yang lebih kaya dengan memanfaatkan penjualan acara khusus, bonus isi ulang sheet cash, dan layanan pesanan kustom.",
+      "steps": {
+        "event": {
+          "title": "Lembaran Acara",
+          "detail": "Lihat lembaran musik yang ditawarkan dengan harga 100 won atau harga diskon untuk waktu terbatas di bagian penjualan khusus.",
+          "highlight": "Lembaran acara terbatas jumlah/periodenya, jadi periksa dengan cepat!"
+        },
+        "cash": {
+          "title": "Isi Ulang Sheet Cash",
+          "detail": "Bonus tambahan disediakan sesuai dengan jumlah isi ulang. Jika Anda berencana melakukan pembelian dalam jumlah besar, isi ulang terlebih dahulu."
+        },
+        "customOrder": {
+          "title": "Bandingkan Pesanan Kustom",
+          "detail": "Jika Anda tidak dapat menemukan lembaran musik yang Anda cari, Anda bisa mendapatkan aransemen yang akurat melalui pesanan kustom. Pilih sesuai dengan anggaran dan jadwal Anda."
+        }
+      },
+      "cta": {
+        "customOrder": "Ajukan Pesanan Kustom",
+        "customOrders": "Periksa Pesanan yang Sedang Berlangsung"
+      }
+    }
+  },
+  "searchTips": {
+    "title": "Koleksi Tips Pencarian",
+    "items": {
+      "keyword": {
+        "title": "Kata Kunci yang Direkomendasikan",
+        "description": "Mencari dengan judul lagu + artis meningkatkan akurasi."
+      },
+      "filter": {
+        "title": "Kombinasi Filter",
+        "description": "Mengatur genre + kesulitan + rentang harga bersama-sama hanya menyisakan lembaran musik yang Anda butuhkan."
+      },
+      "noResults": {
+        "title": "Tidak Ada Hasil Pencarian",
+        "description": "Periksa ejaan lagi atau cari dengan genre/artis serupa dan kemudian coba pesanan kustom."
+      }
+    }
+  },
+  "purchaseComparison": {
+    "title": "Perbandingan Metode Pembelian",
+    "regular": {
+      "title": "Pembelian Reguler",
+      "badge": "Direkomendasikan",
+      "items": [
+        "Unduhan PDF segera setelah pembayaran",
+        "Hemat biaya dengan lembaran acara/gratis",
+        "Pilihan luas genre dan tingkat kesulitan"
+      ]
+    },
+    "custom": {
+      "title": "Pesanan Kustom",
+      "badge": "Disesuaikan",
+      "items": [
+        "Produksi tepat lagu dan gaya aransemen yang Anda inginkan",
+        "Periode produksi 1-7 hari, bervariasi berdasarkan kesulitan",
+        "Lanjutkan dengan pembayaran setelah konfirmasi penawaran"
+      ]
+    }
+  },
+  "helpNeeded": {
+    "title": "Perlu Bantuan Lebih Lanjut?",
+    "description": "Periksa pertanyaan yang sering diajukan di dukungan pelanggan atau minta konsultasi langsung melalui pertanyaan.",
+    "cta": {
+      "findSheets": "Temukan Lembaran Musik Sekarang",
+      "eventSale": "Lihat Lembaran Diskon yang Sedang Berlangsung"
+    }
+  },
+  "terms": {
+    "title": "Syarat Layanan",
+    "content": [
+      "Semua pelanggan yang menggunakan layanan COPYDRUM harus menghormati hak cipta dan menggunakan lembaran musik dalam ruang lingkup tujuan latihan pribadi. Distribusi, reproduksi, atau berbagi lembaran musik yang dibeli tanpa izin tunduk pada sanksi hukum, dan lisensi terpisah diperlukan untuk penggunaan komersial.",
+      "Karena unduhan disediakan segera setelah pembayaran, pengembalian dana mungkin terbatas setelah penyelesaian unduhan karena sifat konten digital. Kebijakan detail terkait penggunaan layanan, termasuk pembayaran, pesanan kustom, dan manfaat acara, diperbarui secara teratur melalui pengumuman layanan pelanggan."
+    ]
+  },
+  "privacy": {
+    "title": "Ringkasan Kebijakan Privasi",
+    "content": [
+      "Kami mengumpulkan informasi pribadi minimal seperti email, nama, dan informasi pembayaran untuk pendaftaran akun, pemrosesan pesanan, dan dukungan pelanggan. Informasi ini disimpan dengan aman di lingkungan keamanan berbasis Supabase. Kami tidak menggunakan informasi pribadi untuk tujuan selain menyediakan layanan, dan kami secara ketat mematuhi prosedur persetujuan sebelumnya saat berbagi dengan pihak ketiga.",
+      "Pelanggan dapat meminta untuk melihat, memodifikasi, atau menghapus informasi pribadi mereka melalui Halaman Saya atau Dukungan Pelanggan, dan permintaan tersebut akan diproses tanpa penundaan. Untuk pertanyaan mengenai perlindungan informasi pribadi, silakan hubungi kami melalui pertanyaan 1:1 Dukungan Pelanggan atau email."
+    ]
+  }
+}

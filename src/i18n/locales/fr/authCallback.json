@@ -1,0 +1,14 @@
+{
+  "loading": "Traitement de la connexion...",
+  "errors": {
+    "oauthError": "Échec de la connexion",
+    "callbackError": "Une erreur s'est produite lors du traitement de la connexion. Veuillez réessayer.",
+    "profileCreationError": "Erreur de création de profil"
+  },
+  "console": {
+    "oauthError": "Erreur OAuth :",
+    "callbackError": "Erreur de traitement du callback d'authentification :",
+    "profileCreationError": "Erreur de création de profil :"
+  },
+  "defaultUserName": "Utilisateur"
+}

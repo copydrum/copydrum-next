@@ -1,0 +1,65 @@
+{
+  "title": "ประวัติการซื้อโน้ตเพลง",
+  "description": "นี่คือรายการโน้ตเพลงที่คุณซื้อ เรียงตามล่าสุด",
+  "totalPurchased": "คุณได้ซื้อโน้ตเพลงทั้งหมด {{count}} ชิ้น",
+  "loginRequired": "ต้องเข้าสู่ระบบ",
+  "loginRequiredMessage": "กรุณาเข้าสู่ระบบเพื่อดูประวัติการซื้อของคุณ",
+  "orderNumber": "หมายเลขคำสั่งซื้อ",
+  "categoryNotSet": "ไม่ได้ตั้งหมวดหมู่",
+  "deletedSheet": "โน้ตเพลงที่ถูกลบ",
+  "status": {
+    "pending": "รอการชำระเงิน",
+    "pendingDesc": "กำลังรอการยืนยันการชำระเงิน",
+    "processing": "กำลังดำเนินการ",
+    "processingDesc": "คำสั่งซื้อของคุณกำลังถูกดำเนินการ",
+    "completed": "เสร็จสมบูรณ์",
+    "completedDesc": "คำสั่งซื้อเสร็จสมบูรณ์ ดาวน์โหลดได้แล้ว",
+    "cancelled": "ยกเลิก",
+    "cancelledDesc": "คำสั่งซื้อถูกยกเลิก",
+    "paymentPending": "รอการชำระเงิน",
+    "paymentPendingDesc": "กำลังรอการยืนยันการฝากเงิน",
+    "paymentConfirmed": "ยืนยันการชำระเงิน",
+    "paymentConfirmedDesc": "ยืนยันการชำระเงินแล้ว ดาวน์โหลดได้แล้ว",
+    "paid": "ชำระเงินแล้ว",
+    "paidDesc": "ชำระเงินเสร็จสมบูรณ์ ดาวน์โหลดได้แล้ว",
+    "refunded": "คืนเงิน",
+    "refundedDesc": "คำสั่งซื้อถูกคืนเงิน"
+  },
+  "paymentMethod": {
+    "card": "บัตรเครดิต",
+    "bankTransfer": "โอนเงินผ่านธนาคาร",
+    "virtualAccount": "บัญชีเสมือน",
+    "cash": "ยอดเงินคงเหลือ",
+    "points": "คะแนน"
+  },
+  "empty": {
+    "title": "ไม่มีโน้ตเพลงที่ซื้อ",
+    "message": "ค้นหาโน้ตเพลงที่คุณชอบและเพิ่มลงในตะกร้า",
+    "browseButton": "เรียกดูโน้ตเพลง"
+  },
+  "actions": {
+    "downloadAll": "ดาวน์โหลดทั้งหมดในคำสั่งซื้อนี้",
+    "downloadSelected": "ดาวน์โหลดที่เลือก",
+    "selectAll": "เลือกทั้งหมด",
+    "deselectAll": "ยกเลิกการเลือกทั้งหมด",
+    "clearSelection": "ล้างการเลือก",
+    "download": "ดาวน์โหลด",
+    "downloadNotAvailable": "ไม่สามารถดาวน์โหลดได้",
+    "downloading": "กำลังดาวน์โหลด...",
+    "viewDetails": "ดูรายละเอียด",
+    "purchaseDate": "วันที่ซื้อ {{date}}",
+    "selectedCount": "เลือก {{count}} รายการ",
+    "cart": "ตะกร้า"
+  },
+  "messages": {
+    "selectSheetsToDownload": "กรุณาเลือกโน้ตเพลงเพื่อดาวน์โหลด",
+    "refundedOrRestricted": "คำสั่งซื้อนี้ถูกคืนเงินหรือการดาวน์โหลดถูกจำกัด",
+    "loginRequired": "ต้องเข้าสู่ระบบ",
+    "downloadFailed": "ไม่สามารถดาวน์โหลดโน้ตเพลง {{count}} ชิ้นได้",
+    "refundedOrder": "คำสั่งซื้อที่ถูกคืนเงินไม่สามารถดาวน์โหลดได้",
+    "noSheetsToDownload": "ไม่มีโน้ตเพลงที่สามารถดาวน์โหลดได้",
+    "sheetInfoNotFound": "ไม่พบข้อมูลโน้ตเพลง",
+    "fileNotFound": "ไม่พบไฟล์",
+    "downloadError": "ไม่สามารถดาวน์โหลดไฟล์ได้ กรุณาลองใหม่อีกครั้งในภายหลัง"
+  }
+}

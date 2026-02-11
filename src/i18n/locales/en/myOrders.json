@@ -1,0 +1,66 @@
+{
+  "title": "Sheet Music Purchase History",
+  "description": "This is the list of sheet music you purchased, sorted by most recent.",
+  "totalPurchased": "You have purchased a total of {{count}} sheet music items.",
+  "loginRequired": "Login Required",
+  "loginRequiredMessage": "Please log in to view your purchase history.",
+  "orderNumber": "Order Number",
+  "categoryNotSet": "Category Not Set",
+  "deletedSheet": "Deleted Sheet",
+  "status": {
+    "pending": "Payment Pending",
+    "pendingDesc": "Waiting for payment confirmation.",
+    "processing": "Processing",
+    "processingDesc": "Your order is being processed.",
+    "completed": "Completed",
+    "completedDesc": "Order completed. Downloads are available.",
+    "cancelled": "Cancelled",
+    "cancelledDesc": "Order has been cancelled.",
+    "paymentPending": "Payment Pending",
+    "paymentPendingDesc": "Waiting for deposit confirmation.",
+    "paymentConfirmed": "Payment Confirmed",
+    "paymentConfirmedDesc": "Payment confirmed. Downloads are available.",
+    "paid": "Paid",
+    "paidDesc": "Payment completed. Downloads are available.",
+    "refunded": "Refunded",
+    "refundedDesc": "Order has been refunded."
+  },
+  "paymentMethod": {
+    "card": "Credit Card",
+    "bankTransfer": "Bank Transfer",
+    "virtualAccount": "Virtual Account",
+    "cash": "Cash Balance",
+    "points": "Points"
+  },
+  "empty": {
+    "title": "No Purchased Sheets",
+    "message": "Find your favorite sheet music and add it to your cart.",
+    "browseButton": "Browse Sheets"
+  },
+  "actions": {
+    "downloadAll": "Download All in This Order",
+    "downloadSelected": "Download Selected",
+    "selectAll": "Select All",
+    "deselectAll": "Deselect All",
+    "clearSelection": "Clear Selection",
+    "download": "Download",
+    "downloadNotAvailable": "Download Not Available",
+    "downloading": "Downloading...",
+    "viewDetails": "View Details",
+    "purchaseDate": "Purchase Date {{date}}",
+    "selectedCount": "{{count}} selected",
+    "cart": "Cart"
+  },
+  "messages": {
+    "selectSheetsToDownload": "Please select sheets to download.",
+    "refundedOrRestricted": "This order has been refunded or download is restricted.",
+    "loginRequired": "Login is required.",
+    "downloadFailed": "Failed to download {{count}} sheet(s).",
+    "refundedOrder": "Refunded orders cannot be downloaded.",
+    "noSheetsToDownload": "No sheets available for download.",
+    "sheetInfoNotFound": "Sheet information not found.",
+    "fileNotFound": "File not found.",
+    "downloadError": "Failed to download file. Please try again later."
+  }
+}
+

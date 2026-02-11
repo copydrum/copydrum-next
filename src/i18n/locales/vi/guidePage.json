@@ -1,0 +1,206 @@
+{
+  "hero": {
+    "badge": "Từ tìm kiếm đến tải xuống, tất cả ở một nơi",
+    "title": "Hướng dẫn Tìm kiếm & Mua hàng COPYDRUM",
+    "description": "Tìm sheet music drum mong muốn của bạn nhanh chóng, mua hợp lý,<br />và tải xuống không có vấn đề gì—tất cả các phương pháp được tập hợp ở một nơi.<br />Xem các mẹo cần thiết để luyện tập hiệu quả, từ người dùng mới đến thành viên hiện có."
+  },
+  "sections": {
+    "firstPurchase": {
+      "title": "Mua hàng đầu tiên trong 3 phút",
+      "description": "Tóm tắt nhanh cho khách truy cập lần đầu. Làm theo các bước bên dưới để hoàn thành việc mua sheet music đầu tiên ngay lập tức.",
+      "steps": {
+        "account": {
+          "title": "1 phút – Tạo tài khoản",
+          "detail": "Nhanh chóng tạo tài khoản thông qua đăng ký hoặc đăng nhập xã hội.",
+          "highlight": "Sau khi đăng nhập, menu giỏ hàng và tải xuống sẽ được kích hoạt."
+        },
+        "findSheet": {
+          "title": "1 phút – Tìm Sheet Music",
+          "detail": "Nhập tiêu đề bài hát hoặc tên nghệ sĩ vào hộp tìm kiếm và chọn sheet music bạn thích."
+        },
+        "payment": {
+          "title": "1 phút – Thanh toán & Tải xuống",
+          "detail": "Thêm vào giỏ hàng, hoàn tất thanh toán, và bạn có thể tải xuống sheet music PDF ngay lập tức."
+        }
+      },
+      "cta": {
+        "register": "Đăng ký ngay",
+        "popular": "Xem Sheet phổ biến"
+      }
+    },
+    "effectiveSearch": {
+      "title": "Tìm kiếm Sheet Music hiệu quả",
+      "description": "Nếu kết quả tìm kiếm quá nhiều hoặc bạn không thể tìm thấy bài hát bạn muốn, hãy thử điều chỉnh tìm kiếm của bạn chính xác hơn với các phương pháp sau.",
+      "steps": {
+        "keyword": {
+          "title": "Kết hợp từ khóa",
+          "detail": "Kết hợp hai hoặc nhiều từ như tiêu đề bài hát + nghệ sĩ tăng độ chính xác.",
+          "highlight": "Ví dụ: \"Spring Day drums\", \"BTS rock arrangement\""
+        },
+        "filter": {
+          "title": "Thu hẹp với bộ lọc",
+          "detail": "Chọn thể loại, phạm vi giá và mức độ khó trên trang danh mục để chỉ lọc sheet music bạn cần."
+        },
+        "noResults": {
+          "title": "Xử lý không có kết quả",
+          "detail": "Kiểm tra chính tả và thử tìm kiếm lại với các từ khóa tương tự."
+        }
+      },
+      "cta": {
+        "categories": "Xem Danh mục",
+        "freeSheets": "Kiểm tra Sheet miễn phí"
+      }
+    },
+    "chooseSheet": {
+      "title": "Chọn Sheet Music phù hợp cho bạn",
+      "description": "So sánh mức độ khó, phong cách sắp xếp và cấu trúc sheet music để chọn sheet music phù hợp với mục tiêu luyện tập của bạn.",
+      "steps": {
+        "difficulty": {
+          "title": "Kiểm tra độ khó",
+          "detail": "Chia thành người mới bắt đầu/trung cấp/nâng cao, và bạn có thể kiểm tra các kỹ thuật cần thiết trong mô tả chi tiết.",
+          "highlight": "Người mới bắt đầu: Mẫu cơ bản, Trung cấp: Bao gồm fills, Nâng cao: Nhấn mạnh tốc độ và kỹ thuật"
+        },
+        "preview": {
+          "title": "Sử dụng xem trước",
+          "detail": "Kiểm tra xem đó có phải là phong cách bạn muốn thông qua các trang mẫu và video demo."
+        },
+        "price": {
+          "title": "So sánh giá",
+          "detail": "Bạn có thể đưa ra lựa chọn hợp lý hơn bằng cách so sánh sheet riêng lẻ, bộ sưu tập và sheet sự kiện cùng nhau."
+        }
+      },
+      "cta": {
+        "eventSale": "Duyệt Sheet sự kiện",
+        "collections": "Xem Bộ sưu tập"
+      }
+    },
+    "purchaseProcess": {
+      "title": "Hướng dẫn quy trình mua hàng hoàn chỉnh",
+      "description": "Hướng dẫn từng bước để tiến hành không có lỗi từ giỏ hàng đến hoàn tất thanh toán.",
+      "steps": {
+        "cart": {
+          "title": "Thêm vào giỏ hàng",
+          "detail": "Nhấp vào nút giỏ hàng trên trang chi tiết sheet music để thanh toán nhiều sheet cùng một lúc.",
+          "highlight": "Mã khuyến mãi có thể được nhập ở đầu giỏ hàng"
+        },
+        "paymentInfo": {
+          "title": "Kiểm tra thông tin thanh toán",
+          "detail": "Đảm bảo kiểm tra chi tiết đơn hàng, áp dụng giảm giá và điều khoản dịch vụ trước khi thanh toán."
+        },
+        "paymentMethod": {
+          "title": "Chọn phương thức thanh toán",
+          "detail": "Hỗ trợ thẻ tín dụng, chuyển khoản ngân hàng, Kakao Pay, v.v., và email thông báo sẽ được gửi sau khi hoàn tất thanh toán."
+        }
+      },
+      "cta": {
+        "cart": "Đi đến Giỏ hàng"
+      }
+    },
+    "download": {
+      "title": "Tải xuống Sheet Music",
+      "description": "Sheet music đã mua có thể được tải xuống ngay lập tức dưới dạng PDF và có thể được tải xuống lại bất cứ lúc nào.",
+      "steps": {
+        "immediate": {
+          "title": "Tải xuống ngay lập tức",
+          "detail": "Bạn có thể tải xuống file PDF ngay lập tức từ trang hoàn tất mua hàng ngay sau khi mua."
+        },
+        "redownload": {
+          "title": "Tải xuống lại từ Trang của tôi",
+          "detail": "Bạn có thể tải xuống lại sheet music đã mua từ lịch sử mua hàng trong Trang của tôi.",
+          "highlight": "Sheet music đã mua có thể được tải xuống lại không giới hạn."
+        },
+        "pdf": {
+          "title": "Sử dụng PDF",
+          "detail": "Được cung cấp dưới dạng file PDF chất lượng cao, bạn có thể luyện tập trực tiếp trên máy tính bảng hoặc laptop, hoặc in với kích thước mong muốn."
+        }
+      },
+      "cta": {
+        "mypage": "Mở Trang của tôi",
+        "orders": "Kiểm tra Lịch sử mua hàng"
+      }
+    },
+    "discounts": {
+      "title": "Tối đa hóa giảm giá và lợi ích",
+      "description": "Tạo môi trường luyện tập phong phú hơn bằng cách sử dụng bán sự kiện đặc biệt, tiền thưởng nạp tiền sheet cash và dịch vụ đặt hàng tùy chỉnh.",
+      "steps": {
+        "event": {
+          "title": "Sheet sự kiện",
+          "detail": "Kiểm tra sheet music được cung cấp với giá 100 won hoặc giá giảm trong thời gian có hạn trong phần bán đặc biệt.",
+          "highlight": "Sheet sự kiện có số lượng/thời gian giới hạn, vì vậy hãy kiểm tra nhanh!"
+        },
+        "cash": {
+          "title": "Nạp tiền Sheet Cash",
+          "detail": "Tiền thưởng bổ sung được cung cấp theo số tiền nạp. Nếu bạn dự định mua số lượng lớn, hãy nạp tiền trước."
+        },
+        "customOrder": {
+          "title": "So sánh đặt hàng tùy chỉnh",
+          "detail": "Nếu bạn không thể tìm thấy sheet music bạn đang tìm, bạn có thể nhận được sắp xếp chính xác thông qua đặt hàng tùy chỉnh. Chọn theo ngân sách và lịch trình của bạn."
+        }
+      },
+      "cta": {
+        "customOrder": "Đăng ký đặt hàng tùy chỉnh",
+        "customOrders": "Kiểm tra đơn hàng đang diễn ra"
+      }
+    }
+  },
+  "searchTips": {
+    "title": "Bộ sưu tập mẹo tìm kiếm",
+    "items": {
+      "keyword": {
+        "title": "Từ khóa được đề xuất",
+        "description": "Tìm kiếm với tiêu đề bài hát + nghệ sĩ tăng độ chính xác."
+      },
+      "filter": {
+        "title": "Kết hợp bộ lọc",
+        "description": "Đặt thể loại + độ khó + phạm vi giá cùng nhau chỉ để lại sheet music bạn cần."
+      },
+      "noResults": {
+        "title": "Không có kết quả tìm kiếm",
+        "description": "Kiểm tra lại chính tả hoặc tìm kiếm với thể loại/nghệ sĩ tương tự và sau đó thử đặt hàng tùy chỉnh."
+      }
+    }
+  },
+  "purchaseComparison": {
+    "title": "So sánh phương thức mua hàng",
+    "regular": {
+      "title": "Mua hàng thông thường",
+      "badge": "Được đề xuất",
+      "items": [
+        "Tải xuống PDF ngay lập tức sau thanh toán",
+        "Tiết kiệm chi phí với sheet sự kiện/miễn phí",
+        "Lựa chọn rộng rãi về thể loại và mức độ khó"
+      ]
+    },
+    "custom": {
+      "title": "Đặt hàng tùy chỉnh",
+      "badge": "Tùy chỉnh",
+      "items": [
+        "Sản xuất chính xác bài hát và phong cách sắp xếp bạn muốn",
+        "Thời gian sản xuất 1-7 ngày, thay đổi theo độ khó",
+        "Tiến hành thanh toán sau khi xác nhận báo giá"
+      ]
+    }
+  },
+  "helpNeeded": {
+    "title": "Cần thêm trợ giúp?",
+    "description": "Kiểm tra các câu hỏi thường gặp trong hỗ trợ khách hàng hoặc yêu cầu tư vấn trực tiếp thông qua câu hỏi.",
+    "cta": {
+      "findSheets": "Tìm Sheet Music ngay",
+      "eventSale": "Xem Sheet giảm giá đang diễn ra"
+    }
+  },
+  "terms": {
+    "title": "Điều khoản dịch vụ",
+    "content": [
+      "Tất cả khách hàng sử dụng dịch vụ COPYDRUM phải tôn trọng bản quyền và sử dụng sheet music trong phạm vi mục đích luyện tập cá nhân. Phân phối, sao chép hoặc chia sẻ trái phép sheet music đã mua sẽ bị xử phạt pháp lý, và cần giấy phép riêng cho sử dụng thương mại.",
+      "Vì tải xuống được cung cấp ngay sau thanh toán, hoàn tiền có thể bị hạn chế sau khi hoàn tất tải xuống do bản chất của nội dung kỹ thuật số. Các chính sách chi tiết liên quan đến việc sử dụng dịch vụ, bao gồm thanh toán, đặt hàng tùy chỉnh và lợi ích sự kiện, được cập nhật thường xuyên thông qua thông báo dịch vụ khách hàng."
+    ]
+  },
+  "privacy": {
+    "title": "Tóm tắt chính sách bảo mật",
+    "content": [
+      "Chúng tôi thu thập thông tin cá nhân tối thiểu như email, tên và thông tin thanh toán để đăng ký tài khoản, xử lý đơn hàng và hỗ trợ khách hàng. Thông tin này được lưu trữ an toàn trong môi trường bảo mật dựa trên Supabase. Chúng tôi không sử dụng thông tin cá nhân cho mục đích khác ngoài việc cung cấp dịch vụ, và chúng tôi tuân thủ nghiêm ngặt các thủ tục đồng ý trước khi chia sẻ với bên thứ ba.",
+      "Khách hàng có thể yêu cầu xem, sửa đổi hoặc xóa thông tin cá nhân của họ thông qua Trang của tôi hoặc Hỗ trợ khách hàng, và các yêu cầu như vậy sẽ được xử lý không chậm trễ. Để biết thêm về bảo vệ thông tin cá nhân, vui lòng liên hệ với chúng tôi thông qua câu hỏi 1:1 Hỗ trợ khách hàng hoặc email."
+    ]
+  }
+}

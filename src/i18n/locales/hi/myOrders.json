@@ -1,0 +1,65 @@
+{
+  "title": "शीट संगीत खरीद इतिहास",
+  "description": "यह आपके द्वारा खरीदे गए शीट संगीत की सूची है, सबसे हाल के अनुसार क्रमबद्ध।",
+  "totalPurchased": "आपने कुल {{count}} शीट संगीत खरीदे हैं।",
+  "loginRequired": "लॉगिन आवश्यक",
+  "loginRequiredMessage": "कृपया अपना खरीद इतिहास देखने के लिए लॉगिन करें।",
+  "orderNumber": "ऑर्डर नंबर",
+  "categoryNotSet": "श्रेणी सेट नहीं की गई",
+  "deletedSheet": "हटाया गया शीट",
+  "status": {
+    "pending": "भुगतान लंबित",
+    "pendingDesc": "भुगतान पुष्टि की प्रतीक्षा कर रहे हैं।",
+    "processing": "प्रसंस्करण",
+    "processingDesc": "आपका ऑर्डर प्रसंस्करण में है।",
+    "completed": "पूर्ण",
+    "completedDesc": "ऑर्डर पूर्ण हो गया। डाउनलोड उपलब्ध हैं।",
+    "cancelled": "रद्द",
+    "cancelledDesc": "ऑर्डर रद्द कर दिया गया है।",
+    "paymentPending": "भुगतान लंबित",
+    "paymentPendingDesc": "जमा पुष्टि की प्रतीक्षा कर रहे हैं।",
+    "paymentConfirmed": "भुगतान पुष्ट",
+    "paymentConfirmedDesc": "भुगतान पुष्ट हो गया। डाउनलोड उपलब्ध हैं।",
+    "paid": "भुगतान किया गया",
+    "paidDesc": "भुगतान पूर्ण हो गया। डाउनलोड उपलब्ध हैं।",
+    "refunded": "वापस किया गया",
+    "refundedDesc": "ऑर्डर वापस कर दिया गया है।"
+  },
+  "paymentMethod": {
+    "card": "क्रेडिट कार्ड",
+    "bankTransfer": "बैंक ट्रांसफर",
+    "virtualAccount": "वर्चुअल खाता",
+    "cash": "उपलब्ध शेष",
+    "points": "अंक"
+  },
+  "empty": {
+    "title": "कोई शीट संगीत खरीदा नहीं गया",
+    "message": "अपने पसंदीदा शीट संगीत खोजें और उन्हें अपनी कार्ट में जोड़ें।",
+    "browseButton": "शीट संगीत ब्राउज़ करें"
+  },
+  "actions": {
+    "downloadAll": "इस ऑर्डर में सभी डाउनलोड करें",
+    "downloadSelected": "चयनित डाउनलोड करें",
+    "selectAll": "सभी चुनें",
+    "deselectAll": "सभी अचयनित करें",
+    "clearSelection": "चयन साफ़ करें",
+    "download": "डाउनलोड",
+    "downloadNotAvailable": "डाउनलोड उपलब्ध नहीं",
+    "downloading": "डाउनलोड हो रहा है...",
+    "viewDetails": "विवरण देखें",
+    "purchaseDate": "खरीद तिथि {{date}}",
+    "selectedCount": "{{count}} चयनित",
+    "cart": "कार्ट"
+  },
+  "messages": {
+    "selectSheetsToDownload": "कृपया डाउनलोड करने के लिए शीट संगीत चुनें।",
+    "refundedOrRestricted": "इस ऑर्डर को वापस कर दिया गया है या डाउनलोड प्रतिबंधित है।",
+    "loginRequired": "लॉगिन आवश्यक है।",
+    "downloadFailed": "{{count}} शीट संगीत डाउनलोड करने में विफल।",
+    "refundedOrder": "वापस किए गए ऑर्डर डाउनलोड नहीं किए जा सकते।",
+    "noSheetsToDownload": "डाउनलोड के लिए कोई शीट संगीत उपलब्ध नहीं है।",
+    "sheetInfoNotFound": "शीट संगीत जानकारी नहीं मिली।",
+    "fileNotFound": "फ़ाइल नहीं मिली।",
+    "downloadError": "फ़ाइल डाउनलोड करने में विफल। कृपया बाद में पुनः प्रयास करें।"
+  }
+}

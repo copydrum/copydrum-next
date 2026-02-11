@@ -1,0 +1,66 @@
+{
+  "title": "楽譜購入履歴",
+  "description": "最近の順に並べられた楽譜購入リストです。",
+  "totalPurchased": "合計 {{count}} 個の楽譜を購入しました。",
+  "loginRequired": "ログインが必要です",
+  "loginRequiredMessage": "購入履歴を確認するにはログインしてください。",
+  "orderNumber": "注文番号",
+  "categoryNotSet": "カテゴリ未設定",
+  "deletedSheet": "削除された楽譜",
+  "status": {
+    "pending": "決済待ち",
+    "pendingDesc": "決済確認を待っています。",
+    "processing": "処理中",
+    "processingDesc": "注文が処理されています。",
+    "completed": "完了",
+    "completedDesc": "注文が完了しました。ダウンロード可能です。",
+    "cancelled": "キャンセル済み",
+    "cancelledDesc": "注文がキャンセルされました。",
+    "paymentPending": "決済待ち",
+    "paymentPendingDesc": "入金確認を待っています。",
+    "paymentConfirmed": "決済確認済み",
+    "paymentConfirmedDesc": "決済が確認されました。ダウンロード可能です。",
+    "paid": "決済完了",
+    "paidDesc": "決済が完了しました。ダウンロード可能です。",
+    "refunded": "返金済み",
+    "refundedDesc": "注文が返金されました。"
+  },
+  "paymentMethod": {
+    "card": "クレジットカード",
+    "bankTransfer": "銀行振込",
+    "virtualAccount": "仮想口座",
+    "cash": "保有キャッシュ",
+    "points": "ポイント"
+  },
+  "empty": {
+    "title": "購入した楽譜がありません",
+    "message": "お気に入りの楽譜を見つけてカートに追加してください。",
+    "browseButton": "楽譜を見る"
+  },
+  "actions": {
+    "downloadAll": "この注文をすべてダウンロード",
+    "downloadSelected": "選択したものをダウンロード",
+    "selectAll": "すべて選択",
+    "deselectAll": "すべて解除",
+    "clearSelection": "選択解除",
+    "download": "ダウンロード",
+    "downloadNotAvailable": "ダウンロード不可",
+    "downloading": "ダウンロード中...",
+    "viewDetails": "詳細を見る",
+    "purchaseDate": "購入日 {{date}}",
+    "selectedCount": "{{count}} 個選択",
+    "cart": "カート"
+  },
+  "messages": {
+    "selectSheetsToDownload": "ダウンロードする楽譜を選択してください。",
+    "refundedOrRestricted": "この注文は返金されたか、ダウンロードが制限されています。",
+    "loginRequired": "ログインが必要です。",
+    "downloadFailed": "{{count}} 個の楽譜のダウンロードに失敗しました。",
+    "refundedOrder": "返金された注文はダウンロードできません。",
+    "noSheetsToDownload": "ダウンロードできる楽譜がありません。",
+    "sheetInfoNotFound": "楽譜情報が見つかりません。",
+    "fileNotFound": "ファイルが見つかりません。",
+    "downloadError": "ファイルのダウンロードに失敗しました。後でもう一度お試しください。"
+  }
+}
+

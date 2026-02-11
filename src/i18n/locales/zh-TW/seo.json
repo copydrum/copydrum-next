@@ -1,0 +1,9 @@
+{
+  "detailTitle": "{{title}} – {{artist}} | 架子鼓樂譜 PDF | COPYDRUM",
+  "detailDescription": "下載 {{artist}} 的《{{title}}》架子鼓樂譜，高品質 PDF。{{genre}} 風格，{{pages}} 頁，{{bpm}} BPM，難度等級：{{difficulty}}。",
+  "detailKeywords": "{{title}}, {{artist}}, 架子鼓樂譜, 鼓譜, drum sheet music, COPYDRUM",
+  "homeTitle": "COPYDRUM | 架子鼓樂譜商店",
+  "homeDescription": "提供高品質架子鼓樂譜與鼓樂總譜，涵蓋流行、搖滾、K-POP、CCM 等多種風格，為全世界鼓手提供即時 PDF 下載。",
+  "categoryTitle": "{{category}} 架子鼓樂譜 | COPYDRUM",
+  "categoryDescription": "下載 {{category}} 歌曲的架子鼓樂譜 PDF，適合練習與現場演出。"
+}

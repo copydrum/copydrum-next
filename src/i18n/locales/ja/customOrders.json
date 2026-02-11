@@ -1,0 +1,71 @@
+{
+  "title": "カスタム注文履歴",
+  "nav": {
+    "home": "ホーム",
+    "categories": "楽譜カテゴリー",
+    "customOrder": "カスタム注文",
+    "customOrderHistory": "カスタム注文履歴"
+  },
+  "loading": "読み込み中...",
+  "empty": {
+    "message": "カスタム注文履歴がありません。",
+    "button": "カスタム注文を依頼"
+  },
+  "status": {
+    "pending": {
+      "label": "見積もり中",
+      "message": "リクエストを確認し、カスタム見積もりを準備しています。"
+    },
+    "quoted": {
+      "label": "決済待機",
+      "message": "見積もりが到着しました。見積もり金額を入金して制作を開始してください。"
+    },
+    "payment_confirmed": {
+      "label": "入金確認済み",
+      "message": "入金が確認されました。制作順序に従って準備を進めています。"
+    },
+    "in_progress": {
+      "label": "制作中",
+      "message": "専門家が楽譜を制作しています。完了次第お知らせします。"
+    },
+    "completed": {
+      "label": "完了",
+      "message": "楽譜制作が完了しました。下記のPDFファイルをダウンロードしてください。"
+    },
+    "cancelled": {
+      "label": "キャンセル"
+    }
+  },
+  "order": {
+    "artist": "アーティスト",
+    "applicationDate": "申請日",
+    "estimatedPrice": "見積もり価格",
+    "requirements": "要件",
+    "noRequirements": "追加要件はありません。",
+    "referenceVideo": "参考動画",
+    "adminReply": "管理者からの回答",
+    "replyDate": "回答日",
+    "completedSheet": "完成した楽譜",
+    "completedSheetFilename": "完成した楽譜.pdf",
+    "sheetMusicSuffix": "楽譜",
+    "download": "ダウンロード",
+    "downloadCount": "ダウンロード",
+    "times": "回",
+    "expiryDate": "有効期限",
+    "recentUpdate": "最終更新",
+    "viewDetails": "詳細を見る",
+    "quote": "見積もり",
+    "checkQuote": "見積もりを確認",
+    "workCompleted": "制作完了"
+  },
+  "alerts": {
+    "downloadLimitExceeded": "ダウンロード試行回数を使い切りました。カスタマーサポートにお問い合わせください。",
+    "downloadExpired": "ダウンロード期間が期限切れです。カスタマーサポートにお問い合わせください。",
+    "downloadSuccess": "楽譜のダウンロードが完了しました。",
+    "downloadFailed": "ダウンロードに失敗しました。もう一度お試しください。"
+  },
+  "warnings": {
+    "downloadLimitExceeded": "ダウンロード制限を超えました。追加のダウンロードが必要な場合は、カスタマーサポートにお問い合わせください。",
+    "downloadPeriodExpired": "ダウンロード期間が期限切れです。カスタマーサポートにお問い合わせください。"
+  }
+}

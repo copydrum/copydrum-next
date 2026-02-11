@@ -1,0 +1,79 @@
+{
+  "badge": "LEZIONI DI BATTERIA GRATUITE",
+  "title": "Spartiti lezioni di batteria gratuite",
+  "description": "Esplora tutti gli spartiti nella categoria lezioni di batteria gratuitamente! Pratica con le lezioni YouTube per migliorare le tue abilità più velocemente. Scegli tra vari argomenti di apprendimento come tecniche di batteria, rudimenti, assoli di batteria e altro ancora.",
+  "features": {
+    "freeDownload": "Download completo gratuito",
+    "categoryLearning": "Apprendimento per categoria",
+    "youtubeLesson": "Link lezioni YouTube"
+  },
+  "categories": {
+    "all": "Tutti",
+    "drumTechnique": "Tecnica di batteria",
+    "rudiment": "Rudimento",
+    "drumSolo": "Assolo di batteria",
+    "beginnerBasics": "Principiante/Basi",
+    "rhythmPattern": "Pattern ritmico",
+    "fillIn": "Fill-in",
+    "drumLesson": "Lezione di batteria",
+    "categoryPending": "Categoria in attesa"
+  },
+  "search": {
+    "placeholder": "Cerca per titolo, artista o tag"
+  },
+  "sort": {
+    "label": "Ordina",
+    "latest": "Più recenti",
+    "title": "Titolo",
+    "difficulty": "Difficoltà"
+  },
+  "difficulty": {
+    "beginner": "Principiante",
+    "intermediate": "Intermedio",
+    "advanced": "Avanzato",
+    "notAvailable": "Difficoltà non disponibile"
+  },
+  "loading": "Caricamento spartiti lezioni di batteria gratuite...",
+  "empty": {
+    "title": "Nessuno spartito gratuito corrisponde ai tuoi criteri.",
+    "description": "Prova a selezionare una categoria diversa o cambiare il tuo termine di ricerca."
+  },
+  "actions": {
+    "viewFreeSheet": "Visualizza spartito gratuito",
+    "viewYoutubeLesson": "Visualizza lezione YouTube",
+    "goToDetail": "Vai alla pagina dettagli",
+    "closeDetail": "Chiudi dettaglio spartito gratuito"
+  },
+  "errors": {
+    "lessonCategoryLoadError": "Impossibile caricare la categoria lezioni di batteria. Riprova più tardi.",
+    "lessonCategoryNotFound": "La categoria lezioni di batteria non esiste. Contatta l'amministratore.",
+    "sheetsLoadError": "Impossibile caricare gli spartiti lezioni di batteria gratuite. Riprova più tardi.",
+    "generalError": "Si è verificato un errore durante il caricamento degli spartiti lezioni di batteria gratuite.",
+    "loginRequired": "Accesso richiesto.",
+    "favoriteError": "Si è verificato un errore durante l'elaborazione dei preferiti. Riprova più tardi.",
+    "pdfNotReady": "Il link PDF non è pronto.",
+    "youtubeNotAvailable": "Nessun video YouTube è registrato."
+  },
+  "mobile": {
+    "freeSheet": "Spartito gratuito",
+    "upload": "Carica",
+    "pages": "pagine",
+    "youtubeLessonIncluded": "Lezione YouTube inclusa",
+    "freeDownload": "Download gratuito",
+    "practiceWithPdf": "Pratica con lo spartito PDF.",
+    "favorite": "Preferito",
+    "unfavorite": "Rimuovi preferito"
+  },
+  "console": {
+    "lessonCategoryError": "Errore nella ricerca della categoria lezioni di batteria:",
+    "primarySheetsError": "Errore nel caricamento degli spartiti lezioni di batteria principali:",
+    "relationsError": "Errore nel caricamento delle relazioni categoria lezioni di batteria:",
+    "additionalSheetsError": "Errore nel caricamento degli spartiti lezioni di batteria aggiuntivi:",
+    "extraCategoriesError": "Errore nel caricamento delle categorie extra:",
+    "generalError": "Errore nell'elaborazione della pagina spartiti gratuiti:",
+    "favoritesLoadError": "Errore nel caricamento dei preferiti:",
+    "favoriteToggleError": "Errore nel toggle preferito:",
+    "userLoadError": "Impossibile caricare le informazioni utente:",
+    "youtubeUrlParseError": "Il parsing dell'URL YouTube è fallito:"
+  }
+}

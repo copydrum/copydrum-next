@@ -1,0 +1,25 @@
+{
+  "title": "合作夥伴資訊",
+  "description": "COPYDRUM 透過合作夥伴關係向更多鼓手提供最佳內容。",
+  "benefits": {
+    "title": "合作夥伴優勢",
+    "exclusiveLicense": {
+      "title": "獨家樂譜授權",
+      "description": "我們為在演出、課程和銷售等各種環境中使用提供客製化授權。"
+    },
+    "premiumSupport": {
+      "title": "優質支援",
+      "description": "我們為合作夥伴提供專屬支援，包括新樂譜請求、客製記譜和聯合行銷。"
+    },
+    "sharedGrowth": {
+      "title": "共同成長",
+      "description": "我們透過聯合專案和活動共同擴展鼓手社群。"
+    }
+  },
+  "inquiry": {
+    "title": "合作夥伴詢問",
+    "description": "您準備好透過與 COPYDRUM 的合作關係共同成長嗎？請使用以下資訊與我們聯絡。",
+    "emailLabel": "電子郵件",
+    "note": "請在您的詢問中提供詳細資訊，以便我們的團隊快速回應。"
+  }
+}

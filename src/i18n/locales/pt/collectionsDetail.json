@@ -1,0 +1,72 @@
+{
+  "loading": "Carregando coleção...",
+  "errors": {
+    "noCollectionInfo": "As informações da coleção solicitada não estão disponíveis.",
+    "collectionNotFound": "A coleção solicitada não foi encontrada.",
+    "loadError": "Ocorreu um erro ao carregar as informações da coleção.",
+    "collectionNotAvailable": "A coleção de partituras solicitada não existe ou foi desativada."
+  },
+  "backToList": "Voltar para Coleções",
+  "free": "Grátis",
+  "discount": "{{percentage}}% OFF",
+  "badge": "Coleção de Partituras",
+  "includedSheets": {
+    "count": "Partituras Incluídas",
+    "number": "{{count}} músicas",
+    "title": "Partituras Incluídas",
+    "description": "Visualize todas as partituras incluídas nesta coleção e explore as que desejar.",
+    "empty": "Nenhuma partitura foi adicionada a esta coleção ainda."
+  },
+  "sheet": {
+    "difficulty": "Dificuldade {{difficulty}}",
+    "free": "Grátis"
+  },
+  "purchase": {
+    "priceInfo": "Informações de Preço da Coleção",
+    "totalIndividual": "Total de Partituras Individuais",
+    "noInfo": "Sem informações",
+    "collectionPrice": "Preço da Coleção",
+    "buyNow": "Comprar Agora",
+    "save": "Economize {{amount}}!",
+    "processing": "Processando...",
+    "note": "As coleções só podem ser compradas pelo preço com desconto.",
+    "inactive": "Esta coleção está atualmente inativa. Por favor, entre em contato com o administrador.",
+    "mobilePrice": "Preço da Coleção",
+    "mobileSave": "Economize {{amount}} comparado à compra individual",
+    "mobileInactive": "Esta coleção está atualmente inativa.",
+    "buyCollection": "Buy Collection",
+    "goToCart": "Go to Cart"
+  },
+  "alerts": {
+    "noSheetInfo": "As informações da partitura incluída na coleção não puderam ser encontradas.",
+    "duplicatePurchase": "Você já comprou algumas partituras incluídas nesta coleção, então a compra duplicada não é possível.",
+    "duplicateList": "Partituras duplicadas:",
+    "checkMyPage": "Por favor, verifique seu histórico de compras na Minha Página.",
+    "insufficientCredit": "Saldo insuficiente.",
+    "currentBalance": "Saldo atual: {{amount}}P",
+    "chargeCash": "Por favor, recarregue o saldo e tente novamente.",
+    "purchaseSuccess": "Compra concluída. Por favor, verifique o conteúdo na Minha Página.",
+    "purchaseError": "Ocorreu um erro durante a compra."
+  },
+  "navigation": {
+    "title": "Explorar Outras Páginas",
+    "viewCategories": "Ver Categorias de Partituras",
+    "eventSale": "Partituras de Promoção",
+    "customOrder": "Solicitação de Pedido Personalizado"
+  },
+  "purchaseDescription": "Compra de Coleção de Partituras: {{title}}",
+  "sheetTitle": "Partitura",
+  "viewSheet": "Ver Partitura",
+  "difficulty": {
+    "beginner": "Iniciante",
+    "intermediate": "Intermediário",
+    "advanced": "Avançado"
+  },
+  "features": {
+    "title": "O que está incluído",
+    "allSheets": "Todas as partituras a preço reduzido",
+    "highQuality": "Formato PDF de alta qualidade",
+    "instantDownload": "Download instantâneo",
+    "lifetimeAccess": "Acesso vitalício"
+  }
+}

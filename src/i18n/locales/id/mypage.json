@@ -1,0 +1,287 @@
+{
+  "title": "Halaman Saya",
+  "subtitle": "Lihat semua aktivitas Anda dari pembelian lembaran musik hingga pesanan kustom sekaligus.",
+  "tabs": {
+    "profile": {
+      "label": "Manajemen Profil",
+      "description": "Kelola informasi pribadi dan detail kontak Anda."
+    },
+    "purchases": {
+      "label": "Riwayat Pembelian",
+      "description": "Periksa informasi pesanan lembaran musik yang Anda beli."
+    },
+    "downloads": {
+      "label": "Manajemen Unduhan",
+      "description": "Unduh dan pratinjau lembaran musik yang Anda beli."
+    },
+    "favorites": {
+      "label": "Lembaran Favorit",
+      "description": "Lihat lembaran musik favorit Anda."
+    },
+    "cash": {
+      "label": "Riwayat Cash",
+      "description": "Periksa saldo cash dan riwayat penggunaan Anda."
+    },
+    "inquiries": {
+      "label": "Pertanyaan 1:1",
+      "description": "Periksa pertanyaan dan respons Anda."
+    },
+    "customOrders": {
+      "label": "Pesanan Kustom",
+      "description": "Periksa status permintaan pesanan kustom Anda."
+    }
+  },
+  "stats": {
+    "purchasedSheets": "Lembaran yang Dibeli",
+    "availableDownloads": "Unduhan Tersedia",
+    "favoriteSheets": "Lembaran Favorit",
+    "inquiries": "Pertanyaan 1:1",
+    "customOrders": "Pesanan Kustom"
+  },
+  "profile": {
+    "title": "Manajemen Profil",
+    "memberInfo": "Informasi Anggota",
+    "nameNotSet": "Nama tidak diatur",
+    "joinedOn": "Bergabung pada",
+    "cashBalance": "Saldo Cash",
+    "cashBalanceDescription": "Tersedia untuk pembelian lembaran musik Anda berikutnya.",
+    "chargeCash": "Isi Cash",
+    "email": "Email",
+    "name": "Nama",
+    "namePlaceholder": "Masukkan nama Anda",
+    "phoneNumber": "Nomor Telepon",
+    "phonePlaceholder": "Masukkan nomor telepon Anda",
+    "joinDate": "Tanggal Bergabung",
+    "saving": "Menyimpan...",
+    "updateProfile": "Perbarui Profil"
+  },
+  "purchases": {
+    "title": "Riwayat Pembelian",
+    "description": "Diurutkan berdasarkan pesanan terbaru.",
+    "browseMore": "Jelajahi Lebih Banyak Lembaran",
+    "noPurchases": "Belum ada lembaran musik yang dibeli.",
+    "orderNumber": "Nomor Pesanan",
+    "total": "Total",
+    "downloadAllInOrder": "Unduh Semua dalam Pesanan Ini",
+    "downloading": "Mengunduh...",
+    "selectAll": "Pilih Semua",
+    "deselectAll": "Batalkan Pilihan Semua",
+    "selected": "Dipilih",
+    "downloadSelected": "Unduh yang Dipilih",
+    "download": "Unduh",
+    "viewDetails": "Lihat Detail",
+    "categoryNotSet": "Kategori tidak diatur",
+    "deletedSheet": "Lembaran yang dihapus"
+  },
+  "downloads": {
+    "title": "Manajemen Unduhan",
+    "description": "Anda dapat mengunduh ulang lembaran musik yang dibeli kapan saja.",
+    "totalItems": "Total {{count}} item",
+    "selectedItems": "Dipilih {{count}} item",
+    "selectAll": "Pilih Semua",
+    "deselectAll": "Batalkan Pilihan Semua",
+    "downloadSelected": "Unduh yang Dipilih",
+    "downloadAll": "Unduh Semua",
+    "downloading": "Mengunduh...",
+    "noDownloads": "Tidak ada lembaran musik yang dapat diunduh tersedia.",
+    "purchaseDate": "Tanggal Pembelian",
+    "preview": "Pratinjau",
+    "downloadUnavailable": "Unduhan Tidak Tersedia"
+  },
+  "favorites": {
+    "title": "Lembaran Favorit",
+    "description": "Temukan lembaran musik favorit Anda dengan cepat.",
+    "totalCount": "Total {{count}} item",
+    "noFavorites": "Belum ada lembaran favorit.",
+    "addFavorites": "Tambahkan lembaran musik favorit Anda!",
+    "viewDetails": "Lihat Detail",
+    "inCart": "Di Keranjang",
+    "cart": "Tambah ke Keranjang",
+    "removeFavorite": "Hapus Favorit",
+    "deletedSheet": "Lembaran yang dihapus"
+  },
+  "inquiries": {
+    "title": "Pertanyaan 1:1",
+    "description": "Kirim pertanyaan dan terima respons admin langsung di Halaman Saya.",
+    "name": "Nama",
+    "namePlaceholder": "Masukkan nama Anda",
+    "email": "Email",
+    "emailPlaceholder": "Masukkan email kontak Anda",
+    "category": "Jenis Pertanyaan",
+    "categoryPlaceholder": "Pilih jenis pertanyaan",
+    "categories": {
+      "orderPayment": "Pertanyaan Pesanan/Pembayaran",
+      "sheetDownload": "Pertanyaan Lembaran Musik/Unduhan",
+      "customOrder": "Pertanyaan Pesanan Kustom",
+      "technical": "Dukungan Teknis",
+      "other": "Pertanyaan Lainnya"
+    },
+    "subject": "Subjek",
+    "subjectPlaceholder": "Masukkan subjek pertanyaan",
+    "message": "Pesan",
+    "messagePlaceholder": "Silakan tulis pertanyaan Anda secara detail (maks 500 karakter)",
+    "characters": "karakter",
+    "submitting": "Mengirim...",
+    "submit": "Kirim Pertanyaan",
+    "history": {
+      "title": "Riwayat Pertanyaan Saya",
+      "description": "Periksa pertanyaan yang Anda kirim dan respons admin.",
+      "total": "Total {{count}} pertanyaan",
+      "loading": "Memuat riwayat pertanyaan...",
+      "noInquiries": "Belum ada pertanyaan yang dikirim.",
+      "noInquiriesDescription": "Jika Anda memiliki pertanyaan, silakan kirim pertanyaan menggunakan formulir di atas.",
+      "category": "Pertanyaan",
+      "received": "Diterima",
+      "adminReply": "Balasan Admin",
+      "replied": "Dibalas",
+      "preparing": "Respons sedang dipersiapkan. Kami akan menghubungi Anda setelah tinjauan."
+    }
+  },
+  "cash": {
+    "title": "Riwayat Cash",
+    "description": "Periksa saldo cash dan riwayat penggunaan Anda.",
+    "chargeCash": "Isi Cash",
+    "availableCash": "Cash Tersedia",
+    "loadingHistory": "Memuat riwayat cash...",
+    "noHistory": "Tidak ada riwayat cash untuk ditampilkan.",
+    "noHistoryDescription": "Transaksi cash akan dicatat di sini ketika Anda mengisi atau menggunakan cash.",
+    "types": {
+      "charge": "Isi Cash",
+      "use": "Penggunaan Cash",
+      "adminAdd": "Penambahan Admin",
+      "adminDeduct": "Pengurangan Admin",
+      "record": "Catatan"
+    },
+    "bonus": "Bonus",
+    "balance": "Saldo",
+    "sheet": "Lembaran",
+    "noDescription": "Tidak ada deskripsi yang dicatat."
+  },
+  "customOrders": {
+    "title": "Riwayat Pesanan Kustom",
+    "description": "Periksa status permintaan pesanan kustom Anda.",
+    "newOrderRequest": "Permintaan Pesanan Baru",
+    "noOrders": "Tidak ada riwayat pesanan kustom.",
+    "serviceDescription": "Gunakan layanan pesanan kustom kami untuk membuat lembaran musik khusus.",
+    "requestDate": "Tanggal Permintaan",
+    "lastUpdate": "Pembaruan Terakhir",
+    "viewDetails": "Lihat Detail",
+    "quoteConfirm": "Konfirmasi Penawaran",
+    "workCompleted": "Pekerjaan Selesai",
+    "quotePending": "Menunggu Penawaran"
+  },
+  "status": {
+    "order": {
+      "completed": "Selesai",
+      "pending": "Menunggu",
+      "cancelled": "Dibatalkan",
+      "refunded": "Dikembalikan",
+      "undetermined": "Tidak Ditentukan"
+    },
+    "customOrder": {
+      "pending": "Menunggu Penawaran",
+      "quoted": "Menunggu Pembayaran",
+      "paymentConfirmed": "Pembayaran Dikonfirmasi",
+      "inProgress": "Sedang Berlangsung",
+      "completed": "Selesai",
+      "cancelled": "Dibatalkan",
+      "undetermined": "Tidak Ditentukan"
+    },
+    "inquiry": {
+      "pending": "Menunggu Respons",
+      "answered": "Dijawab",
+      "processing": "Memproses"
+    }
+  },
+  "cashCharge": {
+    "title": "Isi Cash",
+    "currentCash": "Saldo Cash Saat Ini",
+    "paymentAmount": "Jumlah Pembayaran",
+    "bankTransferInfo": {
+      "title": "Informasi Transfer Bank",
+      "bank": "Bank",
+      "accountNumber": "Nomor Rekening",
+      "accountHolder": "Pemegang Rekening",
+      "amount": "Jumlah Setoran",
+      "depositorName": "Nama Penyetor"
+    },
+    "depositorName": "Nama Penyetor",
+    "depositorNamePlaceholder": "Masukkan nama penyetor",
+    "depositorNameHint": "* Jika nama penyetor berbeda dari nama anggota Anda, silakan masukkan nama penyetor.",
+    "bankTransferNotice": {
+      "title": "Pemberitahuan Transfer Bank",
+      "line1": "• Cash akan diisi secara manual oleh admin setelah konfirmasi setoran.",
+      "line2": "• Konfirmasi mungkin tertunda jika nama penyetor tidak cocok.",
+      "line3": "• Konfirmasi setoran mungkin memakan waktu 1-2 hari kerja."
+    },
+    "back": "Kembali",
+    "confirm": "Konfirmasi",
+    "processing": "Memproses...",
+    "paymentMethod": "Metode Pembayaran",
+    "paymentAmountTitle": "Jumlah Pembayaran",
+    "agreement": "Saya telah meninjau detail pembayaran dan menyetujui syarat.",
+    "next": "Berikutnya",
+    "bankTransferGuide": {
+      "title": "Panduan Transfer Bank",
+      "bank": "Bank",
+      "accountNumber": "Nomor Rekening",
+      "accountHolder": "Pemegang Rekening",
+      "amount": "Jumlah Setoran"
+    }
+  },
+  "guest": {
+    "title": "Login Diperlukan",
+    "description": "Silakan masuk untuk menggunakan fitur Halaman Saya seperti riwayat pembelian, unduhan, dan lembaran favorit.",
+    "login": "Pergi ke Login",
+    "signup": "Daftar"
+  },
+  "loading": {
+    "message": "Memuat data Halaman Saya..."
+  },
+  "errors": {
+    "loginRequired": "Login diperlukan.",
+    "agreementRequired": "Silakan setujui syarat pembayaran.",
+    "amountNotFound": "Jumlah isi yang dipilih tidak dapat ditemukan.",
+    "paymentMethodNotReady": "Metode pembayaran ini sedang dipersiapkan.",
+    "paymentWindowOpen": "Jendela pembayaran akan terbuka. Silakan selesaikan pembayaran.",
+    "paymentError": "Terjadi kesalahan selama pemrosesan pembayaran.",
+    "depositorNameRequired": "Silakan masukkan nama penyetor.",
+    "orderReceived": "Pesanan telah diterima.\\nCash akan diisi setelah konfirmasi setoran oleh admin.",
+    "allFieldsRequired": "Silakan isi semua bidang.",
+    "inquirySubmitted": "Pertanyaan telah dikirim. Kami akan merespons secepat mungkin.",
+    "inquiryError": "Terjadi kesalahan saat mengirim pertanyaan. Silakan coba lagi.",
+    "profileUpdated": "Informasi profil telah diperbarui.",
+    "profileUpdateError": "Gagal memperbarui profil. Silakan coba lagi nanti.",
+    "downloadRestricted": "Pesanan ini telah dikembalikan atau unduhan dibatasi.",
+    "selectDownloadItems": "Silakan pilih lembaran musik untuk diunduh.",
+    "noDownloadableItems": "Tidak ada lembaran musik yang dapat diunduh tersedia.",
+    "downloadRestrictedMultiple": "Lembaran musik yang dikembalikan atau dibatasi tidak dapat diunduh.",
+    "loginRequiredForDownload": "Login diperlukan. Silakan masuk lagi.",
+    "downloadFailed": "Gagal mengunduh {{count}} file. Silakan coba lagi nanti.",
+    "downloadFailedSingle": "Unduhan file gagal. Silakan coba lagi nanti.",
+    "previewNotFound": "File pratinjau tidak ditemukan.",
+    "favoriteRemoveFailed": "Gagal menghapus dari favorit.",
+    "sheetInfoNotFound": "Informasi lembaran musik yang dapat diunduh tidak ditemukan.",
+    "downloadLinkNotFound": "Tautan unduhan tidak ditemukan. Silakan hubungi admin."
+  },
+  "console": {
+    "cashHistoryError": "Kesalahan memuat riwayat cash:",
+    "inquiryHistoryError": "Kesalahan memuat riwayat pertanyaan:",
+    "profileLoadError": "Kesalahan memuat profil:",
+    "orderHistoryError": "Kesalahan memuat riwayat pesanan:",
+    "favoritesLoadError": "Kesalahan memuat favorit:",
+    "customOrderHistoryError": "Kesalahan memuat riwayat pesanan kustom:",
+    "initError": "Kesalahan inisialisasi Halaman Saya:",
+    "cashChargeError": "Kesalahan isi cash:",
+    "inquirySubmitError": "Kesalahan pengiriman pertanyaan:",
+    "profileUpdateError": "Kesalahan pembaruan profil:",
+    "favoriteRemoveError": "Kesalahan penghapusan favorit:"
+  },
+  "paymentMethods": {
+    "creditCard": "Kartu Kredit",
+    "kakaoPay": "Kakao Pay",
+    "bankTransfer": "Transfer Bank",
+    "preparing": "Mempersiapkan"
+  },
+  "cart": "Keranjang"
+}

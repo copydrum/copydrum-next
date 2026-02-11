@@ -1,0 +1,101 @@
+{
+  "title": "Partitura de batería personalizada",
+  "description": {
+    "line1": "¿Busca una canción específica?",
+    "line2": "Nuestros profesionales analizarán y crearán partituras de batería de alta calidad para usted.",
+    "line3": "Proporcionamos cotizaciones personalizadas basadas en la dificultad y estructura de la canción."
+  },
+  "login": {
+    "required": "Se requiere inicio de sesión",
+    "description": "Por favor, inicie sesión para enviar una solicitud de pedido personalizado.",
+    "button": "Iniciar sesión"
+  },
+  "pricing": {
+    "title": "Información de precios",
+    "note": "* El precio final se proporcionará como una cotización individual después de analizar la dificultad y duración de la canción.",
+    "grades": {
+      "c": {
+        "name": "Grado C",
+        "price": "$10+",
+        "description": "Canciones generales de K-pop, pop, música para adultos de menos de 5 minutos"
+      },
+      "b": {
+        "name": "Grado B",
+        "price": "$30+",
+        "description": "Ligeramente más alto que la dificultad intermedia o canciones de más de 5 minutos"
+      },
+      "a": {
+        "name": "Grado A",
+        "price": "$50+",
+        "description": "Canciones de dificultad avanzada"
+      }
+    }
+  },
+  "form": {
+    "title": "Formulario de solicitud de pedido personalizado",
+    "applicantId": "ID del solicitante",
+    "applicantIdPlaceholder": "ID de sesión iniciada",
+    "songInfo": "Información de la canción",
+    "songTitle": "Título de la canción",
+    "songTitlePlaceholder": "Ingrese el título de la canción que desea pedir",
+    "artist": "Artista",
+    "artistPlaceholder": "Ingrese el nombre del artista",
+    "youtubeUrl": "URL de YouTube",
+    "youtubeUrlPlaceholder": "Ingrese la URL de YouTube para la creación precisa de partituras (opcional)",
+    "youtubeUrlHint": "Por favor, ingrese una URL de YouTube para la creación precisa de partituras. (Opcional)",
+    "memo": "Memo",
+    "memoPlaceholder": "Ingrese cualquier nota o memo (máx. 500 caracteres)",
+    "characters": "caracteres",
+    "submit": "Enviar solicitud de pedido personalizado",
+    "submitting": "Enviando...",
+    "note": "Después del envío, puede verificar el progreso en Mi Página \"Historial de pedidos personalizados\" y descargar la partitura una vez completada."
+  },
+  "process": {
+    "title": "Proceso de pedido personalizado",
+    "steps": {
+      "request": {
+        "title": "Solicitud recibida",
+        "description": "Su solicitud de pedido personalizado se recibe al enviar."
+      },
+      "quote": {
+        "title": "Cotización enviada",
+        "description": "Analizamos la canción y proporcionamos una cotización a través de Mi Página."
+      },
+      "payment": {
+        "title": "Pago confirmado",
+        "description": "Después de confirmar la cotización y el pago, comienza la producción."
+      },
+      "completed": {
+        "title": "Completado",
+        "description": "Descargue la partitura completada desde Mi Página."
+      }
+    }
+  },
+  "faq": {
+    "title": "Preguntas frecuentes",
+    "questions": {
+      "quote": {
+        "question": "¿Cómo verifico la cotización?",
+        "answer": "Puede verificar la cotización en \"Historial de pedidos personalizados\" en Mi Página. Proporcionaremos una cotización dentro de 24 horas después de su solicitud."
+      },
+      "production": {
+        "question": "¿Cuánto tiempo tarda la producción?",
+        "answer": "Generalmente, toma de 1 a 3 días después de la confirmación del pago. La duración puede variar dependiendo de la dificultad y duración de la canción, y proporcionaremos el horario exacto en la cotización."
+      },
+      "payment": {
+        "question": "¿Qué métodos de pago están disponibles?",
+        "answer": "Actualmente, solo está disponible la transferencia bancaria. Proporcionaremos información de la cuenta bancaria junto con la cotización."
+      }
+    }
+  },
+  "errors": {
+    "loginRequired": "Se requiere inicio de sesión.",
+    "submitError": "Ocurrió un error al enviar. Por favor, inténtelo de nuevo."
+  },
+  "messages": {
+    "submitSuccess": "La solicitud de pedido personalizado ha sido enviada. Puede verificar el progreso en Mi Página."
+  },
+  "console": {
+    "submitError": "Error al enviar el pedido:"
+  }
+}

@@ -1,0 +1,13 @@
+{
+    "title": "Sheet Music Purchase History",
+    "description": "This is the list of sheet music you purchased, sorted by most recent. You have purchased a total of {{count}} sheet music items.",
+    "orderNumber": "Order Number",
+    "paymentMethod": "Payment Method",
+    "paymentPending": "Payment Pending",
+    "paymentComplete": "Payment Completed",
+    "waitingForPayment": "Waiting for payment confirmation.",
+    "downloadNotAvailable": "Download Not Available",
+    "download": "Download",
+    "viewDetails": "View Details",
+    "downloadAll": "Download All"
+}

@@ -1,0 +1,61 @@
+{
+  "header": {
+    "badge": "Dapatkan Lembaran Drum Populer Hanya 100 Won!",
+    "title": "ACARA PENJUALAN KHUSUS 100 WON",
+    "description": "Jangan lewatkan lembaran drum super sale dengan waktu terbatas ini. Dapatkan lagu populer hanya dengan 100 won dan mulai bermain hari ini!"
+  },
+  "countdownNotice": "Periksa timer hitung mundur real-time!",
+  "loading": "Memuat informasi acara...",
+  "countdown": {
+    "startingSoon": "Segera dimulai",
+    "startsIn": "Dimulai dalam",
+    "timeLeft": "⏰ Waktu tersisa",
+    "dayUnit": "h",
+    "starts": "Dimulai"
+  },
+  "buttons": {
+    "only100Won": "Hanya 100 Won!",
+    "addToFavorites": "Tambah ke favorit",
+    "removeFromFavorites": "Hapus dari favorit",
+    "viewDetails": "Lihat Detail",
+    "buyNow": "Beli Sekarang",
+    "processing": "Memproses...",
+    "saleEnded": "Penjualan Berakhir"
+  },
+  "labels": {
+    "eventSheet": "Lembaran Acara",
+    "saleEnded": "Penjualan Berakhir",
+    "only100WonBadge": "Hanya 100 Won!",
+    "100Won": "100 Won",
+    "discount": "Off",
+    "startingSoon": "Segera Dimulai"
+  },
+  "sections": {
+    "ongoing": {
+      "title": "Penjualan Khusus 100 Won yang Sedang Berlangsung",
+      "description": "Lembaran acara tersedia untuk dibeli sekarang.",
+      "activeCount": "{{count}} Aktif",
+      "noEvents": "Tidak ada acara yang sedang berlangsung. Periksa acara yang dijadwalkan di bawah ini!"
+    },
+    "scheduled": {
+      "title": "Acara yang Dijadwalkan",
+      "description": "Periksa acara mendatang dan siapkan untuk notifikasi.",
+      "scheduledCount": "{{count}} Dijadwalkan"
+    },
+    "ended": {
+      "title": "Acara yang Berakhir"
+    }
+  },
+  "messages": {
+    "loginRequired": "Login diperlukan.",
+    "loginRequiredConfirm": "Login diperlukan. Pergi ke halaman login?",
+    "checkDownloadPage": "Periksa lembaran Anda di halaman unduhan.",
+    "paymentError": "Terjadi kesalahan selama pembayaran.",
+    "favoriteError": "Terjadi kesalahan saat memproses favorit Anda. Silakan coba lagi nanti."
+  },
+  "console": {
+    "loadEventsError": "Kesalahan memuat daftar lembaran diskon acara:",
+    "loadFavoritesError": "Kesalahan memuat daftar favorit:",
+    "toggleFavoriteError": "Kesalahan pemrosesan toggle favorit:"
+  }
+}

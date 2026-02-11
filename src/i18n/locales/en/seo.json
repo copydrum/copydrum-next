@@ -1,0 +1,9 @@
+{
+  "detailTitle": "{{title}} – {{artist}} | Drum Sheet Music PDF | COPYDRUM",
+  "detailDescription": "Download the drum sheet music for \"{{title}}\" by {{artist}}. High-quality PDF, instant download. {{genre}} drum score, {{pages}} pages, {{bpm}} BPM, {{difficulty}} level.",
+  "detailKeywords": "{{title}}, {{artist}}, drum sheet music, drum score, drum transcription, COPYDRUM",
+  "homeTitle": "COPYDRUM | Drum Sheet Music Store",
+  "homeDescription": "High-quality drum sheet music and drum scores for pop, rock, K-POP, CCM and more. Instant PDF download for drummers around the world.",
+  "categoryTitle": "{{category}} Drum Sheet Music | COPYDRUM",
+  "categoryDescription": "Download drum sheet music and drum scores for {{category}} songs in PDF format. Instant download for practice and performance."
+}

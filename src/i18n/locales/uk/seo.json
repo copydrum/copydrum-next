@@ -1,0 +1,9 @@
+{
+  "detailTitle": "{{title}} – {{artist}} | Ноти для ударних PDF | COPYDRUM",
+  "detailDescription": "Завантажуйте ноти для ударних до «{{title}}» від {{artist}} у форматі PDF високої якості. Партитура в стилі {{genre}}, {{pages}} сторінок, {{bpm}} BPM, рівень складності {{difficulty}}.",
+  "detailKeywords": "{{title}}, {{artist}}, ноти для ударних, drum sheet music, транскрипція ударних, COPYDRUM",
+  "homeTitle": "COPYDRUM | Магазин нот для ударних",
+  "homeDescription": "Якісні ноти для ударних та drum scores для поп, рок, K-POP, CCM та інших жанрів. Миттєве завантаження PDF для барабанщиків усього світу.",
+  "categoryTitle": "Ноти для ударних: {{category}} | COPYDRUM",
+  "categoryDescription": "Завантажуйте в PDF ноти для ударних до пісень категорії {{category}}. Чудово підходить для занять та виступів."
+}

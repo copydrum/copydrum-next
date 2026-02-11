@@ -1,0 +1,101 @@
+{
+  "title": "Bản nhạc trống tùy chỉnh",
+  "description": {
+    "line1": "Đang tìm một bài hát cụ thể?",
+    "line2": "Các chuyên gia của chúng tôi sẽ phân tích và tạo bản nhạc trống chất lượng cao cho bạn.",
+    "line3": "Chúng tôi cung cấp báo giá tùy chỉnh dựa trên độ khó và cấu trúc của bài hát."
+  },
+  "login": {
+    "required": "Yêu cầu đăng nhập",
+    "description": "Vui lòng đăng nhập để gửi yêu cầu đặt hàng tùy chỉnh.",
+    "button": "Đăng nhập"
+  },
+  "pricing": {
+    "title": "Thông tin giá",
+    "note": "* Giá cuối cùng sẽ được cung cấp dưới dạng báo giá riêng sau khi phân tích độ khó và độ dài của bài hát.",
+    "grades": {
+      "c": {
+        "name": "Hạng C",
+        "price": "$10+",
+        "description": "K-pop, pop, adult contemporary chung dưới 5 phút"
+      },
+      "b": {
+        "name": "Hạng B",
+        "price": "$30+",
+        "description": "Độ khó hơi cao hơn trung cấp hoặc bài hát trên 5 phút"
+      },
+      "a": {
+        "name": "Hạng A",
+        "price": "$50+",
+        "description": "Bài hát độ khó nâng cao"
+      }
+    }
+  },
+  "form": {
+    "title": "Biểu mẫu yêu cầu đặt hàng tùy chỉnh",
+    "applicantId": "ID người đăng ký",
+    "applicantIdPlaceholder": "ID đã đăng nhập",
+    "songInfo": "Thông tin bài hát",
+    "songTitle": "Tiêu đề bài hát",
+    "songTitlePlaceholder": "Nhập tiêu đề bài hát bạn muốn đặt hàng",
+    "artist": "Nghệ sĩ",
+    "artistPlaceholder": "Nhập tên nghệ sĩ",
+    "youtubeUrl": "URL YouTube",
+    "youtubeUrlPlaceholder": "Nhập URL YouTube để tạo bản nhạc chính xác (tùy chọn)",
+    "youtubeUrlHint": "Vui lòng nhập URL YouTube để tạo bản nhạc chính xác. (Tùy chọn)",
+    "memo": "Ghi chú",
+    "memoPlaceholder": "Nhập bất kỳ ghi chú hoặc memo nào (tối đa 500 ký tự)",
+    "characters": "ký tự",
+    "submit": "Gửi yêu cầu đặt hàng tùy chỉnh",
+    "submitting": "Đang gửi...",
+    "note": "Sau khi gửi, bạn có thể kiểm tra tiến trình trong Trang của tôi \"Lịch sử đặt hàng tùy chỉnh\" và tải xuống bản nhạc khi hoàn tất."
+  },
+  "process": {
+    "title": "Quy trình đặt hàng tùy chỉnh",
+    "steps": {
+      "request": {
+        "title": "Đã nhận yêu cầu",
+        "description": "Yêu cầu đặt hàng tùy chỉnh của bạn được nhận khi gửi."
+      },
+      "quote": {
+        "title": "Đã gửi báo giá",
+        "description": "Chúng tôi phân tích bài hát và cung cấp báo giá qua Trang của tôi."
+      },
+      "payment": {
+        "title": "Đã xác nhận thanh toán",
+        "description": "Sau khi xác nhận báo giá và thanh toán, sản xuất bắt đầu."
+      },
+      "completed": {
+        "title": "Hoàn tất",
+        "description": "Tải xuống bản nhạc đã hoàn tất từ Trang của tôi."
+      }
+    }
+  },
+  "faq": {
+    "title": "Câu hỏi thường gặp",
+    "questions": {
+      "quote": {
+        "question": "Làm thế nào để kiểm tra báo giá?",
+        "answer": "Bạn có thể kiểm tra báo giá trong \"Lịch sử đặt hàng tùy chỉnh\" trong Trang của tôi. Chúng tôi sẽ cung cấp báo giá trong vòng 24 giờ sau yêu cầu của bạn."
+      },
+      "production": {
+        "question": "Sản xuất mất bao lâu?",
+        "answer": "Thông thường, mất 1-3 ngày sau khi xác nhận thanh toán. Thời lượng có thể thay đổi tùy thuộc vào độ khó và độ dài của bài hát, và chúng tôi sẽ cung cấp lịch trình chính xác trong báo giá."
+      },
+      "payment": {
+        "question": "Các phương thức thanh toán nào có sẵn?",
+        "answer": "Hiện tại, chỉ có chuyển khoản ngân hàng có sẵn. Chúng tôi sẽ cung cấp thông tin tài khoản ngân hàng cùng với báo giá."
+      }
+    }
+  },
+  "errors": {
+    "loginRequired": "Yêu cầu đăng nhập.",
+    "submitError": "Đã xảy ra lỗi khi gửi. Vui lòng thử lại."
+  },
+  "messages": {
+    "submitSuccess": "Yêu cầu đặt hàng tùy chỉnh đã được gửi. Bạn có thể kiểm tra tiến trình trong Trang của tôi."
+  },
+  "console": {
+    "submitError": "Lỗi gửi đơn hàng:"
+  }
+}

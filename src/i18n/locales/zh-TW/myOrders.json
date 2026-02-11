@@ -1,0 +1,65 @@
+{
+  "title": "樂譜購買歷史",
+  "description": "這是您購買的樂譜列表，按最新排序。",
+  "totalPurchased": "您總共購買了 {{count}} 張樂譜。",
+  "loginRequired": "需要登入",
+  "loginRequiredMessage": "請登入以查看您的購買歷史。",
+  "orderNumber": "訂單號",
+  "categoryNotSet": "未設定類別",
+  "deletedSheet": "已刪除的樂譜",
+  "status": {
+    "pending": "待付款",
+    "pendingDesc": "等待付款確認。",
+    "processing": "處理中",
+    "processingDesc": "您的訂單正在處理中。",
+    "completed": "已完成",
+    "completedDesc": "訂單已完成。可以下載。",
+    "cancelled": "已取消",
+    "cancelledDesc": "訂單已取消。",
+    "paymentPending": "待付款",
+    "paymentPendingDesc": "等待存款確認。",
+    "paymentConfirmed": "付款已確認",
+    "paymentConfirmedDesc": "付款已確認。可以下載。",
+    "paid": "已付款",
+    "paidDesc": "付款已完成。可以下載。",
+    "refunded": "已退款",
+    "refundedDesc": "訂單已退款。"
+  },
+  "paymentMethod": {
+    "card": "信用卡",
+    "bankTransfer": "銀行轉帳",
+    "virtualAccount": "虛擬帳戶",
+    "cash": "可用餘額",
+    "points": "積分"
+  },
+  "empty": {
+    "title": "沒有購買的樂譜",
+    "message": "找到您喜歡的樂譜並添加到購物車。",
+    "browseButton": "瀏覽樂譜"
+  },
+  "actions": {
+    "downloadAll": "下載此訂單中的所有內容",
+    "downloadSelected": "下載已選",
+    "selectAll": "全選",
+    "deselectAll": "取消全選",
+    "clearSelection": "清除選擇",
+    "download": "下載",
+    "downloadNotAvailable": "無法下載",
+    "downloading": "下載中...",
+    "viewDetails": "查看詳情",
+    "purchaseDate": "購買日期 {{date}}",
+    "selectedCount": "已選擇 {{count}}",
+    "cart": "購物車"
+  },
+  "messages": {
+    "selectSheetsToDownload": "請選擇要下載的樂譜。",
+    "refundedOrRestricted": "此訂單已退款或下載受限。",
+    "loginRequired": "需要登入。",
+    "downloadFailed": "無法下載 {{count}} 張樂譜。",
+    "refundedOrder": "已退款的訂單無法下載。",
+    "noSheetsToDownload": "沒有可下載的樂譜。",
+    "sheetInfoNotFound": "未找到樂譜資訊。",
+    "fileNotFound": "未找到檔案。",
+    "downloadError": "無法下載檔案。請稍後再試。"
+  }
+}

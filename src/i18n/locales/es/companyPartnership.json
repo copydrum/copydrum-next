@@ -1,0 +1,25 @@
+{
+  "title": "Información de asociación",
+  "description": "COPYDRUM entrega el mejor contenido a más bateristas a través de asociaciones.",
+  "benefits": {
+    "title": "Beneficios de la asociación",
+    "exclusiveLicense": {
+      "title": "Licencia exclusiva de partituras",
+      "description": "Proporcionamos licencias personalizadas para uso en varios entornos como actuaciones, lecciones y ventas."
+    },
+    "premiumSupport": {
+      "title": "Soporte premium",
+      "description": "Proporcionamos soporte dedicado para socios incluyendo solicitudes de nuevas partituras, transcripciones personalizadas y marketing conjunto."
+    },
+    "sharedGrowth": {
+      "title": "Crecimiento compartido",
+      "description": "Expandimos la comunidad de bateristas juntos a través de proyectos y eventos conjuntos."
+    }
+  },
+  "inquiry": {
+    "title": "Consulta de asociación",
+    "description": "¿Está listo para crecer juntos a través de una asociación con COPYDRUM? Por favor, contáctenos usando la información a continuación.",
+    "emailLabel": "Correo electrónico",
+    "note": "Por favor, proporcione información detallada en su consulta para una respuesta rápida de nuestro equipo."
+  }
+}

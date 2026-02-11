@@ -1,0 +1,287 @@
+{
+  "title": "Mia pagina",
+  "subtitle": "Visualizza tutte le tue attività dagli acquisti di spartiti agli ordini personalizzati a colpo d'occhio.",
+  "tabs": {
+    "profile": {
+      "label": "Gestione profilo",
+      "description": "Gestisci le tue informazioni personali e i dettagli di contatto."
+    },
+    "purchases": {
+      "label": "Cronologia acquisti",
+      "description": "Controlla le informazioni sugli ordini dei tuoi spartiti acquistati."
+    },
+    "downloads": {
+      "label": "Gestione download",
+      "description": "Scarica e visualizza in anteprima i tuoi spartiti acquistati."
+    },
+    "favorites": {
+      "label": "Spartiti preferiti",
+      "description": "Visualizza i tuoi spartiti preferiti."
+    },
+    "cash": {
+      "label": "Cronologia cash",
+      "description": "Controlla il tuo saldo cash e la cronologia di utilizzo."
+    },
+    "inquiries": {
+      "label": "Richiesta 1:1",
+      "description": "Controlla le tue richieste e risposte."
+    },
+    "customOrders": {
+      "label": "Ordini personalizzati",
+      "description": "Controlla lo stato delle tue richieste di ordine personalizzato."
+    }
+  },
+  "stats": {
+    "purchasedSheets": "Spartiti acquistati",
+    "availableDownloads": "Download disponibili",
+    "favoriteSheets": "Spartiti preferiti",
+    "inquiries": "Richieste 1:1",
+    "customOrders": "Ordini personalizzati"
+  },
+  "profile": {
+    "title": "Gestione profilo",
+    "memberInfo": "Informazioni membro",
+    "nameNotSet": "Nome non impostato",
+    "joinedOn": "Iscritto il",
+    "cashBalance": "Saldo cash",
+    "cashBalanceDescription": "Disponibile per il tuo prossimo acquisto di spartito.",
+    "chargeCash": "Ricarica cash",
+    "email": "Email",
+    "name": "Nome",
+    "namePlaceholder": "Inserisci il tuo nome",
+    "phoneNumber": "Numero di telefono",
+    "phonePlaceholder": "Inserisci il tuo numero di telefono",
+    "joinDate": "Data di iscrizione",
+    "saving": "Salvataggio in corso...",
+    "updateProfile": "Aggiorna profilo"
+  },
+  "purchases": {
+    "title": "Cronologia acquisti",
+    "description": "Ordinati per ordini più recenti.",
+    "browseMore": "Sfoglia più spartiti",
+    "noPurchases": "Nessuno spartito acquistato ancora.",
+    "orderNumber": "Numero ordine",
+    "total": "Totale",
+    "downloadAllInOrder": "Scarica tutto in questo ordine",
+    "downloading": "Download in corso...",
+    "selectAll": "Seleziona tutto",
+    "deselectAll": "Deseleziona tutto",
+    "selected": "Selezionato",
+    "downloadSelected": "Scarica selezionati",
+    "download": "Scarica",
+    "viewDetails": "Visualizza dettagli",
+    "categoryNotSet": "Categoria non impostata",
+    "deletedSheet": "Spartito eliminato"
+  },
+  "downloads": {
+    "title": "Gestione download",
+    "description": "Puoi ri-scaricare spartiti acquistati in qualsiasi momento.",
+    "totalItems": "Totale {{count}} articoli",
+    "selectedItems": "Selezionati {{count}} articoli",
+    "selectAll": "Seleziona tutto",
+    "deselectAll": "Deseleziona tutto",
+    "downloadSelected": "Scarica selezionati",
+    "downloadAll": "Scarica tutto",
+    "downloading": "Download in corso...",
+    "noDownloads": "Nessuno spartito scaricabile disponibile.",
+    "purchaseDate": "Data acquisto",
+    "preview": "Anteprima",
+    "downloadUnavailable": "Download non disponibile"
+  },
+  "favorites": {
+    "title": "Spartiti preferiti",
+    "description": "Trova rapidamente i tuoi spartiti preferiti.",
+    "totalCount": "Totale {{count}} articoli",
+    "noFavorites": "Nessuno spartito preferito ancora.",
+    "addFavorites": "Aggiungi i tuoi spartiti preferiti!",
+    "viewDetails": "Visualizza dettagli",
+    "inCart": "Nel carrello",
+    "cart": "Aggiungi al carrello",
+    "removeFavorite": "Rimuovi preferito",
+    "deletedSheet": "Spartito eliminato"
+  },
+  "inquiries": {
+    "title": "Richiesta 1:1",
+    "description": "Invia una richiesta e ricevi risposte dell'amministratore direttamente nella Mia pagina.",
+    "name": "Nome",
+    "namePlaceholder": "Inserisci il tuo nome",
+    "email": "Email",
+    "emailPlaceholder": "Inserisci la tua email di contatto",
+    "category": "Tipo di richiesta",
+    "categoryPlaceholder": "Seleziona il tipo di richiesta",
+    "categories": {
+      "orderPayment": "Richiesta ordine/pagamento",
+      "sheetDownload": "Richiesta spartito/download",
+      "customOrder": "Richiesta ordine personalizzato",
+      "technical": "Supporto tecnico",
+      "other": "Altra richiesta"
+    },
+    "subject": "Oggetto",
+    "subjectPlaceholder": "Inserisci l'oggetto della richiesta",
+    "message": "Messaggio",
+    "messagePlaceholder": "Scrivi la tua richiesta in dettaglio (massimo 500 caratteri)",
+    "characters": "caratteri",
+    "submitting": "Invio in corso...",
+    "submit": "Invia richiesta",
+    "history": {
+      "title": "La mia cronologia richieste",
+      "description": "Controlla le tue richieste inviate e le risposte dell'amministratore.",
+      "total": "Totale {{count}} richieste",
+      "loading": "Caricamento cronologia richieste...",
+      "noInquiries": "Nessuna richiesta inviata ancora.",
+      "noInquiriesDescription": "Se hai domande, invia una richiesta utilizzando il modulo qui sopra.",
+      "category": "Richiesta",
+      "received": "Ricevuta",
+      "adminReply": "Risposta amministratore",
+      "replied": "Risposta",
+      "preparing": "La risposta è in preparazione. Ti contatteremo dopo la revisione."
+    }
+  },
+  "cash": {
+    "title": "Cronologia cash",
+    "description": "Controlla il tuo saldo cash e la cronologia di utilizzo.",
+    "chargeCash": "Ricarica cash",
+    "availableCash": "Cash disponibile",
+    "loadingHistory": "Caricamento cronologia cash...",
+    "noHistory": "Nessuna cronologia cash da visualizzare.",
+    "noHistoryDescription": "Le transazioni cash saranno registrate qui quando ricarichi o usi cash.",
+    "types": {
+      "charge": "Ricarica cash",
+      "use": "Uso cash",
+      "adminAdd": "Aggiunta amministratore",
+      "adminDeduct": "Detrazione amministratore",
+      "record": "Registrazione"
+    },
+    "bonus": "Bonus",
+    "balance": "Saldo",
+    "sheet": "Spartito",
+    "noDescription": "Nessuna descrizione registrata."
+  },
+  "customOrders": {
+    "title": "Cronologia ordini personalizzati",
+    "description": "Controlla lo stato delle tue richieste di ordine personalizzato.",
+    "newOrderRequest": "Nuova richiesta ordine",
+    "noOrders": "Nessuna cronologia ordini personalizzati.",
+    "serviceDescription": "Usa il nostro servizio di ordine personalizzato per creare spartiti speciali.",
+    "requestDate": "Data di richiesta",
+    "lastUpdate": "Ultimo aggiornamento",
+    "viewDetails": "Visualizza dettagli",
+    "quoteConfirm": "Conferma preventivo",
+    "workCompleted": "Lavoro completato",
+    "quotePending": "Preventivo in attesa"
+  },
+  "status": {
+    "order": {
+      "completed": "Completato",
+      "pending": "In attesa",
+      "cancelled": "Annullato",
+      "refunded": "Rimborsato",
+      "undetermined": "Non determinato"
+    },
+    "customOrder": {
+      "pending": "Preventivo in attesa",
+      "quoted": "In attesa di pagamento",
+      "paymentConfirmed": "Pagamento confermato",
+      "inProgress": "In corso",
+      "completed": "Completato",
+      "cancelled": "Annullato",
+      "undetermined": "Non determinato"
+    },
+    "inquiry": {
+      "pending": "In attesa di risposta",
+      "answered": "Risposto",
+      "processing": "In elaborazione"
+    }
+  },
+  "cashCharge": {
+    "title": "Ricarica cash",
+    "currentCash": "Saldo cash attuale",
+    "paymentAmount": "Importo pagamento",
+    "bankTransferInfo": {
+      "title": "Informazioni bonifico bancario",
+      "bank": "Banca",
+      "accountNumber": "Numero conto",
+      "accountHolder": "Intestatario conto",
+      "amount": "Importo del versamento",
+      "depositorName": "Nome del versante"
+    },
+    "depositorName": "Nome del versante",
+    "depositorNamePlaceholder": "Inserisci il nome del versante",
+    "depositorNameHint": "* Se il nome del versante è diverso dal tuo nome membro, inserisci il nome del versante.",
+    "bankTransferNotice": {
+      "title": "Avviso bonifico bancario",
+      "line1": "• Il cash sarà ricaricato manualmente dall'amministratore dopo la conferma del versamento.",
+      "line2": "• La conferma può essere ritardata se il nome del versante non corrisponde.",
+      "line3": "• La conferma del versamento può richiedere 1-2 giorni lavorativi."
+    },
+    "back": "Indietro",
+    "confirm": "Conferma",
+    "processing": "Elaborazione in corso...",
+    "paymentMethod": "Metodo di pagamento",
+    "paymentAmountTitle": "Importo pagamento",
+    "agreement": "Ho esaminato i dettagli del pagamento e accetto i termini.",
+    "next": "Avanti",
+    "bankTransferGuide": {
+      "title": "Guida bonifico bancario",
+      "bank": "Banca",
+      "accountNumber": "Numero conto",
+      "accountHolder": "Intestatario conto",
+      "amount": "Importo del versamento"
+    }
+  },
+  "guest": {
+    "title": "Accesso richiesto",
+    "description": "Accedi per utilizzare le funzionalità della Mia pagina come cronologia acquisti, download e spartiti preferiti.",
+    "login": "Vai al login",
+    "signup": "Registrati"
+  },
+  "loading": {
+    "message": "Caricamento dati Mia pagina..."
+  },
+  "errors": {
+    "loginRequired": "L'accesso è richiesto.",
+    "agreementRequired": "Accetta i termini di pagamento.",
+    "amountNotFound": "L'importo di ricarica selezionato non è stato trovato.",
+    "paymentMethodNotReady": "Questo metodo di pagamento è attualmente in preparazione.",
+    "paymentWindowOpen": "Si aprirà la finestra di pagamento. Completa il pagamento.",
+    "paymentError": "Si è verificato un errore durante l'elaborazione del pagamento.",
+    "depositorNameRequired": "Inserisci il nome del versante.",
+    "orderReceived": "L'ordine è stato ricevuto.\\nIl cash sarà ricaricato dopo la conferma del versamento da parte dell'amministratore.",
+    "allFieldsRequired": "Compila tutti i campi.",
+    "inquirySubmitted": "La richiesta è stata inviata. Risponderemo il prima possibile.",
+    "inquiryError": "Si è verificato un errore durante l'invio della richiesta. Riprova.",
+    "profileUpdated": "Le informazioni del profilo sono state aggiornate.",
+    "profileUpdateError": "Impossibile aggiornare il profilo. Riprova più tardi.",
+    "downloadRestricted": "Questo ordine è stato rimborsato o il download è limitato.",
+    "selectDownloadItems": "Seleziona spartiti da scaricare.",
+    "noDownloadableItems": "Nessuno spartito scaricabile disponibile.",
+    "downloadRestrictedMultiple": "Gli spartiti rimborsati o limitati non possono essere scaricati.",
+    "loginRequiredForDownload": "L'accesso è richiesto. Accedi di nuovo.",
+    "downloadFailed": "Impossibile scaricare {{count}} file. Riprova più tardi.",
+    "downloadFailedSingle": "Download del file fallito. Riprova più tardi.",
+    "previewNotFound": "File di anteprima non trovato.",
+    "favoriteRemoveFailed": "Impossibile rimuovere dai preferiti.",
+    "sheetInfoNotFound": "Informazioni spartito scaricabile non trovate.",
+    "downloadLinkNotFound": "Link di download non trovato. Contatta l'amministratore."
+  },
+  "console": {
+    "cashHistoryError": "Errore nel caricamento della cronologia cash:",
+    "inquiryHistoryError": "Errore nel caricamento della cronologia richieste:",
+    "profileLoadError": "Errore nel caricamento del profilo:",
+    "orderHistoryError": "Errore nel caricamento della cronologia ordini:",
+    "favoritesLoadError": "Errore nel caricamento dei preferiti:",
+    "customOrderHistoryError": "Errore nel caricamento della cronologia ordini personalizzati:",
+    "initError": "Errore nell'inizializzazione della Mia pagina:",
+    "cashChargeError": "Errore nella ricarica cash:",
+    "inquirySubmitError": "Errore nell'invio della richiesta:",
+    "profileUpdateError": "Errore nell'aggiornamento del profilo:",
+    "favoriteRemoveError": "Errore nella rimozione del preferito:"
+  },
+  "paymentMethods": {
+    "creditCard": "Carta di credito",
+    "kakaoPay": "Kakao Pay",
+    "bankTransfer": "Bonifico bancario",
+    "preparing": "In preparazione"
+  },
+  "cart": "Carrello"
+}

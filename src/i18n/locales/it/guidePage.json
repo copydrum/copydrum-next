@@ -1,0 +1,206 @@
+{
+  "hero": {
+    "badge": "Dalla ricerca al download, tutto in un unico posto",
+    "title": "Guida ricerca e acquisto COPYDRUM",
+    "description": "Trova rapidamente lo spartito per batteria che desideri, acquista a prezzi ragionevoli,<br />e scarica senza problemi—tutti i metodi raccolti in un unico posto.<br />Scopri i suggerimenti essenziali per una pratica efficiente, dai nuovi utenti ai membri esistenti."
+  },
+  "sections": {
+    "firstPurchase": {
+      "title": "Primo acquisto in 3 minuti",
+      "description": "Un riepilogo rapido per i visitatori per la prima volta. Segui i passaggi qui sotto per completare immediatamente il tuo primo acquisto di spartito.",
+      "steps": {
+        "account": {
+          "title": "1 min – Crea account",
+          "detail": "Crea rapidamente un account tramite registrazione o accesso social.",
+          "highlight": "Dopo l'accesso, i menu carrello e download saranno attivati."
+        },
+        "findSheet": {
+          "title": "1 min – Trova spartito",
+          "detail": "Inserisci il titolo della canzone o il nome dell'artista nella casella di ricerca e seleziona lo spartito che ti piace."
+        },
+        "payment": {
+          "title": "1 min – Pagamento e download",
+          "detail": "Aggiungi al carrello, completa il pagamento e puoi scaricare immediatamente lo spartito PDF."
+        }
+      },
+      "cta": {
+        "register": "Registrati ora",
+        "popular": "Visualizza spartiti popolari"
+      }
+    },
+    "effectiveSearch": {
+      "title": "Cerca spartiti in modo efficace",
+      "description": "Se i risultati di ricerca sono troppi o non riesci a trovare la canzone che desideri, prova ad aggiustare la tua ricerca in modo più preciso con i seguenti metodi.",
+      "steps": {
+        "keyword": {
+          "title": "Combinazione di parole chiave",
+          "detail": "Combinare due o più parole come titolo canzone + artista aumenta la precisione.",
+          "highlight": "Esempio: \"Spring Day batteria\", \"arrangiamento rock BTS\""
+        },
+        "filter": {
+          "title": "Restringi con i filtri",
+          "detail": "Seleziona genere, fascia di prezzo e livello di difficoltà nella pagina categoria per filtrare solo gli spartiti di cui hai bisogno."
+        },
+        "noResults": {
+          "title": "Gestione nessun risultato",
+          "detail": "Controlla l'ortografia e prova a cercare di nuovo con parole chiave simili."
+        }
+      },
+      "cta": {
+        "categories": "Visualizza categorie",
+        "freeSheets": "Controlla spartiti gratuiti"
+      }
+    },
+    "chooseSheet": {
+      "title": "Scegli lo spartito giusto per te",
+      "description": "Confronta il livello di difficoltà, lo stile di arrangiamento e la composizione dello spartito per selezionare spartiti che corrispondono ai tuoi obiettivi di pratica.",
+      "steps": {
+        "difficulty": {
+          "title": "Controlla la difficoltà",
+          "detail": "Divisi in principiante/intermedio/avanzato, e puoi controllare le tecniche richieste nella descrizione dettagliata.",
+          "highlight": "Principiante: Pattern di base, Intermedio: Include fill, Avanzato: Enfatizza velocità e tecnica"
+        },
+        "preview": {
+          "title": "Usa l'anteprima",
+          "detail": "Controlla se è lo stile che desideri attraverso pagine di esempio e video demo."
+        },
+        "price": {
+          "title": "Confronta i prezzi",
+          "detail": "Puoi fare una scelta più ragionevole confrontando insieme spartiti individuali, collezioni e spartiti evento."
+        }
+      },
+      "cta": {
+        "eventSale": "Sfoglia spartiti evento",
+        "collections": "Visualizza collezioni"
+      }
+    },
+    "purchaseProcess": {
+      "title": "Guida completa al processo di acquisto",
+      "description": "Guida passo-passo per procedere senza errori dal carrello al completamento del pagamento.",
+      "steps": {
+        "cart": {
+          "title": "Aggiungi al carrello",
+          "detail": "Clicca il pulsante carrello nella pagina dettaglio spartito per pagare più spartiti contemporaneamente.",
+          "highlight": "Il codice promozionale può essere inserito nella parte superiore del carrello"
+        },
+        "paymentInfo": {
+          "title": "Controlla le informazioni di pagamento",
+          "detail": "Assicurati di controllare i dettagli dell'ordine, l'applicazione dello sconto e i termini di servizio prima del pagamento."
+        },
+        "paymentMethod": {
+          "title": "Seleziona metodo di pagamento",
+          "detail": "Supporta carta di credito, bonifico bancario, Kakao Pay, ecc., e verrà inviata un'email di notifica dopo il completamento del pagamento."
+        }
+      },
+      "cta": {
+        "cart": "Vai al carrello"
+      }
+    },
+    "download": {
+      "title": "Scarica spartiti",
+      "description": "Gli spartiti acquistati possono essere scaricati immediatamente come PDF e possono essere scaricati nuovamente in qualsiasi momento.",
+      "steps": {
+        "immediate": {
+          "title": "Download immediato",
+          "detail": "Puoi scaricare il file PDF immediatamente dalla pagina di completamento acquisto subito dopo l'acquisto."
+        },
+        "redownload": {
+          "title": "Ri-scarica dalla Mia pagina",
+          "detail": "Puoi ri-scaricare spartiti già acquistati dalla cronologia degli acquisti nella Mia pagina.",
+          "highlight": "Gli spartiti acquistati possono essere ri-scaricati senza limiti."
+        },
+        "pdf": {
+          "title": "Usa PDF",
+          "detail": "Forniti come file PDF di alta qualità, puoi praticare direttamente su tablet o laptop, o stampare nella dimensione desiderata."
+        }
+      },
+      "cta": {
+        "mypage": "Apri Mia pagina",
+        "orders": "Controlla cronologia acquisti"
+      }
+    },
+    "discounts": {
+      "title": "Massimizza sconti e vantaggi",
+      "description": "Crea un ambiente di pratica più ricco utilizzando promozioni evento speciali, bonus ricarica cash spartiti e servizi ordine personalizzato.",
+      "steps": {
+        "event": {
+          "title": "Spartiti evento",
+          "detail": "Controlla gli spartiti offerti a 100 won o prezzi scontati per un tempo limitato nella sezione promozione speciale.",
+          "highlight": "Gli spartiti evento sono quantità/periodo limitati, quindi controlla rapidamente!"
+        },
+        "cash": {
+          "title": "Ricarica cash spartiti",
+          "detail": "Bonus aggiuntivi sono forniti in base all'importo di ricarica. Se prevedi di fare acquisti in blocco, ricarica in anticipo."
+        },
+        "customOrder": {
+          "title": "Confronta ordini personalizzati",
+          "detail": "Se non riesci a trovare lo spartito che stai cercando, puoi ottenere un arrangiamento accurato tramite ordini personalizzati. Scegli in base al tuo budget e programma."
+        }
+      },
+      "cta": {
+        "customOrder": "Richiedi ordine personalizzato",
+        "customOrders": "Controlla ordini in corso"
+      }
+    }
+  },
+  "searchTips": {
+    "title": "Raccolta suggerimenti di ricerca",
+    "items": {
+      "keyword": {
+        "title": "Parole chiave consigliate",
+        "description": "Cercare con titolo canzone + artista aumenta la precisione."
+      },
+      "filter": {
+        "title": "Combinazione filtri",
+        "description": "Impostare insieme genere + difficoltà + fascia di prezzo lascia solo gli spartiti di cui hai bisogno."
+      },
+      "noResults": {
+        "title": "Nessun risultato di ricerca",
+        "description": "Controlla di nuovo l'ortografia o cerca con genere/artista simile e poi prova ordini personalizzati."
+      }
+    }
+  },
+  "purchaseComparison": {
+    "title": "Confronto metodi di acquisto",
+    "regular": {
+      "title": "Acquisto regolare",
+      "badge": "Consigliato",
+      "items": [
+        "Download PDF immediato dopo il pagamento",
+        "Risparmia costi con spartiti evento/gratuiti",
+        "Ampia selezione di generi e livelli di difficoltà"
+      ]
+    },
+    "custom": {
+      "title": "Ordine personalizzato",
+      "badge": "Personalizzato",
+      "items": [
+        "Produce esattamente la canzone e lo stile di arrangiamento che desideri",
+        "Periodo di produzione 1-7 giorni, varia in base alla difficoltà",
+        "Procedi con il pagamento dopo la conferma del preventivo"
+      ]
+    }
+  },
+  "helpNeeded": {
+    "title": "Hai bisogno di più aiuto?",
+    "description": "Controlla le domande frequenti nell'assistenza clienti o richiedi una consultazione diretta tramite richiesta.",
+    "cta": {
+      "findSheets": "Trova spartiti ora",
+      "eventSale": "Visualizza spartiti in promozione in corso"
+    }
+  },
+  "terms": {
+    "title": "Termini di servizio",
+    "content": [
+      "Tutti i clienti che utilizzano i servizi COPYDRUM devono rispettare il copyright e utilizzare gli spartiti nell'ambito degli scopi di pratica personale. La distribuzione non autorizzata, la riproduzione o la condivisione di spartiti acquistati è soggetta a sanzioni legali, ed è richiesta una licenza separata per l'uso commerciale.",
+      "Poiché i download sono forniti immediatamente dopo il pagamento, i rimborsi possono essere limitati dopo il completamento del download a causa della natura del contenuto digitale. Le politiche dettagliate relative all'uso del servizio, inclusi pagamenti, ordini personalizzati e vantaggi evento, sono aggiornate regolarmente tramite annunci del servizio clienti."
+    ]
+  },
+  "privacy": {
+    "title": "Riepilogo informativa sulla privacy",
+    "content": [
+      "Raccogliamo informazioni personali minime come email, nome e informazioni di pagamento per la registrazione dell'account, l'elaborazione degli ordini e l'assistenza clienti. Queste informazioni sono archiviate in modo sicuro in un ambiente di sicurezza basato su Supabase. Non utilizziamo informazioni personali per scopi diversi dalla fornitura di servizi, e rispettiamo rigorosamente le procedure di consenso preventivo quando condividiamo con terze parti.",
+      "I clienti possono richiedere di visualizzare, modificare o eliminare le loro informazioni personali tramite la Mia pagina o l'Assistenza clienti, e tali richieste saranno elaborate senza ritardo. Per richieste relative alla protezione delle informazioni personali, contattaci tramite richiesta 1:1 Assistenza clienti o email."
+    ]
+  }
+}

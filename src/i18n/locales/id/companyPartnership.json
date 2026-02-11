@@ -1,0 +1,25 @@
+{
+  "title": "Informasi Kemitraan",
+  "description": "COPYDRUM menyampaikan konten terbaik ke lebih banyak drummer melalui kemitraan.",
+  "benefits": {
+    "title": "Manfaat Kemitraan",
+    "exclusiveLicense": {
+      "title": "Lisensi Lembaran Musik Eksklusif",
+      "description": "Kami menyediakan lisensi yang disesuaikan untuk digunakan dalam berbagai lingkungan seperti pertunjukan, pelajaran, dan penjualan."
+    },
+    "premiumSupport": {
+      "title": "Dukungan Premium",
+      "description": "Kami menyediakan dukungan khusus untuk mitra termasuk permintaan lembaran musik baru, transkripsi kustom, dan pemasaran bersama."
+    },
+    "sharedGrowth": {
+      "title": "Pertumbuhan Bersama",
+      "description": "Kami memperluas komunitas drummer bersama melalui proyek dan acara bersama."
+    }
+  },
+  "inquiry": {
+    "title": "Pertanyaan Kemitraan",
+    "description": "Apakah Anda siap untuk tumbuh bersama melalui kemitraan dengan COPYDRUM? Silakan hubungi kami menggunakan informasi di bawah ini.",
+    "emailLabel": "Email",
+    "note": "Silakan berikan informasi detail dalam pertanyaan Anda untuk respons cepat dari tim kami."
+  }
+}

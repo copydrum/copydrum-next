@@ -1,0 +1,45 @@
+{
+  "title": "登录",
+  "noAccount": "还没有账户？",
+  "signUp": "注册",
+  "notice": "🔔 现有会员请注意：由于网站更新，首次登录需要重置密码。",
+  "form": {
+    "email": "电子邮件地址",
+    "emailPlaceholder": "请输入您的电子邮件",
+    "password": "密码",
+    "passwordPlaceholder": "请输入您的密码",
+    "rememberMe": "记住我",
+    "forgotPassword": "忘记密码？",
+    "submit": "登录",
+    "submitting": "正在登录..."
+  },
+  "divider": "或",
+  "social": {
+    "google": "Google",
+    "kakao": "Kakao"
+  },
+  "errors": {
+    "kakaoLoginFailed": "Kakao登录失败。请重试。",
+    "googleLoginFailed": "Google登录失败。请重试。",
+    "invalidCredentials": "电子邮件或密码不正确。",
+    "emailNotConfirmed": "需要电子邮件验证。请查收您的邮件。",
+    "loginFailed": "登录失败。请重试。",
+    "resetPasswordEmailError": "发送密码重置邮件时发生错误。请重试。",
+    "profileError": "个人资料查找错误",
+    "profileCreationError": "创建个人资料错误",
+    "migrationCheckError": "检查迁移用户时出错"
+  },
+  "messages": {
+    "passwordResetEmailSent": "您是现有会员！我们已发送密码重置邮件。请查收您的收件箱。"
+  },
+  "console": {
+    "kakaoLoginError": "Kakao登录错误：",
+    "googleLoginError": "Google登录错误：",
+    "profileLookupError": "个人资料查找错误：",
+    "profileCreationError": "创建个人资料错误：",
+    "resetPasswordEmailError": "密码重置邮件发送错误：",
+    "migrationCheckError": "迁移用户检查错误：",
+    "loginError": "登录错误："
+  },
+  "defaultUserName": "用户"
+}

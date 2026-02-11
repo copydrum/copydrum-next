@@ -1,0 +1,72 @@
+{
+  "loading": "Cargando colección...",
+  "errors": {
+    "noCollectionInfo": "La información de la colección solicitada no está disponible.",
+    "collectionNotFound": "No se pudo encontrar la colección solicitada.",
+    "loadError": "Ocurrió un error al cargar la información de la colección.",
+    "collectionNotAvailable": "La colección de partituras solicitada no existe o ha sido desactivada."
+  },
+  "backToList": "Volver a las colecciones",
+  "free": "Gratis",
+  "discount": "{{percentage}}% DESCUENTO",
+  "badge": "Colección de partituras",
+  "includedSheets": {
+    "count": "Partituras incluidas",
+    "number": "{{count}} canciones",
+    "title": "Partituras incluidas",
+    "description": "Vea todas las partituras incluidas en esta colección y explore las que desee.",
+    "empty": "Aún no se han añadido partituras a esta colección."
+  },
+  "sheet": {
+    "difficulty": "Dificultad {{difficulty}}",
+    "free": "Gratis"
+  },
+  "purchase": {
+    "priceInfo": "Información de precio de la colección",
+    "totalIndividual": "Total de partituras individuales",
+    "noInfo": "Sin información",
+    "collectionPrice": "Precio de la colección",
+    "buyNow": "Comprar ahora",
+    "save": "¡Ahorre {{amount}}!",
+    "processing": "Procesando...",
+    "note": "Las colecciones solo se pueden comprar al precio con descuento.",
+    "inactive": "Esta colección está actualmente inactiva. Por favor, contacte al administrador.",
+    "mobilePrice": "Precio de la colección",
+    "mobileSave": "Ahorre {{amount}} en comparación con la compra individual",
+    "mobileInactive": "Esta colección está actualmente inactiva.",
+    "buyCollection": "Buy Collection",
+    "goToCart": "Go to Cart"
+  },
+  "alerts": {
+    "noSheetInfo": "No se pudo encontrar la información de las partituras incluidas en la colección.",
+    "duplicatePurchase": "Ya ha comprado algunas partituras incluidas en esta colección, por lo que no es posible la compra duplicada.",
+    "duplicateList": "Partituras duplicadas:",
+    "checkMyPage": "Por favor, revise su historial de compras en Mi Página.",
+    "insufficientCredit": "Saldo insuficiente.",
+    "currentBalance": "Saldo actual: {{amount}}P",
+    "chargeCash": "Por favor, recargue efectivo e inténtelo de nuevo.",
+    "purchaseSuccess": "Compra completada. Por favor, revise el contenido en Mi Página.",
+    "purchaseError": "Ocurrió un error durante la compra."
+  },
+  "navigation": {
+    "title": "Explorar otras páginas",
+    "viewCategories": "Ver categorías de partituras",
+    "eventSale": "Partituras de venta del evento",
+    "customOrder": "Consulta de pedido personalizado"
+  },
+  "purchaseDescription": "Compra de colección de partituras: {{title}}",
+  "sheetTitle": "Partitura",
+  "viewSheet": "Ver partitura",
+  "difficulty": {
+    "beginner": "Principiante",
+    "intermediate": "Intermedio",
+    "advanced": "Avanzado"
+  },
+  "features": {
+    "title": "Qué incluye",
+    "allSheets": "Todas las partituras a precio reducido",
+    "highQuality": "Formato PDF de alta calidad",
+    "instantDownload": "Descarga instantánea",
+    "lifetimeAccess": "Acceso de por vida"
+  }
+}

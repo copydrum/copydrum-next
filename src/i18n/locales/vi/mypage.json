@@ -1,0 +1,287 @@
+{
+  "title": "Trang của tôi",
+  "subtitle": "Xem tất cả hoạt động của bạn từ mua sheet music đến đặt hàng tùy chỉnh trong nháy mắt.",
+  "tabs": {
+    "profile": {
+      "label": "Quản lý hồ sơ",
+      "description": "Quản lý thông tin cá nhân và chi tiết liên hệ của bạn."
+    },
+    "purchases": {
+      "label": "Lịch sử mua hàng",
+      "description": "Kiểm tra thông tin đơn hàng sheet music đã mua của bạn."
+    },
+    "downloads": {
+      "label": "Quản lý tải xuống",
+      "description": "Tải xuống và xem trước sheet music đã mua của bạn."
+    },
+    "favorites": {
+      "label": "Sheet yêu thích",
+      "description": "Xem sheet music yêu thích của bạn."
+    },
+    "cash": {
+      "label": "Lịch sử tiền mặt",
+      "description": "Kiểm tra số dư tiền mặt và lịch sử sử dụng của bạn."
+    },
+    "inquiries": {
+      "label": "Câu hỏi 1:1",
+      "description": "Kiểm tra câu hỏi và phản hồi của bạn."
+    },
+    "customOrders": {
+      "label": "Đặt hàng tùy chỉnh",
+      "description": "Kiểm tra trạng thái yêu cầu đặt hàng tùy chỉnh của bạn."
+    }
+  },
+  "stats": {
+    "purchasedSheets": "Sheet đã mua",
+    "availableDownloads": "Tải xuống có sẵn",
+    "favoriteSheets": "Sheet yêu thích",
+    "inquiries": "Câu hỏi 1:1",
+    "customOrders": "Đặt hàng tùy chỉnh"
+  },
+  "profile": {
+    "title": "Quản lý hồ sơ",
+    "memberInfo": "Thông tin thành viên",
+    "nameNotSet": "Tên chưa được đặt",
+    "joinedOn": "Tham gia vào",
+    "cashBalance": "Số dư tiền mặt",
+    "cashBalanceDescription": "Có sẵn cho lần mua sheet music tiếp theo của bạn.",
+    "chargeCash": "Nạp tiền mặt",
+    "email": "Email",
+    "name": "Tên",
+    "namePlaceholder": "Nhập tên của bạn",
+    "phoneNumber": "Số điện thoại",
+    "phonePlaceholder": "Nhập số điện thoại của bạn",
+    "joinDate": "Ngày tham gia",
+    "saving": "Đang lưu...",
+    "updateProfile": "Cập nhật hồ sơ"
+  },
+  "purchases": {
+    "title": "Lịch sử mua hàng",
+    "description": "Sắp xếp theo đơn hàng gần đây nhất.",
+    "browseMore": "Duyệt thêm Sheet",
+    "noPurchases": "Chưa có sheet music nào được mua.",
+    "orderNumber": "Số đơn hàng",
+    "total": "Tổng",
+    "downloadAllInOrder": "Tải xuống tất cả trong đơn hàng này",
+    "downloading": "Đang tải xuống...",
+    "selectAll": "Chọn tất cả",
+    "deselectAll": "Bỏ chọn tất cả",
+    "selected": "Đã chọn",
+    "downloadSelected": "Tải xuống đã chọn",
+    "download": "Tải xuống",
+    "viewDetails": "Xem chi tiết",
+    "categoryNotSet": "Danh mục chưa được đặt",
+    "deletedSheet": "Sheet đã xóa"
+  },
+  "downloads": {
+    "title": "Quản lý tải xuống",
+    "description": "Bạn có thể tải xuống lại sheet music đã mua bất cứ lúc nào.",
+    "totalItems": "Tổng {{count}} mục",
+    "selectedItems": "Đã chọn {{count}} mục",
+    "selectAll": "Chọn tất cả",
+    "deselectAll": "Bỏ chọn tất cả",
+    "downloadSelected": "Tải xuống đã chọn",
+    "downloadAll": "Tải xuống tất cả",
+    "downloading": "Đang tải xuống...",
+    "noDownloads": "Không có sheet music nào có thể tải xuống.",
+    "purchaseDate": "Ngày mua",
+    "preview": "Xem trước",
+    "downloadUnavailable": "Tải xuống không khả dụng"
+  },
+  "favorites": {
+    "title": "Sheet yêu thích",
+    "description": "Nhanh chóng tìm sheet music yêu thích của bạn.",
+    "totalCount": "Tổng {{count}} mục",
+    "noFavorites": "Chưa có sheet yêu thích nào.",
+    "addFavorites": "Thêm sheet music yêu thích của bạn!",
+    "viewDetails": "Xem chi tiết",
+    "inCart": "Trong giỏ hàng",
+    "cart": "Thêm vào giỏ hàng",
+    "removeFavorite": "Xóa yêu thích",
+    "deletedSheet": "Sheet đã xóa"
+  },
+  "inquiries": {
+    "title": "Câu hỏi 1:1",
+    "description": "Gửi câu hỏi và nhận phản hồi quản trị viên trực tiếp trong Trang của tôi.",
+    "name": "Tên",
+    "namePlaceholder": "Nhập tên của bạn",
+    "email": "Email",
+    "emailPlaceholder": "Nhập email liên hệ của bạn",
+    "category": "Loại câu hỏi",
+    "categoryPlaceholder": "Chọn loại câu hỏi",
+    "categories": {
+      "orderPayment": "Câu hỏi đơn hàng/Thanh toán",
+      "sheetDownload": "Câu hỏi Sheet Music/Tải xuống",
+      "customOrder": "Câu hỏi đặt hàng tùy chỉnh",
+      "technical": "Hỗ trợ kỹ thuật",
+      "other": "Câu hỏi khác"
+    },
+    "subject": "Chủ đề",
+    "subjectPlaceholder": "Nhập chủ đề câu hỏi",
+    "message": "Tin nhắn",
+    "messagePlaceholder": "Vui lòng viết câu hỏi của bạn chi tiết (tối đa 500 ký tự)",
+    "characters": "ký tự",
+    "submitting": "Đang gửi...",
+    "submit": "Gửi câu hỏi",
+    "history": {
+      "title": "Lịch sử câu hỏi của tôi",
+      "description": "Kiểm tra câu hỏi đã gửi và phản hồi quản trị viên của bạn.",
+      "total": "Tổng {{count}} câu hỏi",
+      "loading": "Đang tải lịch sử câu hỏi...",
+      "noInquiries": "Chưa có câu hỏi nào được gửi.",
+      "noInquiriesDescription": "Nếu bạn có bất kỳ câu hỏi nào, vui lòng gửi câu hỏi bằng biểu mẫu ở trên.",
+      "category": "Câu hỏi",
+      "received": "Đã nhận",
+      "adminReply": "Phản hồi quản trị viên",
+      "replied": "Đã trả lời",
+      "preparing": "Phản hồi đang được chuẩn bị. Chúng tôi sẽ liên hệ với bạn sau khi xem xét."
+    }
+  },
+  "cash": {
+    "title": "Lịch sử tiền mặt",
+    "description": "Kiểm tra số dư tiền mặt và lịch sử sử dụng của bạn.",
+    "chargeCash": "Nạp tiền mặt",
+    "availableCash": "Tiền mặt có sẵn",
+    "loadingHistory": "Đang tải lịch sử tiền mặt...",
+    "noHistory": "Không có lịch sử tiền mặt để hiển thị.",
+    "noHistoryDescription": "Giao dịch tiền mặt sẽ được ghi lại ở đây khi bạn nạp hoặc sử dụng tiền mặt.",
+    "types": {
+      "charge": "Nạp tiền mặt",
+      "use": "Sử dụng tiền mặt",
+      "adminAdd": "Thêm quản trị viên",
+      "adminDeduct": "Khấu trừ quản trị viên",
+      "record": "Ghi chép"
+    },
+    "bonus": "Tiền thưởng",
+    "balance": "Số dư",
+    "sheet": "Sheet",
+    "noDescription": "Không có mô tả được ghi lại."
+  },
+  "customOrders": {
+    "title": "Lịch sử đặt hàng tùy chỉnh",
+    "description": "Kiểm tra trạng thái yêu cầu đặt hàng tùy chỉnh của bạn.",
+    "newOrderRequest": "Yêu cầu đơn hàng mới",
+    "noOrders": "Không có lịch sử đặt hàng tùy chỉnh.",
+    "serviceDescription": "Sử dụng dịch vụ đặt hàng tùy chỉnh của chúng tôi để tạo sheet music đặc biệt.",
+    "requestDate": "Ngày yêu cầu",
+    "lastUpdate": "Cập nhật cuối",
+    "viewDetails": "Xem chi tiết",
+    "quoteConfirm": "Xác nhận báo giá",
+    "workCompleted": "Công việc hoàn thành",
+    "quotePending": "Báo giá đang chờ"
+  },
+  "status": {
+    "order": {
+      "completed": "Hoàn thành",
+      "pending": "Đang chờ",
+      "cancelled": "Đã hủy",
+      "refunded": "Đã hoàn tiền",
+      "undetermined": "Chưa xác định"
+    },
+    "customOrder": {
+      "pending": "Báo giá đang chờ",
+      "quoted": "Chờ thanh toán",
+      "paymentConfirmed": "Đã xác nhận thanh toán",
+      "inProgress": "Đang thực hiện",
+      "completed": "Hoàn thành",
+      "cancelled": "Đã hủy",
+      "undetermined": "Chưa xác định"
+    },
+    "inquiry": {
+      "pending": "Đang chờ phản hồi",
+      "answered": "Đã trả lời",
+      "processing": "Đang xử lý"
+    }
+  },
+  "cashCharge": {
+    "title": "Nạp tiền mặt",
+    "currentCash": "Số dư tiền mặt hiện tại",
+    "paymentAmount": "Số tiền thanh toán",
+    "bankTransferInfo": {
+      "title": "Thông tin chuyển khoản ngân hàng",
+      "bank": "Ngân hàng",
+      "accountNumber": "Số tài khoản",
+      "accountHolder": "Chủ tài khoản",
+      "amount": "Số tiền nộp",
+      "depositorName": "Tên người nộp"
+    },
+    "depositorName": "Tên người nộp",
+    "depositorNamePlaceholder": "Nhập tên người nộp",
+    "depositorNameHint": "* Nếu tên người nộp khác với tên thành viên của bạn, vui lòng nhập tên người nộp.",
+    "bankTransferNotice": {
+      "title": "Thông báo chuyển khoản ngân hàng",
+      "line1": "• Tiền mặt sẽ được nạp thủ công bởi quản trị viên sau khi xác nhận nộp tiền.",
+      "line2": "• Xác nhận có thể bị trì hoãn nếu tên người nộp không khớp.",
+      "line3": "• Xác nhận nộp tiền có thể mất 1-2 ngày làm việc."
+    },
+    "back": "Quay lại",
+    "confirm": "Xác nhận",
+    "processing": "Đang xử lý...",
+    "paymentMethod": "Phương thức thanh toán",
+    "paymentAmountTitle": "Số tiền thanh toán",
+    "agreement": "Tôi đã xem xét chi tiết thanh toán và đồng ý với các điều khoản.",
+    "next": "Tiếp theo",
+    "bankTransferGuide": {
+      "title": "Hướng dẫn chuyển khoản ngân hàng",
+      "bank": "Ngân hàng",
+      "accountNumber": "Số tài khoản",
+      "accountHolder": "Chủ tài khoản",
+      "amount": "Số tiền nộp"
+    }
+  },
+  "guest": {
+    "title": "Yêu cầu đăng nhập",
+    "description": "Vui lòng đăng nhập để sử dụng các tính năng Trang của tôi như lịch sử mua hàng, tải xuống và sheet yêu thích.",
+    "login": "Đi đến Đăng nhập",
+    "signup": "Đăng ký"
+  },
+  "loading": {
+    "message": "Đang tải dữ liệu Trang của tôi..."
+  },
+  "errors": {
+    "loginRequired": "Yêu cầu đăng nhập.",
+    "agreementRequired": "Vui lòng đồng ý với các điều khoản thanh toán.",
+    "amountNotFound": "Không thể tìm thấy số tiền nạp đã chọn.",
+    "paymentMethodNotReady": "Phương thức thanh toán này hiện đang được chuẩn bị.",
+    "paymentWindowOpen": "Cửa sổ thanh toán sẽ mở. Vui lòng hoàn tất thanh toán.",
+    "paymentError": "Đã xảy ra lỗi trong quá trình xử lý thanh toán.",
+    "depositorNameRequired": "Vui lòng nhập tên người nộp.",
+    "orderReceived": "Đơn hàng đã được nhận.\\nTiền mặt sẽ được nạp sau khi quản trị viên xác nhận nộp tiền.",
+    "allFieldsRequired": "Vui lòng điền vào tất cả các trường.",
+    "inquirySubmitted": "Câu hỏi đã được gửi. Chúng tôi sẽ phản hồi sớm nhất có thể.",
+    "inquiryError": "Đã xảy ra lỗi khi gửi câu hỏi. Vui lòng thử lại.",
+    "profileUpdated": "Thông tin hồ sơ đã được cập nhật.",
+    "profileUpdateError": "Không thể cập nhật hồ sơ. Vui lòng thử lại sau.",
+    "downloadRestricted": "Đơn hàng này đã được hoàn tiền hoặc tải xuống bị hạn chế.",
+    "selectDownloadItems": "Vui lòng chọn sheet music để tải xuống.",
+    "noDownloadableItems": "Không có sheet music nào có thể tải xuống.",
+    "downloadRestrictedMultiple": "Sheet music đã hoàn tiền hoặc bị hạn chế không thể tải xuống.",
+    "loginRequiredForDownload": "Yêu cầu đăng nhập. Vui lòng đăng nhập lại.",
+    "downloadFailed": "Không thể tải xuống {{count}} file. Vui lòng thử lại sau.",
+    "downloadFailedSingle": "Tải xuống file thất bại. Vui lòng thử lại sau.",
+    "previewNotFound": "Không tìm thấy file xem trước.",
+    "favoriteRemoveFailed": "Không thể xóa khỏi yêu thích.",
+    "sheetInfoNotFound": "Không tìm thấy thông tin sheet music có thể tải xuống.",
+    "downloadLinkNotFound": "Không tìm thấy liên kết tải xuống. Vui lòng liên hệ quản trị viên."
+  },
+  "console": {
+    "cashHistoryError": "Lỗi tải lịch sử tiền mặt:",
+    "inquiryHistoryError": "Lỗi tải lịch sử câu hỏi:",
+    "profileLoadError": "Lỗi tải hồ sơ:",
+    "orderHistoryError": "Lỗi tải lịch sử đơn hàng:",
+    "favoritesLoadError": "Lỗi tải yêu thích:",
+    "customOrderHistoryError": "Lỗi tải lịch sử đặt hàng tùy chỉnh:",
+    "initError": "Lỗi khởi tạo Trang của tôi:",
+    "cashChargeError": "Lỗi nạp tiền mặt:",
+    "inquirySubmitError": "Lỗi gửi câu hỏi:",
+    "profileUpdateError": "Lỗi cập nhật hồ sơ:",
+    "favoriteRemoveError": "Lỗi xóa yêu thích:"
+  },
+  "paymentMethods": {
+    "creditCard": "Thẻ tín dụng",
+    "kakaoPay": "Kakao Pay",
+    "bankTransfer": "Chuyển khoản ngân hàng",
+    "preparing": "Đang chuẩn bị"
+  },
+  "cart": "Giỏ hàng"
+}

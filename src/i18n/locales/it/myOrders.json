@@ -1,0 +1,65 @@
+{
+  "title": "Cronologia Acquisti Spartiti",
+  "description": "Questo è l'elenco degli spartiti che hai acquistato, ordinati dai più recenti.",
+  "totalPurchased": "Hai acquistato un totale di {{count}} spartiti.",
+  "loginRequired": "Accesso Richiesto",
+  "loginRequiredMessage": "Accedi per visualizzare la tua cronologia acquisti.",
+  "orderNumber": "Numero Ordine",
+  "categoryNotSet": "Categoria Non Impostata",
+  "deletedSheet": "Spartito Eliminato",
+  "status": {
+    "pending": "Pagamento in Attesa",
+    "pendingDesc": "In attesa di conferma del pagamento.",
+    "processing": "In Elaborazione",
+    "processingDesc": "Il tuo ordine è in fase di elaborazione.",
+    "completed": "Completato",
+    "completedDesc": "Ordine completato. I download sono disponibili.",
+    "cancelled": "Annullato",
+    "cancelledDesc": "L'ordine è stato annullato.",
+    "paymentPending": "Pagamento in Attesa",
+    "paymentPendingDesc": "In attesa di conferma del deposito.",
+    "paymentConfirmed": "Pagamento Confermato",
+    "paymentConfirmedDesc": "Pagamento confermato. I download sono disponibili.",
+    "paid": "Pagato",
+    "paidDesc": "Pagamento completato. I download sono disponibili.",
+    "refunded": "Rimborsato",
+    "refundedDesc": "L'ordine è stato rimborsato."
+  },
+  "paymentMethod": {
+    "card": "Carta di Credito",
+    "bankTransfer": "Bonifico Bancario",
+    "virtualAccount": "Conto Virtuale",
+    "cash": "Saldo Disponibile",
+    "points": "Punti"
+  },
+  "empty": {
+    "title": "Nessuno Spartito Acquistato",
+    "message": "Trova i tuoi spartiti preferiti e aggiungili al carrello.",
+    "browseButton": "Sfoglia Spartiti"
+  },
+  "actions": {
+    "downloadAll": "Scarica Tutto in Questo Ordine",
+    "downloadSelected": "Scarica Selezionati",
+    "selectAll": "Seleziona Tutto",
+    "deselectAll": "Deseleziona Tutto",
+    "clearSelection": "Cancella Selezione",
+    "download": "Scarica",
+    "downloadNotAvailable": "Download Non Disponibile",
+    "downloading": "Download in corso...",
+    "viewDetails": "Visualizza Dettagli",
+    "purchaseDate": "Data Acquisto {{date}}",
+    "selectedCount": "{{count}} selezionati",
+    "cart": "Carrello"
+  },
+  "messages": {
+    "selectSheetsToDownload": "Seleziona gli spartiti da scaricare.",
+    "refundedOrRestricted": "Questo ordine è stato rimborsato o il download è limitato.",
+    "loginRequired": "L'accesso è richiesto.",
+    "downloadFailed": "Impossibile scaricare {{count}} spartito(i).",
+    "refundedOrder": "Gli ordini rimborsati non possono essere scaricati.",
+    "noSheetsToDownload": "Nessuno spartito disponibile per il download.",
+    "sheetInfoNotFound": "Informazioni spartito non trovate.",
+    "fileNotFound": "File non trovato.",
+    "downloadError": "Impossibile scaricare il file. Riprova più tardi."
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "title": "Iniciar sesión",
+  "noAccount": "¿No tiene una cuenta?",
+  "signUp": "Registrarse",
+  "notice": "🔔 Para miembros existentes: Se requiere restablecer la contraseña en el primer inicio de sesión debido a la renovación del sitio.",
+  "form": {
+    "email": "Dirección de correo electrónico",
+    "emailPlaceholder": "Ingrese su correo electrónico",
+    "password": "Contraseña",
+    "passwordPlaceholder": "Ingrese su contraseña",
+    "rememberMe": "Recordarme",
+    "forgotPassword": "¿Olvidó su contraseña?",
+    "submit": "Iniciar sesión",
+    "submitting": "Iniciando sesión..."
+  },
+  "divider": "o",
+  "social": {
+    "google": "Google",
+    "kakao": "Kakao"
+  },
+  "errors": {
+    "kakaoLoginFailed": "Error en el inicio de sesión con Kakao. Por favor, inténtelo de nuevo.",
+    "googleLoginFailed": "Error en el inicio de sesión con Google. Por favor, inténtelo de nuevo.",
+    "invalidCredentials": "El correo electrónico o la contraseña son incorrectos.",
+    "emailNotConfirmed": "Se requiere verificación de correo electrónico. Por favor, revise su correo.",
+    "loginFailed": "Error en el inicio de sesión. Por favor, inténtelo de nuevo.",
+    "resetPasswordEmailError": "Ocurrió un error al enviar el correo de restablecimiento de contraseña. Por favor, inténtelo de nuevo.",
+    "profileError": "Error al buscar el perfil",
+    "profileCreationError": "Error al crear el perfil",
+    "migrationCheckError": "Error al verificar el usuario de migración"
+  },
+  "messages": {
+    "passwordResetEmailSent": "¡Usted es un miembro existente! Hemos enviado un correo de restablecimiento de contraseña. Por favor, revise su bandeja de entrada."
+  },
+  "console": {
+    "kakaoLoginError": "Error de inicio de sesión con Kakao:",
+    "googleLoginError": "Error de inicio de sesión con Google:",
+    "profileLookupError": "Error al buscar el perfil:",
+    "profileCreationError": "Error al crear el perfil:",
+    "resetPasswordEmailError": "Error al enviar el correo de restablecimiento de contraseña:",
+    "migrationCheckError": "Error al verificar el usuario de migración:",
+    "loginError": "Error de inicio de sesión:"
+  },
+  "defaultUserName": "Usuario"
+}

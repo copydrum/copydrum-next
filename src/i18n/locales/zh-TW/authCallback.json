@@ -1,0 +1,14 @@
+{
+  "loading": "正在處理登入...",
+  "errors": {
+    "oauthError": "登入失敗",
+    "callbackError": "處理登入時發生錯誤。請再試一次。",
+    "profileCreationError": "個人資料建立錯誤"
+  },
+  "console": {
+    "oauthError": "OAuth 錯誤：",
+    "callbackError": "身份驗證回調處理錯誤：",
+    "profileCreationError": "個人資料建立錯誤："
+  },
+  "defaultUserName": "使用者"
+}

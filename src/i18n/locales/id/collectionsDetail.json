@@ -1,0 +1,72 @@
+{
+  "loading": "Memuat koleksi...",
+  "errors": {
+    "noCollectionInfo": "Informasi koleksi yang diminta tidak tersedia.",
+    "collectionNotFound": "Koleksi yang diminta tidak dapat ditemukan.",
+    "loadError": "Terjadi kesalahan saat memuat informasi koleksi.",
+    "collectionNotAvailable": "Koleksi lembaran musik yang diminta tidak ada atau telah dinonaktifkan."
+  },
+  "backToList": "Kembali ke Koleksi",
+  "free": "Gratis",
+  "discount": "{{percentage}}% OFF",
+  "badge": "Koleksi Lembaran Musik",
+  "includedSheets": {
+    "count": "Lembaran yang Disertakan",
+    "number": "{{count}} lagu",
+    "title": "Lembaran yang Disertakan",
+    "description": "Lihat semua lembaran yang disertakan dalam koleksi ini dan jelajahi yang Anda inginkan.",
+    "empty": "Belum ada lembaran yang ditambahkan ke koleksi ini."
+  },
+  "sheet": {
+    "difficulty": "Tingkat Kesulitan {{difficulty}}",
+    "free": "Gratis"
+  },
+  "purchase": {
+    "priceInfo": "Informasi Harga Koleksi",
+    "totalIndividual": "Total Lembaran Individual",
+    "noInfo": "Tidak ada informasi",
+    "collectionPrice": "Harga Koleksi",
+    "buyNow": "Beli Sekarang",
+    "save": "Hemat {{amount}}!",
+    "processing": "Memproses...",
+    "note": "Koleksi hanya dapat dibeli dengan harga diskon.",
+    "inactive": "Koleksi ini saat ini tidak aktif. Silakan hubungi administrator.",
+    "mobilePrice": "Harga Koleksi",
+    "mobileSave": "Hemat {{amount}} dibandingkan pembelian individual",
+    "mobileInactive": "Koleksi ini saat ini tidak aktif.",
+    "buyCollection": "Buy Collection",
+    "goToCart": "Go to Cart"
+  },
+  "alerts": {
+    "noSheetInfo": "Informasi lembaran yang disertakan dalam koleksi tidak dapat ditemukan.",
+    "duplicatePurchase": "Anda sudah membeli beberapa lembaran yang disertakan dalam koleksi ini, jadi pembelian duplikat tidak dimungkinkan.",
+    "duplicateList": "Lembaran duplikat:",
+    "checkMyPage": "Silakan periksa riwayat pembelian Anda di Halaman Saya.",
+    "insufficientCredit": "Saldo tidak mencukupi.",
+    "currentBalance": "Saldo saat ini: {{amount}}P",
+    "chargeCash": "Silakan isi saldo dan coba lagi.",
+    "purchaseSuccess": "Pembelian selesai. Silakan periksa konten di Halaman Saya.",
+    "purchaseError": "Terjadi kesalahan selama pembelian."
+  },
+  "navigation": {
+    "title": "Jelajahi Halaman Lain",
+    "viewCategories": "Lihat Kategori Lembaran",
+    "eventSale": "Lembaran Acara Diskon",
+    "customOrder": "Pertanyaan Pesanan Kustom"
+  },
+  "purchaseDescription": "Pembelian Koleksi Lembaran Musik: {{title}}",
+  "sheetTitle": "Lembaran",
+  "viewSheet": "Lihat lembaran",
+  "difficulty": {
+    "beginner": "Pemula",
+    "intermediate": "Menengah",
+    "advanced": "Lanjutan"
+  },
+  "features": {
+    "title": "Yang Termasuk",
+    "allSheets": "Semua lembaran dengan harga diskon",
+    "highQuality": "Format PDF berkualitas tinggi",
+    "instantDownload": "Unduh instan",
+    "lifetimeAccess": "Akses seumur hidup"
+  }
+}

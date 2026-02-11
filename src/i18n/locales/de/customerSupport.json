@@ -1,0 +1,119 @@
+{
+  "title": "Kundensupport",
+  "subtitle": "Wenn Sie Fragen haben, kontaktieren Sie uns jederzeit. Wir werden schnell und genau antworten.",
+  "tabs": {
+    "faq": "FAQ",
+    "contact": "Kontaktieren Sie uns"
+  },
+  "contact": {
+    "title": "Kontaktieren Sie uns",
+    "description": "Wenn Sie Fragen oder Probleme haben, füllen Sie bitte das unten stehende Formular aus. Wir werden so schnell wie möglich antworten.",
+    "form": {
+      "name": "Name",
+      "namePlaceholder": "Geben Sie Ihren Namen ein",
+      "email": "E-Mail",
+      "emailPlaceholder": "Geben Sie Ihre E-Mail ein",
+      "inquiryType": "Anfragetyp",
+      "inquiryTypePlaceholder": "Anfragetyp auswählen",
+      "subject": "Betreff",
+      "subjectPlaceholder": "Geben Sie den Anfragebetreff ein",
+      "message": "Nachricht",
+      "messagePlaceholder": "Bitte beschreiben Sie Ihre Anfrage ausführlich (max. 500 Zeichen)",
+      "characters": "Zeichen",
+      "submit": "Anfrage senden",
+      "submitting": "Wird gesendet...",
+      "note": "Wir werden Ihre Anfrage innerhalb von 24 Stunden an Werktagen beantworten."
+    },
+    "categories": {
+      "orderPayment": "Bestellungs-/Zahlungsanfrage",
+      "sheetDownload": "Notenblatt-/Download-Anfrage",
+      "customOrder": "Individuelle Bestellungsanfrage",
+      "technical": "Technischer Support",
+      "other": "Sonstige Anfrage"
+    }
+  },
+  "contactInfo": {
+    "title": "Kontaktinformationen",
+    "subtitle": "Sie können uns auf verschiedene Weise kontaktieren",
+    "email": {
+      "title": "E-Mail-Anfrage",
+      "address": "copydrum@hanmail.net",
+      "description": "24/7 Empfang, Antwort innerhalb von 1 Tag"
+    },
+    "kakao": {
+      "title": "KakaoTalk-Beratung",
+      "description": "Sie können eine Echtzeit-Chat-Beratung nutzen.",
+      "button": "KakaoTalk-Chat öffnen"
+    },
+    "hours": {
+      "title": "Geschäftszeiten",
+      "weekdays": "Wochentage 09:00 - 17:00",
+      "closed": "Geschlossen an Wochenenden und Feiertagen"
+    }
+  },
+  "faq": {
+    "categories": {
+      "orderPayment": {
+        "name": "Bestellung/Zahlung",
+        "items": {
+          "download": {
+            "question": "Wann kann ich die Notenblätter nach dem Kauf herunterladen?",
+            "answer": "Sie können sofort nach Abschluss der Zahlung von Meine Seite herunterladen. Gekaufte Notenblätter können jederzeit erneut heruntergeladen werden."
+          },
+          "payment": {
+            "question": "Welche Zahlungsmethoden sind verfügbar?",
+            "answer": "Wir unterstützen Kreditkarten, Debitkarten, Banküberweisungen und bequeme Zahlungsmethoden (Kakao Pay)."
+          },
+          "refund": {
+            "question": "Wie kann ich eine Rückerstattung erhalten?",
+            "answer": "Aufgrund der Natur digitaler Produkte sind Rückerstattungen nur vor dem Download verfügbar. Rückerstattungen sind nach dem Download schwierig, bitte kaufen Sie sorgfältig."
+          }
+        }
+      },
+      "sheetDownload": {
+        "name": "Notenblatt/Download",
+        "items": {
+          "format": {
+            "question": "In welchem Dateiformat sind die Notenblatt-Dateien?",
+            "answer": "Alle Notenblätter werden im hochwertigen PDF-Format bereitgestellt. Optimiert für Druck und digitale Geräte."
+          },
+          "print": {
+            "question": "Kann ich die heruntergeladenen Notenblätter drucken?",
+            "answer": "Ja, Sie können für den persönlichen Übungsgebrauch drucken. Kommerzielle Nutzung oder Weiterverteilung ist jedoch verboten."
+          },
+          "difficulty": {
+            "question": "Wie werden Schwierigkeitsgrade klassifiziert?",
+            "answer": "Sie werden als Anfänger (Grundmuster), Mittelstufe (einschließlich Variationsmuster) und Fortgeschritten (einschließlich komplexer Techniken) klassifiziert."
+          }
+        }
+      },
+      "customOrder": {
+        "name": "Individuelle Bestellung",
+        "items": {
+          "what": {
+            "question": "Was ist der Service für individuelle Bestellungen?",
+            "answer": "Es ist ein maßgeschneiderter Service, bei dem Profis Schlagzeug-Notenblätter für Ihr gewünschtes Lied erstellen."
+          },
+          "duration": {
+            "question": "Wie lange dauert die Produktion?",
+            "answer": "Es dauert normalerweise 1-7 Tage, abhängig von der Komplexität des Songs. Der genaue Zeitplan wird nach der Bewerbung individuell bereitgestellt."
+          },
+          "cost": {
+            "question": "Wie wird die Produktionskosten bestimmt?",
+            "answer": "Wir erstellen Angebote, indem wir die Länge, Komplexität und den Schwierigkeitsgrad des Songs umfassend berücksichtigen."
+          }
+        }
+      }
+    }
+  },
+  "errors": {
+    "fillAllFields": "Bitte füllen Sie alle Felder aus.",
+    "submitError": "Beim Senden Ihrer Anfrage ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut."
+  },
+  "messages": {
+    "submitSuccess": "Ihre Anfrage wurde erfolgreich übermittelt. Wir werden so schnell wie möglich antworten."
+  },
+  "console": {
+    "inquiryError": "Fehler beim Speichern der Kundenanfrage:"
+  }
+}

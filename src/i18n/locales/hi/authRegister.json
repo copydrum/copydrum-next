@@ -1,0 +1,52 @@
+{
+  "title": "साइन अप करें",
+  "hasAccount": "पहले से खाता है?",
+  "signIn": "साइन इन करें",
+  "form": {
+    "name": "नाम",
+    "namePlaceholder": "अपना नाम दर्ज करें",
+    "email": "ईमेल पता",
+    "emailPlaceholder": "अपना ईमेल दर्ज करें",
+    "password": "पासवर्ड",
+    "passwordPlaceholder": "अपना पासवर्ड दर्ज करें (8+ वर्ण)",
+    "passwordHint": "8+ वर्ण, अक्षर, संख्याएं और विशेष वर्ण",
+    "confirmPassword": "पासवर्ड की पुष्टि करें",
+    "confirmPasswordPlaceholder": "अपना पासवर्ड पुनः दर्ज करें",
+    "agreeTerms": "मैं सेवा की शर्तों से सहमत हूं",
+    "viewTerms": "(देखें)",
+    "agreePrivacy": "मैं गोपनीयता नीति से सहमत हूं",
+    "viewPrivacy": "(देखें)",
+    "agreeMarketing": "मैं मार्केटिंग जानकारी प्राप्त करने के लिए सहमत हूं (वैकल्पिक)",
+    "submit": "साइन अप करें",
+    "submitting": "साइन अप हो रहा है..."
+  },
+  "divider": "या",
+  "social": {
+    "google": "Google",
+    "kakao": "Kakao"
+  },
+  "errors": {
+    "passwordMismatch": "पासवर्ड मेल नहीं खाते।",
+    "passwordTooShort": "पासवर्ड कम से कम 8 वर्ण लंबा होना चाहिए।",
+    "termsRequired": "कृपया आवश्यक शर्तों से सहमत हों।",
+    "profileCreationFailed": "प्रोफ़ाइल बनाने में विफल। कृपया पुनः प्रयास करें।",
+    "emailAlreadyRegistered": "यह ईमेल पहले से पंजीकृत है।",
+    "invalidEmail": "कृपया एक वैध ईमेल पता दर्ज करें।",
+    "signUpFailed": "साइन अप विफल। कृपया पुनः प्रयास करें।",
+    "kakaoLoginFailed": "Kakao लॉगिन विफल। कृपया पुनः प्रयास करें।",
+    "googleLoginFailed": "Google लॉगिन विफल। कृपया पुनः प्रयास करें।"
+  },
+  "messages": {
+    "signUpSuccess": "साइन अप पूर्ण! कृपया अपना ईमेल जांचें और साइन इन करें।"
+  },
+  "console": {
+    "kakaoLoginError": "Kakao लॉगिन त्रुटि:",
+    "googleLoginError": "Google लॉगिन त्रुटि:",
+    "profileError": "प्रोफ़ाइल निर्माण/अपडेट त्रुटि:",
+    "rollbackFunctionError": "रोलबैक फ़ंक्शन कॉल त्रुटि:",
+    "rollbackComplete": "साइन अप रोलबैक पूर्ण",
+    "rollbackError": "रोलबैक के दौरान त्रुटि:",
+    "profileSuccess": "प्रोफ़ाइल सफलतापूर्वक बनाई/अपडेट की गई",
+    "signUpError": "साइन अप त्रुटि:"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "title": "合作伙伴信息",
+  "description": "COPYDRUM通过合作伙伴关系向更多鼓手提供最佳内容。",
+  "benefits": {
+    "title": "合作伙伴权益",
+    "exclusiveLicense": {
+      "title": "独家乐谱许可",
+      "description": "我们为演出、课程和销售等各种环境的使用提供定制许可。"
+    },
+    "premiumSupport": {
+      "title": "高级支持",
+      "description": "我们为合作伙伴提供专门支持，包括新乐谱请求、定制转录和联合营销。"
+    },
+    "sharedGrowth": {
+      "title": "共同成长",
+      "description": "我们通过联合项目和活动共同扩展鼓手社区。"
+    }
+  },
+  "inquiry": {
+    "title": "合作伙伴咨询",
+    "description": "您准备好通过与COPYDRUM的合作伙伴关系共同成长吗？请使用以下信息联系我们。",
+    "emailLabel": "电子邮件",
+    "note": "请在咨询中提供详细信息，以便我们的团队快速响应。"
+  }
+}

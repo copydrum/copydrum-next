@@ -1,0 +1,36 @@
+{
+  "title": "Kebijakan Pengembalian & Pengiriman (Kebijakan Produk Digital)",
+  "sections": {
+    "productType": {
+      "title": "1. Jenis Produk",
+      "description": "Semua produk yang dijual di CopyDrum adalah konten digital (partitur drum PDF). Ini adalah produk elektronik non-fisik yang tersedia untuk unduhan langsung setelah pembayaran."
+    },
+    "deliveryMethod": {
+      "title": "2. Metode Pengiriman",
+      "description1": "Setelah pembayaran berhasil, file tersedia untuk unduhan instan di",
+      "description2": "Halaman Saya > Riwayat Pesanan",
+      "description3": "Jika unduhan tidak berfungsi, kami menyediakan tautan unduhan yang diterbitkan ulang atau mengirim ulang file secara manual atas permintaan."
+    },
+    "refundPolicy": {
+      "title": "3. Kebijakan Pengembalian",
+      "description": "Karena sifat produk digital, pengembalian dana tidak tersedia setelah file diunduh atau diakses.",
+      "exceptionNote": "Namun, kami menawarkan pengembalian dana atau pertukaran dalam kasus pengecualian berikut:",
+      "exceptions": {
+        "exception1": "Dalam 7 hari setelah pembelian jika file belum diunduh",
+        "exception2": "File yang salah diberikan atau kesalahan teknis yang membuat file tidak dapat digunakan",
+        "exception3": "Pembayaran duplikat untuk produk yang sama"
+      }
+    },
+    "customerProtection": {
+      "title": "4. Perlindungan Pelanggan",
+      "description": "Kami berusaha menyelesaikan masalah dengan segera:",
+      "protections": {
+        "protection1": "Penggantian gratis untuk kesalahan file",
+        "protection2": "Penerbitan ulang tautan unduhan jika terjadi masalah akses",
+        "protection3": "Pengembalian dana segera untuk transaksi duplikat"
+      },
+      "contact": "Dukungan Pelanggan:",
+      "email": "support@copydrum.com"
+    }
+  }
+}

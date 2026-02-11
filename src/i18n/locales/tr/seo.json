@@ -1,0 +1,9 @@
+{
+  "detailTitle": "{{title}} – {{artist}} | Davul notası PDF | COPYDRUM",
+  "detailDescription": "{{artist}} tarafından çalınan \"{{title}}\" parçasının davul notasını yüksek kaliteli PDF olarak indir. {{genre}} davul partisyonu, {{pages}} sayfa, {{bpm}} BPM, {{difficulty}} seviye.",
+  "detailKeywords": "{{title}}, {{artist}}, davul notası, drum sheet music, davul transkripsiyonu, COPYDRUM",
+  "homeTitle": "COPYDRUM | Davul notaları mağazası",
+  "homeDescription": "Pop, rock, K-POP, CCM ve daha fazlası için yüksek kaliteli davul notalarını PDF olarak sunuyoruz. Dünyadaki tüm davulcular için anında indirme.",
+  "categoryTitle": "{{category}} davul notaları | COPYDRUM",
+  "categoryDescription": "{{category}} şarkıları için davul notalarını PDF formatında indir. Prova ve sahne performansları için idealdir."
+}

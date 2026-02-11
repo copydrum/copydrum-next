@@ -1,0 +1,119 @@
+{
+  "title": "Service client",
+  "subtitle": "Si vous avez des questions, n'hésitez pas à nous contacter à tout moment. Nous fournirons des réponses rapides et précises.",
+  "tabs": {
+    "faq": "FAQ",
+    "contact": "Nous contacter"
+  },
+  "contact": {
+    "title": "Nous contacter",
+    "description": "Si vous avez des questions ou des problèmes, veuillez remplir le formulaire ci-dessous. Nous répondrons dans les plus brefs délais.",
+    "form": {
+      "name": "Nom",
+      "namePlaceholder": "Entrez votre nom",
+      "email": "E-mail",
+      "emailPlaceholder": "Entrez votre e-mail",
+      "inquiryType": "Type de demande",
+      "inquiryTypePlaceholder": "Sélectionnez le type de demande",
+      "subject": "Sujet",
+      "subjectPlaceholder": "Entrez le sujet de la demande",
+      "message": "Message",
+      "messagePlaceholder": "Veuillez écrire votre demande en détail (max 500 caractères)",
+      "characters": "caractères",
+      "submit": "Envoyer la demande",
+      "submitting": "Envoi en cours...",
+      "note": "Nous répondrons à votre demande dans les 24 heures en jours ouvrables."
+    },
+    "categories": {
+      "orderPayment": "Demande de commande/paiement",
+      "sheetDownload": "Demande de partition/téléchargement",
+      "customOrder": "Demande de commande personnalisée",
+      "technical": "Support technique",
+      "other": "Autre demande"
+    }
+  },
+  "contactInfo": {
+    "title": "Informations de contact",
+    "subtitle": "Vous pouvez nous contacter par diverses méthodes",
+    "email": {
+      "title": "Demande par e-mail",
+      "address": "copydrum@hanmail.net",
+      "description": "Réception 24/7, réponse sous 1 jour"
+    },
+    "kakao": {
+      "title": "Consultation KakaoTalk",
+      "description": "Vous pouvez utiliser la consultation par chat en temps réel.",
+      "button": "Ouvrir le chat KakaoTalk"
+    },
+    "hours": {
+      "title": "Heures d'ouverture",
+      "weekdays": "Jours ouvrables 09:00 - 17:00",
+      "closed": "Fermé les week-ends et jours fériés"
+    }
+  },
+  "faq": {
+    "categories": {
+      "orderPayment": {
+        "name": "Commande/Paiement",
+        "items": {
+          "download": {
+            "question": "Quand puis-je télécharger la partition après l'achat ?",
+            "answer": "Vous pouvez télécharger immédiatement après le paiement depuis Ma Page. Les partitions achetées peuvent être re-téléchargées à tout moment."
+          },
+          "payment": {
+            "question": "Quels modes de paiement sont disponibles ?",
+            "answer": "Nous acceptons les cartes de crédit, les cartes de débit, les virements bancaires et les modes de paiement pratiques (Kakao Pay)."
+          },
+          "refund": {
+            "question": "Comment puis-je obtenir un remboursement ?",
+            "answer": "En raison de la nature des produits numériques, les remboursements ne sont disponibles qu'avant le téléchargement. Les remboursements sont difficiles après le téléchargement, veuillez donc acheter avec précaution."
+          }
+        }
+      },
+      "sheetDownload": {
+        "name": "Partition/Téléchargement",
+        "items": {
+          "format": {
+            "question": "Quel format de fichier sont les fichiers de partition ?",
+            "answer": "Toutes les partitions sont fournies au format PDF de haute qualité. Optimisé pour l'impression et les appareils numériques."
+          },
+          "print": {
+            "question": "Puis-je imprimer les partitions téléchargées ?",
+            "answer": "Oui, vous pouvez imprimer pour un usage personnel de pratique. Cependant, l'utilisation commerciale ou la redistribution est interdite."
+          },
+          "difficulty": {
+            "question": "Comment les niveaux de difficulté sont-ils classés ?",
+            "answer": "Ils sont classés comme Débutant (motifs de base), Intermédiaire (incluant les motifs de variation) et Avancé (incluant les techniques complexes)."
+          }
+        }
+      },
+      "customOrder": {
+        "name": "Commande personnalisée",
+        "items": {
+          "what": {
+            "question": "Qu'est-ce que le service de commande personnalisée ?",
+            "answer": "C'est un service personnalisé où des professionnels créent des partitions de batterie pour la chanson de votre choix."
+          },
+          "duration": {
+            "question": "Combien de temps prend la production ?",
+            "answer": "Cela prend généralement 1 à 7 jours selon la complexité de la chanson. Le calendrier exact sera fourni individuellement après la demande."
+          },
+          "cost": {
+            "question": "Comment le coût de production est-il déterminé ?",
+            "answer": "Nous fournissons des devis en considérant globalement la longueur, la complexité et le niveau de difficulté de la chanson."
+          }
+        }
+      }
+    }
+  },
+  "errors": {
+    "fillAllFields": "Veuillez remplir tous les champs.",
+    "submitError": "Une erreur s'est produite lors de l'envoi de votre demande. Veuillez réessayer."
+  },
+  "messages": {
+    "submitSuccess": "Votre demande a été soumise avec succès. Nous répondrons dans les plus brefs délais."
+  },
+  "console": {
+    "inquiryError": "Échec de l'enregistrement de la demande client :"
+  }
+}

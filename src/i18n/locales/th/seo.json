@@ -1,0 +1,9 @@
+{
+  "detailTitle": "{{title}} – {{artist}} | โน้ตดนตรีกลอง PDF | COPYDRUM",
+  "detailDescription": "ดาวน์โหลดโน้ตดนตรีกลองเพลง \"{{title}}\" ของ {{artist}} ในรูปแบบ PDF คุณภาพสูง โน้ตสไตล์ {{genre}} จำนวน {{pages}} หน้า {{bpm}} BPM ระดับ {{difficulty}}.",
+  "detailKeywords": "{{title}}, {{artist}}, โน้ตกลอง, โน้ตดนตรีกลอง, drum sheet music, COPYDRUM",
+  "homeTitle": "COPYDRUM | ร้านขายโน้ตดนตรีกลอง",
+  "homeDescription": "โน้ตดนตรีกลองคุณภาพสูงสำหรับเพลงป๊อป ร็อก K-POP CCM และอื่นๆ ดาวน์โหลดไฟล์ PDF ได้ทันทีสำหรับมือกลองทั่วโลก.",
+  "categoryTitle": "โน้ตดนตรีกลองหมวด {{category}} | COPYDRUM",
+  "categoryDescription": "ดาวน์โหลดโน้ตดนตรีกลองในรูปแบบ PDF สำหรับเพลงในหมวด {{category}} เหมาะสำหรับใช้ซ้อมและแสดงสด."
+}

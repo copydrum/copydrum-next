@@ -1,0 +1,9 @@
+{
+  "detailTitle": "{{title}} - {{artist}} | 드럼 악보 PDF | COPYDRUM",
+  "detailDescription": "\"{{title}}\" ({{artist}}) 드럼 악보를 PDF로 다운로드하세요. 고품질 악보, 즉시 다운로드. {{genre}} 스타일, {{pages}}페이지, {{bpm}}BPM, {{difficulty}} 난이도.",
+  "detailKeywords": "{{title}}, {{artist}}, 드럼 악보, 드럼 악보 PDF, 드럼 악보 쇼핑몰, COPYDRUM",
+  "homeTitle": "COPYDRUM | 전문 드럼 악보 쇼핑몰",
+  "homeDescription": "팝, 록, K-POP, CCM 등 다양한 장르의 고품질 드럼 악보를 PDF로 제공합니다. 전 세계 드러머를 위한 즉시 다운로드 서비스.",
+  "categoryTitle": "{{category}} 드럼 악보 | COPYDRUM",
+  "categoryDescription": "{{category}} 곡들의 드럼 악보를 PDF로 다운로드하세요. 연습과 공연에 바로 사용할 수 있는 즉시 다운로드 악보입니다."
+}

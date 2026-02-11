@@ -1,0 +1,71 @@
+{
+  "title": "Riwayat Pesanan Kustom",
+  "nav": {
+    "home": "Beranda",
+    "categories": "Kategori Lembaran Musik",
+    "customOrder": "Pesanan Kustom",
+    "customOrderHistory": "Riwayat Pesanan Kustom"
+  },
+  "loading": "Memuat...",
+  "empty": {
+    "message": "Tidak ada riwayat pesanan kustom.",
+    "button": "Minta Pesanan Kustom"
+  },
+  "status": {
+    "pending": {
+      "label": "Memberikan Penawaran",
+      "message": "Kami sedang meninjau permintaan Anda dan menyiapkan penawaran kustom."
+    },
+    "quoted": {
+      "label": "Menunggu Pembayaran",
+      "message": "Penawaran telah tiba. Silakan lakukan setoran untuk jumlah yang ditawarkan untuk memulai produksi."
+    },
+    "payment_confirmed": {
+      "label": "Pembayaran Dikonfirmasi",
+      "message": "Pembayaran telah dikonfirmasi. Kami sedang mempersiapkan sesuai dengan urutan produksi."
+    },
+    "in_progress": {
+      "label": "Sedang Berlangsung",
+      "message": "Profesional kami sedang membuat lembaran musik. Kami akan memberi tahu Anda ketika selesai."
+    },
+    "completed": {
+      "label": "Selesai",
+      "message": "Produksi lembaran musik selesai. Silakan unduh file PDF di bawah ini."
+    },
+    "cancelled": {
+      "label": "Dibatalkan"
+    }
+  },
+  "order": {
+    "artist": "Artis",
+    "applicationDate": "Tanggal Aplikasi",
+    "estimatedPrice": "Harga Perkiraan",
+    "requirements": "Persyaratan",
+    "noRequirements": "Tidak ada persyaratan tambahan.",
+    "referenceVideo": "Video Referensi",
+    "adminReply": "Balasan Admin",
+    "replyDate": "Tanggal Balasan",
+    "completedSheet": "Lembaran Musik yang Selesai",
+    "completedSheetFilename": "Lembaran Musik yang Selesai.pdf",
+    "sheetMusicSuffix": "Lembaran Musik",
+    "download": "Unduh",
+    "downloadCount": "Unduh",
+    "times": "kali",
+    "expiryDate": "Tanggal Kedaluwarsa",
+    "recentUpdate": "Pembaruan Terbaru",
+    "viewDetails": "Lihat Detail",
+    "quote": "Penawaran",
+    "checkQuote": "Periksa Penawaran",
+    "workCompleted": "Pekerjaan Selesai"
+  },
+  "alerts": {
+    "downloadLimitExceeded": "Anda telah menggunakan semua percobaan unduhan. Silakan hubungi layanan pelanggan.",
+    "downloadExpired": "Periode unduhan telah kedaluwarsa. Silakan hubungi layanan pelanggan.",
+    "downloadSuccess": "Unduhan lembaran musik selesai.",
+    "downloadFailed": "Unduhan gagal. Silakan coba lagi."
+  },
+  "warnings": {
+    "downloadLimitExceeded": "Batas unduhan terlampaui. Silakan hubungi layanan pelanggan jika Anda memerlukan unduhan tambahan.",
+    "downloadPeriodExpired": "Periode unduhan telah kedaluwarsa. Silakan hubungi layanan pelanggan."
+  }
+}

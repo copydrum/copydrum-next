@@ -1,0 +1,14 @@
+{
+  "loading": "Anmeldung wird verarbeitet...",
+  "errors": {
+    "oauthError": "Anmeldung fehlgeschlagen",
+    "callbackError": "Bei der Verarbeitung der Anmeldung ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
+    "profileCreationError": "Fehler beim Erstellen des Profils"
+  },
+  "console": {
+    "oauthError": "OAuth-Fehler:",
+    "callbackError": "Fehler bei der Verarbeitung des Authentifizierungs-Callbacks:",
+    "profileCreationError": "Fehler beim Erstellen des Profils:"
+  },
+  "defaultUserName": "Benutzer"
+}

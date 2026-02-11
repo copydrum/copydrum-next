@@ -1,0 +1,287 @@
+{
+  "title": "My Page",
+  "subtitle": "ดูกิจกรรมทั้งหมดของคุณตั้งแต่การซื้อแผ่นเพลงไปจนถึงคำสั่งซื้อแบบกำหนดเองในที่เดียว",
+  "tabs": {
+    "profile": {
+      "label": "จัดการโปรไฟล์",
+      "description": "จัดการข้อมูลส่วนบุคคลและรายละเอียดการติดต่อของคุณ"
+    },
+    "purchases": {
+      "label": "ประวัติการซื้อ",
+      "description": "ตรวจสอบข้อมูลคำสั่งซื้อแผ่นเพลงที่คุณซื้อ"
+    },
+    "downloads": {
+      "label": "จัดการการดาวน์โหลด",
+      "description": "ดาวน์โหลดและดูตัวอย่างแผ่นเพลงที่คุณซื้อ"
+    },
+    "favorites": {
+      "label": "แผ่นเพลงโปรด",
+      "description": "ดูแผ่นเพลงโปรดของคุณ"
+    },
+    "cash": {
+      "label": "ประวัติเงินสด",
+      "description": "ตรวจสอบยอดเงินสดและประวัติการใช้งานของคุณ"
+    },
+    "inquiries": {
+      "label": "สอบถาม 1:1",
+      "description": "ตรวจสอบคำถามและการตอบกลับของคุณ"
+    },
+    "customOrders": {
+      "label": "คำสั่งซื้อแบบกำหนดเอง",
+      "description": "ตรวจสอบสถานะคำขอคำสั่งซื้อแบบกำหนดเองของคุณ"
+    }
+  },
+  "stats": {
+    "purchasedSheets": "แผ่นเพลงที่ซื้อแล้ว",
+    "availableDownloads": "ดาวน์โหลดที่พร้อมใช้งาน",
+    "favoriteSheets": "แผ่นเพลงโปรด",
+    "inquiries": "สอบถาม 1:1",
+    "customOrders": "คำสั่งซื้อแบบกำหนดเอง"
+  },
+  "profile": {
+    "title": "จัดการโปรไฟล์",
+    "memberInfo": "ข้อมูลสมาชิก",
+    "nameNotSet": "ยังไม่ได้ตั้งชื่อ",
+    "joinedOn": "เข้าร่วมเมื่อ",
+    "cashBalance": "ยอดเงินสด",
+    "cashBalanceDescription": "พร้อมใช้งานสำหรับการซื้อแผ่นเพลงครั้งถัดไปของคุณ",
+    "chargeCash": "เติมเงินสด",
+    "email": "อีเมล",
+    "name": "ชื่อ",
+    "namePlaceholder": "กรอกชื่อของคุณ",
+    "phoneNumber": "หมายเลขโทรศัพท์",
+    "phonePlaceholder": "กรอกหมายเลขโทรศัพท์ของคุณ",
+    "joinDate": "วันที่เข้าร่วม",
+    "saving": "กำลังบันทึก...",
+    "updateProfile": "อัปเดตโปรไฟล์"
+  },
+  "purchases": {
+    "title": "ประวัติการซื้อ",
+    "description": "เรียงตามคำสั่งซื้อล่าสุด",
+    "browseMore": "เรียกดูแผ่นเพลงเพิ่มเติม",
+    "noPurchases": "ยังไม่มีแผ่นเพลงที่ซื้อ",
+    "orderNumber": "หมายเลขคำสั่งซื้อ",
+    "total": "รวม",
+    "downloadAllInOrder": "ดาวน์โหลดทั้งหมดในคำสั่งซื้อนี้",
+    "downloading": "กำลังดาวน์โหลด...",
+    "selectAll": "เลือกทั้งหมด",
+    "deselectAll": "ยกเลิกการเลือกทั้งหมด",
+    "selected": "เลือกแล้ว",
+    "downloadSelected": "ดาวน์โหลดที่เลือก",
+    "download": "ดาวน์โหลด",
+    "viewDetails": "ดูรายละเอียด",
+    "categoryNotSet": "ยังไม่ได้ตั้งหมวดหมู่",
+    "deletedSheet": "แผ่นเพลงที่ถูกลบ"
+  },
+  "downloads": {
+    "title": "จัดการการดาวน์โหลด",
+    "description": "คุณสามารถดาวน์โหลดแผ่นเพลงที่ซื้อแล้วซ้ำได้ตลอดเวลา",
+    "totalItems": "รวม {{count}} รายการ",
+    "selectedItems": "เลือก {{count}} รายการ",
+    "selectAll": "เลือกทั้งหมด",
+    "deselectAll": "ยกเลิกการเลือกทั้งหมด",
+    "downloadSelected": "ดาวน์โหลดที่เลือก",
+    "downloadAll": "ดาวน์โหลดทั้งหมด",
+    "downloading": "กำลังดาวน์โหลด...",
+    "noDownloads": "ไม่มีแผ่นเพลงที่ดาวน์โหลดได้",
+    "purchaseDate": "วันที่ซื้อ",
+    "preview": "ดูตัวอย่าง",
+    "downloadUnavailable": "ดาวน์โหลดไม่พร้อมใช้งาน"
+  },
+  "favorites": {
+    "title": "แผ่นเพลงโปรด",
+    "description": "ค้นหาแผ่นเพลงโปรดของคุณอย่างรวดเร็ว",
+    "totalCount": "รวม {{count}} รายการ",
+    "noFavorites": "ยังไม่มีแผ่นเพลงโปรด",
+    "addFavorites": "เพิ่มแผ่นเพลงโปรดของคุณ!",
+    "viewDetails": "ดูรายละเอียด",
+    "inCart": "ในตะกร้า",
+    "cart": "เพิ่มลงตะกร้า",
+    "removeFavorite": "ลบออกจากรายการโปรด",
+    "deletedSheet": "แผ่นเพลงที่ถูกลบ"
+  },
+  "inquiries": {
+    "title": "สอบถาม 1:1",
+    "description": "ส่งคำถามและรับคำตอบจากผู้ดูแลระบบโดยตรงใน My Page",
+    "name": "ชื่อ",
+    "namePlaceholder": "กรอกชื่อของคุณ",
+    "email": "อีเมล",
+    "emailPlaceholder": "กรอกอีเมลติดต่อของคุณ",
+    "category": "ประเภทคำถาม",
+    "categoryPlaceholder": "เลือกประเภทคำถาม",
+    "categories": {
+      "orderPayment": "สอบถามคำสั่งซื้อ/การชำระเงิน",
+      "sheetDownload": "สอบถามแผ่นเพลง/การดาวน์โหลด",
+      "customOrder": "สอบถามคำสั่งซื้อแบบกำหนดเอง",
+      "technical": "การสนับสนุนทางเทคนิค",
+      "other": "สอบถามอื่นๆ"
+    },
+    "subject": "หัวข้อ",
+    "subjectPlaceholder": "กรอกหัวข้อคำถาม",
+    "message": "ข้อความ",
+    "messagePlaceholder": "กรุณาเขียนคำถามของคุณอย่างละเอียด (สูงสุด 500 ตัวอักษร)",
+    "characters": "ตัวอักษร",
+    "submitting": "กำลังส่ง...",
+    "submit": "ส่งคำถาม",
+    "history": {
+      "title": "ประวัติคำถามของฉัน",
+      "description": "ตรวจสอบคำถามที่ส่งและคำตอบจากผู้ดูแลระบบ",
+      "total": "รวม {{count}} คำถาม",
+      "loading": "กำลังโหลดประวัติคำถาม...",
+      "noInquiries": "ยังไม่มีคำถามที่ส่ง",
+      "noInquiriesDescription": "หากคุณมีคำถามใดๆ กรุณาส่งคำถามโดยใช้แบบฟอร์มด้านบน",
+      "category": "คำถาม",
+      "received": "รับแล้ว",
+      "adminReply": "คำตอบจากผู้ดูแลระบบ",
+      "replied": "ตอบแล้ว",
+      "preparing": "กำลังเตรียมการตอบกลับ เราจะติดต่อคุณหลังจากตรวจสอบ"
+    }
+  },
+  "cash": {
+    "title": "ประวัติเงินสด",
+    "description": "ตรวจสอบยอดเงินสดและประวัติการใช้งานของคุณ",
+    "chargeCash": "เติมเงินสด",
+    "availableCash": "เงินสดที่พร้อมใช้งาน",
+    "loadingHistory": "กำลังโหลดประวัติเงินสด...",
+    "noHistory": "ไม่มีประวัติเงินสดที่จะแสดง",
+    "noHistoryDescription": "ธุรกรรมเงินสดจะถูกบันทึกที่นี่เมื่อคุณเติมหรือใช้เงินสด",
+    "types": {
+      "charge": "เติมเงินสด",
+      "use": "ใช้เงินสด",
+      "adminAdd": "ผู้ดูแลระบบเพิ่ม",
+      "adminDeduct": "ผู้ดูแลระบบหัก",
+      "record": "บันทึก"
+    },
+    "bonus": "โบนัส",
+    "balance": "ยอดคงเหลือ",
+    "sheet": "แผ่นเพลง",
+    "noDescription": "ไม่มีคำอธิบายที่บันทึก"
+  },
+  "customOrders": {
+    "title": "ประวัติคำสั่งซื้อแบบกำหนดเอง",
+    "description": "ตรวจสอบสถานะคำขอคำสั่งซื้อแบบกำหนดเองของคุณ",
+    "newOrderRequest": "คำขอคำสั่งซื้อใหม่",
+    "noOrders": "ไม่มีประวัติคำสั่งซื้อแบบกำหนดเอง",
+    "serviceDescription": "ใช้บริการคำสั่งซื้อแบบกำหนดเองของเราสร้างแผ่นเพลงพิเศษ",
+    "requestDate": "วันที่ขอ",
+    "lastUpdate": "อัปเดตล่าสุด",
+    "viewDetails": "ดูรายละเอียด",
+    "quoteConfirm": "ยืนยันใบเสนอราคา",
+    "workCompleted": "งานเสร็จสมบูรณ์",
+    "quotePending": "รอใบเสนอราคา"
+  },
+  "status": {
+    "order": {
+      "completed": "เสร็จสมบูรณ์",
+      "pending": "รอดำเนินการ",
+      "cancelled": "ยกเลิก",
+      "refunded": "คืนเงิน",
+      "undetermined": "ไม่ระบุ"
+    },
+    "customOrder": {
+      "pending": "รอใบเสนอราคา",
+      "quoted": "รอการชำระเงิน",
+      "paymentConfirmed": "ยืนยันการชำระเงิน",
+      "inProgress": "กำลังดำเนินการ",
+      "completed": "เสร็จสมบูรณ์",
+      "cancelled": "ยกเลิก",
+      "undetermined": "ไม่ระบุ"
+    },
+    "inquiry": {
+      "pending": "รอการตอบกลับ",
+      "answered": "ตอบแล้ว",
+      "processing": "กำลังดำเนินการ"
+    }
+  },
+  "cashCharge": {
+    "title": "เติมเงินสด",
+    "currentCash": "ยอดเงินสดปัจจุบัน",
+    "paymentAmount": "จำนวนเงินที่ชำระ",
+    "bankTransferInfo": {
+      "title": "ข้อมูลการโอนเงิน",
+      "bank": "ธนาคาร",
+      "accountNumber": "เลขที่บัญชี",
+      "accountHolder": "ชื่อบัญชี",
+      "amount": "จำนวนเงินที่ต้องโอน",
+      "depositorName": "ชื่อผู้โอน"
+    },
+    "depositorName": "ชื่อผู้โอน",
+    "depositorNamePlaceholder": "กรอกชื่อผู้โอน",
+    "depositorNameHint": "* หากชื่อผู้โอนแตกต่างจากชื่อสมาชิกของคุณ กรุณากรอกชื่อผู้โอน",
+    "bankTransferNotice": {
+      "title": "ประกาศการโอนเงิน",
+      "line1": "• เงินสดจะถูกเติมด้วยตนเองโดยผู้ดูแลระบบหลังจากยืนยันการโอนเงิน",
+      "line2": "• การยืนยันอาจล่าช้าหากชื่อผู้โอนไม่ตรงกัน",
+      "line3": "• การยืนยันการโอนเงินอาจใช้เวลา 1-2 วันทำการ"
+    },
+    "back": "กลับ",
+    "confirm": "ยืนยัน",
+    "processing": "กำลังประมวลผล...",
+    "paymentMethod": "วิธีการชำระเงิน",
+    "paymentAmountTitle": "จำนวนเงินที่ชำระ",
+    "agreement": "ฉันได้ตรวจสอบรายละเอียดการชำระเงินและยอมรับข้อกำหนดแล้ว",
+    "next": "ถัดไป",
+    "bankTransferGuide": {
+      "title": "คู่มือการโอนเงิน",
+      "bank": "ธนาคาร",
+      "accountNumber": "เลขที่บัญชี",
+      "accountHolder": "ชื่อบัญชี",
+      "amount": "จำนวนเงินที่ต้องโอน"
+    }
+  },
+  "guest": {
+    "title": "จำเป็นต้องเข้าสู่ระบบ",
+    "description": "กรุณาเข้าสู่ระบบเพื่อใช้ฟีเจอร์ My Page เช่น ประวัติการซื้อ การดาวน์โหลด และแผ่นเพลงโปรด",
+    "login": "ไปที่หน้าเข้าสู่ระบบ",
+    "signup": "สมัครสมาชิก"
+  },
+  "loading": {
+    "message": "กำลังโหลดข้อมูล My Page..."
+  },
+  "errors": {
+    "loginRequired": "จำเป็นต้องเข้าสู่ระบบ",
+    "agreementRequired": "กรุณายอมรับข้อกำหนดการชำระเงิน",
+    "amountNotFound": "ไม่พบจำนวนเงินที่เลือก",
+    "paymentMethodNotReady": "วิธีการชำระเงินนี้กำลังเตรียมอยู่",
+    "paymentWindowOpen": "หน้าต่างชำระเงินจะเปิด กรุณาทำการชำระเงินให้เสร็จสิ้น",
+    "paymentError": "เกิดข้อผิดพลาดระหว่างการประมวลผลการชำระเงิน",
+    "depositorNameRequired": "กรุณากรอกชื่อผู้โอน",
+    "orderReceived": "รับคำสั่งซื้อแล้ว\\nเงินสดจะถูกเติมหลังจากยืนยันการโอนเงินโดยผู้ดูแลระบบ",
+    "allFieldsRequired": "กรุณากรอกข้อมูลในทุกฟิลด์",
+    "inquirySubmitted": "ส่งคำถามแล้ว เราจะตอบกลับโดยเร็วที่สุด",
+    "inquiryError": "เกิดข้อผิดพลาดขณะส่งคำถาม กรุณาลองอีกครั้ง",
+    "profileUpdated": "อัปเดตข้อมูลโปรไฟล์แล้ว",
+    "profileUpdateError": "อัปเดตโปรไฟล์ล้มเหลว กรุณาลองอีกครั้งในภายหลัง",
+    "downloadRestricted": "คำสั่งซื้อนี้ถูกคืนเงินหรือการดาวน์โหลดถูกจำกัด",
+    "selectDownloadItems": "กรุณาเลือกแผ่นเพลงเพื่อดาวน์โหลด",
+    "noDownloadableItems": "ไม่มีแผ่นเพลงที่ดาวน์โหลดได้",
+    "downloadRestrictedMultiple": "ไม่สามารถดาวน์โหลดแผ่นเพลงที่ถูกคืนเงินหรือถูกจำกัด",
+    "loginRequiredForDownload": "จำเป็นต้องเข้าสู่ระบบ กรุณาเข้าสู่ระบบอีกครั้ง",
+    "downloadFailed": "ดาวน์โหลด {{count}} ไฟล์ล้มเหลว กรุณาลองอีกครั้งในภายหลัง",
+    "downloadFailedSingle": "ดาวน์โหลดไฟล์ล้มเหลว กรุณาลองอีกครั้งในภายหลัง",
+    "previewNotFound": "ไม่พบไฟล์ตัวอย่าง",
+    "favoriteRemoveFailed": "ลบออกจากรายการโปรดล้มเหลว",
+    "sheetInfoNotFound": "ไม่พบข้อมูลแผ่นเพลงที่ดาวน์โหลดได้",
+    "downloadLinkNotFound": "ไม่พบลิงก์ดาวน์โหลด กรุณาติดต่อผู้ดูแลระบบ"
+  },
+  "console": {
+    "cashHistoryError": "ข้อผิดพลาดการโหลดประวัติเงินสด:",
+    "inquiryHistoryError": "ข้อผิดพลาดการโหลดประวัติคำถาม:",
+    "profileLoadError": "ข้อผิดพลาดการโหลดโปรไฟล์:",
+    "orderHistoryError": "ข้อผิดพลาดการโหลดประวัติคำสั่งซื้อ:",
+    "favoritesLoadError": "ข้อผิดพลาดการโหลดรายการโปรด:",
+    "customOrderHistoryError": "ข้อผิดพลาดการโหลดประวัติคำสั่งซื้อแบบกำหนดเอง:",
+    "initError": "ข้อผิดพลาดการเริ่มต้น My Page:",
+    "cashChargeError": "ข้อผิดพลาดการเติมเงินสด:",
+    "inquirySubmitError": "ข้อผิดพลาดการส่งคำถาม:",
+    "profileUpdateError": "ข้อผิดพลาดการอัปเดตโปรไฟล์:",
+    "favoriteRemoveError": "ข้อผิดพลาดการลบรายการโปรด:"
+  },
+  "paymentMethods": {
+    "creditCard": "บัตรเครดิต",
+    "kakaoPay": "Kakao Pay",
+    "bankTransfer": "โอนเงิน",
+    "preparing": "กำลังเตรียม"
+  },
+  "cart": "ตะกร้า"
+}

@@ -1,0 +1,45 @@
+{
+  "title": "Anmelden",
+  "noAccount": "Haben Sie noch kein Konto?",
+  "signUp": "Registrieren",
+  "notice": "🔔 Für bestehende Mitglieder: Aufgrund der Website-Erneuerung ist beim ersten Anmelden eine Passwort-Zurücksetzung erforderlich.",
+  "form": {
+    "email": "E-Mail-Adresse",
+    "emailPlaceholder": "Geben Sie Ihre E-Mail ein",
+    "password": "Passwort",
+    "passwordPlaceholder": "Geben Sie Ihr Passwort ein",
+    "rememberMe": "Angemeldet bleiben",
+    "forgotPassword": "Passwort vergessen?",
+    "submit": "Anmelden",
+    "submitting": "Wird angemeldet..."
+  },
+  "divider": "oder",
+  "social": {
+    "google": "Google",
+    "kakao": "Kakao"
+  },
+  "errors": {
+    "kakaoLoginFailed": "Kakao-Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.",
+    "googleLoginFailed": "Google-Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.",
+    "invalidCredentials": "E-Mail oder Passwort ist falsch.",
+    "emailNotConfirmed": "E-Mail-Bestätigung erforderlich. Bitte überprüfen Sie Ihre E-Mail.",
+    "loginFailed": "Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.",
+    "resetPasswordEmailError": "Beim Senden der E-Mail zum Zurücksetzen des Passworts ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
+    "profileError": "Fehler beim Abrufen des Profils",
+    "profileCreationError": "Fehler beim Erstellen des Profils",
+    "migrationCheckError": "Fehler beim Überprüfen des Migrationsbenutzers"
+  },
+  "messages": {
+    "passwordResetEmailSent": "Sie sind ein bestehendes Mitglied! Wir haben eine E-Mail zum Zurücksetzen des Passworts gesendet. Bitte überprüfen Sie Ihren Posteingang."
+  },
+  "console": {
+    "kakaoLoginError": "Kakao-Anmeldefehler:",
+    "googleLoginError": "Google-Anmeldefehler:",
+    "profileLookupError": "Fehler beim Abrufen des Profils:",
+    "profileCreationError": "Fehler beim Erstellen des Profils:",
+    "resetPasswordEmailError": "Fehler beim Senden der E-Mail zum Zurücksetzen des Passworts:",
+    "migrationCheckError": "Fehler beim Überprüfen des Migrationsbenutzers:",
+    "loginError": "Anmeldefehler:"
+  },
+  "defaultUserName": "Benutzer"
+}

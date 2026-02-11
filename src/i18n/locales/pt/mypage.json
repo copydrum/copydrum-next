@@ -1,0 +1,287 @@
+{
+  "title": "Minha Página",
+  "subtitle": "Visualize todas as suas atividades, desde compras de partituras até pedidos personalizados, de relance.",
+  "tabs": {
+    "profile": {
+      "label": "Gerenciamento de Perfil",
+      "description": "Gerencie suas informações pessoais e detalhes de contato."
+    },
+    "purchases": {
+      "label": "Histórico de Compras",
+      "description": "Verifique as informações do pedido de suas partituras compradas."
+    },
+    "downloads": {
+      "label": "Gerenciamento de Downloads",
+      "description": "Baixe e visualize suas partituras compradas."
+    },
+    "favorites": {
+      "label": "Partituras Favoritas",
+      "description": "Visualize suas partituras favoritas."
+    },
+    "cash": {
+      "label": "Histórico de Saldo",
+      "description": "Verifique seu saldo e histórico de uso."
+    },
+    "inquiries": {
+      "label": "Solicitação 1:1",
+      "description": "Verifique suas solicitações e respostas."
+    },
+    "customOrders": {
+      "label": "Pedidos Personalizados",
+      "description": "Verifique o status de suas solicitações de pedido personalizado."
+    }
+  },
+  "stats": {
+    "purchasedSheets": "Partituras Compradas",
+    "availableDownloads": "Downloads Disponíveis",
+    "favoriteSheets": "Partituras Favoritas",
+    "inquiries": "Solicitações 1:1",
+    "customOrders": "Pedidos Personalizados"
+  },
+  "profile": {
+    "title": "Gerenciamento de Perfil",
+    "memberInfo": "Informações do Membro",
+    "nameNotSet": "Nome não definido",
+    "joinedOn": "Membro desde",
+    "cashBalance": "Saldo Disponível",
+    "cashBalanceDescription": "Disponível para sua próxima compra de partitura.",
+    "chargeCash": "Recarregar Saldo",
+    "email": "E-mail",
+    "name": "Nome",
+    "namePlaceholder": "Digite seu nome",
+    "phoneNumber": "Número de Telefone",
+    "phonePlaceholder": "Digite seu número de telefone",
+    "joinDate": "Data de Cadastro",
+    "saving": "Salvando...",
+    "updateProfile": "Atualizar Perfil"
+  },
+  "purchases": {
+    "title": "Histórico de Compras",
+    "description": "Ordenado pelos pedidos mais recentes.",
+    "browseMore": "Navegar Mais Partituras",
+    "noPurchases": "Nenhuma partitura comprada ainda.",
+    "orderNumber": "Número do Pedido",
+    "total": "Total",
+    "downloadAllInOrder": "Baixar Tudo Neste Pedido",
+    "downloading": "Baixando...",
+    "selectAll": "Selecionar Tudo",
+    "deselectAll": "Desselecionar Tudo",
+    "selected": "Selecionado",
+    "downloadSelected": "Baixar Selecionados",
+    "download": "Baixar",
+    "viewDetails": "Ver Detalhes",
+    "categoryNotSet": "Categoria não definida",
+    "deletedSheet": "Partitura excluída"
+  },
+  "downloads": {
+    "title": "Gerenciamento de Downloads",
+    "description": "Você pode baixar novamente partituras compradas a qualquer momento.",
+    "totalItems": "Total de {{count}} itens",
+    "selectedItems": "{{count}} itens selecionados",
+    "selectAll": "Selecionar Tudo",
+    "deselectAll": "Desselecionar Tudo",
+    "downloadSelected": "Baixar Selecionados",
+    "downloadAll": "Baixar Tudo",
+    "downloading": "Baixando...",
+    "noDownloads": "Nenhuma partitura disponível para download.",
+    "purchaseDate": "Data da Compra",
+    "preview": "Visualizar",
+    "downloadUnavailable": "Download Indisponível"
+  },
+  "favorites": {
+    "title": "Partituras Favoritas",
+    "description": "Encontre rapidamente suas partituras favoritas.",
+    "totalCount": "Total de {{count}} itens",
+    "noFavorites": "Nenhuma partitura favorita ainda.",
+    "addFavorites": "Adicione suas partituras favoritas!",
+    "viewDetails": "Ver Detalhes",
+    "inCart": "No Carrinho",
+    "cart": "Adicionar ao Carrinho",
+    "removeFavorite": "Remover Favorito",
+    "deletedSheet": "Partitura excluída"
+  },
+  "inquiries": {
+    "title": "Solicitação 1:1",
+    "description": "Envie uma solicitação e receba respostas do administrador diretamente na Minha Página.",
+    "name": "Nome",
+    "namePlaceholder": "Digite seu nome",
+    "email": "E-mail",
+    "emailPlaceholder": "Digite seu e-mail de contato",
+    "category": "Tipo de Solicitação",
+    "categoryPlaceholder": "Selecione o tipo de solicitação",
+    "categories": {
+      "orderPayment": "Solicitação de Pedido/Pagamento",
+      "sheetDownload": "Solicitação de Partitura/Download",
+      "customOrder": "Solicitação de Pedido Personalizado",
+      "technical": "Suporte Técnico",
+      "other": "Outra Solicitação"
+    },
+    "subject": "Assunto",
+    "subjectPlaceholder": "Digite o assunto da solicitação",
+    "message": "Mensagem",
+    "messagePlaceholder": "Por favor, escreva sua solicitação em detalhes (máx. 500 caracteres)",
+    "characters": "caracteres",
+    "submitting": "Enviando...",
+    "submit": "Enviar Solicitação",
+    "history": {
+      "title": "Meu Histórico de Solicitações",
+      "description": "Verifique suas solicitações enviadas e respostas do administrador.",
+      "total": "Total de {{count}} solicitações",
+      "loading": "Carregando histórico de solicitações...",
+      "noInquiries": "Nenhuma solicitação enviada ainda.",
+      "noInquiriesDescription": "Se você tiver alguma dúvida, por favor, envie uma solicitação usando o formulário acima.",
+      "category": "Solicitação",
+      "received": "Recebido",
+      "adminReply": "Resposta do Administrador",
+      "replied": "Respondido",
+      "preparing": "A resposta está sendo preparada. Entraremos em contato após a revisão."
+    }
+  },
+  "cash": {
+    "title": "Histórico de Saldo",
+    "description": "Verifique seu saldo e histórico de uso.",
+    "chargeCash": "Recarregar Saldo",
+    "availableCash": "Saldo Disponível",
+    "loadingHistory": "Carregando histórico de saldo...",
+    "noHistory": "Nenhum histórico de saldo para exibir.",
+    "noHistoryDescription": "As transações de saldo serão registradas aqui quando você recarregar ou usar o saldo.",
+    "types": {
+      "charge": "Recarga de Saldo",
+      "use": "Uso de Saldo",
+      "adminAdd": "Adição pelo Administrador",
+      "adminDeduct": "Deduções pelo Administrador",
+      "record": "Registro"
+    },
+    "bonus": "Bônus",
+    "balance": "Saldo",
+    "sheet": "Partitura",
+    "noDescription": "Nenhuma descrição registrada."
+  },
+  "customOrders": {
+    "title": "Histórico de Pedidos Personalizados",
+    "description": "Verifique o status de suas solicitações de pedido personalizado.",
+    "newOrderRequest": "Nova Solicitação de Pedido",
+    "noOrders": "Nenhum histórico de pedido personalizado.",
+    "serviceDescription": "Use nosso serviço de pedido personalizado para criar partituras especiais.",
+    "requestDate": "Data da Solicitação",
+    "lastUpdate": "Última Atualização",
+    "viewDetails": "Ver Detalhes",
+    "quoteConfirm": "Confirmar Orçamento",
+    "workCompleted": "Trabalho Concluído",
+    "quotePending": "Aguardando Orçamento"
+  },
+  "status": {
+    "order": {
+      "completed": "Concluído",
+      "pending": "Pendente",
+      "cancelled": "Cancelado",
+      "refunded": "Reembolsado",
+      "undetermined": "Indeterminado"
+    },
+    "customOrder": {
+      "pending": "Aguardando Orçamento",
+      "quoted": "Aguardando Pagamento",
+      "paymentConfirmed": "Pagamento Confirmado",
+      "inProgress": "Em Andamento",
+      "completed": "Concluído",
+      "cancelled": "Cancelado",
+      "undetermined": "Indeterminado"
+    },
+    "inquiry": {
+      "pending": "Aguardando Resposta",
+      "answered": "Respondido",
+      "processing": "Processando"
+    }
+  },
+  "cashCharge": {
+    "title": "Recarga de Saldo",
+    "currentCash": "Saldo Atual",
+    "paymentAmount": "Valor do Pagamento",
+    "bankTransferInfo": {
+      "title": "Informações de Transferência Bancária",
+      "bank": "Banco",
+      "accountNumber": "Número da Conta",
+      "accountHolder": "Titular da Conta",
+      "amount": "Valor do Depósito",
+      "depositorName": "Nome do Depositante"
+    },
+    "depositorName": "Nome do Depositante",
+    "depositorNamePlaceholder": "Digite o nome do depositante",
+    "depositorNameHint": "* Se o nome do depositante for diferente do seu nome de membro, por favor, digite o nome do depositante.",
+    "bankTransferNotice": {
+      "title": "Aviso de Transferência Bancária",
+      "line1": "• O saldo será recarregado manualmente pelo administrador após a confirmação do depósito.",
+      "line2": "• A confirmação pode ser atrasada se o nome do depositante não corresponder.",
+      "line3": "• A confirmação do depósito pode levar de 1 a 2 dias úteis."
+    },
+    "back": "Voltar",
+    "confirm": "Confirmar",
+    "processing": "Processando...",
+    "paymentMethod": "Método de Pagamento",
+    "paymentAmountTitle": "Valor do Pagamento",
+    "agreement": "Revisei os detalhes do pagamento e concordo com os termos.",
+    "next": "Próximo",
+    "bankTransferGuide": {
+      "title": "Guia de Transferência Bancária",
+      "bank": "Banco",
+      "accountNumber": "Número da Conta",
+      "accountHolder": "Titular da Conta",
+      "amount": "Valor do Depósito"
+    }
+  },
+  "guest": {
+    "title": "Login Necessário",
+    "description": "Por favor, faça login para usar os recursos da Minha Página, como histórico de compras, downloads e partituras favoritas.",
+    "login": "Ir para Login",
+    "signup": "Cadastrar"
+  },
+  "loading": {
+    "message": "Carregando dados da Minha Página..."
+  },
+  "errors": {
+    "loginRequired": "Login é necessário.",
+    "agreementRequired": "Por favor, concorde com os termos de pagamento.",
+    "amountNotFound": "O valor de recarga selecionado não pôde ser encontrado.",
+    "paymentMethodNotReady": "Este método de pagamento está sendo preparado no momento.",
+    "paymentWindowOpen": "A janela de pagamento será aberta. Por favor, complete o pagamento.",
+    "paymentError": "Ocorreu um erro durante o processamento do pagamento.",
+    "depositorNameRequired": "Por favor, digite o nome do depositante.",
+    "orderReceived": "O pedido foi recebido.\\nO saldo será recarregado após a confirmação do depósito pelo administrador.",
+    "allFieldsRequired": "Por favor, preencha todos os campos.",
+    "inquirySubmitted": "A solicitação foi enviada. Responderemos o mais rápido possível.",
+    "inquiryError": "Ocorreu um erro ao enviar a solicitação. Por favor, tente novamente.",
+    "profileUpdated": "As informações do perfil foram atualizadas.",
+    "profileUpdateError": "Falha ao atualizar perfil. Por favor, tente novamente mais tarde.",
+    "downloadRestricted": "Este pedido foi reembolsado ou o download está restrito.",
+    "selectDownloadItems": "Por favor, selecione partituras para baixar.",
+    "noDownloadableItems": "Nenhuma partitura disponível para download.",
+    "downloadRestrictedMultiple": "Partituras reembolsadas ou restritas não podem ser baixadas.",
+    "loginRequiredForDownload": "Login é necessário. Por favor, faça login novamente.",
+    "downloadFailed": "Falha ao baixar {{count}} arquivos. Por favor, tente novamente mais tarde.",
+    "downloadFailedSingle": "Falha no download do arquivo. Por favor, tente novamente mais tarde.",
+    "previewNotFound": "Arquivo de visualização não encontrado.",
+    "favoriteRemoveFailed": "Falha ao remover dos favoritos.",
+    "sheetInfoNotFound": "Informações da partitura para download não encontradas.",
+    "downloadLinkNotFound": "Link de download não encontrado. Por favor, entre em contato com o administrador."
+  },
+  "console": {
+    "cashHistoryError": "Erro ao carregar histórico de saldo:",
+    "inquiryHistoryError": "Erro ao carregar histórico de solicitações:",
+    "profileLoadError": "Erro ao carregar perfil:",
+    "orderHistoryError": "Erro ao carregar histórico de pedidos:",
+    "favoritesLoadError": "Erro ao carregar favoritos:",
+    "customOrderHistoryError": "Erro ao carregar histórico de pedidos personalizados:",
+    "initError": "Erro na inicialização da Minha Página:",
+    "cashChargeError": "Erro na recarga de saldo:",
+    "inquirySubmitError": "Erro no envio da solicitação:",
+    "profileUpdateError": "Erro na atualização do perfil:",
+    "favoriteRemoveError": "Erro na remoção de favorito:"
+  },
+  "paymentMethods": {
+    "creditCard": "Cartão de Crédito",
+    "kakaoPay": "Kakao Pay",
+    "bankTransfer": "Transferência Bancária",
+    "preparing": "Preparando"
+  },
+  "cart": "Carrinho"
+}

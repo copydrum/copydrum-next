@@ -1,0 +1,491 @@
+'use client';
+import { useLocaleRouter } from '@/hooks/useLocaleRouter';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { supabase } from '../../lib/supabase';
+import type { User } from '@supabase/supabase-js';
+import { useTranslation } from 'react-i18next';
+import { generateDefaultThumbnail } from '../../lib/defaultThumbnail';
+import { buildDownloadKey, downloadFile, getDownloadFileName, requestSignedDownloadUrl } from '../../utils/downloadHelpers';
+
+const DOWNLOADABLE_STATUSES = ['completed', 'payment_confirmed', 'paid'];
+
+interface OrderItemDetail {
+  id: string;
+  sheet_slug: string;
+  drum_sheet_id?: string;
+  sheet_title?: string;
+  price: number;
+  created_at: string;
+  drum_sheets: {
+    id: string;
+    title: string;
+    artist: string;
+    slug?: string;
+    thumbnail_url: string | null;
+    preview_image_url: string | null;
+    categories?: { name: string | null } | null;
+  } | null;
+}
+
+interface DownloadableItem extends OrderItemDetail {
+  order_id: string;
+  order_status: string;
+  order_created_at: string;
+}
+
+interface OrderSummary {
+  id: string;
+  created_at: string;
+  status: string;
+  total_amount: number;
+  payment_method?: string | null;
+  order_items: OrderItemDetail[];
+}
+
+interface PurchaseHistoryContentProps {
+  user: User;
+}
+
+export default function PurchaseHistoryContent({ user }: PurchaseHistoryContentProps) {
+  const router = useLocaleRouter();
+  const { t, i18n } = useTranslation();
+  const [loading, setLoading] = useState(true);
+  const [downloads, setDownloads] = useState<DownloadableItem[]>([]);
+  const [selectedDownloadIds, setSelectedDownloadIds] = useState<string[]>([]);
+  const [downloadingKeys, setDownloadingKeys] = useState<string[]>([]);
+  const [bulkDownloading, setBulkDownloading] = useState(false);
+
+  const formatDate = (value: string | null | undefined) => {
+    if (!value) return '-';
+    try {
+      return new Date(value).toLocaleDateString(i18n.language || 'ko');
+    } catch {
+      return '-';
+    }
+  };
+
+  const loadOrders = useCallback(async () => {
+    try {
+      // 결제 완료된 주문만 조회 (payment_status = 'paid')
+      const { data: ordersData, error: ordersError } = await supabase
+        .from('orders')
+        .select(
+          `
+          id,
+          created_at,
+          status,
+          total_amount,
+          payment_method,
+          payment_status,
+          order_type,
+          order_items (
+            id,
+            drum_sheet_id,
+            sheet_title,
+            price,
+            created_at,
+            drum_sheets (
+              id,
+              title,
+              artist,
+              slug,
+              thumbnail_url,
+              preview_image_url,
+              categories (
+                name
+              )
+            )
+          )
+        `
+        )
+        .eq('user_id', user.id)
+        .eq('payment_status', 'paid')  // 결제 완료된 주문만 필터링
+        .order('created_at', { ascending: false });
+
+      if (ordersError) {
+        // 상세한 에러 정보 출력
+        console.error('[PurchaseHistoryContent] Supabase 쿼리 에러:', {
+          code: ordersError.code,
+          message: ordersError.message,
+          details: ordersError.details,
+          hint: ordersError.hint,
+        });
+        throw ordersError;
+      }
+
+      const normalizedOrders = (ordersData || []).map((order: any) => ({
+        ...order,
+        order_items: (order.order_items || []).map((item: any) => ({
+          ...item,
+          // drum_sheets.slug을 우선 사용, 없으면 drum_sheet_id로 폴백
+          sheet_slug: item.drum_sheets?.slug ?? item.drum_sheet_id ?? '',
+          drum_sheets: item.drum_sheets
+            ? {
+                ...item.drum_sheets,
+                categories: item.drum_sheets.categories
+                  ? { name: item.drum_sheets.categories.name }
+                  : null,
+              }
+            : null,
+        })),
+      }));
+
+      // order_items가 있고, order_type이 'product'인 주문만 필터링 (악보 구매만)
+      // order_type이 없어도 order_items가 있으면 악보 구매로 간주
+      const filteredOrders = normalizedOrders.filter(
+        (order) => 
+          (order.order_items?.length ?? 0) > 0 && 
+          (order.order_type === 'product' || !order.order_type)
+      );
+
+      const downloadItems: DownloadableItem[] = filteredOrders.flatMap((order) =>
+        DOWNLOADABLE_STATUSES.includes((order.status ?? '').toLowerCase())
+          ? order.order_items
+            .filter((item) => item.sheet_slug)
+            .map((item) => ({
+              ...item,
+              order_id: order.id,
+              order_status: order.status,
+              order_created_at: order.created_at,
+            }))
+          : []
+      );
+
+      setDownloads(downloadItems);
+      setSelectedDownloadIds((prev) => {
+        const validKeys = new Set(
+          downloadItems.map((item) => buildDownloadKey(item.order_id, item.id))
+        );
+        return prev.filter((key) => validKeys.has(key));
+      });
+    } catch (error) {
+      console.error('주문 내역 로드 오류:', error);
+      setDownloads([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [user.id]);
+
+  useEffect(() => {
+    loadOrders();
+  }, [loadOrders]);
+
+  const toggleDownloadSelection = (item: DownloadableItem) => {
+    if (!DOWNLOADABLE_STATUSES.includes((item.order_status ?? '').toLowerCase())) {
+      return;
+    }
+
+    const key = buildDownloadKey(item.order_id, item.id);
+    setSelectedDownloadIds((prev) =>
+      prev.includes(key) ? prev.filter((value) => value !== key) : [...prev, key]
+    );
+  };
+
+  const handleToggleSelectAllDownloads = () => {
+    setSelectedDownloadIds((prev) => {
+      if (downloads.length === 0) {
+        return [];
+      }
+      return prev.length === downloads.length
+        ? []
+        : downloads.map((item) => buildDownloadKey(item.order_id, item.id));
+    });
+  };
+
+  const clearDownloadSelection = () => {
+    setSelectedDownloadIds([]);
+  };
+
+  const startDownloading = (key: string) => {
+    setDownloadingKeys((prev) => (prev.includes(key) ? prev : [...prev, key]));
+  };
+
+  const finishDownloading = (key: string) => {
+    setDownloadingKeys((prev) => prev.filter((value) => value !== key));
+  };
+
+  const downloadSheetItem = async (item: DownloadableItem, accessToken: string) => {
+    if (!item.sheet_slug) {
+      throw new Error(t('mypage.errors.sheetInfoNotFound'));
+    }
+
+    if (!item.drum_sheets) {
+      throw new Error(t('mypage.errors.downloadLinkNotFound'));
+    }
+
+    const fileName = getDownloadFileName({
+      title: item.drum_sheets?.title,
+      artist: item.drum_sheets?.artist,
+      orderId: item.order_id,
+    });
+
+    const signedUrl = await requestSignedDownloadUrl({
+      orderId: item.order_id,
+      orderItemId: item.id,
+      accessToken,
+    });
+
+    await downloadFile(signedUrl, fileName);
+  };
+
+  const handleDownloadMultiple = async (items: DownloadableItem[]) => {
+    if (items.length === 0) {
+      alert(t('mypage.errors.selectDownloadItems'));
+      return;
+    }
+
+    const invalidItems = items.filter(
+      (item) => !DOWNLOADABLE_STATUSES.includes((item.order_status ?? '').toLowerCase())
+    );
+    if (invalidItems.length > 0) {
+      alert(t('mypage.errors.downloadRestrictedMultiple'));
+      return;
+    }
+
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (!session?.access_token) {
+      alert(t('mypage.errors.loginRequiredForDownload'));
+      return;
+    }
+
+    setBulkDownloading(true);
+    const failed: DownloadableItem[] = [];
+
+    try {
+      for (const item of items) {
+        const key = buildDownloadKey(item.order_id, item.id);
+        startDownloading(key);
+        try {
+          await downloadSheetItem(item, session.access_token);
+        } catch (error) {
+          failed.push(item);
+        } finally {
+          finishDownloading(key);
+        }
+      }
+    } finally {
+      setBulkDownloading(false);
+    }
+
+    if (failed.length > 0) {
+      alert(t('mypage.errors.downloadFailed', { count: failed.length }));
+    }
+  };
+
+  const handleDownloadSelected = async () => {
+    const selectedItems = downloads.filter(
+      (item) =>
+        selectedDownloadIds.includes(buildDownloadKey(item.order_id, item.id)) &&
+        DOWNLOADABLE_STATUSES.includes((item.order_status ?? '').toLowerCase())
+    );
+    await handleDownloadMultiple(selectedItems);
+  };
+
+  const handleDownloadAll = async () => {
+    const downloadableItems = downloads.filter((item) =>
+      DOWNLOADABLE_STATUSES.includes((item.order_status ?? '').toLowerCase())
+    );
+    await handleDownloadMultiple(downloadableItems);
+  };
+
+  const handleDownload = async (item: DownloadableItem) => {
+    if (!DOWNLOADABLE_STATUSES.includes((item.order_status ?? '').toLowerCase())) {
+      alert(t('mypage.errors.downloadRestrictedMultiple'));
+      return;
+    }
+
+    const key = buildDownloadKey(item.order_id, item.id);
+    startDownloading(key);
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session?.access_token) {
+        throw new Error(t('mypage.errors.loginRequiredForDownload'));
+      }
+
+      await downloadSheetItem(item, session.access_token);
+    } catch (error) {
+      if (error instanceof Error) {
+        alert(error.message);
+      } else {
+        alert(t('mypage.errors.downloadFailed', { count: 1 }));
+      }
+    } finally {
+      finishDownloading(key);
+    }
+  };
+
+  const handlePreview = (item: DownloadableItem) => {
+    if (!item.sheet_slug) {
+      alert(t('mypage.errors.sheetInfoNotFound'));
+      return;
+    }
+    router.push(`/drum-sheet/${item.sheet_slug}`);
+  };
+
+  if (loading) {
+    return (
+      <div className="py-16 text-center text-gray-500">
+        <i className="ri-loader-4-line text-4xl animate-spin text-blue-500 mb-4" />
+        <p className="font-medium">{t('purchaseHistory.loading')}</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-6">
+      <div className="flex items-center justify-between gap-3">
+        <h3 className="text-xl font-bold text-gray-900">{t('purchaseHistory.listTitle')}</h3>
+        <p className="text-sm text-gray-500">{t('purchaseHistory.totalCount', { count: downloads.length })}</p>
+      </div>
+      {selectedDownloadIds.length > 0 && (
+        <div className="text-right">
+          <p className="text-xs text-blue-600">{t('mypage.downloads.selectedItems', { count: selectedDownloadIds.length })}</p>
+        </div>
+      )}
+
+      {downloads.length > 0 ? (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-gray-100 bg-gray-50 px-4 py-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={handleToggleSelectAllDownloads}
+              disabled={downloads.length === 0 || bulkDownloading}
+              className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg border text-sm font-semibold transition ${downloads.length === 0 || bulkDownloading
+                ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
+                : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                }`}
+            >
+              <i className="ri-checkbox-multiple-line text-base" />
+              {downloads.length > 0 && selectedDownloadIds.length === downloads.length ? t('mypage.downloads.deselectAll') : t('mypage.downloads.selectAll')}
+            </button>
+            <button
+              onClick={clearDownloadSelection}
+              disabled={selectedDownloadIds.length === 0 || bulkDownloading}
+              className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg border text-sm font-semibold transition ${selectedDownloadIds.length === 0 || bulkDownloading
+                ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
+                : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                }`}
+            >
+              <i className="ri-close-circle-line text-base" />
+              {t('mypage.downloads.deselectAll')}
+            </button>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={handleDownloadSelected}
+              disabled={selectedDownloadIds.length === 0 || bulkDownloading}
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white transition ${selectedDownloadIds.length === 0 || bulkDownloading
+                ? 'bg-blue-300 cursor-not-allowed'
+                : 'bg-blue-600 hover:bg-blue-700'
+                }`}
+            >
+              <i className="ri-download-2-line text-base" />
+              {bulkDownloading ? t('mypage.downloads.downloading') : t('mypage.downloads.downloadSelected')}
+            </button>
+            <button
+              onClick={handleDownloadAll}
+              disabled={downloads.length === 0 || bulkDownloading}
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white transition ${downloads.length === 0 || bulkDownloading
+                ? 'bg-indigo-300 cursor-not-allowed'
+                : 'bg-indigo-600 hover:bg-indigo-700'
+                }`}
+            >
+              <i className="ri-stack-line text-base" />
+              {bulkDownloading ? t('mypage.downloads.downloading') : t('mypage.downloads.downloadAll')}
+            </button>
+          </div>
+        </div>
+      ) : null}
+
+      {downloads.length === 0 ? (
+        <div className="py-16 text-center text-gray-500">
+          <i className="ri-download-2-line text-4xl text-gray-300 mb-4" />
+          <p className="font-medium">{t('purchaseHistory.emptyMessage')}</p>
+        </div>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2">
+          {downloads.map((item) => {
+            const itemKey = buildDownloadKey(item.order_id, item.id);
+            const isSelected = selectedDownloadIds.includes(itemKey);
+            const isDownloading = bulkDownloading || downloadingKeys.includes(itemKey);
+            const isDownloadableStatus = DOWNLOADABLE_STATUSES.includes(
+              (item.order_status ?? '').toLowerCase()
+            );
+
+            return (
+              <div
+                key={itemKey}
+                className={`rounded-xl border p-4 space-y-3 transition ${isSelected
+                  ? 'border-blue-300 bg-blue-50/70 shadow-sm'
+                  : 'border-gray-100 bg-white hover:border-blue-200'
+                  }`}
+              >
+                <div className="flex items-start gap-3">
+                  <input
+                    type="checkbox"
+                    checked={isSelected}
+                    onChange={() => toggleDownloadSelection(item)}
+                    disabled={bulkDownloading || !isDownloadableStatus}
+                    className="mt-1 h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  <div className="flex flex-1 items-center gap-3">
+                    <img
+                      src={
+                        item.drum_sheets?.thumbnail_url ||
+                        generateDefaultThumbnail(96, 96)
+                      }
+                      alt={item.drum_sheets?.title ?? t('mypage.downloads.noDownloads')}
+                      className="w-20 h-20 rounded-lg object-cover flex-shrink-0"
+                      onError={(event) => {
+                        (event.target as HTMLImageElement).src = generateDefaultThumbnail(96, 96);
+                      }}
+                    />
+                    <div>
+                      <h4 className="font-semibold text-gray-900">
+                        {item.drum_sheets?.title ?? t('mypage.favorites.deletedSheet')}
+                      </h4>
+                      <p className="text-sm text-gray-500">{item.drum_sheets?.artist ?? '-'}</p>
+                      <p className="text-xs text-gray-400">{t('mypage.downloads.purchaseDate')} {formatDate(item.order_created_at)}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    onClick={() => handlePreview(item)}
+                    disabled={bulkDownloading}
+                    className={`flex-1 min-w-[120px] px-3 py-2 rounded-lg text-sm font-semibold transition ${bulkDownloading
+                      ? 'border border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
+                      : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
+                      }`}
+                  >
+                    {t('mypage.downloads.preview')}
+                  </button>
+                  <button
+                    onClick={() => handleDownload(item)}
+                    disabled={isDownloading || !isDownloadableStatus}
+                    className={`flex-1 min-w-[120px] px-3 py-2 rounded-lg text-sm font-semibold text-white transition ${isDownloading || !isDownloadableStatus
+                      ? 'bg-blue-300 cursor-not-allowed'
+                      : 'bg-blue-600 hover:bg-blue-700'
+                      }`}
+                  >
+                    {isDownloading
+                      ? t('mypage.downloads.downloading')
+                      : isDownloadableStatus
+                        ? t('mypage.downloads.download')
+                        : t('mypage.downloads.downloadUnavailable')}
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+

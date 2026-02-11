@@ -1,0 +1,287 @@
+{
+  "title": "我的頁面",
+  "subtitle": "一目了然地查看您從樂譜購買到客製訂單的所有活動。",
+  "tabs": {
+    "profile": {
+      "label": "個人資料管理",
+      "description": "管理您的個人資訊和聯絡詳情。"
+    },
+    "purchases": {
+      "label": "購買記錄",
+      "description": "查看您已購買的樂譜訂單資訊。"
+    },
+    "downloads": {
+      "label": "下載管理",
+      "description": "下載並預覽您已購買的樂譜。"
+    },
+    "favorites": {
+      "label": "我的最愛樂譜",
+      "description": "查看您最愛的樂譜。"
+    },
+    "cash": {
+      "label": "現金記錄",
+      "description": "查看您的現金餘額和使用記錄。"
+    },
+    "inquiries": {
+      "label": "1:1 詢問",
+      "description": "查看您的詢問和回應。"
+    },
+    "customOrders": {
+      "label": "客製訂單",
+      "description": "查看您的客製訂單請求狀態。"
+    }
+  },
+  "stats": {
+    "purchasedSheets": "已購買樂譜",
+    "availableDownloads": "可用下載",
+    "favoriteSheets": "我的最愛樂譜",
+    "inquiries": "1:1 詢問",
+    "customOrders": "客製訂單"
+  },
+  "profile": {
+    "title": "個人資料管理",
+    "memberInfo": "會員資訊",
+    "nameNotSet": "未設定姓名",
+    "joinedOn": "加入日期",
+    "cashBalance": "現金餘額",
+    "cashBalanceDescription": "可用於您的下一次樂譜購買。",
+    "chargeCash": "儲值現金",
+    "email": "電子郵件",
+    "name": "姓名",
+    "namePlaceholder": "輸入您的姓名",
+    "phoneNumber": "電話號碼",
+    "phonePlaceholder": "輸入您的電話號碼",
+    "joinDate": "加入日期",
+    "saving": "正在儲存...",
+    "updateProfile": "更新個人資料"
+  },
+  "purchases": {
+    "title": "購買記錄",
+    "description": "按最新訂單排序。",
+    "browseMore": "瀏覽更多樂譜",
+    "noPurchases": "尚未購買任何樂譜。",
+    "orderNumber": "訂單編號",
+    "total": "總計",
+    "downloadAllInOrder": "下載此訂單中的所有項目",
+    "downloading": "正在下載...",
+    "selectAll": "全選",
+    "deselectAll": "取消全選",
+    "selected": "已選取",
+    "downloadSelected": "下載選取項目",
+    "download": "下載",
+    "viewDetails": "查看詳情",
+    "categoryNotSet": "類別未設定",
+    "deletedSheet": "已刪除的樂譜"
+  },
+  "downloads": {
+    "title": "下載管理",
+    "description": "您可以隨時重新下載已購買的樂譜。",
+    "totalItems": "總共 {{count}} 個項目",
+    "selectedItems": "已選取 {{count}} 個項目",
+    "selectAll": "全選",
+    "deselectAll": "取消全選",
+    "downloadSelected": "下載選取項目",
+    "downloadAll": "下載全部",
+    "downloading": "正在下載...",
+    "noDownloads": "沒有可下載的樂譜。",
+    "purchaseDate": "購買日期",
+    "preview": "預覽",
+    "downloadUnavailable": "下載不可用"
+  },
+  "favorites": {
+    "title": "我的最愛樂譜",
+    "description": "快速找到您最愛的樂譜。",
+    "totalCount": "總共 {{count}} 個項目",
+    "noFavorites": "尚未有我的最愛樂譜。",
+    "addFavorites": "加入您最愛的樂譜！",
+    "viewDetails": "查看詳情",
+    "inCart": "在購物車中",
+    "cart": "加入購物車",
+    "removeFavorite": "移除我的最愛",
+    "deletedSheet": "已刪除的樂譜"
+  },
+  "inquiries": {
+    "title": "1:1 詢問",
+    "description": "提交詢問並在我的頁面直接接收管理員回應。",
+    "name": "姓名",
+    "namePlaceholder": "輸入您的姓名",
+    "email": "電子郵件",
+    "emailPlaceholder": "輸入您的聯絡電子郵件",
+    "category": "詢問類型",
+    "categoryPlaceholder": "選擇詢問類型",
+    "categories": {
+      "orderPayment": "訂單/付款詢問",
+      "sheetDownload": "樂譜/下載詢問",
+      "customOrder": "客製訂單詢問",
+      "technical": "技術支援",
+      "other": "其他詢問"
+    },
+    "subject": "主旨",
+    "subjectPlaceholder": "輸入詢問主旨",
+    "message": "訊息",
+    "messagePlaceholder": "請詳細寫下您的詢問（最多 500 個字元）",
+    "characters": "字元",
+    "submitting": "正在提交...",
+    "submit": "提交詢問",
+    "history": {
+      "title": "我的詢問記錄",
+      "description": "查看您提交的詢問和管理員回應。",
+      "total": "總共 {{count}} 個詢問",
+      "loading": "正在載入詢問記錄...",
+      "noInquiries": "尚未提交任何詢問。",
+      "noInquiriesDescription": "如有任何問題，請使用上方表單提交詢問。",
+      "category": "詢問",
+      "received": "已收到",
+      "adminReply": "管理員回覆",
+      "replied": "已回覆",
+      "preparing": "正在準備回應。審查後我們會與您聯絡。"
+    }
+  },
+  "cash": {
+    "title": "現金記錄",
+    "description": "查看您的現金餘額和使用記錄。",
+    "chargeCash": "儲值現金",
+    "availableCash": "可用現金",
+    "loadingHistory": "正在載入現金記錄...",
+    "noHistory": "沒有可顯示的現金記錄。",
+    "noHistoryDescription": "當您儲值或使用現金時，現金交易將記錄在此處。",
+    "types": {
+      "charge": "現金儲值",
+      "use": "現金使用",
+      "adminAdd": "管理員新增",
+      "adminDeduct": "管理員扣除",
+      "record": "記錄"
+    },
+    "bonus": "獎金",
+    "balance": "餘額",
+    "sheet": "樂譜",
+    "noDescription": "未記錄說明。"
+  },
+  "customOrders": {
+    "title": "客製訂單記錄",
+    "description": "查看您的客製訂單請求狀態。",
+    "newOrderRequest": "新訂單請求",
+    "noOrders": "沒有客製訂單記錄。",
+    "serviceDescription": "使用我們的客製訂單服務製作特殊樂譜。",
+    "requestDate": "請求日期",
+    "lastUpdate": "最後更新",
+    "viewDetails": "查看詳情",
+    "quoteConfirm": "確認報價",
+    "workCompleted": "工作已完成",
+    "quotePending": "報價待定"
+  },
+  "status": {
+    "order": {
+      "completed": "已完成",
+      "pending": "待處理",
+      "cancelled": "已取消",
+      "refunded": "已退款",
+      "undetermined": "未確定"
+    },
+    "customOrder": {
+      "pending": "報價待定",
+      "quoted": "待付款",
+      "paymentConfirmed": "付款已確認",
+      "inProgress": "進行中",
+      "completed": "已完成",
+      "cancelled": "已取消",
+      "undetermined": "未確定"
+    },
+    "inquiry": {
+      "pending": "等待回應",
+      "answered": "已回應",
+      "processing": "處理中"
+    }
+  },
+  "cashCharge": {
+    "title": "現金儲值",
+    "currentCash": "目前現金餘額",
+    "paymentAmount": "付款金額",
+    "bankTransferInfo": {
+      "title": "銀行轉帳資訊",
+      "bank": "銀行",
+      "accountNumber": "帳號",
+      "accountHolder": "帳戶持有人",
+      "amount": "存款金額",
+      "depositorName": "存款人姓名"
+    },
+    "depositorName": "存款人姓名",
+    "depositorNamePlaceholder": "輸入存款人姓名",
+    "depositorNameHint": "* 如果存款人姓名與您的會員姓名不同，請輸入存款人姓名。",
+    "bankTransferNotice": {
+      "title": "銀行轉帳注意事項",
+      "line1": "• 存款確認後，管理員將手動儲值現金。",
+      "line2": "• 如果存款人姓名不符，確認可能會延遲。",
+      "line3": "• 存款確認可能需要 1-2 個工作天。"
+    },
+    "back": "返回",
+    "confirm": "確認",
+    "processing": "處理中...",
+    "paymentMethod": "付款方式",
+    "paymentAmountTitle": "付款金額",
+    "agreement": "我已審查付款詳情並同意條款。",
+    "next": "下一步",
+    "bankTransferGuide": {
+      "title": "銀行轉帳指南",
+      "bank": "銀行",
+      "accountNumber": "帳號",
+      "accountHolder": "帳戶持有人",
+      "amount": "存款金額"
+    }
+  },
+  "guest": {
+    "title": "需要登入",
+    "description": "請登入以使用我的頁面功能，例如購買記錄、下載和我的最愛樂譜。",
+    "login": "前往登入",
+    "signup": "註冊"
+  },
+  "loading": {
+    "message": "正在載入我的頁面資料..."
+  },
+  "errors": {
+    "loginRequired": "需要登入。",
+    "agreementRequired": "請同意付款條款。",
+    "amountNotFound": "找不到選取的儲值金額。",
+    "paymentMethodNotReady": "此付款方式目前正在準備中。",
+    "paymentWindowOpen": "付款視窗將開啟。請完成付款。",
+    "paymentError": "付款處理期間發生錯誤。",
+    "depositorNameRequired": "請輸入存款人姓名。",
+    "orderReceived": "訂單已收到。\\n存款確認後，管理員將儲值現金。",
+    "allFieldsRequired": "請填寫所有欄位。",
+    "inquirySubmitted": "詢問已提交。我們將盡快回應。",
+    "inquiryError": "發送詢問時發生錯誤。請再試一次。",
+    "profileUpdated": "個人資料資訊已更新。",
+    "profileUpdateError": "更新個人資料失敗。請稍後再試。",
+    "downloadRestricted": "此訂單已退款或下載受限。",
+    "selectDownloadItems": "請選擇要下載的樂譜。",
+    "noDownloadableItems": "沒有可下載的樂譜。",
+    "downloadRestrictedMultiple": "已退款或受限的樂譜無法下載。",
+    "loginRequiredForDownload": "需要登入。請再次登入。",
+    "downloadFailed": "下載 {{count}} 個檔案失敗。請稍後再試。",
+    "downloadFailedSingle": "檔案下載失敗。請稍後再試。",
+    "previewNotFound": "找不到預覽檔案。",
+    "favoriteRemoveFailed": "從我的最愛移除失敗。",
+    "sheetInfoNotFound": "找不到可下載的樂譜資訊。",
+    "downloadLinkNotFound": "找不到下載連結。請聯絡管理員。"
+  },
+  "console": {
+    "cashHistoryError": "現金記錄載入錯誤：",
+    "inquiryHistoryError": "詢問記錄載入錯誤：",
+    "profileLoadError": "個人資料載入錯誤：",
+    "orderHistoryError": "訂單記錄載入錯誤：",
+    "favoritesLoadError": "我的最愛載入錯誤：",
+    "customOrderHistoryError": "客製訂單記錄載入錯誤：",
+    "initError": "我的頁面初始化錯誤：",
+    "cashChargeError": "現金儲值錯誤：",
+    "inquirySubmitError": "詢問提交錯誤：",
+    "profileUpdateError": "個人資料更新錯誤：",
+    "favoriteRemoveError": "我的最愛移除錯誤："
+  },
+  "paymentMethods": {
+    "creditCard": "信用卡",
+    "kakaoPay": "Kakao Pay",
+    "bankTransfer": "銀行轉帳",
+    "preparing": "準備中"
+  },
+  "cart": "購物車"
+}
