@@ -169,9 +169,10 @@ export default function middleware(request: NextRequest) {
 // 2. /_next (Next.js 내부 시스템 파일)
 // 3. /_vercel (Vercel 배포 관련)
 // 4. /admin (관리자 페이지)
-// 5. .*\..* (점이 포함된 파일 - robots.txt, logo.png 등)
+// 5. sitemap.xml, robots.txt (SEO 파일)
+// 6. .*\..* (점이 포함된 파일 - logo.png 등)
 export const config = {
   matcher: [
-    '/((?!api|_next|_vercel|admin|.*\\..*).*)',
+    '/((?!api|_next|_vercel|admin|sitemap\\.xml|robots\\.txt|.*\\..*).*)',
   ],
 };
