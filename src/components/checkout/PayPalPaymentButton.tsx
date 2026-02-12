@@ -1,11 +1,24 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/stores/authStore';
 import { supabase } from '@/lib/supabase';
 import { createPayPalPaymentIntent, getPayPalReturnUrl, getPayPalCancelUrl } from '@/lib/payments/paypal';
 import type { CheckoutItem } from './OnePageCheckout';
+
+// 결제 실패/에러 사유를 DB에 기록하는 유틸
+async function logPaymentNote(orderId: string, note: string, noteType: 'error' | 'cancel' | 'system_error') {
+  try {
+    await fetch('/api/orders/update-note', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ orderId, note, noteType }),
+    });
+  } catch (e) {
+    console.warn('[PayPal] payment_note 기록 실패 (치명적이지 않음):', e);
+  }
+}
 
 interface PayPalPaymentButtonProps {
   orderId: string;
@@ -29,6 +42,7 @@ export default function PayPalPaymentButton({
   const { t, i18n } = useTranslation();
   const [loading, setLoading] = useState(false);
   const user = useAuthStore((state) => state.user);
+  const currentOrderIdRef = useRef<string | null>(null);
 
   // Supabase Edge Function을 통한 PayPal 결제
   const handlePayPalPayment = async () => {
@@ -102,6 +116,9 @@ export default function PayPalPaymentButton({
         console.log('[PayPal] 기존 주문 확인 완료:', dbOrderId);
       }
 
+      // 현재 주문 ID 저장 (에러 발생 시 payment_note 기록에 사용)
+      currentOrderIdRef.current = dbOrderId;
+
       // ============================================================
       // 3단계: Supabase Edge Function 호출 (payments-paypal-init)
       // ============================================================
@@ -130,10 +147,12 @@ export default function PayPalPaymentButton({
 
       console.log('[PayPal] Edge Function 응답:', intent);
 
-      // sessionStorage에 주문 정보 저장 (리다이렉트 후 return 페이지에서 사용)
+      // sessionStorage에 주문 정보 저장 (리다이렉트 후 return/cancel 페이지에서 사용)
       if (typeof window !== 'undefined') {
         sessionStorage.setItem('paypal_order_id', dbOrderId);
         sessionStorage.setItem('paypal_paypal_order_id', intent.paypalOrderId);
+        // cancel 페이지에서도 orderId를 알 수 있도록 저장
+        sessionStorage.setItem('paypal_pending_order_id', dbOrderId);
       }
 
       // PayPal 승인 URL로 리다이렉트
@@ -147,6 +166,24 @@ export default function PayPalPaymentButton({
     } catch (error) {
       console.error('[PayPal] 결제 요청 오류:', error);
       setLoading(false);
+
+      // 에러 사유를 DB에 기록
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      const targetOrderId = currentOrderIdRef.current;
+      if (targetOrderId) {
+        // 에러 유형 분류
+        let noteType: 'error' | 'system_error' = 'error';
+        if (
+          errorMessage.includes('Edge Function') ||
+          errorMessage.includes('승인 URL') ||
+          errorMessage.includes('network') ||
+          errorMessage.includes('fetch')
+        ) {
+          noteType = 'system_error';
+        }
+        logPaymentNote(targetOrderId, errorMessage, noteType);
+      }
+
       onError(error instanceof Error ? error : new Error('PayPal 결제 요청 중 오류가 발생했습니다.'));
     }
   };

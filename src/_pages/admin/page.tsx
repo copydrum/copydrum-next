@@ -122,6 +122,7 @@ interface Order {
   raw_status?: string | null;
   payment_method: string | null;
   payment_status?: string | null;
+  payment_note?: string | null;
   transaction_id?: string | null;
   depositor_name?: string | null;
   payment_confirmed_at?: string | null;
@@ -1970,6 +1971,7 @@ const AdminPage: React.FC = () => {
           status,
           payment_method,
           payment_status,
+          payment_note,
           transaction_id,
           depositor_name,
           payment_confirmed_at,
@@ -8751,6 +8753,45 @@ ONE MORE TIME,ALLDAY PROJECT,중급,ALLDAY PROJECT - ONE MORE TIME.pdf,https://w
                   </dl>
                 </section>
 
+                {/* 결제 실패/취소 이력 섹션 */}
+                {(() => {
+                  const notes = selectedOrder.metadata?.payment_notes;
+                  if (!Array.isArray(notes) || notes.length === 0) return null;
+                  return (
+                    <section className="rounded-xl border border-amber-200 bg-amber-50 p-6">
+                      <h4 className="text-lg font-semibold text-amber-800 flex items-center gap-2">
+                        <i className="ri-error-warning-line"></i>
+                        결제 시도 이력 ({notes.length}건)
+                      </h4>
+                      <p className="text-xs text-amber-600 mt-1 mb-3">
+                        결제 실패 또는 취소된 기록입니다. 시스템 에러인 경우 빠르게 대응이 필요합니다.
+                      </p>
+                      <div className="space-y-2 max-h-48 overflow-y-auto">
+                        {notes.map((n: any, idx: number) => {
+                          let typeLabel = '알 수 없음';
+                          let typeBg = 'bg-gray-100 text-gray-700';
+                          if (n.type === 'cancel') { typeLabel = '사용자 취소'; typeBg = 'bg-yellow-100 text-yellow-800'; }
+                          else if (n.type === 'error') { typeLabel = '결제 에러'; typeBg = 'bg-orange-100 text-orange-800'; }
+                          else if (n.type === 'system_error') { typeLabel = '시스템 에러'; typeBg = 'bg-red-100 text-red-800'; }
+                          return (
+                            <div key={idx} className="flex items-start gap-3 rounded-lg bg-white p-3 border border-amber-100">
+                              <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${typeBg} whitespace-nowrap`}>
+                                {typeLabel}
+                              </span>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm text-gray-800">{n.message}</p>
+                                <p className="text-[10px] text-gray-400 mt-1">
+                                  {n.timestamp ? new Date(n.timestamp).toLocaleString('ko-KR') : '시간 정보 없음'}
+                                </p>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </section>
+                  );
+                })()}
+
                 <section className="rounded-xl border border-gray-100 p-6">
                   <div className="flex items-center justify-between">
                     <h4 className="text-lg font-semibold text-gray-900">구매 악보</h4>
@@ -9221,7 +9262,7 @@ ONE MORE TIME,ALLDAY PROJECT,중급,ALLDAY PROJECT - ONE MORE TIME.pdf,https://w
             <tbody className="bg-white divide-y divide-gray-200">
               {sortedOrders.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-6 py-10 text-center text-sm text-gray-500">
+                  <td colSpan={9} className="px-6 py-10 text-center text-sm text-gray-500">
                     조건에 맞는 주문이 없습니다.
                   </td>
                 </tr>
@@ -9260,10 +9301,48 @@ ONE MORE TIME,ALLDAY PROJECT,중급,ALLDAY PROJECT - ONE MORE TIME.pdf,https://w
                     );
                   };
 
+                  // 결제 대기 주문 여부 확인 (회색 처리용)
+                  const isPendingPayment = order.payment_status === 'pending' && order.status !== 'completed';
+                  const pendingRowClass = isPendingPayment ? 'opacity-50 bg-gray-50/60' : '';
+
+                  // payment_note 추출 (payment_note 컬럼 또는 metadata.payment_notes)
+                  const paymentNote = order.payment_note || (() => {
+                    const notes = order.metadata?.payment_notes;
+                    if (Array.isArray(notes) && notes.length > 0) {
+                      const latest = notes[notes.length - 1];
+                      return `[${latest.type}] ${latest.message}`;
+                    }
+                    return null;
+                  })();
+
+                  // payment_note 배지 스타일
+                  const getPaymentNoteBadge = () => {
+                    if (!paymentNote) return null;
+                    let noteColor = 'bg-gray-100 text-gray-600';
+                    if (paymentNote.includes('cancel') || paymentNote.includes('취소')) {
+                      noteColor = 'bg-yellow-100 text-yellow-700';
+                    } else if (paymentNote.includes('system_error') || paymentNote.includes('시스템')) {
+                      noteColor = 'bg-red-100 text-red-700';
+                    } else if (paymentNote.includes('error') || paymentNote.includes('에러') || paymentNote.includes('거절')) {
+                      noteColor = 'bg-orange-100 text-orange-700';
+                    }
+                    // 짧게 요약
+                    const shortNote = paymentNote.length > 30 ? paymentNote.slice(0, 30) + '...' : paymentNote;
+                    return (
+                      <span
+                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium ${noteColor} mt-1 max-w-[200px] truncate`}
+                        title={paymentNote}
+                      >
+                        <i className="ri-error-warning-line mr-1 text-[10px]"></i>
+                        {shortNote}
+                      </span>
+                    );
+                  };
+
                   return (
                     <React.Fragment key={order.id}>
                       <tr
-                        className={`cursor-pointer hover:bg-gray-50 transition-colors ${expanded ? 'bg-gray-50/80' : ''}`}
+                        className={`cursor-pointer hover:bg-gray-50 transition-colors ${expanded ? 'bg-gray-50/80' : ''} ${pendingRowClass}`}
                         onClick={() => handleOpenOrderDetail(order)}
                       >
                         <td className="px-4 py-3 whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
@@ -9275,12 +9354,15 @@ ONE MORE TIME,ALLDAY PROJECT,중급,ALLDAY PROJECT - ONE MORE TIME.pdf,https://w
                           />
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap">
-                          <span
-                            className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${statusMeta.className}`}
-                            title={statusMeta.description}
-                          >
-                            {statusMeta.label}
-                          </span>
+                          <div className="flex flex-col">
+                            <span
+                              className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${statusMeta.className}`}
+                              title={statusMeta.description}
+                            >
+                              {statusMeta.label}
+                            </span>
+                            {getPaymentNoteBadge()}
+                          </div>
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap">
                           <div>
@@ -9324,7 +9406,7 @@ ONE MORE TIME,ALLDAY PROJECT,중급,ALLDAY PROJECT - ONE MORE TIME.pdf,https://w
                       </tr>
                       {expanded && (
                         <tr className="bg-gray-50">
-                          <td colSpan={8} className="px-6 pb-6 pt-4">
+                          <td colSpan={9} className="px-6 pb-6 pt-4">
                             {isCash ? (
                               // 캐쉬 충전 주문 상세 정보
                               <div className="space-y-4">
@@ -9479,6 +9561,36 @@ ONE MORE TIME,ALLDAY PROJECT,중급,ALLDAY PROJECT - ONE MORE TIME.pdf,https://w
                                 </div>
                               )
                             )}
+
+                            {/* 결제 실패/취소 이력 표시 */}
+                            {(() => {
+                              const notes = order.metadata?.payment_notes;
+                              if (!Array.isArray(notes) || notes.length === 0) return null;
+                              return (
+                                <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-4">
+                                  <h4 className="text-sm font-semibold text-amber-800 mb-2 flex items-center gap-1">
+                                    <i className="ri-error-warning-line"></i>
+                                    결제 시도 이력 ({notes.length}건)
+                                  </h4>
+                                  <div className="space-y-2 max-h-40 overflow-y-auto">
+                                    {notes.map((n: any, idx: number) => {
+                                      let typeLabel = '알 수 없음';
+                                      let typeColor = 'text-gray-600';
+                                      if (n.type === 'cancel') { typeLabel = '사용자 취소'; typeColor = 'text-yellow-700'; }
+                                      else if (n.type === 'error') { typeLabel = '결제 에러'; typeColor = 'text-orange-700'; }
+                                      else if (n.type === 'system_error') { typeLabel = '시스템 에러'; typeColor = 'text-red-700'; }
+                                      return (
+                                        <div key={idx} className="flex items-start gap-2 text-xs border-b border-amber-200 pb-1 last:border-0 last:pb-0">
+                                          <span className={`font-medium ${typeColor} whitespace-nowrap`}>[{typeLabel}]</span>
+                                          <span className="text-gray-700 flex-1">{n.message}</span>
+                                          <span className="text-gray-400 whitespace-nowrap">{n.timestamp ? new Date(n.timestamp).toLocaleString('ko-KR') : ''}</span>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
+                              );
+                            })()}
                           </td>
                         </tr>
                       )}

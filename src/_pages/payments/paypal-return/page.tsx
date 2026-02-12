@@ -6,6 +6,19 @@ import { approvePayPalPayment } from '../../../lib/payments/paypal';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../../../lib/supabase';
 
+// 결제 실패 사유를 DB에 기록
+async function logPaymentNote(orderId: string, note: string, noteType: 'error' | 'cancel' | 'system_error') {
+  try {
+    await fetch('/api/orders/update-note', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ orderId, note, noteType }),
+    });
+  } catch (e) {
+    console.warn('[PayPal Return] payment_note 기록 실패:', e);
+  }
+}
+
 export default function PayPalReturnPage() {
   const searchParams = useSearchParams();
   const router = useLocaleRouter();
@@ -36,6 +49,10 @@ export default function PayPalReturnPage() {
             success: false,
             message: t('payment.failed') || 'Payment information not found.',
           });
+          // 결제 정보 누락 기록
+          if (orderId) {
+            logPaymentNote(orderId, '결제 정보 누락 (paypalOrderId 없음)', 'system_error');
+          }
           setProcessing(false);
           return;
         }
@@ -93,6 +110,8 @@ export default function PayPalReturnPage() {
             router.push(`/payment/success?orderId=${orderId}&method=paypal`);
           }, 1000);
         } else {
+          // 승인 실패 기록
+          logPaymentNote(orderId, 'PayPal 결제 승인 실패 (approvalResult.success = false)', 'error');
           setResult({
             success: false,
             message: t('payment.failed') || 'Payment failed. Please try again.',
@@ -100,6 +119,12 @@ export default function PayPalReturnPage() {
         }
       } catch (error) {
         console.error('PayPal payment return error:', error);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        // 에러 사유 기록
+        const savedOrderId = sessionStorage.getItem('paypal_order_id');
+        if (savedOrderId) {
+          logPaymentNote(savedOrderId, `PayPal 승인 처리 중 에러: ${errorMessage}`, 'system_error');
+        }
         setResult({
           success: false,
           message: error instanceof Error ? error.message : t('payment.failed') || 'Payment processing error.',
