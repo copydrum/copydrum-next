@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   alternates: {
     canonical: 'https://copydrum.com',
     languages: {
-      'en': 'https://copydrum.com',
+      'en': 'https://copydrum.com/en',
       'ko': 'https://copydrum.com/ko',
       'ja': 'https://copydrum.com/ja',
       'de': 'https://copydrum.com/de',

@@ -14,6 +14,18 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'i.scdn.co' },
     ],
   },
+  async rewrites() {
+    return {
+      beforeFiles: [
+        // /sitemap.xml → API 라우트로 사이트맵 인덱스 서빙
+        { source: '/sitemap.xml', destination: '/api/sitemap' },
+        // /sitemap/en.xml, /sitemap/ko.xml 등 → 언어별 사이트맵 API 라우트
+        { source: '/sitemap/:path*', destination: '/api/sitemap/:path*' },
+      ],
+      afterFiles: [],
+      fallback: [],
+    };
+  },
   async redirects() {
     return [
       // Legacy auth redirects (work for all locales)
