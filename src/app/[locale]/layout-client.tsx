@@ -77,8 +77,8 @@ export default function ClientLayout({
         onClose={() => setIsMobileSearchOpen(false)}
       />
 
-      {/* 메인 콘텐츠 - 모바일에서는 헤더(180px) + 퀵네비(44px) 높이만큼 패딩 */}
-      <div className={`${isAdminPage ? '' : 'pt-[224px]'} md:pt-0`}>
+      {/* 메인 콘텐츠 - 모바일에서는 헤더(~180px) + 퀵네비(~52px) 높이만큼 패딩 */}
+      <div className={`${isAdminPage ? '' : 'pt-[240px]'} md:pt-0`}>
         {children}
       </div>
     </>

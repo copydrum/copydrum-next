@@ -879,8 +879,8 @@ const CategoriesPage: React.FC = () => {
 
       {/* Mobile Layout */}
       <div className="md:hidden">
-        <div className="pt-2 pb-[96px] px-4 space-y-4">
-          {/* 모바일 장르 필터 - 인라인 (퀵네비와 겹치지 않도록 sticky 해제) */}
+        <div className="pt-4 pb-[96px] px-4 space-y-4">
+          {/* 모바일 장르 필터 - 인라인 (퀵네비와 겹치지 않도록 여유 확보) */}
           <div className="overflow-x-auto -mx-4 px-4">
             <div className="flex gap-2 pb-1">
               {genreList.map((genreKo) => {
