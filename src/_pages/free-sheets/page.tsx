@@ -12,6 +12,7 @@ import { generateDefaultThumbnail } from '../../lib/defaultThumbnail';
 import { useTranslation } from 'react-i18next';
 import Seo from '../../components/Seo';
 import { languageDomainMap } from '../../config/languageDomainMap';
+import { logFreeSheetDownload } from '../../lib/logFreeSheetDownload';
 
 interface SupabaseDrumSheetRow {
   id: string;
@@ -390,6 +391,12 @@ const FreeSheetsPage = () => {
     }
     setDownloadingIds((prev) => new Set(prev).add(sheet.id));
     try {
+      // 다운로드 로그 기록 (비동기, 실패해도 다운로드는 진행)
+      logFreeSheetDownload({
+        sheetId: sheet.id,
+        userId: user?.id,
+        downloadSource: 'free-sheets-page',
+      });
       const response = await fetch(sheet.pdfUrl);
       const blob = await response.blob();
       const link = document.createElement('a');

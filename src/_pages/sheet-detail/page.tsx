@@ -24,6 +24,7 @@ import { useUserCredits } from '../../hooks/useUserCredits';
 import Seo from '../../components/Seo';
 import { buildDetailSeoStrings } from '../../lib/seo';
 import { languageDomainMap } from '../../config/languageDomainMap';
+import { logFreeSheetDownload } from '../../lib/logFreeSheetDownload';
 
 interface DrumSheet {
   id: string;
@@ -625,6 +626,14 @@ export default function SheetDetailPage() {
     if (!sheet?.pdf_url) return;
 
     try {
+      // 무료 악보인 경우 다운로드 로그 기록
+      if (sheet.price === 0) {
+        logFreeSheetDownload({
+          sheetId: sheet.id,
+          userId: user?.id,
+          downloadSource: 'sheet-detail',
+        });
+      }
       const response = await fetch(sheet.pdf_url);
       const blob = await response.blob();
 

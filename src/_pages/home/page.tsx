@@ -13,6 +13,7 @@ import { getSiteCurrency, convertFromKrw, formatCurrency as formatCurrencyUtil }
 import { useSiteLanguage } from '../../hooks/useSiteLanguage';
 import Seo from '../../components/Seo';
 import { languageDomainMap } from '../../config/languageDomainMap';
+import { logFreeSheetDownload } from '../../lib/logFreeSheetDownload';
 
 interface DrumSheet {
   id: string;
@@ -1296,7 +1297,10 @@ export default function Home() {
                               )}
                               <button
                                 type="button"
-                                onClick={() => router.push(`/drum-sheet/${sheet.slug}`)}
+                                onClick={() => {
+                                  logFreeSheetDownload({ sheetId: sheet.id, userId: user?.id, downloadSource: 'home-page' });
+                                  router.push(`/drum-sheet/${sheet.slug}`);
+                                }}
                                 className="flex-1 flex items-center justify-center gap-1 text-xs font-semibold py-2 rounded-lg bg-purple-50 text-purple-600 hover:bg-purple-100 transition-colors"
                               >
                                 <i className="ri-download-2-line text-sm"></i>
@@ -1429,7 +1433,10 @@ export default function Home() {
                             )}
                             <button
                               type="button"
-                              onClick={() => router.push(`/drum-sheet/${sheet.slug}`)}
+                              onClick={() => {
+                                logFreeSheetDownload({ sheetId: sheet.id, userId: user?.id, downloadSource: 'home-page' });
+                                router.push(`/drum-sheet/${sheet.slug}`);
+                              }}
                               className="flex-1 flex items-center justify-center gap-1.5 text-sm font-semibold py-2.5 rounded-xl bg-purple-50 text-purple-600 hover:bg-purple-100 transition-colors cursor-pointer"
                             >
                               <i className="ri-download-2-line text-base"></i>

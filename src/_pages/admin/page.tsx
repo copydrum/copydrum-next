@@ -22,6 +22,7 @@ import {
   type DashboardAnalyticsResult,
 } from '../../lib/dashboardAnalytics';
 import { fetchAnalyticsData, type AnalyticsPeriod, type AnalyticsData } from '../../lib/analytics';
+import { fetchDrumLessonAnalytics, type DrumLessonAnalyticsData } from '../../lib/drumLessonAnalytics';
 import type { VirtualAccountInfo } from '../../lib/payments';
 import { completeOrderAfterPayment } from '../../lib/payments/completeOrderAfterPayment';
 import {
@@ -1211,6 +1212,24 @@ const AdminPage: React.FC = () => {
     }
   }, [isAdmin]);
 
+  // 드럼레슨 분석 데이터
+  const [drumLessonAnalytics, setDrumLessonAnalytics] = useState<DrumLessonAnalyticsData | null>(null);
+  const [drumLessonAnalyticsLoading, setDrumLessonAnalyticsLoading] = useState(false);
+  const [drumLessonAnalyticsPeriod, setDrumLessonAnalyticsPeriod] = useState<'7d' | '30d' | '90d'>('30d');
+
+  const loadDrumLessonAnalytics = useCallback(async (period: '7d' | '30d' | '90d') => {
+    if (!isAdmin) return;
+    setDrumLessonAnalyticsLoading(true);
+    try {
+      const data = await fetchDrumLessonAnalytics(period);
+      setDrumLessonAnalytics(data);
+    } catch (error) {
+      console.error('드럼레슨 분석 데이터 로드 실패:', error);
+    } finally {
+      setDrumLessonAnalyticsLoading(false);
+    }
+  }, [isAdmin]);
+
   const [siteSettings, setSiteSettings] = useState<SiteSettings>(() => createDefaultSiteSettings());
   const [settingsMeta, setSettingsMeta] = useState<Record<SiteSettingKey, SiteSettingsMeta>>(
     () => createDefaultSettingsMeta()
@@ -1493,7 +1512,8 @@ const AdminPage: React.FC = () => {
     }
     void loadAnalyticsData(analyticsPeriod);
     void loadMonthlyRevenue();
-  }, [activeMenu, analyticsPeriod, isAdmin, loadAnalyticsData, loadMonthlyRevenue]);
+    void loadDrumLessonAnalytics(drumLessonAnalyticsPeriod);
+  }, [activeMenu, analyticsPeriod, isAdmin, loadAnalyticsData, loadMonthlyRevenue, loadDrumLessonAnalytics, drumLessonAnalyticsPeriod]);
 
   // loadCopyrightReport 함수는 아래에서 정의되므로, useEffect는 함수 정의 이후로 이동됨
 
@@ -11151,6 +11171,272 @@ ONE MORE TIME,ALLDAY PROJECT,중급,ALLDAY PROJECT - ONE MORE TIME.pdf,https://w
                 </div>
               );
             })()}
+
+            {/* ═══════════════ 드럼레슨 무료악보 분석 ═══════════════ */}
+            <div className="rounded-xl border border-purple-200 bg-white p-6 shadow-sm">
+              <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                    <i className="ri-music-2-line text-purple-600"></i>
+                    드럼레슨 무료악보 분석
+                  </h3>
+                  <p className="text-sm text-gray-500">무료 악보 다운로드 현황 및 유입 기여도</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  {(['7d', '30d', '90d'] as const).map((p) => (
+                    <button
+                      key={p}
+                      type="button"
+                      onClick={() => setDrumLessonAnalyticsPeriod(p)}
+                      className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
+                        drumLessonAnalyticsPeriod === p
+                          ? 'bg-purple-600 text-white shadow-sm'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}
+                    >
+                      {p === '7d' ? '7일' : p === '30d' ? '30일' : '90일'}
+                    </button>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => loadDrumLessonAnalytics(drumLessonAnalyticsPeriod)}
+                    disabled={drumLessonAnalyticsLoading}
+                    className="ml-2 rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50 transition disabled:opacity-50"
+                  >
+                    <i className={`ri-refresh-line ${drumLessonAnalyticsLoading ? 'animate-spin' : ''}`}></i>
+                  </button>
+                </div>
+              </div>
+
+              {drumLessonAnalyticsLoading && !drumLessonAnalytics ? (
+                <div className="flex h-40 items-center justify-center">
+                  <div className="text-center text-gray-500">
+                    <i className="ri-loader-4-line animate-spin text-2xl"></i>
+                    <p className="mt-2 text-sm">분석 데이터를 불러오는 중...</p>
+                  </div>
+                </div>
+              ) : !drumLessonAnalytics ? (
+                <div className="flex h-40 items-center justify-center text-sm text-gray-500">
+                  <div className="text-center">
+                    <i className="ri-database-2-line text-4xl text-gray-300 mb-2"></i>
+                    <p>아직 다운로드 데이터가 없습니다.</p>
+                    <p className="text-xs text-gray-400 mt-1">무료 악보가 다운로드되면 여기에 분석 데이터가 표시됩니다.</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {/* KPI 카드 */}
+                  <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+                    <div className="rounded-lg border border-gray-100 bg-gradient-to-br from-purple-50 to-white p-4">
+                      <p className="text-xs text-gray-500">총 다운로드</p>
+                      <p className="mt-1 text-2xl font-bold text-gray-900">{drumLessonAnalytics.kpi.totalDownloads.toLocaleString()}</p>
+                    </div>
+                    <div className="rounded-lg border border-gray-100 bg-gradient-to-br from-blue-50 to-white p-4">
+                      <p className="text-xs text-gray-500">오늘</p>
+                      <p className="mt-1 text-2xl font-bold text-blue-600">{drumLessonAnalytics.kpi.todayDownloads.toLocaleString()}</p>
+                    </div>
+                    <div className="rounded-lg border border-gray-100 bg-gradient-to-br from-green-50 to-white p-4">
+                      <p className="text-xs text-gray-500">최근 7일</p>
+                      <p className="mt-1 text-2xl font-bold text-gray-900">{drumLessonAnalytics.kpi.weekDownloads.toLocaleString()}</p>
+                      {drumLessonAnalytics.kpi.weekGrowth !== null && (
+                        <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
+                          drumLessonAnalytics.kpi.weekGrowth >= 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                        }`}>
+                          {drumLessonAnalytics.kpi.weekGrowth >= 0 ? '▲' : '▼'} {Math.abs(Math.round(drumLessonAnalytics.kpi.weekGrowth))}%
+                        </span>
+                      )}
+                    </div>
+                    <div className="rounded-lg border border-gray-100 bg-gradient-to-br from-orange-50 to-white p-4">
+                      <p className="text-xs text-gray-500">최근 30일</p>
+                      <p className="mt-1 text-2xl font-bold text-gray-900">{drumLessonAnalytics.kpi.monthDownloads.toLocaleString()}</p>
+                      {drumLessonAnalytics.kpi.monthGrowth !== null && (
+                        <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
+                          drumLessonAnalytics.kpi.monthGrowth >= 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                        }`}>
+                          {drumLessonAnalytics.kpi.monthGrowth >= 0 ? '▲' : '▼'} {Math.abs(Math.round(drumLessonAnalytics.kpi.monthGrowth))}%
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* 다운로드 추이 차트 */}
+                  <div className="rounded-lg border border-gray-100 bg-gray-50 p-4">
+                    <h4 className="mb-3 text-sm font-semibold text-gray-700">📈 다운로드 추이</h4>
+                    <div className="h-[240px]">
+                      {drumLessonAnalytics.downloadTrend.length > 0 ? (
+                        <ResponsiveContainer width="100%" height="100%">
+                          <AreaChart data={drumLessonAnalytics.downloadTrend}>
+                            <defs>
+                              <linearGradient id="dlGradient" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
+                                <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
+                              </linearGradient>
+                            </defs>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="label" tick={{ fontSize: 11 }} interval={drumLessonAnalyticsPeriod === '7d' ? 0 : drumLessonAnalyticsPeriod === '30d' ? 4 : 13} />
+                            <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
+                            <Tooltip formatter={(value: number) => [`${value}건`, '다운로드']} />
+                            <Area type="monotone" dataKey="count" stroke="#8b5cf6" strokeWidth={2} fill="url(#dlGradient)" />
+                          </AreaChart>
+                        </ResponsiveContainer>
+                      ) : (
+                        <div className="flex h-full items-center justify-center text-sm text-gray-400">
+                          데이터가 없습니다.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* 2열: 인기 악보 + 다운로드 소스 */}
+                  <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+                    {/* 인기 무료 악보 TOP 10 */}
+                    <div className="rounded-lg border border-gray-100 bg-gray-50 p-4">
+                      <h4 className="mb-3 text-sm font-semibold text-gray-700">🏆 인기 무료 악보 TOP 10</h4>
+                      {drumLessonAnalytics.popularSheets.length > 0 ? (
+                        <div className="max-h-[320px] overflow-y-auto">
+                          <table className="w-full text-sm">
+                            <thead className="sticky top-0 bg-gray-50">
+                              <tr className="border-b border-gray-200 text-left text-xs text-gray-500">
+                                <th className="pb-2 pr-2">#</th>
+                                <th className="pb-2 pr-2">곡명</th>
+                                <th className="pb-2 pr-2">아티스트</th>
+                                <th className="pb-2 text-right">다운로드</th>
+                                <th className="pb-2 text-right">유저 수</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {drumLessonAnalytics.popularSheets.map((sheet, idx) => (
+                                <tr key={sheet.sheetId} className="border-b border-gray-100 last:border-0">
+                                  <td className="py-2 pr-2 text-gray-400 font-medium">{idx + 1}</td>
+                                  <td className="py-2 pr-2">
+                                    <div className="font-medium text-gray-900 truncate max-w-[140px]">{sheet.title}</div>
+                                    {sheet.subCategories.filter(c => c !== '드럼레슨').length > 0 && (
+                                      <div className="flex gap-1 mt-0.5">
+                                        {sheet.subCategories.filter(c => c !== '드럼레슨').map(cat => (
+                                          <span key={cat} className="text-[10px] bg-purple-100 text-purple-600 px-1.5 py-0.5 rounded-full">{cat}</span>
+                                        ))}
+                                      </div>
+                                    )}
+                                  </td>
+                                  <td className="py-2 pr-2 text-gray-600 truncate max-w-[100px]">{sheet.artist}</td>
+                                  <td className="py-2 text-right font-semibold text-purple-600">{sheet.downloadCount.toLocaleString()}</td>
+                                  <td className="py-2 text-right text-gray-500">{sheet.uniqueUsers.toLocaleString()}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      ) : (
+                        <div className="flex h-32 items-center justify-center text-sm text-gray-400">
+                          데이터가 없습니다.
+                        </div>
+                      )}
+                    </div>
+
+                    {/* 다운로드 소스별 & 서브카테고리별 분포 */}
+                    <div className="space-y-4">
+                      {/* 다운로드 소스별 분포 */}
+                      <div className="rounded-lg border border-gray-100 bg-gray-50 p-4">
+                        <h4 className="mb-3 text-sm font-semibold text-gray-700">📊 다운로드 경로 분석</h4>
+                        {drumLessonAnalytics.sourceBreakdown.length > 0 ? (
+                          <div className="space-y-2">
+                            {drumLessonAnalytics.sourceBreakdown.map((src) => (
+                              <div key={src.source} className="flex items-center gap-3">
+                                <div className="w-24 text-xs text-gray-600 truncate">{src.label}</div>
+                                <div className="flex-1 h-5 bg-gray-200 rounded-full overflow-hidden">
+                                  <div
+                                    className="h-full bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full transition-all"
+                                    style={{ width: `${Math.max(src.percentage, 2)}%` }}
+                                  ></div>
+                                </div>
+                                <div className="w-16 text-right text-xs font-medium text-gray-700">
+                                  {src.count}건 ({src.percentage}%)
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="flex h-20 items-center justify-center text-sm text-gray-400">
+                            데이터가 없습니다.
+                          </div>
+                        )}
+                      </div>
+
+                      {/* 서브카테고리별 분포 */}
+                      <div className="rounded-lg border border-gray-100 bg-gray-50 p-4">
+                        <h4 className="mb-3 text-sm font-semibold text-gray-700">📂 서브카테고리별 다운로드</h4>
+                        {drumLessonAnalytics.subCategoryBreakdown.length > 0 ? (
+                          <div className="space-y-2">
+                            {drumLessonAnalytics.subCategoryBreakdown.map((cat) => (
+                              <div key={cat.name} className="flex items-center gap-3">
+                                <div className="w-20 text-xs text-gray-600 truncate">{cat.name}</div>
+                                <div className="flex-1 h-5 bg-gray-200 rounded-full overflow-hidden">
+                                  <div
+                                    className="h-full bg-gradient-to-r from-indigo-400 to-purple-400 rounded-full transition-all"
+                                    style={{ width: `${Math.max(cat.percentage, 2)}%` }}
+                                  ></div>
+                                </div>
+                                <div className="w-16 text-right text-xs font-medium text-gray-700">
+                                  {cat.count}건 ({cat.percentage}%)
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="flex h-20 items-center justify-center text-sm text-gray-400">
+                            데이터가 없습니다.
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 유료 전환 분석 */}
+                  <div className="rounded-lg border border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 p-5">
+                    <h4 className="mb-4 text-sm font-semibold text-gray-700 flex items-center gap-2">
+                      <i className="ri-exchange-funds-line text-green-600"></i>
+                      무료 → 유료 전환 분석
+                    </h4>
+                    <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+                      <div className="text-center">
+                        <p className="text-xs text-gray-500">무료 다운로드 회원</p>
+                        <p className="mt-1 text-xl font-bold text-gray-900">
+                          {drumLessonAnalytics.conversion.totalFreeDownloadUsers.toLocaleString()}명
+                        </p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-xs text-gray-500">유료 구매 전환</p>
+                        <p className="mt-1 text-xl font-bold text-green-600">
+                          {drumLessonAnalytics.conversion.convertedUsers.toLocaleString()}명
+                        </p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-xs text-gray-500">전환율</p>
+                        <p className="mt-1 text-xl font-bold" style={{ color: drumLessonAnalytics.conversion.conversionRate > 0 ? '#16a34a' : '#9ca3af' }}>
+                          {drumLessonAnalytics.conversion.conversionRate}%
+                        </p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-xs text-gray-500">비회원 다운로드</p>
+                        <p className="mt-1 text-xl font-bold text-gray-600">
+                          {drumLessonAnalytics.conversion.totalFreeDownloadsAnonymous.toLocaleString()}건
+                        </p>
+                      </div>
+                    </div>
+                    <div className="mt-4 rounded-lg bg-white/60 p-3">
+                      <p className="text-xs text-gray-600">
+                        💡 <strong>전환율 해석:</strong> 무료 악보를 다운로드한 회원 중 유료 악보를 구매한 비율입니다.
+                        {drumLessonAnalytics.conversion.conversionRate > 10
+                          ? ' 전환율이 높습니다! 무료 악보가 유료 구매에 큰 기여를 하고 있습니다.'
+                          : drumLessonAnalytics.conversion.conversionRate > 0
+                            ? ' 전환이 발생하고 있습니다. 더 많은 무료 악보를 통해 전환율을 높일 수 있습니다.'
+                            : ' 아직 전환 데이터가 충분하지 않습니다. 다운로드가 쌓이면 분석이 가능합니다.'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
 
             <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
               <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
