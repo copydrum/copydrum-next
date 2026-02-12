@@ -411,6 +411,31 @@ export default function DrumLessonManagement() {
       if (form.tempo > 0) insertData.tempo = form.tempo;
       if (form.preview_image_url) insertData.preview_image_url = form.preview_image_url;
 
+      // ─── slug 자동 생성 (아티스트-제목 형식) ───
+      const slugRaw = `${insertData.artist}-${insertData.title}`;
+      let baseSlug = slugRaw
+        .toLowerCase()
+        .trim()
+        .replace(/[^\w\s가-힣ㄱ-ㅎㅏ-ㅣ\u3040-\u309f\u30a0-\u30ff\u4e00-\u9faf-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '');
+      if (!baseSlug) baseSlug = `lesson-${Date.now()}`;
+
+      let slug = baseSlug;
+      let slugSuffix = 0;
+      while (true) {
+        const { data: existingSlug } = await supabase
+          .from('drum_sheets')
+          .select('id')
+          .eq('slug', slug)
+          .maybeSingle();
+        if (!existingSlug) break;
+        slugSuffix++;
+        slug = `${baseSlug}-${slugSuffix}`;
+      }
+      insertData.slug = slug;
+
       const { data: inserted, error: insertError } = await supabase
         .from('drum_sheets')
         .insert(insertData)
