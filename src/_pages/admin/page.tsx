@@ -4740,7 +4740,32 @@ ONE MORE TIME,ALLDAY PROJECT,중급,ALLDAY PROJECT - ONE MORE TIME.pdf,https://w
             insertData.page_count = pageCount;
           }
 
-          console.log(`행 ${rowNum}: 데이터베이스 삽입 시작...`);
+          // ─── slug 자동 생성 (CSV 일괄 등록) ───
+          const csvSlugRaw = `${insertData.artist}-${insertData.title}`;
+          let csvBaseSlug = csvSlugRaw
+            .toLowerCase()
+            .trim()
+            .replace(/[^\w\s가-힣ㄱ-ㅎㅏ-ㅣ\u3040-\u309f\u30a0-\u30ff\u4e00-\u9faf-]/g, '')
+            .replace(/\s+/g, '-')
+            .replace(/-+/g, '-')
+            .replace(/^-|-$/g, '');
+          if (!csvBaseSlug) csvBaseSlug = `sheet-${Date.now()}`;
+
+          let csvSlug = csvBaseSlug;
+          let csvSlugSuffix = 0;
+          while (true) {
+            const { data: existingSlug } = await supabase
+              .from('drum_sheets')
+              .select('id')
+              .eq('slug', csvSlug)
+              .maybeSingle();
+            if (!existingSlug) break;
+            csvSlugSuffix++;
+            csvSlug = `${csvBaseSlug}-${csvSlugSuffix}`;
+          }
+          insertData.slug = csvSlug;
+
+          console.log(`행 ${rowNum}: 데이터베이스 삽입 시작... (slug: ${csvSlug})`);
           const { error: insertError } = await supabase
             .from('drum_sheets')
             .insert([insertData]);
