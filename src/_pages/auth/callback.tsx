@@ -67,12 +67,21 @@ export default function AuthCallback() {
               .single();
 
             if (profileError && profileError.code === 'PGRST116') {
-              // 프로필이 없으면 생성 (최소한의 필드만 사용: id, email만)
+              // 프로필이 없으면 생성
+              // 이름 우선순위: user_metadata.full_name > name > user_name > 이메일 ID
+              const meta = data.user.user_metadata || {};
+              const resolvedName =
+                meta.full_name?.trim() ||
+                meta.name?.trim() ||
+                meta.user_name?.trim() ||
+                (data.user.email ? data.user.email.split('@')[0] : '');
+
               const { error: insertError } = await supabase
                 .from('profiles')
                 .insert({
                   id: data.user.id,
-                  email: data.user.email || ''
+                  email: data.user.email || '',
+                  name: resolvedName
                 });
 
               if (insertError) {
@@ -95,6 +104,18 @@ export default function AuthCallback() {
               }
               if (!profile.provider) {
                 updates.provider = provider;
+              }
+
+              // 기존 이름이 '사용자' 또는 비어있으면 소셜 메타데이터에서 이름 업데이트
+              if (!profile.name || profile.name === '사용자' || profile.name === 'User') {
+                const betterName =
+                  userMetadata.full_name?.trim() ||
+                  userMetadata.name?.trim() ||
+                  userMetadata.user_name?.trim() ||
+                  '';
+                if (betterName) {
+                  updates.name = betterName;
+                }
               }
 
               if (Object.keys(updates).length > 0) {

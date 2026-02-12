@@ -47,6 +47,11 @@
   }
 }
 
+/* 모바일 퀵 네비게이션 스크롤바 숨기기 */
+.mobile-quick-nav-scroll::-webkit-scrollbar {
+  display: none;
+}
+
 @layer base {
   * {
     font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'system-ui', 'Roboto', 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;

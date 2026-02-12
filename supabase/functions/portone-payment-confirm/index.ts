@@ -209,6 +209,15 @@ serve(async (req) => {
       },
     };
 
+    // payment_method가 비어있으면 결제 상태에 따라 추론하여 설정
+    if (!order.payment_method) {
+      if (isVirtualAccountIssued || virtualAccountInfo) {
+        updatePayload.payment_method = "virtual_account";
+      } else if (isPaid) {
+        updatePayload.payment_method = "card";
+      }
+    }
+
     if (isPaid) {
       updatePayload.payment_status = "paid";
       updatePayload.status = "completed";

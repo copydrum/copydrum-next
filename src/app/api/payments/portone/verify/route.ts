@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { paymentId, orderId } = body;
+    const { paymentId, orderId, paymentMethod } = body;
 
     if (!paymentId || !orderId) {
       return NextResponse.json(
@@ -42,12 +42,14 @@ export async function POST(request: NextRequest) {
     // 실제 프로덕션에서는 포트원 서버 API를 호출하여 결제 금액을 검증해야 합니다.
     // const portoneVerification = await verifyPortOnePayment(paymentId);
 
-    // 4. 주문 상태 업데이트
+    // 4. 주문 상태 업데이트 (payment_method 포함)
+    const resolvedPaymentMethod = paymentMethod || order.payment_method || 'card';
     const { data: updatedOrder, error: updateError } = await supabase
       .from('orders')
       .update({
         status: 'completed',
         payment_status: 'paid',
+        payment_method: resolvedPaymentMethod, // ✅ 결제수단 명시적 업데이트
         transaction_id: paymentId,
         updated_at: new Date().toISOString(),
       })
@@ -63,7 +65,36 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('[verify] 결제 검증 완료:', orderId);
+    console.log('[verify] 결제 검증 완료:', orderId, '결제수단:', resolvedPaymentMethod);
+
+    // 5. purchases 테이블에 구매 기록 삽입
+    try {
+      const { data: orderItems } = await supabase
+        .from('order_items')
+        .select('id, drum_sheet_id, price')
+        .eq('order_id', orderId);
+
+      if (orderItems && orderItems.length > 0) {
+        const purchaseRecords = orderItems.map((item: any) => ({
+          user_id: order.user_id,
+          drum_sheet_id: item.drum_sheet_id,
+          order_id: orderId,
+          price_paid: item.price ?? 0,
+        }));
+
+        const { error: purchasesError } = await supabase
+          .from('purchases')
+          .insert(purchaseRecords);
+
+        if (purchasesError && purchasesError.code !== '23505') {
+          console.warn('[verify] purchases 기록 실패 (치명적이지 않음):', purchasesError);
+        } else {
+          console.log('[verify] purchases 기록 완료:', orderItems.length, '건');
+        }
+      }
+    } catch (purchaseErr) {
+      console.warn('[verify] purchases 기록 중 예외:', purchaseErr);
+    }
 
     return NextResponse.json({
       success: true,

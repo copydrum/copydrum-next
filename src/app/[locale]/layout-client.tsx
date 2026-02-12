@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import type { User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import MobileHeader from '@/components/mobile/MobileHeader';
+import MobileQuickNav from '@/components/mobile/MobileQuickNav';
 import MobileMenuSidebar from '@/components/mobile/MobileMenuSidebar';
 import MobileSearchOverlay from '@/components/mobile/MobileSearchOverlay';
 
@@ -60,6 +61,9 @@ export default function ClientLayout({
         />
       )}
 
+      {/* 모바일 퀵 네비게이션 (헤더 바로 아래, md 이하에서만 표시) */}
+      {!isAdminPage && <MobileQuickNav />}
+
       {/* 모바일 사이드바 메뉴 */}
       <MobileMenuSidebar
         user={user}
@@ -73,8 +77,8 @@ export default function ClientLayout({
         onClose={() => setIsMobileSearchOpen(false)}
       />
 
-      {/* 메인 콘텐츠 - 모바일에서는 헤더 높이만큼 패딩 (헤더 약 176px) */}
-      <div className={`${isAdminPage ? '' : 'pt-[180px]'} md:pt-0`}>
+      {/* 메인 콘텐츠 - 모바일에서는 헤더(180px) + 퀵네비(44px) 높이만큼 패딩 */}
+      <div className={`${isAdminPage ? '' : 'pt-[224px]'} md:pt-0`}>
         {children}
       </div>
     </>

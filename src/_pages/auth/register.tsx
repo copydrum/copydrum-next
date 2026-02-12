@@ -131,14 +131,16 @@ export default function Register() {
       }
 
       if (data.user) {
-        // 프로필 생성 (최소한의 필드만 사용: id, email만)
+        // 프로필 생성 - 이메일 ID를 이름으로 사용
         // upsert를 사용하여 트리거가 먼저 생성한 프로필도 업데이트
+        const emailName = formData.email.split('@')[0] || '';
         const { error: profileError } = await supabase
           .from('profiles')
           .upsert(
             {
               id: data.user.id,
-              email: formData.email
+              email: formData.email,
+              name: emailName
             },
             { onConflict: 'id' } // 같은 id면 update로 덮어쓰기
           );

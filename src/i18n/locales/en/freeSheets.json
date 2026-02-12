@@ -39,7 +39,7 @@
     "description": "Try selecting a different category or changing your search term."
   },
   "actions": {
-    "viewFreeSheet": "View Free Sheet",
+    "viewFreeSheet": "Free Download",
     "viewYoutubeLesson": "View YouTube Lesson",
     "goToDetail": "Go to Detail Page",
     "closeDetail": "Close Free Sheet Detail"

@@ -160,12 +160,13 @@ serve(async (req) => {
     const transactionId = capture?.id || paypalOrderId;
     const amount = parseFloat(capture?.amount?.value || "0");
 
-    // 주문 상태 업데이트
+    // 주문 상태 업데이트 (payment_method도 명시적으로 'paypal'로 설정)
     const now = new Date().toISOString();
     const { error: updateError } = await supabase
       .from("orders")
       .update({
         payment_status: "paid",
+        payment_method: "paypal", // ✅ 결제수단 명시적 업데이트
         payment_provider: "paypal",
         pg_transaction_id: transactionId,
         paid_at: now,

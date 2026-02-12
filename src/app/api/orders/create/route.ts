@@ -19,7 +19,7 @@ function createAdminClient() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId, items, amount, description } = await request.json();
+    const { userId, items, amount, description, paymentMethod } = await request.json();
 
     // ============================================================
     // 입력 검증
@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
         total_amount: amount,
         status: 'pending',
         payment_status: 'pending',
-        payment_method: null,
+        payment_method: paymentMethod || null,
         order_type: 'product',
         metadata: {
           type: 'sheet_purchase',

@@ -66,9 +66,9 @@ type ProfileRow = { created_at: string | null };
 type InquiryRow = { created_at: string | null };
 
 const PERIOD_CONFIG: Record<DashboardAnalyticsPeriod, { buckets: number }> = {
-  daily: { buckets: 7 },      // 최근 7일
-  weekly: { buckets: 8 },     // 최근 8주
-  monthly: { buckets: 6 },    // 최근 6개월
+  daily: { buckets: 1 },      // 오늘
+  weekly: { buckets: 7 },     // 최근 7일
+  monthly: { buckets: 30 },   // 최근 30일 (한달)
 };
 
 const startOfDay = (date: Date): Date => {
@@ -128,48 +128,26 @@ const formatLabel = (date: Date, period: DashboardAnalyticsPeriod): string => {
 };
 
 const createBuckets = (period: DashboardAnalyticsPeriod, bucketCount: number, now: Date): Bucket[] => {
-  let alignedNow: Date;
-  let actualPeriod: DashboardAnalyticsPeriod;
-  
-  if (period === 'daily') {
-    alignedNow = startOfDay(now);
-    actualPeriod = 'daily';
-  } else if (period === 'weekly') {
-    // 주간별: 주 단위로 그룹화
-    alignedNow = startOfWeek(now);
-    actualPeriod = 'weekly';
-  } else {
-    alignedNow = startOfMonth(now);
-    actualPeriod = 'monthly';
-  }
-  
-  const earliestStart = addPeriod(alignedNow, actualPeriod, -(bucketCount - 1));
+  // 모든 기간을 일별 버킷으로 생성 (오늘=1일, 최근7일=7일, 최근한달=30일)
+  const alignedNow = startOfDay(now);
+  const earliestStart = addPeriod(alignedNow, 'daily', -(bucketCount - 1));
+
   const buckets: Bucket[] = [];
   for (let i = 0; i < bucketCount; i += 1) {
-    const start = addPeriod(earliestStart, actualPeriod, i);
-    const end = addPeriod(start, actualPeriod, 1);
+    const start = addPeriod(earliestStart, 'daily', i);
+    const end = addPeriod(start, 'daily', 1);
     buckets.push({
-      label: formatLabel(start, actualPeriod),
+      label: formatLabel(start, 'daily'),
       start,
       end,
     });
   }
 
-  // 마지막 bucket의 end를 현재 시간보다 미래로 설정하여
-  // 밀리초 차이로 인한 데이터 누락 방지
+  // 마지막 버킷의 end를 다음날 자정으로 설정하여 데이터 누락 방지
   const lastIndex = buckets.length - 1;
-  if (period === 'daily') {
-    // 일별: 오늘 자정의 다음날 자정까지
-    const endOfToday = new Date(alignedNow);
-    endOfToday.setDate(endOfToday.getDate() + 1);
-    buckets[lastIndex].end = endOfToday;
-  } else {
-    // 주간별, 월간별: 원래 end 시간 사용 (이미 적절하게 설정됨)
-    // 하지만 현재 시간이 포함되도록 약간의 여유 추가
-    const extendedEnd = new Date(buckets[lastIndex].end);
-    extendedEnd.setSeconds(extendedEnd.getSeconds() + 1);
-    buckets[lastIndex].end = extendedEnd;
-  }
+  const endOfToday = new Date(alignedNow);
+  endOfToday.setDate(endOfToday.getDate() + 1);
+  buckets[lastIndex].end = endOfToday;
 
   return buckets;
 };
@@ -470,7 +448,7 @@ export const getDashboardAnalytics = async (
   const startTime = Date.now();
 
   const previousRangeEnd = new Date(currentRangeStart);
-  const previousRangeStart = addPeriod(previousRangeEnd, period, -buckets);
+  const previousRangeStart = addPeriod(previousRangeEnd, 'daily', -buckets);
 
   const [
     currentPageViews,

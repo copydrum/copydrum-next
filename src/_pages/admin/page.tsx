@@ -15,6 +15,7 @@ import type { SiteSettingKey, SiteSettingRow, SiteSettings } from '../../lib/set
 import CustomOrderDetail from '../../components/admin/CustomOrderDetail';
 import MarketingSettings from '../../components/admin/MarketingSettings';
 import MarketingStatus from '../../components/admin/MarketingStatus';
+import DrumLessonManagement from '../../components/admin/DrumLessonManagement';
 import {
   getDashboardAnalytics,
   type DashboardAnalyticsPeriod,
@@ -274,6 +275,9 @@ const PAYMENT_METHOD_LABELS: Record<string, string> = {
   payco: '페이코',
   naverpay: '네이버페이',
   cash: '보유 캐시',
+  paypal: 'PayPal',
+  inicis: 'KG이니시스',
+  transfer: '계좌이체',
 };
 
 const ORDER_STATUS_FALLBACK_MAP: Record<string, OrderStatus> = {
@@ -301,8 +305,21 @@ const normalizeOrderStatus = (status: string | null | undefined): OrderStatus =>
 const normalizePaymentMethodKey = (method: string) =>
   method.toLowerCase().replace(/\s+/g, '_').replace(/-+/g, '_');
 
-const getPaymentMethodLabel = (method: string | null | undefined) => {
-  if (!method) return '미등록';
+const getPaymentMethodLabel = (method: string | null | undefined, order?: Order | null) => {
+  if (!method) {
+    // payment_method가 null인 경우, 주문 메타데이터에서 결제수단 추론 시도
+    if (order) {
+      const meta = order.metadata as Record<string, any> | null;
+      // 메타데이터의 payment_provider로 추론
+      if (meta?.payment_provider === 'portone') return '포트원 결제';
+      if (meta?.portone_payment_id) return '포트원 결제';
+      // order_type으로 추론
+      if (order.order_type === 'cash') return '캐시 충전';
+      // payment_status로 추론
+      if (order.payment_status === 'awaiting_deposit') return '무통장입금';
+    }
+    return '미확인';
+  }
   const key = normalizePaymentMethodKey(method);
   return PAYMENT_METHOD_LABELS[key] ?? method;
 };
@@ -1095,6 +1112,23 @@ const AdminPage: React.FC = () => {
   const [analyticsError, setAnalyticsError] = useState<string | null>(null);
   const [analyticsExporting, setAnalyticsExporting] = useState(false);
   const analyticsLoadedRef = useRef(false);
+
+  // 월별 매출 데이터
+  interface MonthlyRevenueRow {
+    year: number;
+    month: number;
+    revenue: number;
+    orderCount: number;
+  }
+  interface YearlyRevenueData {
+    year: number;
+    months: MonthlyRevenueRow[];
+    yearTotal: number;
+    yearOrderCount: number;
+  }
+  const [monthlyRevenueData, setMonthlyRevenueData] = useState<YearlyRevenueData[]>([]);
+  const [monthlyRevenueLoading, setMonthlyRevenueLoading] = useState(false);
+  const [monthlyRevenueYear, setMonthlyRevenueYear] = useState<number>(new Date().getFullYear());
   const copyrightInitialFetchRef = useRef(false);
 
   const loadAnalyticsData = useCallback(
@@ -1116,6 +1150,65 @@ const AdminPage: React.FC = () => {
     },
     [],
   );
+
+  const loadMonthlyRevenue = useCallback(async () => {
+    if (!isAdmin) return;
+    setMonthlyRevenueLoading(true);
+    try {
+      // 2025년 1월부터 현재 연도 12월까지 완료된 주문 조회
+      const startYear = 2025;
+      const currentYear = new Date().getFullYear();
+      const startIso = `${startYear}-01-01T00:00:00.000Z`;
+      const endIso = `${currentYear}-12-31T23:59:59.999Z`;
+
+      const { data, error } = await supabase
+        .from('orders')
+        .select('created_at, total_amount')
+        .eq('status', 'completed')
+        .gte('created_at', startIso)
+        .lte('created_at', endIso)
+        .order('created_at', { ascending: true });
+
+      if (error) throw error;
+
+      // 연도-월별로 집계
+      const monthMap = new Map<string, { revenue: number; orderCount: number }>();
+
+      (data ?? []).forEach((order) => {
+        if (!order.created_at) return;
+        const date = new Date(order.created_at);
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1;
+        const key = `${year}-${month}`;
+        const existing = monthMap.get(key) ?? { revenue: 0, orderCount: 0 };
+        existing.revenue += order.total_amount ?? 0;
+        existing.orderCount += 1;
+        monthMap.set(key, existing);
+      });
+
+      // 연도별 데이터 구성
+      const yearlyData: YearlyRevenueData[] = [];
+      for (let year = startYear; year <= currentYear; year++) {
+        const months: MonthlyRevenueRow[] = [];
+        let yearTotal = 0;
+        let yearOrderCount = 0;
+        for (let month = 1; month <= 12; month++) {
+          const key = `${year}-${month}`;
+          const entry = monthMap.get(key) ?? { revenue: 0, orderCount: 0 };
+          months.push({ year, month, revenue: entry.revenue, orderCount: entry.orderCount });
+          yearTotal += entry.revenue;
+          yearOrderCount += entry.orderCount;
+        }
+        yearlyData.push({ year, months, yearTotal, yearOrderCount });
+      }
+
+      setMonthlyRevenueData(yearlyData);
+    } catch (error) {
+      console.error('월별 매출 로드 실패:', error);
+    } finally {
+      setMonthlyRevenueLoading(false);
+    }
+  }, [isAdmin]);
 
   const [siteSettings, setSiteSettings] = useState<SiteSettings>(() => createDefaultSiteSettings());
   const [settingsMeta, setSettingsMeta] = useState<Record<SiteSettingKey, SiteSettingsMeta>>(
@@ -1398,7 +1491,8 @@ const AdminPage: React.FC = () => {
       return;
     }
     void loadAnalyticsData(analyticsPeriod);
-  }, [activeMenu, analyticsPeriod, isAdmin, loadAnalyticsData]);
+    void loadMonthlyRevenue();
+  }, [activeMenu, analyticsPeriod, isAdmin, loadAnalyticsData, loadMonthlyRevenue]);
 
   // loadCopyrightReport 함수는 아래에서 정의되므로, useEffect는 함수 정의 이후로 이동됨
 
@@ -2259,7 +2353,7 @@ const AdminPage: React.FC = () => {
 
     const headers = ['주문ID', '주문일시', '고객명', '이메일', '결제수단', '상태', '총금액', '구매악보수'];
     const rows = sortedOrders.map((order) => {
-      const paymentLabel = getPaymentMethodLabel(order.payment_method);
+      const paymentLabel = getPaymentMethodLabel(order.payment_method, order);
       const statusLabel = getOrderStatusMetaSafe(order.status).label;
       const itemCount = order.order_items?.length ?? 0;
 
@@ -2468,7 +2562,7 @@ const AdminPage: React.FC = () => {
         const directSalesRows: DirectSaleRow[] = (data ?? []).map((order: any) => {
           const orderItems = Array.isArray(order.order_items) ? order.order_items : [];
           const paymentMethod: string | null = order.payment_method ?? null;
-          const paymentMethodLabel = getPaymentMethodLabel(paymentMethod);
+          const paymentMethodLabel = getPaymentMethodLabel(paymentMethod, order);
 
           return {
             orderId: order.id,
@@ -4840,6 +4934,7 @@ ONE MORE TIME,ALLDAY PROJECT,중급,ALLDAY PROJECT - ONE MORE TIME.pdf,https://w
 
     switch (activeMenu) {
       case 'dashboard':
+        loadOrders();
         loadCustomOrders();
         break;
       case 'member-list':
@@ -5160,7 +5255,7 @@ ONE MORE TIME,ALLDAY PROJECT,중급,ALLDAY PROJECT - ONE MORE TIME.pdf,https://w
 
   const filteredOrders = orders.filter((order) => {
     const statusMeta = getOrderStatusMetaSafe(order.status);
-    const paymentLabel = getPaymentMethodLabel(order.payment_method);
+    const paymentLabel = getPaymentMethodLabel(order.payment_method, order);
     const searchableFields = [
       order.id,
       order.order_number ?? '',
@@ -5257,9 +5352,9 @@ ONE MORE TIME,ALLDAY PROJECT,중급,ALLDAY PROJECT - ONE MORE TIME.pdf,https://w
   // 렌더링 함수들
   const renderDashboard = () => {
     const periodOptions: Array<{ value: DashboardAnalyticsPeriod; label: string }> = [
-      { value: 'daily', label: '일별' },
-      { value: 'weekly', label: '주간별' },
-      { value: 'monthly', label: '월간별' },
+      { value: 'daily', label: '오늘' },
+      { value: 'weekly', label: '최근 7일' },
+      { value: 'monthly', label: '최근 한달' },
     ];
     type AnalyticsCard = {
       title: string;
@@ -5271,6 +5366,9 @@ ONE MORE TIME,ALLDAY PROJECT,중급,ALLDAY PROJECT - ONE MORE TIME.pdf,https://w
       formatter?: (value: number) => string;
     };
     const metrics = dashboardAnalyticsData?.metrics;
+    const periodDescription = dashboardAnalyticsPeriod === 'daily' ? '어제 대비'
+      : dashboardAnalyticsPeriod === 'weekly' ? '이전 7일 대비'
+      : '이전 한달 대비';
     const cards: AnalyticsCard[] = [
       {
         title: '방문자 수',
@@ -5278,7 +5376,7 @@ ONE MORE TIME,ALLDAY PROJECT,중급,ALLDAY PROJECT - ONE MORE TIME.pdf,https://w
         change: metrics?.visitorsChangePct ?? 0,
         icon: 'ri-group-line',
         iconClassName: 'bg-blue-100 text-blue-600',
-        description: '전 기간 대비 증감률',
+        description: periodDescription,
         formatter: (value) => `${value.toLocaleString('ko-KR')}명`,
       },
       {
@@ -5287,7 +5385,7 @@ ONE MORE TIME,ALLDAY PROJECT,중급,ALLDAY PROJECT - ONE MORE TIME.pdf,https://w
         change: metrics?.pageViewsChangePct ?? 0,
         icon: 'ri-eye-line',
         iconClassName: 'bg-sky-100 text-sky-600',
-        description: '전 기간 대비 증감률',
+        description: periodDescription,
         formatter: (value) => `${value.toLocaleString('ko-KR')}`,
       },
       {
@@ -5296,7 +5394,7 @@ ONE MORE TIME,ALLDAY PROJECT,중급,ALLDAY PROJECT - ONE MORE TIME.pdf,https://w
         change: metrics?.revenueChangePct ?? 0,
         icon: 'ri-money-dollar-circle-line',
         iconClassName: 'bg-purple-100 text-purple-600',
-        description: '전 기간 대비 증감률',
+        description: periodDescription,
         formatter: (value) => formatCurrency(value),
       },
       {
@@ -5305,7 +5403,7 @@ ONE MORE TIME,ALLDAY PROJECT,중급,ALLDAY PROJECT - ONE MORE TIME.pdf,https://w
         change: metrics?.newUsersChangePct ?? 0,
         icon: 'ri-user-add-line',
         iconClassName: 'bg-emerald-100 text-emerald-600',
-        description: '전 기간 대비 증감률',
+        description: periodDescription,
         formatter: (value) => `${value.toLocaleString('ko-KR')}명`,
       },
     ];
@@ -5327,7 +5425,7 @@ ONE MORE TIME,ALLDAY PROJECT,중급,ALLDAY PROJECT - ONE MORE TIME.pdf,https://w
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <h2 className="text-2xl font-bold text-gray-900">방문 · 매출 · 가입 지표</h2>
-              <p className="text-sm text-gray-500">일별, 주간별, 월간별 추이를 한눈에 확인하세요.</p>
+              <p className="text-sm text-gray-500">오늘, 최근 7일, 최근 한달 지표를 확인하세요.</p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
               {periodOptions.map((option) => (
@@ -5421,82 +5519,13 @@ ONE MORE TIME,ALLDAY PROJECT,중급,ALLDAY PROJECT - ONE MORE TIME.pdf,https://w
                 )}
               </div>
 
-              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                {/* 방문자 차트 */}
-                <div className="relative">
-                  <div className="h-80 rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">방문자</h3>
-                    {isInitialLoading ? (
-                      <div className="flex h-full items-center justify-center">
-                        <div className="h-24 w-full max-w-md animate-pulse rounded-xl bg-gray-100" />
-                      </div>
-                    ) : !hasAnalytics ? (
-                      <div className="flex h-full items-center justify-center text-sm text-gray-500">
-                        데이터를 불러오는 중입니다...
-                      </div>
-                    ) : chartData.length === 0 ? (
-                      <div className="flex h-full items-center justify-center rounded-lg bg-gray-50 text-sm text-gray-500">
-                        선택한 기간의 데이터가 없습니다.
-                      </div>
-                    ) : (
-                      <div className="relative h-64">
-                        {isUpdating && (
-                          <div className="absolute inset-0 z-10 flex items-center justify-center rounded-xl bg-white/70 text-sm text-gray-600">
-                            <span className="inline-flex items-center gap-2">
-                              <i className="ri-loader-4-line animate-spin"></i>
-                              데이터를 갱신하는 중입니다...
-                            </span>
-                          </div>
-                        )}
-                        <ResponsiveContainer width="100%" height="100%">
-                          <AreaChart data={chartData} margin={{ top: 12, right: 24, left: 16, bottom: 8 }}>
-                            <defs>
-                              <linearGradient id="colorPageViews" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8} />
-                                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
-                              </linearGradient>
-                            </defs>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                            <XAxis dataKey="label" tick={{ fontSize: 12 }} />
-                            <YAxis
-                              allowDecimals={false}
-                              tick={{ fontSize: 12 }}
-                              tickFormatter={(value) => Number(value).toLocaleString('ko-KR')}
-                            />
-                            <Tooltip
-                              formatter={(value: number) => [`${value.toLocaleString('ko-KR')}`, '']}
-                              labelFormatter={(label) => `일자: ${label}`}
-                            />
-                            <Legend />
-                            <Area
-                              type="monotone"
-                              dataKey="pageViews"
-                              name="페이지뷰"
-                              stroke="#3b82f6"
-                              strokeWidth={2}
-                              fillOpacity={1}
-                              fill="url(#colorPageViews)"
-                            />
-                            <Line
-                              type="monotone"
-                              dataKey="visitors"
-                              name="방문자"
-                              stroke="#2563eb"
-                              strokeWidth={2}
-                              dot={{ fill: '#2563eb', r: 3 }}
-                              activeDot={{ r: 5 }}
-                            />
-                          </AreaChart>
-                        </ResponsiveContainer>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
+              <div className="grid grid-cols-1 gap-6">
                 {/* 기간별 분석 테이블 */}
                 <div className="relative">
-                  <div className="h-80 rounded-xl border border-gray-100 bg-white p-4 shadow-sm overflow-hidden">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">기간별 분석</h3>
+                    <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                      {dashboardAnalyticsPeriod === 'daily' ? '오늘 상세' : dashboardAnalyticsPeriod === 'weekly' ? '최근 7일 상세' : '최근 한달 상세'}
+                    </h3>
                     {isInitialLoading ? (
                       <div className="flex h-full items-center justify-center">
                         <div className="h-24 w-full max-w-md animate-pulse rounded-xl bg-gray-100" />
@@ -5510,7 +5539,7 @@ ONE MORE TIME,ALLDAY PROJECT,중급,ALLDAY PROJECT - ONE MORE TIME.pdf,https://w
                         선택한 기간의 데이터가 없습니다.
                       </div>
                     ) : (
-                      <div className="overflow-auto h-64">
+                      <div className="overflow-auto max-h-[480px]">
                         <table className="w-full text-sm">
                           <thead className="bg-gray-50 sticky top-0">
                             <tr>
@@ -5533,31 +5562,12 @@ ONE MORE TIME,ALLDAY PROJECT,중급,ALLDAY PROJECT - ONE MORE TIME.pdf,https://w
                                 <td className="px-3 py-2 whitespace-nowrap text-right text-gray-900">{data.inquiryCount}</td>
                               </tr>
                             ))}
-                            {/* 기간별 합계 */}
-                            {dashboardAnalyticsPeriod === 'daily' || dashboardAnalyticsPeriod === 'weekly' ? (
-                              <tr className="bg-blue-50 font-semibold">
+                            {/* 합계행 (오늘=1행이므로 합계 불필요, 7일/한달만 표시) */}
+                            {chartData.length > 1 && (
+                              <tr className="bg-blue-50 font-semibold sticky bottom-0">
                                 <td className="px-3 py-2 whitespace-nowrap text-gray-900">
-                                  {dashboardAnalyticsPeriod === 'daily' ? '최근 7일 합계' : '최근 7일 합계'}
+                                  {dashboardAnalyticsPeriod === 'weekly' ? '최근 7일 합계' : '최근 한달 합계'}
                                 </td>
-                                <td className="px-3 py-2 whitespace-nowrap text-right text-gray-900">
-                                  {chartData.reduce((sum, d) => sum + d.orderCount, 0)}건
-                                </td>
-                                <td className="px-3 py-2 whitespace-nowrap text-right text-gray-900">
-                                  {chartData.reduce((sum, d) => sum + d.revenue, 0).toLocaleString()}원
-                                </td>
-                                <td className="px-3 py-2 whitespace-nowrap text-right text-gray-900">
-                                  {chartData.reduce((sum, d) => sum + d.visitors, 0)}명
-                                </td>
-                                <td className="px-3 py-2 whitespace-nowrap text-right text-gray-900">
-                                  {chartData.reduce((sum, d) => sum + d.newUsers, 0)}명
-                                </td>
-                                <td className="px-3 py-2 whitespace-nowrap text-right text-gray-900">
-                                  {chartData.reduce((sum, d) => sum + d.inquiryCount, 0)}건
-                                </td>
-                              </tr>
-                            ) : (
-                              <tr className="bg-gray-50 font-semibold">
-                                <td className="px-3 py-2 whitespace-nowrap text-gray-900">전체 합계</td>
                                 <td className="px-3 py-2 whitespace-nowrap text-right text-gray-900">
                                   {chartData.reduce((sum, d) => sum + d.orderCount, 0)}건
                                 </td>
@@ -5582,88 +5592,6 @@ ONE MORE TIME,ALLDAY PROJECT,중급,ALLDAY PROJECT - ONE MORE TIME.pdf,https://w
                   </div>
                 </div>
 
-                {/* 국가별 방문자 및 Referrer 통계 */}
-                {hasAnalytics && dashboardAnalyticsData && (
-                  <div className="grid grid-cols-1 gap-6 xl:grid-cols-2 mt-6">
-                    <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
-                      <div className="mb-4">
-                        <h3 className="text-lg font-semibold text-gray-900">국가별 방문자</h3>
-                        <p className="text-sm text-gray-500">상위 10개 국가</p>
-                      </div>
-                      <div className="space-y-2 max-h-96 overflow-y-auto">
-                        {dashboardAnalyticsData.countryBreakdown && dashboardAnalyticsData.countryBreakdown.length > 0 ? (
-                          dashboardAnalyticsData.countryBreakdown.map((country, index) => (
-                            <div key={country.country} className="flex items-center justify-between rounded-lg border border-gray-100 p-3 hover:bg-gray-50">
-                              <div className="flex items-center gap-3">
-                                <div className={`flex h-7 w-7 items-center justify-center rounded-full ${
-                                  index === 0 ? 'bg-blue-100 text-blue-600' :
-                                  index === 1 ? 'bg-purple-100 text-purple-600' :
-                                  index === 2 ? 'bg-emerald-100 text-emerald-600' :
-                                  'bg-gray-100 text-gray-600'
-                                } text-xs font-semibold`}>
-                                  {index + 1}
-                                </div>
-                                <div>
-                                  <p className="text-sm font-medium text-gray-900">{country.countryName}</p>
-                                  <p className="text-xs text-gray-500">{country.country}</p>
-                                </div>
-                              </div>
-                              <div className="text-right">
-                                <p className="text-sm font-semibold text-gray-900">{country.visitors.toLocaleString('ko-KR')}명</p>
-                                <p className="text-xs text-gray-500">{country.pageViews.toLocaleString('ko-KR')} 페이지뷰</p>
-                              </div>
-                            </div>
-                          ))
-                        ) : (
-                          <div className="flex h-32 flex-col items-center justify-center text-center p-4">
-                            <i className="ri-database-2-line text-3xl text-gray-400 mb-2"></i>
-                            <p className="text-sm text-gray-500 mb-1">국가별 통계를 표시할 수 없습니다.</p>
-                            <p className="text-xs text-gray-400">ADD_PAGE_VIEWS_COUNTRY_COLUMN.sql 실행이 필요합니다.</p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
-                      <div className="mb-4">
-                        <h3 className="text-lg font-semibold text-gray-900">방문 경로</h3>
-                        <p className="text-sm text-gray-500">상위 10개 유입 경로</p>
-                      </div>
-                      <div className="space-y-2 max-h-96 overflow-y-auto">
-                        {dashboardAnalyticsData.referrerBreakdown && dashboardAnalyticsData.referrerBreakdown.length > 0 ? (
-                          dashboardAnalyticsData.referrerBreakdown.map((referrer, index) => (
-                            <div key={referrer.referrer} className="flex items-center justify-between rounded-lg border border-gray-100 p-3 hover:bg-gray-50">
-                              <div className="flex items-center gap-3 flex-1 min-w-0">
-                                <div className={`flex h-7 w-7 items-center justify-center rounded-full ${
-                                  index === 0 ? 'bg-blue-100 text-blue-600' :
-                                  index === 1 ? 'bg-purple-100 text-purple-600' :
-                                  index === 2 ? 'bg-emerald-100 text-emerald-600' :
-                                  'bg-gray-100 text-gray-600'
-                                } text-xs font-semibold`}>
-                                  {index + 1}
-                                </div>
-                                <div className="min-w-0 flex-1">
-                                  <p className="text-sm font-medium text-gray-900 truncate">{referrer.referrerName}</p>
-                                  <p className="text-xs text-gray-500 truncate">{referrer.referrer !== 'Direct' ? referrer.referrer : '직접 접속'}</p>
-                                </div>
-                              </div>
-                              <div className="text-right ml-4">
-                                <p className="text-sm font-semibold text-gray-900">{referrer.visitors.toLocaleString('ko-KR')}명</p>
-                                <p className="text-xs text-gray-500">{referrer.pageViews.toLocaleString('ko-KR')} 페이지뷰</p>
-                              </div>
-                            </div>
-                          ))
-                        ) : (
-                          <div className="flex h-32 flex-col items-center justify-center text-center p-4">
-                            <i className="ri-share-line text-3xl text-gray-400 mb-2"></i>
-                            <p className="text-sm text-gray-500 mb-1">방문 경로 통계를 표시할 수 없습니다.</p>
-                            <p className="text-xs text-gray-400">ADD_PAGE_VIEWS_COUNTRY_COLUMN.sql 실행이 필요합니다.</p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
               </div>
             </>
           )}
@@ -5759,22 +5687,11 @@ ONE MORE TIME,ALLDAY PROJECT,중급,ALLDAY PROJECT - ONE MORE TIME.pdf,https://w
                     </div>
                     <div className="text-right">
                       <span
-                        className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${order.status === 'pending'
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : order.status === 'in_progress'
-                            ? 'bg-blue-100 text-blue-800'
-                            : order.status === 'completed'
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-red-100 text-red-800'
-                          }`}
+                        className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                          CUSTOM_ORDER_STATUS_META[order.status as CustomOrderStatus]?.className ?? 'bg-gray-100 text-gray-700'
+                        }`}
                       >
-                        {order.status === 'pending'
-                          ? '대기중'
-                          : order.status === 'in_progress'
-                            ? '진행중'
-                            : order.status === 'completed'
-                              ? '완료'
-                              : '취소'}
+                        {CUSTOM_ORDER_STATUS_META[order.status as CustomOrderStatus]?.label ?? order.status}
                       </span>
                     </div>
                   </div>
@@ -8716,7 +8633,7 @@ ONE MORE TIME,ALLDAY PROJECT,중급,ALLDAY PROJECT - ONE MORE TIME.pdf,https://w
     }
 
     const statusMeta = getOrderStatusMetaSafe(selectedOrder.status);
-    const paymentLabel = getPaymentMethodLabel(selectedOrder.payment_method);
+    const paymentLabel = getPaymentMethodLabel(selectedOrder.payment_method, selectedOrder);
     const paymentKey = selectedOrder.payment_method
       ? normalizePaymentMethodKey(selectedOrder.payment_method)
       : '';
@@ -9312,7 +9229,7 @@ ONE MORE TIME,ALLDAY PROJECT,중급,ALLDAY PROJECT - ONE MORE TIME.pdf,https://w
                 sortedOrders.map((order) => {
                   const statusMeta = getOrderStatusMetaSafe(order.status);
                   const itemCount = order.order_items?.length ?? 0;
-                  const paymentLabel = getPaymentMethodLabel(order.payment_method);
+                  const paymentLabel = getPaymentMethodLabel(order.payment_method, order);
                   const expanded = isOrderExpanded(order.id);
                   const orderItems = order.order_items ?? [];
                   const isCash = order.order_type === 'cash';
@@ -11019,6 +10936,110 @@ ONE MORE TIME,ALLDAY PROJECT,중급,ALLDAY PROJECT - ONE MORE TIME.pdf,https://w
               </div>
             </div>
 
+            {/* 월별 매출 섹션 */}
+            {(() => {
+              const selectedYearData = monthlyRevenueData.find((d) => d.year === monthlyRevenueYear);
+              const minYear = monthlyRevenueData.length > 0 ? monthlyRevenueData[0].year : monthlyRevenueYear;
+              const maxYear = monthlyRevenueData.length > 0 ? monthlyRevenueData[monthlyRevenueData.length - 1].year : monthlyRevenueYear;
+              return (
+                <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                  <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">월별 매출</h3>
+                      <p className="text-sm text-gray-500">연도별 월 매출 현황</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-1 rounded-lg border border-gray-200 bg-gray-50 p-1">
+                        <button
+                          type="button"
+                          onClick={() => setMonthlyRevenueYear((prev) => prev - 1)}
+                          disabled={monthlyRevenueYear <= minYear}
+                          className="flex h-8 w-8 items-center justify-center rounded-md text-gray-600 hover:bg-white hover:shadow-sm disabled:text-gray-300 disabled:hover:bg-transparent disabled:hover:shadow-none transition"
+                        >
+                          <i className="ri-arrow-left-s-line text-lg"></i>
+                        </button>
+                        <span className="min-w-[72px] text-center text-sm font-bold text-gray-900">{monthlyRevenueYear}년</span>
+                        <button
+                          type="button"
+                          onClick={() => setMonthlyRevenueYear((prev) => prev + 1)}
+                          disabled={monthlyRevenueYear >= maxYear}
+                          className="flex h-8 w-8 items-center justify-center rounded-md text-gray-600 hover:bg-white hover:shadow-sm disabled:text-gray-300 disabled:hover:bg-transparent disabled:hover:shadow-none transition"
+                        >
+                          <i className="ri-arrow-right-s-line text-lg"></i>
+                        </button>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => void loadMonthlyRevenue()}
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-50"
+                        disabled={monthlyRevenueLoading}
+                      >
+                        <i className={`ri-refresh-line ${monthlyRevenueLoading ? 'animate-spin' : ''}`}></i>
+                        새로고침
+                      </button>
+                    </div>
+                  </div>
+                  {monthlyRevenueLoading ? (
+                    <div className="flex h-40 items-center justify-center">
+                      <div className="text-center text-gray-500">
+                        <i className="ri-loader-4-line animate-spin text-2xl"></i>
+                        <p className="mt-2 text-sm">월별 매출 데이터를 불러오는 중...</p>
+                      </div>
+                    </div>
+                  ) : !selectedYearData ? (
+                    <div className="flex h-40 items-center justify-center text-sm text-gray-500">
+                      {monthlyRevenueYear}년 데이터가 없습니다.
+                    </div>
+                  ) : (
+                    <div className="overflow-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b border-gray-200 bg-gray-50">
+                            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">월</th>
+                            <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">주문 수</th>
+                            <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">매출액</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100">
+                          {selectedYearData.months.map((m) => {
+                            const now = new Date();
+                            const isFuture = m.year > now.getFullYear() || (m.year === now.getFullYear() && m.month > now.getMonth() + 1);
+                            const isCurrent = m.year === now.getFullYear() && m.month === now.getMonth() + 1;
+                            return (
+                              <tr
+                                key={m.month}
+                                className={`${isCurrent ? 'bg-blue-50' : isFuture ? 'bg-gray-50/50 text-gray-400' : 'hover:bg-gray-50'}`}
+                              >
+                                <td className="px-4 py-3 whitespace-nowrap font-medium text-gray-900">
+                                  {m.month}월
+                                  {isCurrent && <span className="ml-2 inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-semibold text-blue-700">진행중</span>}
+                                </td>
+                                <td className="px-4 py-3 whitespace-nowrap text-right text-gray-700">
+                                  {isFuture ? '-' : `${m.orderCount.toLocaleString('ko-KR')}건`}
+                                </td>
+                                <td className="px-4 py-3 whitespace-nowrap text-right font-medium text-gray-900">
+                                  {isFuture ? '-' : formatCurrency(m.revenue)}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                          <tr className="bg-blue-50 font-semibold border-t-2 border-blue-200">
+                            <td className="px-4 py-3 whitespace-nowrap text-gray-900">{selectedYearData.year}년 합계</td>
+                            <td className="px-4 py-3 whitespace-nowrap text-right text-gray-900">
+                              {selectedYearData.yearOrderCount.toLocaleString('ko-KR')}건
+                            </td>
+                            <td className="px-4 py-3 whitespace-nowrap text-right text-gray-900">
+                              {formatCurrency(selectedYearData.yearTotal)}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
+
             <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
               <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
                 <div className="mb-6 flex items-center justify-between">
@@ -11112,86 +11133,6 @@ ONE MORE TIME,ALLDAY PROJECT,중급,ALLDAY PROJECT - ONE MORE TIME.pdf,https://w
               </div>
             </div>
 
-            {/* 국가별 방문자 통계 및 Referrer 통계 추가 */}
-            <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-              <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-                <div className="mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900">국가별 방문자</h3>
-                  <p className="text-sm text-gray-500">상위 10개 국가</p>
-                </div>
-                <div className="space-y-3">
-                  {dashboardAnalyticsData?.countryBreakdown && dashboardAnalyticsData.countryBreakdown.length > 0 ? (
-                    dashboardAnalyticsData.countryBreakdown.map((country, index) => (
-                      <div key={country.country} className="flex items-center justify-between rounded-lg border border-gray-100 p-4">
-                        <div className="flex items-center gap-3">
-                          <div className={`flex h-8 w-8 items-center justify-center rounded-full ${
-                            index === 0 ? 'bg-blue-100 text-blue-600' :
-                            index === 1 ? 'bg-purple-100 text-purple-600' :
-                            index === 2 ? 'bg-emerald-100 text-emerald-600' :
-                            'bg-gray-100 text-gray-600'
-                          } text-xs font-semibold`}>
-                            {index + 1}
-                          </div>
-                          <div>
-                            <p className="font-medium text-gray-900">{country.countryName}</p>
-                            <p className="text-xs text-gray-500">{country.country}</p>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-semibold text-gray-900">{country.visitors.toLocaleString('ko-KR')}명</p>
-                          <p className="text-xs text-gray-500">{country.pageViews.toLocaleString('ko-KR')} 페이지뷰</p>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="flex h-48 flex-col items-center justify-center text-center p-4">
-                      <i className="ri-database-2-line text-4xl text-gray-400 mb-3"></i>
-                      <p className="text-sm font-medium text-gray-600 mb-1">국가별 통계를 사용할 수 없습니다</p>
-                      <p className="text-xs text-gray-400">Supabase에서 ADD_PAGE_VIEWS_COUNTRY_COLUMN.sql 파일을 실행하세요</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-                <div className="mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900">방문 경로</h3>
-                  <p className="text-sm text-gray-500">상위 10개 유입 경로</p>
-                </div>
-                <div className="space-y-3">
-                  {dashboardAnalyticsData?.referrerBreakdown && dashboardAnalyticsData.referrerBreakdown.length > 0 ? (
-                    dashboardAnalyticsData.referrerBreakdown.map((referrer, index) => (
-                      <div key={referrer.referrer} className="flex items-center justify-between rounded-lg border border-gray-100 p-4">
-                        <div className="flex items-center gap-3 flex-1 min-w-0">
-                          <div className={`flex h-8 w-8 items-center justify-center rounded-full ${
-                            index === 0 ? 'bg-blue-100 text-blue-600' :
-                            index === 1 ? 'bg-purple-100 text-purple-600' :
-                            index === 2 ? 'bg-emerald-100 text-emerald-600' :
-                            'bg-gray-100 text-gray-600'
-                          } text-xs font-semibold`}>
-                            {index + 1}
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <p className="font-medium text-gray-900 truncate">{referrer.referrerName}</p>
-                            <p className="text-xs text-gray-500 truncate">{referrer.referrer !== 'Direct' ? referrer.referrer : '직접 접속'}</p>
-                          </div>
-                        </div>
-                        <div className="text-right ml-4">
-                          <p className="font-semibold text-gray-900">{referrer.visitors.toLocaleString('ko-KR')}명</p>
-                          <p className="text-xs text-gray-500">{referrer.pageViews.toLocaleString('ko-KR')} 페이지뷰</p>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="flex h-48 flex-col items-center justify-center text-center p-4">
-                      <i className="ri-share-line text-4xl text-gray-400 mb-3"></i>
-                      <p className="text-sm font-medium text-gray-600 mb-1">방문 경로 통계를 사용할 수 없습니다</p>
-                      <p className="text-xs text-gray-400">Supabase에서 ADD_PAGE_VIEWS_COUNTRY_COLUMN.sql 파일을 실행하세요</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
           </div>
         ) : (
           <div className="rounded-xl border border-gray-200 bg-white p-12 text-center text-gray-500">
@@ -12264,6 +12205,8 @@ ONE MORE TIME,ALLDAY PROJECT,중급,ALLDAY PROJECT - ONE MORE TIME.pdf,https://w
         return renderSettings();
       case 'marketing':
         return renderMarketing();
+      case 'drum-lessons':
+        return <DrumLessonManagement />;
       case 'popularity':
         return renderPopularityManagement();
       default:
@@ -12348,6 +12291,15 @@ ONE MORE TIME,ALLDAY PROJECT,중급,ALLDAY PROJECT - ONE MORE TIME.pdf,https://w
           >
             <i className="ri-music-line w-5 h-5"></i>
             <span className="text-sm md:text-base">악보 관리</span>
+          </button>
+
+          <button
+            onClick={() => handleMenuClick('drum-lessons')}
+            className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-left transition-colors ${activeMenu === 'drum-lessons' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100'
+              }`}
+          >
+            <i className="ri-play-circle-line w-5 h-5"></i>
+            <span className="text-sm md:text-base">드럼레슨 관리</span>
           </button>
 
           <button
@@ -12504,18 +12456,19 @@ ONE MORE TIME,ALLDAY PROJECT,중급,ALLDAY PROJECT - ONE MORE TIME.pdf,https://w
                   {activeMenu === 'dashboard' ? '대시보드' :
                     activeMenu === 'member-list' ? '회원 관리' :
                       activeMenu === 'sheets' ? '악보 관리' :
-                        activeMenu === 'categories' ? '카테고리 관리' :
-                          activeMenu === 'collections' ? '악보모음집 관리' :
-                            activeMenu === 'event-discounts' ? '이벤트 할인악보 관리' :
-                              activeMenu === 'orders' ? '주문 관리' :
-                                activeMenu === 'inquiries' ? '채팅 상담 관리' :
-                                  activeMenu === 'custom-orders' ? '주문 제작 관리' :
-                                    activeMenu === 'points' ? '적립금 관리' :
-                                      activeMenu === 'copyright-report' ? '저작권 보고' :
-                                        activeMenu === 'analytics' ? '분석' :
-                                          activeMenu === 'settings' ? '설정' :
-                                            activeMenu === 'marketing' ? '마케팅 자동화' :
-                                              activeMenu === 'popularity' ? '인기곡 순위 관리' : '대시보드'}
+                        activeMenu === 'drum-lessons' ? '드럼레슨 관리' :
+                          activeMenu === 'categories' ? '카테고리 관리' :
+                            activeMenu === 'collections' ? '악보모음집 관리' :
+                              activeMenu === 'event-discounts' ? '이벤트 할인악보 관리' :
+                                activeMenu === 'orders' ? '주문 관리' :
+                                  activeMenu === 'inquiries' ? '채팅 상담 관리' :
+                                    activeMenu === 'custom-orders' ? '주문 제작 관리' :
+                                      activeMenu === 'points' ? '적립금 관리' :
+                                        activeMenu === 'copyright-report' ? '저작권 보고' :
+                                          activeMenu === 'analytics' ? '분석' :
+                                            activeMenu === 'settings' ? '설정' :
+                                              activeMenu === 'marketing' ? '마케팅 자동화' :
+                                                activeMenu === 'popularity' ? '인기곡 순위 관리' : '대시보드'}
                 </h2>
               </div>
               <div className="flex items-center">

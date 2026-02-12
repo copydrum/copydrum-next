@@ -121,6 +121,7 @@ export default function DodoPaymentForm({
             })),
             amount,
             description,
+            paymentMethod: 'dodo', // ✅ 결제수단 명시
           }),
         });
 

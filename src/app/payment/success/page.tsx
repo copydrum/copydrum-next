@@ -112,30 +112,83 @@ export default function PaymentSuccessPage() {
           return;
         }
 
-        // Dodo Payments 결제 완료 처리
-        const resolvedMethod = urlMethod || orderData.payment_method || '';
-        if (resolvedMethod === 'dodo' && dodoPaymentId && dodoStatus === 'succeeded' && orderData.status !== 'completed') {
-          console.log('[payment-success] Dodo 결제 완료 → 주문 상태 업데이트', {
-            orderId,
-            dodoPaymentId,
-            dodoStatus,
-          });
+        // 결제 수단 결정 (우선순위: URL 파라미터 > sessionStorage > DB 기존 값)
+        const sessionMethod = typeof window !== 'undefined' ? sessionStorage.getItem('dodo_payment_method') : null;
+        const resolvedMethod = urlMethod || sessionMethod || orderData.payment_method || '';
 
-          // 주문 상태를 completed로 업데이트
-          const { error: updateError } = await supabase
-            .from('orders')
-            .update({
-              status: 'completed',
-              payment_status: 'paid',
-              payment_method: 'dodo',
-              transaction_id: dodoPaymentId,
-              updated_at: new Date().toISOString(),
-            })
-            .eq('id', orderId)
-            .eq('user_id', user.id);
+        console.log('[payment-success] 결제 수단 확인:', {
+          urlMethod,
+          sessionMethod,
+          dbMethod: orderData.payment_method,
+          resolvedMethod,
+          dodoPaymentId,
+          dodoStatus,
+          orderStatus: orderData.status,
+        });
 
-          if (updateError) {
-            console.error('[payment-success] Dodo 주문 상태 업데이트 실패:', updateError);
+        // ━━━ Dodo Payments 결제 완료 처리 ━━━
+        // Dodo는 return URL에 자체 query string(?payment_id=&status=)을 추가함
+        // orderId/method가 유실될 수 있으므로 sessionStorage에서도 확인
+        const isDodoPayment = resolvedMethod === 'dodo' || (dodoPaymentId && dodoStatus);
+        
+        if (isDodoPayment && orderData.status !== 'completed') {
+          const isDodoSucceeded = dodoStatus === 'succeeded';
+          
+          if (isDodoSucceeded && dodoPaymentId) {
+            console.log('[payment-success] Dodo 결제 완료 → 주문 상태 업데이트', {
+              orderId,
+              dodoPaymentId,
+              dodoStatus,
+            });
+
+            // 주문 상태를 completed로 업데이트 (payment_method 포함)
+            const { error: updateError } = await supabase
+              .from('orders')
+              .update({
+                status: 'completed',
+                payment_status: 'paid',
+                payment_method: 'dodo',
+                transaction_id: dodoPaymentId,
+                updated_at: new Date().toISOString(),
+              })
+              .eq('id', orderId)
+              .eq('user_id', user.id);
+
+            if (updateError) {
+              console.error('[payment-success] Dodo 주문 상태 업데이트 실패:', updateError);
+            } else {
+              // 구매 내역(purchases) 테이블에도 기록
+              try {
+                const { data: orderItemsForPurchase } = await supabase
+                  .from('order_items')
+                  .select('id, drum_sheet_id, price')
+                  .eq('order_id', orderId);
+
+                if (orderItemsForPurchase && orderItemsForPurchase.length > 0) {
+                  const purchaseRecords = orderItemsForPurchase.map((item: any) => ({
+                    user_id: user.id,
+                    drum_sheet_id: item.drum_sheet_id,
+                    order_id: orderId,
+                    price_paid: item.price ?? 0,
+                  }));
+
+                  const { error: purchasesError } = await supabase
+                    .from('purchases')
+                    .insert(purchaseRecords);
+
+                  if (purchasesError && purchasesError.code !== '23505') {
+                    // 23505 = unique violation (이미 기록됨) → 무시
+                    console.warn('[payment-success] purchases 기록 실패 (치명적이지 않음):', purchasesError);
+                  } else {
+                    console.log('[payment-success] purchases 기록 완료');
+                  }
+                }
+              } catch (purchaseErr) {
+                console.warn('[payment-success] purchases 기록 중 오류:', purchaseErr);
+              }
+            }
+          } else {
+            console.warn('[payment-success] Dodo 결제 미완료 상태:', { dodoStatus, dodoPaymentId });
           }
 
           // sessionStorage 정리
@@ -157,7 +210,7 @@ export default function PaymentSuccessPage() {
             setOrder(orderData);
           }
         } else if (orderData.status !== 'completed') {
-          // 주문이 완료되지 않았다면 검증 시도 (PortOne 등)
+          // ━━━ PortOne (카드/카카오페이) 결제 검증 ━━━
           const actualMethod = resolvedMethod;
           if (actualMethod !== 'point' && actualMethod !== 'points' && actualMethod !== 'dodo') {
             const verifyResponse = await fetch('/api/payments/portone/verify', {
@@ -166,6 +219,7 @@ export default function PaymentSuccessPage() {
               body: JSON.stringify({
                 paymentId: orderData.transaction_id,
                 orderId: orderData.id,
+                paymentMethod: actualMethod || 'card', // 결제 수단도 전달
               }),
             });
 
@@ -189,6 +243,14 @@ export default function PaymentSuccessPage() {
             setOrder(orderData);
           }
         } else {
+          // 이미 completed인데 payment_method가 null인 경우 → 보정
+          if (!orderData.payment_method && resolvedMethod) {
+            console.log('[payment-success] payment_method 보정:', resolvedMethod);
+            await supabase
+              .from('orders')
+              .update({ payment_method: resolvedMethod })
+              .eq('id', orderId);
+          }
           setOrder(orderData);
         }
 

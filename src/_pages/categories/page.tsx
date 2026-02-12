@@ -879,41 +879,39 @@ const CategoriesPage: React.FC = () => {
 
       {/* Mobile Layout */}
       <div className="md:hidden">
-        {/* 모바일 장르 탭 - 헤더 바로 아래 */}
-        {/* 모바일 헤더(MobileHeader) 높이에 맞춰 top 값 설정 (모든 언어 동일, 헤더 약 176px) */}
-        <div className="sticky top-[180px] z-40 bg-white border-b border-gray-200 overflow-x-auto">
-          <div className="flex gap-2 px-4 py-3">
-            {genreList.map((genreKo) => {
-              const category = categories.find((cat) => cat.name === genreKo);
-              if (!category) return null;
-              
-              const isActive = selectedCategory === category.id;
-              return (
-                <button
-                  key={category.id}
-                  type="button"
-                  onClick={() => {
-                    setSelectedCategory(category.id);
-                    setCurrentPage(1);
-                    updateQueryParams({
-                      category: category.id,
-                      page: null,
-                    });
-                  }}
-                  className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition-colors ${
-                    isActive
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-                  }`}
-                >
-                  {getCategoryName(genreKo)}
-                </button>
-              );
-            })}
+        <div className="pt-2 pb-[96px] px-4 space-y-4">
+          {/* 모바일 장르 필터 - 인라인 (퀵네비와 겹치지 않도록 sticky 해제) */}
+          <div className="overflow-x-auto -mx-4 px-4">
+            <div className="flex gap-2 pb-1">
+              {genreList.map((genreKo) => {
+                const category = categories.find((cat) => cat.name === genreKo);
+                if (!category) return null;
+                
+                const isActive = selectedCategory === category.id;
+                return (
+                  <button
+                    key={category.id}
+                    type="button"
+                    onClick={() => {
+                      setSelectedCategory(category.id);
+                      setCurrentPage(1);
+                      updateQueryParams({
+                        category: category.id,
+                        page: null,
+                      });
+                    }}
+                    className={`flex-shrink-0 px-3.5 py-1.5 rounded-full text-[13px] font-semibold whitespace-nowrap transition-colors ${
+                      isActive
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                    }`}
+                  >
+                    {getCategoryName(genreKo)}
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        </div>
-        
-        <div className="pt-4 pb-[96px] px-4 space-y-6">
           {buyNow.bankTransferInfo ? (
             <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-gray-700 shadow-sm">
               <div className="flex items-center justify-between">

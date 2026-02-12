@@ -1,7 +1,7 @@
 'use client';
 import { useLocaleRouter } from '@/hooks/useLocaleRouter';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
 import type { User } from '@supabase/supabase-js';
 import { generateDefaultThumbnail } from '../../lib/defaultThumbnail';
@@ -31,6 +31,34 @@ interface Category {
   name: string;
 }
 
+interface HomeCollection {
+  id: string;
+  title: string;
+  description: string;
+  title_translations?: Record<string, string>;
+  description_translations?: Record<string, string>;
+  thumbnail_url: string;
+  original_price: number;
+  sale_price: number;
+  discount_percentage: number;
+  slug: string;
+  is_active: boolean;
+  sheet_count?: number;
+}
+
+interface FreeLessonSheet {
+  id: string;
+  title: string;
+  artist: string;
+  difficulty: string | null;
+  thumbnail_url: string | null;
+  youtube_url: string | null;
+  pdf_url: string;
+  slug: string;
+  created_at: string;
+  categories?: { name: string } | null;
+}
+
 
 export default function Home() {
   const [user, setUser] = useState<User | null>(null);
@@ -39,6 +67,13 @@ export default function Home() {
   const [popularSheets, setPopularSheets] = useState<DrumSheet[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedGenre, setSelectedGenre] = useState<string>('');
+  const [collections, setCollections] = useState<HomeCollection[]>([]);
+  const [collectionSlideIndex, setCollectionSlideIndex] = useState(0);
+  const collectionSliderRef = useRef<HTMLDivElement>(null);
+  const [freeLessonSheets, setFreeLessonSheets] = useState<FreeLessonSheet[]>([]);
+  const freeLessonSliderRef = useRef<HTMLDivElement>(null);
+  const [playingVideoId, setPlayingVideoId] = useState<string | null>(null);
+  const [isMobileView, setIsMobileView] = useState(false);
   const router = useLocaleRouter();
   const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
   const [favoriteLoadingIds, setFavoriteLoadingIds] = useState<Set<string>>(new Set());
@@ -412,6 +447,19 @@ export default function Home() {
     };
   }, [t]);
 
+  // 뷰포트 크기 감지: 모바일 vs PC (iframe 중복 재생 방지용)
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)');
+    setIsMobileView(mq.matches);
+    const handler = (e: MediaQueryListEvent) => {
+      setIsMobileView(e.matches);
+      // 뷰포트 변경 시 재생 중인 영상 중지 (iframe 전환 문제 방지)
+      setPlayingVideoId(null);
+    };
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+
   useEffect(() => {
     loadCategories();
   }, [loadCategories]);
@@ -457,9 +505,102 @@ export default function Home() {
     }
   }, [loadPopularSheets, selectedGenre]);
 
+  const loadCollections = useCallback(async () => {
+    try {
+      const { data: collectionsData, error: collectionsError } = await supabase
+        .from('collections')
+        .select('id, title, description, title_translations, description_translations, thumbnail_url, original_price, sale_price, discount_percentage, slug, is_active')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
+
+      if (collectionsError) throw collectionsError;
+
+      const collectionsWithCounts = await Promise.all(
+        (collectionsData || []).map(async (collection) => {
+          const { count } = await supabase
+            .from('collection_sheets')
+            .select('*', { count: 'exact', head: true })
+            .eq('collection_id', collection.id);
+
+          return {
+            ...collection,
+            sheet_count: count || 0,
+          };
+        })
+      );
+
+      setCollections(collectionsWithCounts);
+    } catch (error) {
+      console.error(t('home.console.collectionLoadError'), error);
+    }
+  }, [t]);
+
+  const loadFreeLessonSheets = useCallback(async () => {
+    try {
+      // 1. '드럼레슨' 카테고리 ID 찾기
+      const { data: lessonCategory, error: catError } = await supabase
+        .from('categories')
+        .select('id')
+        .eq('name', '드럼레슨')
+        .maybeSingle();
+
+      if (catError || !lessonCategory) return;
+
+      // 2. 해당 카테고리의 활성 악보 6개 가져오기
+      const { data: sheets, error: sheetsError } = await supabase
+        .from('drum_sheets')
+        .select('id, title, artist, difficulty, thumbnail_url, youtube_url, pdf_url, slug, created_at, categories ( name )')
+        .eq('category_id', lessonCategory.id)
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+        .limit(6);
+
+      if (sheetsError) throw sheetsError;
+      setFreeLessonSheets(sheets || []);
+    } catch (error) {
+      console.error('Free lesson sheets load error:', error);
+    }
+  }, []);
+
   useEffect(() => {
     loadFavorites();
   }, [loadFavorites]);
+
+  useEffect(() => {
+    loadCollections();
+  }, [loadCollections]);
+
+  useEffect(() => {
+    loadFreeLessonSheets();
+  }, [loadFreeLessonSheets]);
+
+  // Collections slider helpers
+  const getCollectionLocalizedTitle = (collection: HomeCollection) => {
+    if (i18n.language === 'ko') return collection.title;
+    if (collection.title_translations && collection.title_translations['en']) {
+      return collection.title_translations['en'];
+    }
+    return collection.title;
+  };
+
+  const getCollectionLocalizedDescription = (collection: HomeCollection) => {
+    if (i18n.language === 'ko') return collection.description;
+    if (collection.description_translations && collection.description_translations['en']) {
+      return collection.description_translations['en'];
+    }
+    return collection.description;
+  };
+
+  // PC: 3 items per page, Mobile: 1 item per page
+  const pcItemsPerSlide = 3;
+  const totalPcSlides = Math.max(1, Math.ceil(collections.length / pcItemsPerSlide));
+
+  const handleCollectionPrev = () => {
+    setCollectionSlideIndex((prev) => (prev <= 0 ? totalPcSlides - 1 : prev - 1));
+  };
+  const handleCollectionNext = () => {
+    setCollectionSlideIndex((prev) => (prev >= totalPcSlides - 1 ? 0 : prev + 1));
+  };
 
   const getThumbnailUrl = (sheet: DrumSheet): string => {
     if (sheet.youtube_url) {
@@ -479,6 +620,33 @@ export default function Home() {
     const regex = /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/|shorts\/))([\w-]{11})/;
     const match = url.match(regex);
     return match ? match[1] : '';
+  };
+
+  const getFreeLessonThumbnail = (sheet: FreeLessonSheet): string => {
+    if (sheet.thumbnail_url) return sheet.thumbnail_url;
+    if (sheet.youtube_url) {
+      const videoId = extractVideoId(sheet.youtube_url);
+      if (videoId) return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+    }
+    return generateDefaultThumbnail(480, 360);
+  };
+
+  const getFreeLessonDifficultyLabel = (difficulty: string | null): string => {
+    if (!difficulty) return '';
+    const normalized = difficulty.toLowerCase();
+    if (normalized.includes('beginner') || normalized.includes('초급')) return t('freeSheets.difficulty.beginner');
+    if (normalized.includes('intermediate') || normalized.includes('중급')) return t('freeSheets.difficulty.intermediate');
+    if (normalized.includes('advanced') || normalized.includes('고급')) return t('freeSheets.difficulty.advanced');
+    return difficulty;
+  };
+
+  const getFreeLessonDifficultyColor = (difficulty: string | null): string => {
+    if (!difficulty) return 'bg-gray-100 text-gray-500';
+    const normalized = difficulty.toLowerCase();
+    if (normalized.includes('beginner') || normalized.includes('초급')) return 'bg-emerald-100 text-emerald-700';
+    if (normalized.includes('intermediate') || normalized.includes('중급')) return 'bg-amber-100 text-amber-700';
+    if (normalized.includes('advanced') || normalized.includes('고급')) return 'bg-rose-100 text-rose-700';
+    return 'bg-gray-100 text-gray-600';
   };
 
   // 통화 로직 적용 (locale 기반)
@@ -989,7 +1157,588 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Free Drum Lesson Section */}
+        {freeLessonSheets.length > 0 && (
+          <section className="py-8 md:py-16">
+            <div className="max-w-7xl mx-auto">
+              {/* Section Header */}
+              <div className="mb-5 md:mb-8 flex items-center justify-between">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="text-2xl md:text-3xl font-bold text-gray-900">{t('home.freeLessonTitle')}</h3>
+                    <span className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white text-[10px] md:text-xs font-bold px-2 py-0.5 rounded-full">
+                      {t('home.freeLessonBadge')}
+                    </span>
+                  </div>
+                  <p className="hidden md:block text-gray-500 mt-1">{t('home.freeLessonDescription')}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => router.push('/free-sheets')}
+                  className="text-sm text-gray-500 hover:text-gray-700 hidden md:inline-flex items-center gap-1 whitespace-nowrap"
+                >
+                  {t('home.freeLessonViewAll')} &gt;
+                </button>
+              </div>
+
+              {/* ===== Mobile: horizontal scroll cards ===== */}
+              <div className="md:hidden">
+                <div
+                  ref={freeLessonSliderRef}
+                  className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-4"
+                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                >
+                  {freeLessonSheets.map((sheet) => {
+                    const videoId = sheet.youtube_url ? extractVideoId(sheet.youtube_url) : null;
+                    const isPlaying = playingVideoId === sheet.id;
+                    return (
+                      <div
+                        key={sheet.id}
+                        className="flex-shrink-0 w-[78%] snap-center"
+                      >
+                        <div className="bg-white rounded-2xl shadow-md overflow-hidden">
+                          {/* Thumbnail / Video — iframe은 모바일 뷰일 때만 렌더링 (PC 섹션과 중복 재생 방지) */}
+                          <div className="relative aspect-video bg-gray-900">
+                            {isMobileView && isPlaying && videoId ? (
+                              <>
+                                <iframe
+                                  src={`https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`}
+                                  className="absolute inset-0 w-full h-full"
+                                  allow="autoplay; encrypted-media"
+                                  allowFullScreen
+                                  title={sheet.title}
+                                />
+                                {/* Stop / Close button on top of iframe */}
+                                <button
+                                  type="button"
+                                  onClick={(e) => { e.stopPropagation(); e.preventDefault(); setPlayingVideoId(null); }}
+                                  className="absolute top-2 right-2 z-10 w-8 h-8 rounded-full bg-black/70 flex items-center justify-center text-white hover:bg-black/90 transition-colors"
+                                  style={{ touchAction: 'manipulation' }}
+                                  aria-label="Stop video"
+                                >
+                                  <i className="ri-close-line text-lg"></i>
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                <img
+                                  src={getFreeLessonThumbnail(sheet)}
+                                  alt={sheet.title}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    const img = e.target as HTMLImageElement;
+                                    img.src = generateDefaultThumbnail(480, 360);
+                                  }}
+                                />
+                                {/* Play overlay – only shown when NOT playing */}
+                                {videoId && !isPlaying && (
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      e.preventDefault();
+                                      setPlayingVideoId(sheet.id);
+                                    }}
+                                    className="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/40 transition-colors group"
+                                    style={{ touchAction: 'manipulation' }}
+                                  >
+                                    <div className="w-14 h-14 rounded-full bg-red-600 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                      <i className="ri-play-fill text-white text-2xl ml-0.5"></i>
+                                    </div>
+                                  </button>
+                                )}
+                                {/* FREE badge */}
+                                <div className="absolute top-2 left-2 pointer-events-none">
+                                  <span className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow">
+                                    FREE
+                                  </span>
+                                </div>
+                                {/* Difficulty badge */}
+                                {sheet.difficulty && (
+                                  <div className="absolute top-2 right-2 pointer-events-none">
+                                    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${getFreeLessonDifficultyColor(sheet.difficulty)}`}>
+                                      {getFreeLessonDifficultyLabel(sheet.difficulty)}
+                                    </span>
+                                  </div>
+                                )}
+                              </>
+                            )}
+                          </div>
+                          {/* Content */}
+                          <div className="p-3">
+                            <h4
+                              className="font-bold text-gray-900 text-sm line-clamp-1 mb-0.5 cursor-pointer hover:text-purple-600 transition-colors"
+                              onClick={() => router.push(`/drum-sheet/${sheet.slug}`)}
+                            >
+                              {sheet.title}
+                            </h4>
+                            <p className="text-xs text-gray-500 line-clamp-1 mb-2">{sheet.artist}</p>
+                            {/* Action Buttons */}
+                            <div className="flex gap-2">
+                              {videoId && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                    setPlayingVideoId(isPlaying ? null : sheet.id);
+                                  }}
+                                  className={`flex-1 flex items-center justify-center gap-1 text-xs font-semibold py-2 rounded-lg transition-colors ${
+                                    isPlaying
+                                      ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                      : 'bg-red-50 text-red-600 hover:bg-red-100'
+                                  }`}
+                                  style={{ touchAction: 'manipulation' }}
+                                >
+                                  <i className={`ri-${isPlaying ? 'stop-fill' : 'youtube-fill'} text-sm`}></i>
+                                  {t('home.freeLessonWatchVideo')}
+                                </button>
+                              )}
+                              <button
+                                type="button"
+                                onClick={() => router.push(`/drum-sheet/${sheet.slug}`)}
+                                className="flex-1 flex items-center justify-center gap-1 text-xs font-semibold py-2 rounded-lg bg-purple-50 text-purple-600 hover:bg-purple-100 transition-colors"
+                              >
+                                <i className="ri-download-2-line text-sm"></i>
+                                {t('home.freeLessonDownloadPDF')}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                {/* Mobile: View All button */}
+                <div className="mt-3 flex justify-center">
+                  <button
+                    type="button"
+                    onClick={() => router.push('/free-sheets')}
+                    className="inline-flex items-center justify-center gap-1.5 px-6 py-2.5 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white text-sm font-semibold shadow-sm hover:from-purple-600 hover:to-indigo-600 transition-all"
+                  >
+                    <i className="ri-music-2-line text-sm"></i>
+                    {t('home.freeLessonViewAll')}
+                  </button>
+                </div>
+              </div>
+
+              {/* ===== PC: 3-column grid ===== */}
+              <div className="hidden md:block">
+                <div className="grid grid-cols-3 gap-6">
+                  {freeLessonSheets.slice(0, 6).map((sheet) => {
+                    const videoId = sheet.youtube_url ? extractVideoId(sheet.youtube_url) : null;
+                    const isPlaying = playingVideoId === sheet.id;
+                    return (
+                      <div
+                        key={sheet.id}
+                        className="bg-white rounded-2xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+                      >
+                        {/* Thumbnail / Video — iframe은 PC 뷰일 때만 렌더링 (모바일 섹션과 중복 재생 방지) */}
+                        <div className="relative aspect-video bg-gray-900">
+                          {!isMobileView && isPlaying && videoId ? (
+                            <>
+                              <iframe
+                                src={`https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`}
+                                className="absolute inset-0 w-full h-full"
+                                allow="autoplay; encrypted-media"
+                                allowFullScreen
+                                title={sheet.title}
+                              />
+                              {/* Stop / Close button on top of iframe */}
+                              <button
+                                type="button"
+                                onClick={(e) => { e.stopPropagation(); e.preventDefault(); setPlayingVideoId(null); }}
+                                className="absolute top-2 right-2 z-10 w-9 h-9 rounded-full bg-black/70 flex items-center justify-center text-white hover:bg-black/90 transition-colors cursor-pointer"
+                                aria-label="Stop video"
+                              >
+                                <i className="ri-close-line text-xl"></i>
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <img
+                                src={getFreeLessonThumbnail(sheet)}
+                                alt={sheet.title}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  const img = e.target as HTMLImageElement;
+                                  img.src = generateDefaultThumbnail(480, 360);
+                                }}
+                              />
+                              {/* Play overlay – only shown when NOT playing */}
+                              {videoId && !isPlaying && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                    setPlayingVideoId(sheet.id);
+                                  }}
+                                  className="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/40 transition-colors group cursor-pointer"
+                                >
+                                  <div className="w-16 h-16 rounded-full bg-red-600/90 flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:bg-red-600 transition-all">
+                                    <i className="ri-play-fill text-white text-3xl ml-0.5"></i>
+                                  </div>
+                                </button>
+                              )}
+                              {/* FREE badge */}
+                              <div className="absolute top-3 left-3 pointer-events-none">
+                                <span className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
+                                  FREE
+                                </span>
+                              </div>
+                              {/* Difficulty badge */}
+                              {sheet.difficulty && (
+                                <div className="absolute top-3 right-3 pointer-events-none">
+                                  <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${getFreeLessonDifficultyColor(sheet.difficulty)}`}>
+                                    {getFreeLessonDifficultyLabel(sheet.difficulty)}
+                                  </span>
+                                </div>
+                              )}
+                            </>
+                          )}
+                        </div>
+                        {/* Content */}
+                        <div className="p-4">
+                          <h4
+                            className="font-bold text-gray-900 text-base line-clamp-1 mb-1 cursor-pointer hover:text-purple-600 transition-colors"
+                            onClick={() => router.push(`/drum-sheet/${sheet.slug}`)}
+                          >
+                            {sheet.title}
+                          </h4>
+                          <p className="text-sm text-gray-500 line-clamp-1 mb-3">{sheet.artist}</p>
+                          {/* Action Buttons */}
+                          <div className="flex gap-2">
+                            {videoId && (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  e.preventDefault();
+                                  setPlayingVideoId(isPlaying ? null : sheet.id);
+                                }}
+                                className={`flex-1 flex items-center justify-center gap-1.5 text-sm font-semibold py-2.5 rounded-xl transition-colors cursor-pointer ${
+                                  isPlaying
+                                    ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                    : 'bg-red-50 text-red-600 hover:bg-red-100'
+                                }`}
+                              >
+                                <i className={`ri-${isPlaying ? 'stop-fill' : 'youtube-fill'} text-base`}></i>
+                                {t('home.freeLessonWatchVideo')}
+                              </button>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => router.push(`/drum-sheet/${sheet.slug}`)}
+                              className="flex-1 flex items-center justify-center gap-1.5 text-sm font-semibold py-2.5 rounded-xl bg-purple-50 text-purple-600 hover:bg-purple-100 transition-colors cursor-pointer"
+                            >
+                              <i className="ri-download-2-line text-base"></i>
+                              {t('home.freeLessonDownloadPDF')}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                {/* PC: View All Button */}
+                {freeLessonSheets.length > 6 && (
+                  <div className="mt-8 flex justify-center">
+                    <button
+                      type="button"
+                      onClick={() => router.push('/free-sheets')}
+                      className="inline-flex items-center justify-center gap-2 px-8 py-3 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-semibold shadow-md hover:from-purple-600 hover:to-indigo-600 transition-all cursor-pointer"
+                    >
+                      <i className="ri-music-2-line"></i>
+                      {t('home.freeLessonViewAll')}
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Collections Section */}
+        {collections.length > 0 && (
+          <section className="py-6 md:py-16">
+            <div className="max-w-7xl mx-auto">
+              {/* Section Header */}
+              <div className="mb-6 md:mb-8 flex items-center justify-between">
+                <div>
+                  <h3 className="text-2xl md:text-3xl font-bold text-gray-900">{t('home.collections')}</h3>
+                  <p className="hidden md:block text-gray-500 mt-1">{t('home.collectionsDescription')}</p>
+                </div>
+                <a
+                  href="/collections"
+                  className="text-sm text-gray-500 hover:text-gray-700 hidden md:inline-flex items-center gap-1"
+                >
+                  {t('home.viewAllCollections')} &gt;
+                </a>
+              </div>
+
+              {/* Mobile: 1 item per slide with scroll-snap */}
+              <div className="md:hidden">
+                <div
+                  ref={collectionSliderRef}
+                  className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4"
+                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                >
+                  {collections.map((collection) => (
+                    <div
+                      key={collection.id}
+                      onClick={() => router.push(`/collections/${collection.slug || collection.id}`)}
+                      className="flex-shrink-0 w-[85%] snap-center cursor-pointer"
+                    >
+                      <div className="bg-white rounded-2xl shadow-md overflow-hidden transition-transform hover:scale-[1.02]">
+                        {/* Thumbnail */}
+                        <div className="relative aspect-[4/3] bg-gray-200">
+                          {collection.thumbnail_url ? (
+                            <img
+                              src={collection.thumbnail_url}
+                              alt={getCollectionLocalizedTitle(collection)}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-gray-400">
+                              <i className="ri-image-line text-5xl"></i>
+                            </div>
+                          )}
+                          {/* Collection Badge */}
+                          <div className="absolute top-3 left-3">
+                            <span className="bg-blue-600 text-white text-xs font-semibold px-2.5 py-1 rounded-full">
+                              {t('collectionsPage.collection.badge')}
+                            </span>
+                          </div>
+                          {/* Discount Badge */}
+                          {collection.discount_percentage > 0 && (
+                            <div className="absolute top-3 right-3">
+                              <span className="bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
+                                {t('collectionsPage.collection.discount', { percentage: collection.discount_percentage })}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                        {/* Content */}
+                        <div className="p-4">
+                          <h4 className="font-bold text-gray-900 text-base line-clamp-2 mb-1">
+                            {getCollectionLocalizedTitle(collection)}
+                          </h4>
+                          {getCollectionLocalizedDescription(collection) && (
+                            <p className="text-sm text-gray-500 line-clamp-1 mb-2">
+                              {getCollectionLocalizedDescription(collection)}
+                            </p>
+                          )}
+                          <div className="text-xs text-gray-400 mb-2">
+                            {t('home.songsIncluded', { count: collection.sheet_count || 0 })}
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {collection.original_price > collection.sale_price && (
+                              <span className="text-xs text-gray-400 line-through">
+                                {formatCurrency(collection.original_price)}
+                              </span>
+                            )}
+                            <span className="text-lg font-bold text-blue-600">
+                              {collection.sale_price > 0
+                                ? formatCurrency(collection.sale_price)
+                                : t('collectionsPage.collection.free')}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {/* Mobile: View All button */}
+                <div className="mt-4 flex justify-center">
+                  <button
+                    type="button"
+                    onClick={() => router.push('/collections')}
+                    className="inline-flex items-center justify-center px-6 py-2.5 rounded-full bg-blue-600 text-white text-sm font-semibold shadow-sm hover:bg-blue-700 transition-colors"
+                  >
+                    {t('home.viewAllCollections')}
+                  </button>
+                </div>
+              </div>
+
+              {/* PC: 3 items per slide with navigation arrows */}
+              <div className="hidden md:block relative">
+                <div className="overflow-hidden">
+                  <div
+                    className="flex transition-transform duration-500 ease-in-out"
+                    style={{ transform: `translateX(-${collectionSlideIndex * 100}%)` }}
+                  >
+                    {Array.from({ length: totalPcSlides }).map((_, slideIdx) => (
+                      <div key={slideIdx} className="w-full flex-shrink-0">
+                        <div className="grid grid-cols-3 gap-6">
+                          {collections.slice(slideIdx * pcItemsPerSlide, slideIdx * pcItemsPerSlide + pcItemsPerSlide).map((collection) => (
+                            <div
+                              key={collection.id}
+                              onClick={() => router.push(`/collections/${collection.slug || collection.id}`)}
+                              className="bg-white rounded-2xl shadow-md overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+                            >
+                              {/* Thumbnail */}
+                              <div className="relative aspect-[4/3] bg-gray-200">
+                                {collection.thumbnail_url ? (
+                                  <img
+                                    src={collection.thumbnail_url}
+                                    alt={getCollectionLocalizedTitle(collection)}
+                                    className="w-full h-full object-cover"
+                                  />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                    <i className="ri-image-line text-6xl"></i>
+                                  </div>
+                                )}
+                                {/* Collection Badge */}
+                                <div className="absolute top-3 left-3">
+                                  <span className="bg-blue-600 text-white text-xs font-semibold px-2.5 py-1 rounded-full">
+                                    {t('collectionsPage.collection.badge')}
+                                  </span>
+                                </div>
+                                {/* Discount Badge */}
+                                {collection.discount_percentage > 0 && (
+                                  <div className="absolute top-3 right-3">
+                                    <span className="bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
+                                      {t('collectionsPage.collection.discount', { percentage: collection.discount_percentage })}
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+                              {/* Content */}
+                              <div className="p-5">
+                                <h4 className="font-bold text-gray-900 text-lg line-clamp-2 mb-1">
+                                  {getCollectionLocalizedTitle(collection)}
+                                </h4>
+                                {getCollectionLocalizedDescription(collection) && (
+                                  <p className="text-sm text-gray-500 line-clamp-2 mb-3">
+                                    {getCollectionLocalizedDescription(collection)}
+                                  </p>
+                                )}
+                                <div className="text-sm text-gray-400 mb-3">
+                                  {t('home.songsIncluded', { count: collection.sheet_count || 0 })}
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  {collection.original_price > collection.sale_price && (
+                                    <span className="text-sm text-gray-400 line-through">
+                                      {formatCurrency(collection.original_price)}
+                                    </span>
+                                  )}
+                                  <span className="text-xl font-bold text-blue-600">
+                                    {collection.sale_price > 0
+                                      ? formatCurrency(collection.sale_price)
+                                      : t('collectionsPage.collection.free')}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Navigation Arrows (only show if more than 1 slide) */}
+                {totalPcSlides > 1 && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={handleCollectionPrev}
+                      className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-lg border border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors z-10"
+                      aria-label={t('home.prevSlide')}
+                    >
+                      <i className="ri-arrow-left-s-line text-xl"></i>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleCollectionNext}
+                      className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-lg border border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors z-10"
+                      aria-label={t('home.nextSlide')}
+                    >
+                      <i className="ri-arrow-right-s-line text-xl"></i>
+                    </button>
+                  </>
+                )}
+
+                {/* Slide Indicators */}
+                {totalPcSlides > 1 && (
+                  <div className="flex justify-center gap-2 mt-6">
+                    {Array.from({ length: totalPcSlides }).map((_, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setCollectionSlideIndex(idx)}
+                        className={`w-2.5 h-2.5 rounded-full transition-colors ${
+                          idx === collectionSlideIndex
+                            ? 'bg-blue-600'
+                            : 'bg-gray-300 hover:bg-gray-400'
+                        }`}
+                        aria-label={t('home.slideNumber', { number: idx + 1 })}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </section>
+        )}
+
       </div>
+
+      {/* Free Drum Lesson CTA */}
+      <section className="py-10 md:py-16 bg-gradient-to-br from-indigo-600 via-blue-600 to-sky-500 text-white relative overflow-hidden">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-5 left-10 w-24 h-24 border-2 border-white rounded-full"></div>
+          <div className="absolute bottom-5 right-10 w-36 h-36 border-2 border-white rounded-full"></div>
+        </div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row items-center gap-6 md:gap-12">
+            {/* Text */}
+            <div className="flex-1 text-center md:text-left">
+              <span className="inline-flex items-center gap-2 rounded-full bg-white/20 backdrop-blur-sm px-4 py-1.5 text-sm font-semibold tracking-wide text-white border border-white/30 mb-4">
+                <i className="ri-gift-line text-yellow-300"></i>
+                FREE
+              </span>
+              <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold leading-tight mb-3">
+                {t('home.freeLessonCTATitle')}
+              </h3>
+              <p className="text-blue-100 text-sm sm:text-base md:text-lg leading-relaxed mb-6 max-w-xl">
+                {t('home.freeLessonCTADescription')}
+              </p>
+              <div className="flex flex-wrap justify-center md:justify-start gap-2 mb-6">
+                <span className="rounded-full border border-white/40 bg-white/10 backdrop-blur-sm px-3 py-1.5 text-sm flex items-center gap-1.5">
+                  <i className="ri-download-line text-yellow-300"></i>
+                  {t('freeSheets.features.freeDownload')}
+                </span>
+                <span className="rounded-full border border-white/40 bg-white/10 backdrop-blur-sm px-3 py-1.5 text-sm flex items-center gap-1.5">
+                  <i className="ri-youtube-line text-yellow-300"></i>
+                  {t('freeSheets.features.youtubeLesson')}
+                </span>
+                <span className="rounded-full border border-white/40 bg-white/10 backdrop-blur-sm px-3 py-1.5 text-sm flex items-center gap-1.5">
+                  <i className="ri-folder-music-line text-yellow-300"></i>
+                  {t('freeSheets.features.categoryLearning')}
+                </span>
+              </div>
+              <button
+                onClick={() => router.push('/free-sheets')}
+                className="inline-flex items-center gap-2 bg-white text-blue-600 px-6 py-3 sm:px-8 sm:py-3.5 rounded-full hover:bg-blue-50 font-bold text-base sm:text-lg whitespace-nowrap cursor-pointer transition-all duration-300 shadow-lg active:scale-95"
+              >
+                <i className="ri-music-2-line"></i>
+                {t('home.freeLessonCTAButton')}
+              </button>
+            </div>
+            {/* Visual */}
+            <div className="flex-shrink-0 w-48 h-48 md:w-64 md:h-64 relative hidden md:flex items-center justify-center">
+              <div className="absolute inset-0 rounded-full bg-white/10 animate-pulse"></div>
+              <div className="relative w-32 h-32 md:w-44 md:h-44 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center border-2 border-white/30">
+                <i className="ri-music-2-line text-6xl md:text-7xl text-white/90"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Custom Order CTA */}
       <div className="">

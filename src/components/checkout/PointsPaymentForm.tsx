@@ -94,6 +94,7 @@ export default function PointsPaymentForm({
             })),
             amount,
             description,
+            paymentMethod: 'points', // ✅ 결제수단 명시
           }),
         });
 

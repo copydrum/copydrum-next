@@ -204,13 +204,22 @@ export default function Login() {
         if (profileError) {
           console.error(t('authLogin.console.profileLookupError'), profileError);
           
-          // 프로필이 없으면 기본 프로필 생성 (최소한의 필드만 사용: id, email만)
+          // 프로필이 없으면 기본 프로필 생성
           if (profileError.code === 'PGRST116') {
+            // 이름 우선순위: user_metadata.full_name > name > user_name > 이메일 ID
+            const meta = data.user.user_metadata || {};
+            const resolvedName =
+              meta.full_name?.trim() ||
+              meta.name?.trim() ||
+              meta.user_name?.trim() ||
+              (data.user.email ? data.user.email.split('@')[0] : '');
+
             const { error: insertError } = await supabase
               .from('profiles')
               .insert({
                 id: data.user.id,
-                email: data.user.email || ''
+                email: data.user.email || '',
+                name: resolvedName
               });
             
             if (insertError) {

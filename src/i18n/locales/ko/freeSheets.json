@@ -39,7 +39,7 @@
     "description": "다른 카테고리를 선택하거나 검색어를 변경해 보세요."
   },
   "actions": {
-    "viewFreeSheet": "무료 악보 보기",
+    "viewFreeSheet": "무료 다운로드",
     "viewYoutubeLesson": "유튜브 레슨 보기",
     "goToDetail": "상세 페이지로 이동",
     "closeDetail": "무료 악보 상세 닫기"

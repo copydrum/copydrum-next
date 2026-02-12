@@ -193,6 +193,7 @@ export const completeOrderAfterPayment = async (
   const updatePayload: Record<string, unknown> = {
     status: 'completed',
     payment_status: 'paid',
+    payment_method: paymentMethod, // 결제수단을 항상 명시적으로 업데이트
     raw_status: 'payment_confirmed',
     payment_confirmed_at: paymentConfirmedAt,
     transaction_id: finalTransactionId,

@@ -39,7 +39,7 @@
     "description": "別のカテゴリーを選択するか、検索語を変更してお試しください。"
   },
   "actions": {
-    "viewFreeSheet": "無料楽譜を見る",
+    "viewFreeSheet": "無料ダウンロード",
     "viewYoutubeLesson": "YouTubeレッスンを見る",
     "goToDetail": "詳細ページへ",
     "closeDetail": "無料楽譜詳細を閉じる"

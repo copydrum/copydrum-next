@@ -83,6 +83,7 @@ export default function PayPalPaymentButton({
             })),
             amount,
             description,
+            paymentMethod: 'paypal', // ✅ 결제수단 명시
           }),
         });
 
