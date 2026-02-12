@@ -1,7 +1,6 @@
-import { getSiteCurrency, convertFromKrw } from '../../lib/currency';
+import { convertFromKrw } from '../../lib/currency';
 import * as PortOne from '@portone/browser-sdk/v2';
-import { isGlobalSiteHost, isJapaneseSiteHost, isEnglishSiteHost, isKoreanSiteHost } from '../../config/hostType';
-import { getActiveCurrency } from './getActiveCurrency';
+import { isJapaneseSiteHost, isKoreanSiteHost } from '../../config/hostType';
 import { DEFAULT_USD_RATE } from '../priceFormatter';
 import { getLocaleFromHost } from '../../i18n/getLocaleFromHost';
 import { supabase } from '../../lib/supabase';
@@ -89,72 +88,36 @@ export interface RequestPayPalPaymentResult {
   paymentId?: string; // PortOne paymentId (transaction_id로 사용)
 }
 
-// PayPal 결제 요청 함수
+// ============================================================
+// 🟢 PayPal 결제 요청 함수 (PortOne V2 SDK - PAYPAL_SPB 방식)
+// 
+// ⚠️ 핵심 연동 원칙 (포트원 페이팔 연동 문서 준수):
+//   - loadPaymentUI + uiType: 'PAYPAL_SPB' 사용 (requestPayment 아님!)
+//   - windowType: 생략 또는 PC/모바일 모두 'UI' (POPUP/REDIRECT 불가!)
+//   - redirectUrl: 무시됨 (PayPal은 항상 팝업 → 콜백 처리)
+//   - payMethod: 생략 (PayPal이 자동 처리)
+//   - portone-ui-container 클래스를 가진 DOM 요소에 PayPal 버튼 렌더링
+//
+// 주의: 메인 결제 플로우는 PayPalPaymentButton.tsx에서 직접 처리합니다.
+//       이 함수는 cashCharge.ts, productPurchase.ts 등 레거시 호출용입니다.
+// ============================================================
 export const requestPayPalPayment = async (
   params: RequestPayPalPaymentParams,
 ): Promise<RequestPayPalPaymentResult> => {
-  // 글로벌 사이트에서만 포트원 V2 SDK 사용
-  const isGlobalSite = typeof window !== 'undefined' && isGlobalSiteHost(window.location.host);
-
-  if (!isGlobalSite) {
-    // 한국어 사이트는 기존 로직 유지 (PayPal 직접 API 사용)
-    const { createPayPalPaymentIntent, getPayPalReturnUrl } = await import('./paypal');
-
-    console.log('[paypal] PayPal 결제 요청 (PortOne 미사용 - 한국어 사이트)', {
-      orderId: params.orderId,
-      amount: params.amount,
-    });
-
-    try {
-      // PayPal 결제 Intent 생성 (Edge Function 호출)
-      const intent = await createPayPalPaymentIntent({
-        userId: params.userId,
-        orderId: params.orderId,
-        amount: params.amount,
-        description: params.description,
-        buyerEmail: params.buyerEmail,
-        buyerName: params.buyerName,
-        returnUrl: params.returnUrl || getPayPalReturnUrl(),
-      });
-
-      // sessionStorage에 주문 정보 저장 (리다이렉트 페이지에서 사용)
-      if (typeof window !== 'undefined') {
-        sessionStorage.setItem('paypal_order_id', params.orderId);
-        sessionStorage.setItem('paypal_paypal_order_id', intent.paypalOrderId);
-      }
-
-      // PayPal 승인 URL로 리다이렉트
-      if (intent.approvalUrl) {
-        window.location.href = intent.approvalUrl;
-      } else {
-        throw new Error('PayPal 승인 URL을 받지 못했습니다.');
-      }
-
-      // 리다이렉트되므로 여기서는 성공으로 반환
-      // 실제 결제 완료는 리다이렉트 페이지에서 처리
-      return {
-        success: true,
-        merchant_uid: params.orderId,
-      };
-    } catch (error) {
-      console.error('[paypal] PayPal 결제 요청 오류', error);
-      return {
-        success: false,
-        error_msg: error instanceof Error ? error.message : 'PayPal 결제 요청 중 오류가 발생했습니다.',
-      };
-    }
+  if (typeof window === 'undefined') {
+    return {
+      success: false,
+      error_msg: 'PayPal은 브라우저 환경에서만 사용할 수 있습니다.',
+    };
   }
 
-  // ============================================================
-  // 🟢 [수정됨] 글로벌 사이트: 포트원 V2 SDK 사용 로직 강화
-  // ============================================================
-  console.log('[portone-paypal] PayPal 결제 요청 (PortOne V2 SDK 사용)', {
+  console.log('[portone-paypal] PayPal 결제 요청 (PortOne V2 SDK)', {
     orderId: params.orderId,
     amount: params.amount,
   });
 
   const storeId = process.env.NEXT_PUBLIC_PORTONE_STORE_ID || 'store-21731740-b1df-492c-832a-8f38448d0ebd';
-  const channelKey = process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY_PAYPAL || 'channel-key-541220df-bf9f-4cb1-b189-679210076fe0';
+  const channelKey = 'channel-key-541220df-bf9f-4cb1-b189-679210076fe0'; // paypal_v2 실연동 채널키
 
   if (!storeId || !channelKey) {
     console.error('[portone-paypal] 환경변수 설정 오류', { storeId, channelKey });
@@ -165,15 +128,14 @@ export const requestPayPalPayment = async (
   }
 
   try {
-    const returnUrl = params.returnUrl || getPortOneReturnUrl();
     const hostname = window.location.hostname;
     const locale = getLocaleFromHost(window.location.host);
 
-    // PayPal 통화 결정
+    // 통화 결정 (일본: JPY, 그 외: USD)
     const isJapanSite = locale === 'ja' || isJapaneseSiteHost(hostname);
     const paypalCurrency: 'USD' | 'JPY' = isJapanSite ? 'JPY' : 'USD';
 
-    // 금액 변환
+    // 금액 변환 (KRW → USD/JPY, scale factor 적용)
     const convertedAmount = convertFromKrw(params.amount, paypalCurrency);
     const portOneCurrency = toPortOneCurrency(paypalCurrency);
 
@@ -184,13 +146,11 @@ export const requestPayPalPayment = async (
       finalAmount = Math.round(convertedAmount); // 엔 단위
     }
 
-    // 🟢 [핵심 수정 1] Payment ID를 미리 생성 (카카오페이처럼)
-    // 기존에는 orderId를 paymentId로 썼지만, 'pay_' 접두어가 붙은 고유 ID를 쓰는 것이 안전합니다.
+    // 결제 고유 ID 생성
     const newPaymentId = `pay_${uuidv4()}`;
 
-    // 🟢 [핵심 수정 2] 결제창 띄우기 전에 DB에 transaction_id 미리 저장!
-    // 이렇게 해야 결제 도중 창이 닫혀도 Webhook이 와서 처리해줄 수 있습니다.
-    console.log('[portone-paypal] 결제 요청 전 transaction_id 저장 시도', {
+    // DB에 transaction_id 미리 저장 (웹훅 대비)
+    console.log('[portone-paypal] transaction_id 저장:', {
       orderId: params.orderId,
       paymentId: newPaymentId,
     });
@@ -201,39 +161,16 @@ export const requestPayPalPayment = async (
       .eq('id', params.orderId);
 
     if (updateError) {
-      console.error('[portone-paypal] DB 업데이트 실패 (치명적이지 않음, 계속 진행)', updateError);
-    } else {
-      console.log('[portone-paypal] DB 업데이트 성공');
+      console.error('[portone-paypal] DB 업데이트 실패 (계속 진행):', updateError);
     }
 
-    // 모바일 디바이스 감지
-    const isMobile = isMobileDevice();
-
-    // 🟢 redirectUrl 확인 (REDIRECT 방식 필수 파라미터)
-    if (!returnUrl) {
-      console.error('[portone-paypal] ❌ redirectUrl이 없습니다! REDIRECT 방식 사용 불가');
-      return {
-        success: false,
-        error_msg: '결제 리다이렉트 URL이 설정되지 않았습니다.',
-      };
-    }
-    console.log('[portone-paypal] redirectUrl 확인:', returnUrl);
-
-    // 🟢 windowType은 객체 형태로 설정 (V2 SDK 요구사항)
-    // 모바일: REDIRECTION 사용 (팝업창 크기 문제 해결)
-    // PC: POPUP 사용
-    const windowType = {
-      pc: 'POPUP',
-      mobile: 'REDIRECTION', // 모바일에서 팝업창 크기 문제를 피하기 위해 REDIRECTION 사용
-    };
-
-    // Request Data 구성
+    // PortOne loadPaymentUI 요청 데이터
+    // ⚠️ PayPal은 windowType, redirectUrl, payMethod를 사용하지 않음
     const requestData: any = {
       uiType: 'PAYPAL_SPB',
       storeId,
       channelKey,
-      paymentId: newPaymentId, // 🟢 생성한 ID 사용
-      orderId: params.orderId,
+      paymentId: newPaymentId,
       orderName: params.description,
       totalAmount: finalAmount,
       currency: portOneCurrency,
@@ -241,92 +178,38 @@ export const requestPayPalPayment = async (
         customerId: params.userId ?? undefined,
         email: params.buyerEmail ?? undefined,
         fullName: params.buyerName ?? undefined,
-        phoneNumber: params.buyerTel ?? undefined,
       },
-      redirectUrl: returnUrl, // 🟢 리다이렉트 URL 필수 (REDIRECT 방식 필수)
-      windowType: windowType, // 🟢 객체 형태로 전달 (V2 SDK 요구사항)
       metadata: {
         supabaseOrderId: params.orderId,
       },
     };
 
-    // element 설정 (모바일 REDIRECTION에서는 불필요하지만, 버튼 렌더링을 위해 필요)
-    // 모바일에서도 버튼을 렌더링하고, 버튼 클릭 시 수동으로 리다이렉트
-    if (params.elementId) {
-      requestData.element = params.elementId.startsWith('#') ? params.elementId : `#${params.elementId}`;
-    } else {
-      requestData.element = '#portone-ui-container';
-    }
+    console.log('[portone-paypal] loadPaymentUI 호출:', requestData);
 
-    console.log('[portone-paypal] loadPaymentUI 호출', {
-      ...requestData,
-      isMobile,
-      windowType: requestData.windowType,
-    });
-
-    // 모바일에서 REDIRECTION 방식 사용 시
-    if (isMobile) {
-      console.log('[portone-paypal] 모바일 REDIRECTION 방식 - 버튼 클릭 시 수동 리다이렉트');
-
-      // loadPaymentUI로 버튼 렌더링
-      await PortOne.loadPaymentUI(requestData, {
-        onPaymentSuccess: async (paymentResult: any) => {
-          // 모바일 REDIRECTION에서는 이 콜백이 실행되지 않을 수 있음
-          // 리다이렉트 페이지에서 처리됨
-          console.log('[portone-paypal] onPaymentSuccess 콜백 실행 (REDIRECTION에서는 일반적으로 실행되지 않음)', paymentResult);
-
-          // 혹시 콜백이 실행되면 리다이렉트
-          if (returnUrl) {
-            window.location.href = returnUrl;
-          }
-        },
-        onPaymentFail: (error: any) => {
-          console.error('[portone-paypal] onPaymentFail', error);
-          if (params.onError) {
-            params.onError(error);
-          }
-        },
-      });
-
-      // 모바일 REDIRECTION: 버튼이 렌더링되면, 버튼 클릭 시 PayPal로 리다이렉트됨
-      // PortOne SDK가 자동으로 처리하지만, 혹시 모를 경우를 대비해 버튼 클릭 이벤트 리스너 추가
-      setTimeout(() => {
-        const container = document.querySelector(requestData.element);
-        if (container) {
-          const paypalButton = container.querySelector('button, [role="button"], a');
-          if (paypalButton) {
-            console.log('[portone-paypal] PayPal 버튼 발견 - 클릭 시 리다이렉트됨');
-            // PortOne SDK가 자동으로 처리하므로 여기서는 로그만 남김
-          }
-        }
-      }, 1000);
-
-      return {
-        success: true,
-        merchant_uid: params.orderId,
-        paymentId: newPaymentId,
-        error_msg: 'PayPal 버튼이 로드되었습니다. 버튼을 클릭하면 결제 페이지로 이동합니다.',
-      };
-    }
-
-    // PC에서 POPUP 방식 사용 시
+    // PortOne SDK가 portone-ui-container 클래스를 가진 DOM 요소에
+    // PayPal 결제 버튼을 렌더링합니다.
     await PortOne.loadPaymentUI(requestData, {
       onPaymentSuccess: async (paymentResult: any) => {
-        console.log('[portone-paypal] onPaymentSuccess 콜백 실행', paymentResult);
+        console.log('[portone-paypal] ✅ onPaymentSuccess', paymentResult);
 
-        // 프론트엔드 콜백 호출
+        const confirmedPaymentId =
+          paymentResult.paymentId ||
+          paymentResult.txId ||
+          paymentResult.tx_id ||
+          newPaymentId;
+
+        // DB에 최종 transaction_id 업데이트
+        await supabase
+          .from('orders')
+          .update({ transaction_id: confirmedPaymentId })
+          .eq('id', params.orderId);
+
         if (params.onSuccess) {
           params.onSuccess(paymentResult);
         }
-
-        // 명시적 리다이렉트 (안전장치)
-        if (returnUrl) {
-          console.log('[portone-paypal] 리다이렉트 실행');
-          window.location.href = returnUrl;
-        }
       },
       onPaymentFail: (error: any) => {
-        console.error('[portone-paypal] onPaymentFail', error);
+        console.error('[portone-paypal] ❌ onPaymentFail', error);
         if (params.onError) {
           params.onError(error);
         }
@@ -340,7 +223,7 @@ export const requestPayPalPayment = async (
       error_msg: 'PayPal 버튼이 로드되었습니다.',
     };
   } catch (error) {
-    console.error('[portone-paypal] PayPal 결제 요청 오류', error);
+    console.error('[portone-paypal] PayPal 결제 요청 오류:', error);
     return {
       success: false,
       error_msg: error instanceof Error ? error.message : 'PayPal 결제 요청 중 오류가 발생했습니다.',

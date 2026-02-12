@@ -5,6 +5,15 @@ import { useSearchParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../../../lib/supabase';
 
+/**
+ * PortOne V2 결제 완료 후 리다이렉트 페이지
+ * 
+ * - KakaoPay 모바일 REDIRECTION 방식 결제 후 리다이렉트됨
+ * - PayPal은 팝업 방식이라 이 페이지로 오지 않음 (콜백으로 처리)
+ * - PortOne V2 SDK는 리다이렉트 시 paymentId를 쿼리 파라미터로 전달
+ * 
+ * URL 예시: /payments/portone-paypal/return?paymentId=pay_xxx
+ */
 export default function PortOnePayPalReturnPage() {
   const searchParams = useSearchParams();
   const router = useLocaleRouter();
@@ -14,107 +23,132 @@ export default function PortOnePayPalReturnPage() {
     success: boolean;
     message: string;
     orderId?: string;
-    imp_uid?: string;
+    paymentId?: string;
   } | null>(null);
 
   useEffect(() => {
     const processPaymentReturn = async () => {
       try {
-        // 🟢 세션 확인: 리다이렉트 후에도 로그인 상태가 유지되는지 확인
-        console.log('[portone-paypal-return] 세션 확인 시작');
+        // 🟢 세션 확인
+        console.log('[portone-return] 세션 확인 시작');
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
-          console.error('[portone-paypal-return] 세션 확인 오류:', sessionError);
+          console.error('[portone-return] 세션 확인 오류:', sessionError);
         } else if (!session?.user) {
-          console.warn('[portone-paypal-return] 세션이 없습니다. 로그인 페이지로 리다이렉트합니다.');
-          // 세션이 없으면 로그인 페이지로 리다이렉트 (현재 URL을 저장하여 로그인 후 돌아올 수 있도록)
+          console.warn('[portone-return] 세션 없음 → 로그인 페이지로 이동');
           const currentUrl = window.location.pathname + window.location.search;
           router.push(`/auth/login?from=${encodeURIComponent(currentUrl)}`);
           return;
         } else {
-          console.log('[portone-paypal-return] 세션 확인 성공:', {
-            userId: session.user.id,
-            email: session.user.email,
-          });
+          console.log('[portone-return] 세션 확인 성공:', session.user.id);
         }
 
-        // 포트원은 결제 완료 후 m_redirect_url로 리다이렉트
-        // URL 파라미터에서 결제 결과 확인
+        // ━━━ PortOne V2 파라미터 확인 ━━━
+        // V2 SDK 리다이렉트 시: paymentId 쿼리 파라미터
+        const paymentId = searchParams.get('paymentId') || '';
+        
+        // V1 레거시 호환 (혹시 모를 경우)
         const imp_uid = searchParams.get('imp_uid') || '';
         const merchant_uid = searchParams.get('merchant_uid') || '';
-        const imp_success = searchParams.get('imp_success') || '';
-        const error_code = searchParams.get('error_code') || '';
-        const error_msg = searchParams.get('error_msg') || '';
 
-        console.log('[portone-paypal-return] 결제 반환 파라미터', {
+        console.log('[portone-return] 결제 반환 파라미터:', {
+          paymentId,
           imp_uid,
           merchant_uid,
-          imp_success,
-          error_code,
-          error_msg,
         });
 
-        // 결제 성공 여부 확인
-        if (imp_success === 'true' && imp_uid && merchant_uid) {
-          // 프론트엔드에서는 UI만 표시
-          // 실제 결제 상태 검증 및 업데이트는 서버(Webhook 또는 서버 검증)에서 처리됨
-          console.log('[portone-paypal-return] 결제 성공 UI 표시', {
-            imp_uid,
-            merchant_uid,
-            note: '서버에서 결제 상태를 검증하고 업데이트합니다.',
-          });
+        // ━━━ paymentId로 주문 조회 (V2 방식) ━━━
+        const effectivePaymentId = paymentId || imp_uid;
+        
+        if (effectivePaymentId) {
+          // transaction_id로 주문 찾기
+          const { data: orderData } = await supabase
+            .from('orders')
+            .select('id, status, payment_status')
+            .eq('transaction_id', effectivePaymentId)
+            .maybeSingle();
 
-          // 장바구니 아이템 정리: 결제된 주문의 악보를 장바구니에서 제거
-          if (session?.user) {
+          const orderId = orderData?.id || merchant_uid;
+
+          if (orderId) {
+            // ─── 서버 측 결제 검증 호출 ───
             try {
-              const { data: orderItems } = await supabase
-                .from('order_items')
-                .select('drum_sheet_id')
-                .eq('order_id', merchant_uid);
+              const verifyResponse = await fetch('/api/payments/portone/verify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  paymentId: effectivePaymentId,
+                  orderId,
+                }),
+              });
 
-              if (orderItems && orderItems.length > 0) {
-                const sheetIds = orderItems.map((item: any) => item.drum_sheet_id);
-                const { error: deleteError } = await supabase
-                  .from('cart_items')
-                  .delete()
-                  .eq('user_id', session.user.id)
-                  .in('sheet_id', sheetIds);
-
-                if (deleteError) {
-                  console.warn('[portone-paypal-return] 장바구니 정리 실패:', deleteError);
-                } else {
-                  console.log('[portone-paypal-return] 장바구니 아이템 정리 완료:', sheetIds);
-                }
+              if (verifyResponse.ok) {
+                console.log('[portone-return] 서버 검증 성공');
+              } else {
+                console.warn('[portone-return] 서버 검증 실패, 웹훅에서 처리 예정');
               }
-            } catch (cartError) {
-              console.warn('[portone-paypal-return] 장바구니 정리 중 오류:', cartError);
+            } catch (verifyErr) {
+              console.warn('[portone-return] 서버 검증 호출 오류:', verifyErr);
             }
+
+            // ─── 장바구니 정리 ───
+            if (session?.user) {
+              try {
+                const { data: orderItems } = await supabase
+                  .from('order_items')
+                  .select('drum_sheet_id')
+                  .eq('order_id', orderId);
+
+                if (orderItems && orderItems.length > 0) {
+                  const sheetIds = orderItems.map((item: any) => item.drum_sheet_id);
+                  const { error: deleteError } = await supabase
+                    .from('cart_items')
+                    .delete()
+                    .eq('user_id', session.user.id)
+                    .in('sheet_id', sheetIds);
+
+                  if (deleteError) {
+                    console.warn('[portone-return] 장바구니 정리 실패:', deleteError);
+                  } else {
+                    console.log('[portone-return] 장바구니 정리 완료:', sheetIds);
+                  }
+                }
+              } catch (cartError) {
+                console.warn('[portone-return] 장바구니 정리 중 오류:', cartError);
+              }
+            }
+
+            setResult({
+              success: true,
+              message: t('payment.success') || 'Payment successful!',
+              orderId,
+              paymentId: effectivePaymentId,
+            });
+
+            // 결제 성공 페이지로 이동
+            setTimeout(() => {
+              router.push(`/payment/success?orderId=${orderId}&method=kakaopay&paymentId=${effectivePaymentId}`);
+            }, 1000);
+          } else {
+            // 주문을 찾을 수 없음
+            console.error('[portone-return] 주문을 찾을 수 없음:', { effectivePaymentId });
+            setResult({
+              success: false,
+              message: t('payment.orderNotFound') || 'Order not found. The payment may still be processing.',
+            });
           }
-
-          setResult({
-            success: true,
-            message: t('payment.success') || 'Payment successful!',
-            orderId: merchant_uid,
-            imp_uid,
-          });
-
-          // 1초 후 결제 성공 페이지로 이동 (다운로드 가능한 페이지)
-          setTimeout(() => {
-            router.push(`/payment/success?orderId=${merchant_uid}&method=kakaopay&paymentId=${imp_uid}`);
-          }, 1000);
         } else {
-          // 결제 실패 또는 취소
-          const errorMessage =
-            error_msg || t('payment.failed') || 'Payment failed. Please try again.';
+          // paymentId가 없음 → 결제 실패 또는 취소
+          const errorMsg = searchParams.get('error_msg') || searchParams.get('error_message') || '';
+          console.warn('[portone-return] paymentId 없음, 결제 실패/취소:', errorMsg);
           setResult({
             success: false,
-            message: errorMessage,
-            orderId: merchant_uid || undefined,
+            message: errorMsg || t('payment.failed') || 'Payment failed. Please try again.',
           });
         }
       } catch (error) {
-        console.error('[portone-paypal-return] 결제 반환 처리 오류', error);
+        console.error('[portone-return] 결제 반환 처리 오류:', error);
         setResult({
           success: false,
           message:
@@ -134,7 +168,7 @@ export default function PortOnePayPalReturnPage() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <i className="ri-loader-4-line w-8 h-8 animate-spin text-blue-600 mx-auto mb-4"></i>
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-600 border-t-transparent mx-auto mb-4"></div>
           <p className="text-gray-600">{t('payment.processing') || 'Processing payment...'}</p>
         </div>
       </div>
@@ -153,9 +187,9 @@ export default function PortOnePayPalReturnPage() {
               {t('payment.success') || 'Payment Successful!'}
             </h2>
             <p className="text-gray-600 mb-4">{result.message}</p>
-            {result.imp_uid && (
+            {result.paymentId && (
               <p className="text-xs text-gray-500 mb-4">
-                Transaction ID: {result.imp_uid}
+                Transaction ID: {result.paymentId}
               </p>
             )}
             <p className="text-sm text-gray-500 mb-4">
@@ -193,4 +227,3 @@ export default function PortOnePayPalReturnPage() {
     </div>
   );
 }
-
