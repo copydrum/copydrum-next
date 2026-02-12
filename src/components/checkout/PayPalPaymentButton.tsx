@@ -11,24 +11,12 @@ import { getLocaleFromHost } from '@/i18n/getLocaleFromHost';
 import { isJapaneseSiteHost } from '@/config/hostType';
 import type { CheckoutItem } from './OnePageCheckout';
 
-// 결제 실패/에러 사유를 DB에 기록하는 유틸
-async function logPaymentNote(orderId: string, note: string, noteType: 'error' | 'cancel' | 'system_error') {
-  try {
-    await fetch('/api/orders/update-note', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ orderId, note, noteType }),
-    });
-  } catch (e) {
-    console.warn('[PayPal-SDK] payment_note 기록 실패:', e);
-  }
-}
 
 interface PayPalPaymentButtonProps {
   orderId: string;
   amount: number; // KRW 금액
   items: CheckoutItem[];
-  onSuccess: (paymentId: string) => void;
+  onSuccess: (paymentId: string, dbOrderId?: string) => void;
   onError: (error: Error) => void;
   onProcessing: () => void;
   compact?: boolean;
@@ -100,77 +88,16 @@ export default function PayPalPaymentButton({
         currency: portOneCurrency,
       });
 
-      // ─── 1단계: DB에 주문이 존재하는지 확인 ───
-      let dbOrderId = orderId;
-      let orderExists = false;
+      // ─── DB 주문은 여기서 생성하지 않음! ───
+      // 사용자가 실제 PayPal 결제를 완료한 후 onPaymentSuccess에서만 생성
+      // (이전: 마운트 시 자동 주문 생성 → 장바구니 방문만으로 결제대기 주문이 쌓이는 버그)
 
-      try {
-        const { data } = await supabase
-          .from('orders')
-          .select('id')
-          .eq('id', orderId)
-          .maybeSingle();
-        orderExists = !!data;
-      } catch {
-        orderExists = false;
-      }
-
-      // 주문이 없으면 새로 생성
-      if (!orderExists) {
-        console.log('[PayPal-SDK] 주문이 DB에 없음 → 새 주문 생성');
-
-        const description = items.length === 1
-          ? items[0].title
-          : `${items[0].title} 외 ${items.length - 1}건`;
-
-        const createResponse = await fetch('/api/orders/create', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            userId: user.id,
-            items: items.map((item) => ({
-              sheetId: item.sheet_id,
-              title: item.title,
-              price: item.price,
-            })),
-            amount,
-            description,
-            paymentMethod: 'paypal',
-          }),
-        });
-
-        const createResult = await createResponse.json();
-
-        if (!createResult.success || !createResult.orderId) {
-          throw new Error(createResult.error || '주문 생성에 실패했습니다.');
-        }
-
-        dbOrderId = createResult.orderId;
-        console.log('[PayPal-SDK] 새 주문 생성 완료:', dbOrderId);
-      } else {
-        console.log('[PayPal-SDK] 기존 주문 확인:', dbOrderId);
-      }
-
-      dbOrderIdRef.current = dbOrderId;
-
-      // ─── 2단계: transaction_id 미리 저장 (웹훅 대비) ───
-      console.log('[PayPal-SDK] transaction_id 저장:', { orderId: dbOrderId, paymentId: newPaymentId });
-
-      const { error: updateError } = await supabase
-        .from('orders')
-        .update({ transaction_id: newPaymentId })
-        .eq('id', dbOrderId);
-
-      if (updateError) {
-        console.error('[PayPal-SDK] transaction_id 저장 실패 (계속 진행):', updateError);
-      }
-
-      // ─── 3단계: 상품명 생성 ───
+      // ─── 상품명 생성 ───
       const description = items.length === 1
         ? items[0].title
         : `${items[0].title} 외 ${items.length - 1}건`;
 
-      // ─── 4단계: PortOne loadPaymentUI 호출 ───
+      // ─── PortOne loadPaymentUI 호출 ───
       // ⚠️ PayPal 연동 핵심 사항:
       //   - uiType: 'PAYPAL_SPB' 필수
       //   - payMethod: 생략 (PayPal은 자동)
@@ -190,7 +117,7 @@ export default function PayPalPaymentButton({
           fullName: user.user_metadata?.name || undefined,
         },
         metadata: {
-          supabaseOrderId: dbOrderId,
+          clientOrderId: orderId,
         },
       };
 
@@ -214,6 +141,44 @@ export default function PayPalPaymentButton({
               newPaymentId;
 
             console.log('[PayPal-SDK] 확인된 paymentId:', confirmedPaymentId);
+
+            // ─── 결제 성공 후 DB에 주문 생성 ───
+            // (마운트 시 생성하지 않고, 실제 결제 완료 후에만 생성)
+            let dbOrderId = orderId;
+
+            const createDescription = items.length === 1
+              ? items[0].title
+              : `${items[0].title} 외 ${items.length - 1}건`;
+
+            try {
+              const createResponse = await fetch('/api/orders/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  userId: user.id,
+                  items: items.map((item) => ({
+                    sheetId: item.sheet_id,
+                    title: item.title,
+                    price: item.price,
+                  })),
+                  amount,
+                  description: createDescription,
+                  paymentMethod: 'paypal',
+                }),
+              });
+
+              const createResult = await createResponse.json();
+              if (createResult.success && createResult.orderId) {
+                dbOrderId = createResult.orderId;
+                console.log('[PayPal-SDK] 결제 완료 후 주문 생성 성공:', dbOrderId);
+              } else {
+                console.error('[PayPal-SDK] 주문 생성 실패:', createResult.error);
+              }
+            } catch (createErr) {
+              console.error('[PayPal-SDK] 주문 생성 오류 (웹훅에서 처리):', createErr);
+            }
+
+            dbOrderIdRef.current = dbOrderId;
 
             // DB에 최종 transaction_id 업데이트
             await supabase
@@ -245,8 +210,8 @@ export default function PayPalPaymentButton({
               console.warn('[PayPal-SDK] 서버 검증 호출 실패 (웹훅에서 처리):', verifyErr);
             }
 
-            // 성공 콜백 → OnePageCheckout에서 결제 성공 페이지로 이동
-            onSuccess(confirmedPaymentId);
+            // 성공 콜백 → OnePageCheckout에서 결제 성공 페이지로 이동 (dbOrderId 전달)
+            onSuccess(confirmedPaymentId, dbOrderId);
           } catch (err) {
             console.error('[PayPal-SDK] 결제 후 처리 오류:', err);
             // 결제 자체는 이미 성공했으므로 onSuccess 호출 (웹훅이 DB 업데이트 처리)
@@ -259,8 +224,8 @@ export default function PayPalPaymentButton({
           console.error('[PayPal-SDK] ❌ onPaymentFail', err);
           const errorMessage = err?.message || 'PayPal 결제가 실패했습니다.';
 
-          // 실패 사유를 DB에 기록
-          logPaymentNote(dbOrderId, `PayPal 결제 실패: ${errorMessage}`, 'error');
+          // DB 주문이 없으므로 logPaymentNote 불필요 (결제 시도 전에는 주문이 생성되지 않음)
+          console.warn('[PayPal-SDK] 결제 실패 (DB 주문 미생성 상태):', errorMessage);
 
           onError(new Error(errorMessage));
         },

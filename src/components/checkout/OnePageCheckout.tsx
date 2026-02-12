@@ -281,7 +281,7 @@ export default function OnePageCheckout({
                     orderId={orderId}
                     amount={totalAmount}
                     items={items}
-                    onSuccess={(paymentId) => handlePaymentComplete('paypal', paymentId)}
+                    onSuccess={(paymentId, dbOrderId) => handlePaymentComplete('paypal', paymentId, dbOrderId)}
                     onError={handlePaymentFailed}
                     onProcessing={handlePaymentStart}
                     compact
