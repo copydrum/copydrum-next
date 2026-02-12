@@ -18,6 +18,9 @@ export const metadata: Metadata = {
     siteName: 'COPYDRUM',
     type: 'website',
   },
+  verification: {
+    google: 'google-site-verification=-rcYbyDQYm1eyHBKXEXCjdyrVhmzA3fnVzorZTx1CUg',
+  },
   alternates: {
     canonical: 'https://copydrum.com',
     languages: {
