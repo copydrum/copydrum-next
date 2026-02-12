@@ -35,5 +35,7 @@
   "confirmPayment": "Konfirmasi Pembayaran",
   "cancel": "Batal",
   "securePayment": "Pembayaran aman dengan enkripsi SSL",
-  "poweredBy": "Didukung oleh {{provider}}"
+  "poweredBy": "Didukung oleh {{provider}}",
+  "creditDebitWallets": "Kartu Kredit/Debit & Dompet Digital",
+  "localCardsSupported": "+ Kartu lokal didukung"
 }

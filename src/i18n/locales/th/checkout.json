@@ -35,5 +35,7 @@
   "confirmPayment": "ยืนยันการชำระเงิน",
   "cancel": "ยกเลิก",
   "securePayment": "การชำระเงินที่ปลอดภัยด้วยการเข้ารหัส SSL",
-  "poweredBy": "ให้บริการโดย {{provider}}"
+  "poweredBy": "ให้บริการโดย {{provider}}",
+  "creditDebitWallets": "บัตรเครดิต/เดบิต & กระเป๋าเงินดิจิทัล",
+  "localCardsSupported": "+ รองรับบัตรท้องถิ่น"
 }

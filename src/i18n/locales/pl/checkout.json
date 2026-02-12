@@ -35,5 +35,7 @@
   "confirmPayment": "Potwierdź płatność",
   "cancel": "Anuluj",
   "securePayment": "Bezpieczna płatność z szyfrowaniem SSL",
-  "poweredBy": "Obsługiwane przez {{provider}}"
+  "poweredBy": "Obsługiwane przez {{provider}}",
+  "creditDebitWallets": "Karta Kredytowa/Debetowa & Portfele",
+  "localCardsSupported": "+ Obsługa kart lokalnych"
 }

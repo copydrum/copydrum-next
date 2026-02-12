@@ -35,5 +35,7 @@
   "confirmPayment": "お支払い確認",
   "cancel": "キャンセル",
   "securePayment": "SSL暗号化による安全な決済",
-  "poweredBy": "{{provider}}による提供"
+  "poweredBy": "{{provider}}による提供",
+  "creditDebitWallets": "クレジット/デビットカード & ウォレット",
+  "localCardsSupported": "+ ローカルカード対応"
 }

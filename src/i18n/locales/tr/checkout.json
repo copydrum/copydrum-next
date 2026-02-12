@@ -35,5 +35,7 @@
   "confirmPayment": "Ödemeyi Onayla",
   "cancel": "İptal",
   "securePayment": "SSL şifreli güvenli ödeme",
-  "poweredBy": "{{provider}} tarafından desteklenmektedir"
+  "poweredBy": "{{provider}} tarafından desteklenmektedir",
+  "creditDebitWallets": "Kredi/Banka Kartı & Cüzdanlar",
+  "localCardsSupported": "+ Yerel kartlar desteklenir"
 }

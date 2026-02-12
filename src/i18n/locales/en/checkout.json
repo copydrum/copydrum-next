@@ -36,5 +36,7 @@
   "cancel": "Cancel",
   "securePayment": "Secure SSL encrypted payment",
   "poweredBy": "Powered by {{provider}}",
-  "removeItem": "Remove"
+  "removeItem": "Remove",
+  "creditDebitWallets": "Credit/Debit Card & Wallets",
+  "localCardsSupported": "+ Local Cards Supported"
 }

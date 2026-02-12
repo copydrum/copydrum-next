@@ -35,5 +35,7 @@
   "confirmPayment": "تأكيد الدفع",
   "cancel": "إلغاء",
   "securePayment": "دفع آمن مع تشفير SSL",
-  "poweredBy": "مدعوم من {{provider}}"
+  "poweredBy": "مدعوم من {{provider}}",
+  "creditDebitWallets": "بطاقة ائتمان/خصم & محافظ إلكترونية",
+  "localCardsSupported": "+ دعم البطاقات المحلية"
 }

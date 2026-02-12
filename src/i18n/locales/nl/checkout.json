@@ -35,5 +35,7 @@
   "confirmPayment": "Bevestig betaling",
   "cancel": "Annuleren",
   "securePayment": "Veilige betaling met SSL-versleuteling",
-  "poweredBy": "Mogelijk gemaakt door {{provider}}"
+  "poweredBy": "Mogelijk gemaakt door {{provider}}",
+  "creditDebitWallets": "Creditcard/Debetkaart & Wallets",
+  "localCardsSupported": "+ Lokale kaarten ondersteund"
 }

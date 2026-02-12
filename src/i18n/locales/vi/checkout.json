@@ -35,5 +35,7 @@
   "confirmPayment": "Xác nhận thanh toán",
   "cancel": "Hủy",
   "securePayment": "Thanh toán an toàn với mã hóa SSL",
-  "poweredBy": "Được cung cấp bởi {{provider}}"
+  "poweredBy": "Được cung cấp bởi {{provider}}",
+  "creditDebitWallets": "Thẻ Tín dụng/Ghi nợ & Ví điện tử",
+  "localCardsSupported": "+ Hỗ trợ thẻ nội địa"
 }

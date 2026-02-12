@@ -35,5 +35,7 @@
   "confirmPayment": "Підтвердити оплату",
   "cancel": "Скасувати",
   "securePayment": "Безпечна оплата з шифруванням SSL",
-  "poweredBy": "Працює на {{provider}}"
+  "poweredBy": "Працює на {{provider}}",
+  "creditDebitWallets": "Кредитна/Дебетова картка & Гаманці",
+  "localCardsSupported": "+ Підтримка місцевих карток"
 }

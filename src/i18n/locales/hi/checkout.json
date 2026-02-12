@@ -35,5 +35,7 @@
   "confirmPayment": "भुगतान की पुष्टि करें",
   "cancel": "रद्द करें",
   "securePayment": "SSL एन्क्रिप्टेड सुरक्षित भुगतान",
-  "poweredBy": "{{provider}} द्वारा संचालित"
+  "poweredBy": "{{provider}} द्वारा संचालित",
+  "creditDebitWallets": "क्रेडिट/डेबिट कार्ड & वॉलेट",
+  "localCardsSupported": "+ स्थानीय कार्ड समर्थित"
 }

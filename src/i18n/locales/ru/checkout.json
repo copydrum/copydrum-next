@@ -35,5 +35,7 @@
   "confirmPayment": "Подтвердить оплату",
   "cancel": "Отмена",
   "securePayment": "Безопасная оплата с шифрованием SSL",
-  "poweredBy": "Работает на {{provider}}"
+  "poweredBy": "Работает на {{provider}}",
+  "creditDebitWallets": "Кредитная/Дебетовая карта & Кошельки",
+  "localCardsSupported": "+ Поддержка местных карт"
 }

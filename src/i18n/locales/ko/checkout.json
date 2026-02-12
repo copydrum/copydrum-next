@@ -36,5 +36,7 @@
   "cancel": "취소",
   "securePayment": "SSL 보안 암호화 결제",
   "poweredBy": "{{provider}} 제공",
-  "removeItem": "삭제"
+  "removeItem": "삭제",
+  "creditDebitWallets": "신용/체크카드 & 간편결제",
+  "localCardsSupported": "+ 지역 카드 지원"
 }
