@@ -433,6 +433,60 @@ export default function CollectionDetailClient({ slug }: CollectionDetailClientP
                 )}
               </div>
 
+              {/* Mobile Purchase Card - shown above sheets on mobile only */}
+              <div className="lg:hidden bg-white rounded-lg shadow-sm p-5">
+                <div className="flex items-center gap-4">
+                  {/* Thumbnail */}
+                  <div className="w-20 h-20 flex-shrink-0 bg-gray-200 rounded-lg overflow-hidden">
+                    {collection.thumbnail_url ? (
+                      <img
+                        src={collection.thumbnail_url}
+                        alt={collection.title}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-400">
+                        <i className="ri-image-line text-2xl"></i>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Price Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-gray-400 text-sm line-through">
+                        {formatCurrency(convertFromKrw(totalIndividualPrice, currency, locale), currency)}
+                      </span>
+                      {savings > 0 && (
+                        <span className="bg-green-100 text-green-700 text-[11px] font-semibold px-1.5 py-0.5 rounded">
+                          {t('collectionsDetail.purchase.save', { amount: formatCurrency(convertFromKrw(savings, currency, locale), currency) })}
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-2xl font-bold text-blue-600">
+                      {collection.sale_price > 0
+                        ? formatCurrency(convertFromKrw(collection.sale_price, currency, locale), currency)
+                        : t('collectionsDetail.free')}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Buy Button */}
+                <button
+                  onClick={handleBuyCollection}
+                  disabled={purchasing}
+                  className={`w-full mt-4 bg-blue-600 text-white px-6 py-3.5 rounded-lg hover:bg-blue-700 transition-colors font-bold text-base shadow-md hover:shadow-lg ${purchasing ? 'opacity-60 cursor-not-allowed' : ''}`}
+                >
+                  {purchasing
+                    ? (t('collectionsDetail.purchase.processing') || '처리 중...')
+                    : (t('collectionsDetail.purchase.buyCollection') || '컬렉션 구매하기')}
+                </button>
+
+                <p className="text-xs text-gray-500 text-center mt-2">
+                  {t('collectionsDetail.purchase.note')}
+                </p>
+              </div>
+
               {/* Included Sheets List */}
               <div className="bg-white rounded-lg shadow-sm p-6">
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">
@@ -451,9 +505,61 @@ export default function CollectionDetailClient({ slug }: CollectionDetailClientP
                     {sheets.map((sheet) => (
                       <div
                         key={sheet.id}
-                        className="border rounded-md p-4 hover:bg-gray-50 transition-colors"
+                        className="border rounded-md p-3 sm:p-4 hover:bg-gray-50 transition-colors cursor-pointer"
+                        onClick={() => handleSheetClick(sheet.slug)}
                       >
-                        <div className="flex items-center gap-4">
+                        {/* Mobile Layout (< sm) */}
+                        <div className="sm:hidden">
+                          <div className="flex items-start gap-3">
+                            {/* Thumbnail - compact on mobile */}
+                            <div className="flex-shrink-0 w-14 h-14 bg-gray-200 rounded overflow-hidden">
+                              {(sheet.thumbnail_url || sheet.preview_image_url) ? (
+                                <img
+                                  src={sheet.thumbnail_url || sheet.preview_image_url}
+                                  alt={sheet.title}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                  <i className="ri-file-music-line text-xl"></i>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Info - full width */}
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-semibold text-gray-900 text-sm leading-snug line-clamp-2">
+                                {sheet.title}
+                              </h3>
+                              <p className="text-xs text-gray-500 mt-0.5 truncate">
+                                {sheet.artist}
+                              </p>
+                              {sheet.difficulty && (
+                                <span className={`inline-block mt-1 text-[11px] font-medium px-1.5 py-0.5 rounded ${getDifficultyBadgeColor(sheet.difficulty)}`}>
+                                  {getTranslatedDifficulty(sheet.difficulty)}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Price and Action - separate row */}
+                          <div className="flex items-center justify-between mt-2.5 pt-2.5 border-t border-gray-100">
+                            <span className="text-sm font-semibold text-gray-900">
+                              {sheet.price > 0
+                                ? formatCurrency(convertFromKrw(sheet.price, currency, locale), currency)
+                                : t('collectionsDetail.sheet.free')}
+                            </span>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); handleSheetClick(sheet.slug); }}
+                              className="px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded hover:bg-blue-700 transition-colors"
+                            >
+                              {t('collectionsDetail.viewSheet') || '악보보기'}
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Desktop Layout (>= sm) */}
+                        <div className="hidden sm:flex items-center gap-4">
                           {/* Thumbnail */}
                           <div className="flex-shrink-0 w-20 h-20 bg-gray-200 rounded overflow-hidden">
                             {(sheet.thumbnail_url || sheet.preview_image_url) ? (
@@ -494,7 +600,7 @@ export default function CollectionDetailClient({ slug }: CollectionDetailClientP
                               </div>
                             </div>
                             <button
-                              onClick={() => handleSheetClick(sheet.slug)}
+                              onClick={(e) => { e.stopPropagation(); handleSheetClick(sheet.slug); }}
                               className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded hover:bg-blue-700 transition-colors whitespace-nowrap"
                             >
                               {t('collectionsDetail.viewSheet') || '보러가기'}
@@ -550,8 +656,8 @@ export default function CollectionDetailClient({ slug }: CollectionDetailClientP
               </div>
             </div>
 
-            {/* Right Sidebar (25%) - Sticky */}
-            <div className="lg:w-1/4">
+            {/* Right Sidebar (25%) - Desktop only */}
+            <div className="hidden lg:block lg:w-1/4">
               <div className="lg:sticky lg:top-24 space-y-4">
                 {/* Collection Summary Card */}
                 <div className="bg-white rounded-lg shadow-sm p-6">
