@@ -4365,6 +4365,39 @@ const AdminPage: React.FC = () => {
 
       console.log('=== 최종 difficulty 값 (한국어) ===', insertData.difficulty);
 
+      // ─── slug 자동 생성 (아티스트-제목 형식) ───
+      const generateSlug = (artist: string, title: string): string => {
+        const raw = `${artist}-${title}`;
+        return raw
+          .toLowerCase()
+          .trim()
+          .replace(/[^\w\s가-힣ㄱ-ㅎㅏ-ㅣ\u3040-\u309f\u30a0-\u30ff\u4e00-\u9faf-]/g, '') // 영문, 숫자, 한글, 일본어, 중국어, 하이픈, 공백만 유지
+          .replace(/\s+/g, '-')      // 공백 → 하이픈
+          .replace(/-+/g, '-')       // 연속 하이픈 → 단일 하이픈
+          .replace(/^-|-$/g, '');    // 앞뒤 하이픈 제거
+      };
+
+      let baseSlug = generateSlug(insertData.artist, insertData.title);
+      if (!baseSlug) baseSlug = `sheet-${Date.now()}`; // 만약 빈 문자열이면 fallback
+
+      // 중복 slug 확인 및 유니크 slug 생성
+      let slug = baseSlug;
+      let slugSuffix = 0;
+      while (true) {
+        const { data: existingSlug } = await supabase
+          .from('drum_sheets')
+          .select('id')
+          .eq('slug', slug)
+          .maybeSingle();
+
+        if (!existingSlug) break; // 중복 없음 → 사용 가능
+        slugSuffix++;
+        slug = `${baseSlug}-${slugSuffix}`;
+      }
+
+      insertData.slug = slug;
+      console.log('=== 생성된 slug ===', slug);
+
       const { data, error } = await supabase
         .from('drum_sheets')
         .insert([insertData])
