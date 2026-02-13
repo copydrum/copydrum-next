@@ -1,5 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
+
+// ✅ Service Role Key로 Admin 클라이언트 생성 (RLS 우회)
+// API Route는 서버에서 실행되므로 인증 세션이 없음 → anon key로는 업데이트 실패 가능
+function createAdminClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+
+  if (serviceRoleKey) {
+    return createClient(url, serviceRoleKey, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    });
+  }
+
+  console.warn('[verify] ⚠️ Service Role Key 없음 → Anon Key 사용 (RLS 적용됨)');
+  return createClient(url, anonKey);
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,6 +29,8 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    const supabase = createAdminClient();
 
     // 1. 주문 정보 조회
     const { data: order, error: orderError } = await supabase
