@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '@/lib/supabase';
 import { useLocaleRouter } from '@/hooks/useLocaleRouter';
@@ -21,6 +21,13 @@ interface Collection {
   slug: string;
   is_active: boolean;
   sheet_count?: number;
+  category_ids?: string[] | null;
+}
+
+interface Category {
+  id: string;
+  name: string;
+  slug?: string | null;
 }
 
 const ITEMS_PER_PAGE = 12;
@@ -28,7 +35,9 @@ const ITEMS_PER_PAGE = 12;
 export default function CollectionsPageClient() {
   const { t, i18n } = useTranslation();
   const router = useLocaleRouter();
-  const [collections, setCollections] = useState<Collection[]>([]);
+  const [allCollections, setAllCollections] = useState<Collection[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<User | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -51,19 +60,49 @@ export default function CollectionsPageClient() {
       }
     );
 
+    fetchCategories();
     fetchCollections();
 
     return () => subscription.unsubscribe();
   }, []);
 
+  // URL 쿼리 파라미터에서 카테고리 필터 읽기
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const categoryParam = searchParams.get('category');
+    if (categoryParam) {
+      setSelectedCategoryId(categoryParam);
+    }
+  }, []);
+
+  // 카테고리 필터 변경 시 페이지 1로 리셋
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedCategoryId]);
+
+  const fetchCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('id, name, slug')
+        .neq('name', '드럼레슨')
+        .order('name');
+
+      if (error) throw error;
+      setCategories(data || []);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+
   const fetchCollections = async () => {
     try {
       setLoading(true);
 
-      // Fetch collections with sheet count
+      // Fetch collections with category_ids and sheet count
       const { data: collectionsData, error: collectionsError } = await supabase
         .from('collections')
-        .select('id, title, description, title_translations, description_translations, thumbnail_url, original_price, sale_price, discount_percentage, slug, is_active')
+        .select('id, title, description, title_translations, description_translations, thumbnail_url, original_price, sale_price, discount_percentage, slug, is_active, category_ids')
         .eq('is_active', true)
         .order('created_at', { ascending: false });
 
@@ -80,11 +119,12 @@ export default function CollectionsPageClient() {
           return {
             ...collection,
             sheet_count: count || 0,
+            category_ids: Array.isArray(collection.category_ids) ? collection.category_ids : null,
           };
         })
       );
 
-      setCollections(collectionsWithCounts);
+      setAllCollections(collectionsWithCounts);
     } catch (error) {
       console.error('Error fetching collections:', error);
     } finally {
@@ -92,10 +132,36 @@ export default function CollectionsPageClient() {
     }
   };
 
+  // 카테고리별 필터링
+  const filteredCollections = useMemo(() => {
+    if (!selectedCategoryId) {
+      return allCollections;
+    }
+    return allCollections.filter((collection) => {
+      if (!collection.category_ids || collection.category_ids.length === 0) {
+        return false;
+      }
+      return collection.category_ids.includes(selectedCategoryId);
+    });
+  }, [allCollections, selectedCategoryId]);
+
   // Pagination
-  const totalPages = Math.ceil(collections.length / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(filteredCollections.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const paginatedCollections = collections.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  const paginatedCollections = filteredCollections.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+  const handleCategoryFilter = (categoryId: string | null) => {
+    setSelectedCategoryId(categoryId);
+    setCurrentPage(1);
+    // URL 쿼리 파라미터 업데이트
+    const url = new URL(window.location.href);
+    if (categoryId) {
+      url.searchParams.set('category', categoryId);
+    } else {
+      url.searchParams.delete('category');
+    }
+    window.history.pushState({}, '', url.toString());
+  };
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -163,10 +229,53 @@ export default function CollectionsPageClient() {
             </p>
           </div>
 
+          {/* Category Filter Tabs */}
+          {categories.length > 0 && (
+            <div className="mb-6">
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  onClick={() => handleCategoryFilter(null)}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    selectedCategoryId === null
+                      ? 'bg-blue-600 text-white shadow-md'
+                      : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                  }`}
+                >
+                  {t('collectionsPage.category.all') || '전체'}
+                </button>
+                {categories.map((category) => (
+                  <button
+                    key={category.id}
+                    onClick={() => handleCategoryFilter(category.id)}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      selectedCategoryId === category.id
+                        ? 'bg-blue-600 text-white shadow-md'
+                        : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                    }`}
+                  >
+                    {category.name}
+                  </button>
+                ))}
+              </div>
+              {selectedCategoryId && (
+                <p className="mt-3 text-sm text-gray-600">
+                  {t('collectionsPage.category.filtered', { 
+                    count: filteredCollections.length,
+                    category: categories.find(c => c.id === selectedCategoryId)?.name || ''
+                  }) || `${filteredCollections.length}개의 모음집`}
+                </p>
+              )}
+            </div>
+          )}
+
           {/* Collections Grid */}
-          {collections.length === 0 ? (
+          {filteredCollections.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-gray-500">{t('collectionsPage.empty.noCollections')}</p>
+              <p className="text-gray-500">
+                {selectedCategoryId 
+                  ? (t('collectionsPage.empty.noCollectionsInCategory') || '이 카테고리에 해당하는 모음집이 없습니다.')
+                  : t('collectionsPage.empty.noCollections')}
+              </p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

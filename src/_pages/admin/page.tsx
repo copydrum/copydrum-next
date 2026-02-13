@@ -647,6 +647,38 @@ const buildInitialTranslations = (
   return initial;
 };
 
+// 모음집 전용: 한국어는 ko에만, 영어는 en과 나머지 모든 언어에 저장
+const buildCollectionTranslations = (
+  koreanValue: string | null | undefined,
+  englishValue: string | null | undefined,
+  existing: Record<string, string> | null | undefined,
+): Record<string, string> => {
+  const korean = koreanValue ?? '';
+  const english = englishValue ?? '';
+  const translations: Record<string, string> = {};
+
+  // 한국어는 ko에만 저장
+  translations['ko'] = korean;
+
+  // 영어는 en에 저장하고, 나머지 모든 언어에도 영어 내용 복사
+  languages.forEach(({ code }) => {
+    if (code === 'ko') {
+      // 한국어는 이미 설정됨
+      return;
+    }
+    // 영어가 있으면 영어 사용, 없으면 기존 값 유지
+    if (english) {
+      translations[code] = english;
+    } else if (existing?.[code]) {
+      translations[code] = existing[code];
+    } else {
+      translations[code] = '';
+    }
+  });
+
+  return translations;
+};
+
 const updateCollectionTranslation = (
   setState: CollectionFormStateSetter,
   lang: string,
@@ -688,6 +720,100 @@ const copyKoreanTranslationsToAll = (setState: CollectionFormStateSetter) => {
       description_translations: descriptionTranslations,
     };
   });
+};
+
+// 모음집 전용: 한국어와 영어만 입력하는 간단한 에디터
+const renderCollectionKoreanEnglishEditor = (
+  formState: CollectionFormState,
+  onChange: (lang: string, field: CollectionTranslationField, value: string) => void,
+) => {
+  const getKoreanValue = (field: CollectionTranslationField) => {
+    return formState[field];
+  };
+
+  const getEnglishValue = (field: CollectionTranslationField) => {
+    const translationKey = translationStateKeyMap[field];
+    return formState[translationKey]?.['en'] ?? '';
+  };
+
+  return (
+    <div className="space-y-4 border border-gray-200 rounded-xl p-4 bg-gray-50">
+      <div className="mb-2">
+        <h4 className="text-sm font-semibold text-gray-900 mb-1">제목 및 설명</h4>
+        <p className="text-xs text-gray-500">
+          한국어는 한국어 페이지에, 영어는 나머지 언어 페이지에 노출됩니다.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* 한국어 입력 */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-lg">🇰🇷</span>
+            <span className="text-sm font-semibold text-gray-900">한국어</span>
+            <span className="text-xs text-gray-500">(한국어 페이지 노출)</span>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              제목 (한국어)
+            </label>
+            <input
+              type="text"
+              value={getKoreanValue('title')}
+              onChange={(e) => onChange('ko', 'title', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+              placeholder="한국어 제목을 입력하세요"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              설명 (한국어)
+            </label>
+            <textarea
+              value={getKoreanValue('description')}
+              onChange={(e) => onChange('ko', 'description', e.target.value)}
+              rows={4}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+              placeholder="한국어 설명을 입력하세요"
+            />
+          </div>
+        </div>
+
+        {/* 영어 입력 */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-lg">🇺🇸</span>
+            <span className="text-sm font-semibold text-gray-900">영어</span>
+            <span className="text-xs text-gray-500">(나머지 언어 페이지 노출)</span>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              제목 (영어)
+            </label>
+            <input
+              type="text"
+              value={getEnglishValue('title')}
+              onChange={(e) => onChange('en', 'title', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+              placeholder="English title"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              설명 (영어)
+            </label>
+            <textarea
+              value={getEnglishValue('description')}
+              onChange={(e) => onChange('en', 'description', e.target.value)}
+              rows={4}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+              placeholder="English description"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 const renderTranslationEditor = (
@@ -3499,10 +3625,16 @@ const AdminPage: React.FC = () => {
 
     try {
       const discount = calculateDiscountPercentage(newCollection.original_price, newCollection.sale_price);
-      const titleTranslations = buildInitialTranslations(newCollection.title_translations, newCollection.title);
-      const descriptionTranslations = buildInitialTranslations(
-        newCollection.description_translations,
+      // 모음집: 한국어는 ko에만, 영어는 en과 나머지 모든 언어에 저장
+      const titleTranslations = buildCollectionTranslations(
+        newCollection.title,
+        newCollection.title_translations?.['en'] ?? '',
+        newCollection.title_translations
+      );
+      const descriptionTranslations = buildCollectionTranslations(
         newCollection.description,
+        newCollection.description_translations?.['en'] ?? '',
+        newCollection.description_translations
       );
 
       // category_ids 처리: 빈 배열이면 null, 있으면 배열로
@@ -3582,13 +3714,16 @@ const AdminPage: React.FC = () => {
       const discount = editingCollectionData.original_price > 0 && editingCollectionData.sale_price > 0
         ? Math.round(((editingCollectionData.original_price - editingCollectionData.sale_price) / editingCollectionData.original_price) * 100)
         : 0;
-      const titleTranslations = buildInitialTranslations(
-        editingCollectionData.title_translations,
+      // 모음집: 한국어는 ko에만, 영어는 en과 나머지 모든 언어에 저장
+      const titleTranslations = buildCollectionTranslations(
         editingCollectionData.title,
+        editingCollectionData.title_translations?.['en'] ?? '',
+        editingCollectionData.title_translations
       );
-      const descriptionTranslations = buildInitialTranslations(
-        editingCollectionData.description_translations,
+      const descriptionTranslations = buildCollectionTranslations(
         editingCollectionData.description,
+        editingCollectionData.description_translations?.['en'] ?? '',
+        editingCollectionData.description_translations
       );
 
       // category_ids 처리: 빈 배열이면 null, 있으면 배열로
@@ -8210,12 +8345,9 @@ ONE MORE TIME,ALLDAY PROJECT,중급,ALLDAY PROJECT - ONE MORE TIME.pdf,https://w
           <div className="bg-white rounded-xl p-6 w-full max-w-5xl max-h-[90vh] overflow-y-auto">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">새 모음집 추가</h3>
             <div className="space-y-4">
-              {renderTranslationEditor(
+              {renderCollectionKoreanEnglishEditor(
                 newCollection,
-                newCollectionActiveLang,
-                setNewCollectionActiveLang,
-                (lang, field, value) => updateCollectionTranslation(setNewCollection, lang, field, value),
-                () => copyKoreanTranslationsToAll(setNewCollection)
+                (lang, field, value) => updateCollectionTranslation(setNewCollection, lang, field, value)
               )}
 
               <div>
@@ -8496,12 +8628,9 @@ ONE MORE TIME,ALLDAY PROJECT,중급,ALLDAY PROJECT - ONE MORE TIME.pdf,https://w
           <div className="bg-white rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">모음집 수정</h3>
             <div className="space-y-4">
-              {renderTranslationEditor(
+              {renderCollectionKoreanEnglishEditor(
                 editingCollectionData,
-                editingCollectionActiveLang,
-                setEditingCollectionActiveLang,
-                (lang, field, value) => updateCollectionTranslation(setEditingCollectionData, lang, field, value),
-                () => copyKoreanTranslationsToAll(setEditingCollectionData)
+                (lang, field, value) => updateCollectionTranslation(setEditingCollectionData, lang, field, value)
               )}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">카테고리 (중복 선택 가능)</label>
