@@ -3,7 +3,8 @@
   "title": "악보 모음집",
   "subtitle": "테마별로 엄선한 특별한 드럼 악보 컬렉션을 만나보세요.",
   "filter": {
-    "all": "전체"
+    "all": "전체",
+    "filtered": "{{category}}: {{count}}개의 모음집"
   },
   "empty": {
     "noCollections": "등록된 모음집이 없습니다.",

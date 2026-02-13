@@ -3,7 +3,8 @@
   "title": "Sheet Music Collections",
   "subtitle": "Discover our specially curated drum sheet music collections by theme.",
   "filter": {
-    "all": "All"
+    "all": "All",
+    "filtered": "{{category}}: {{count}} collections"
   },
   "empty": {
     "noCollections": "No collections registered.",

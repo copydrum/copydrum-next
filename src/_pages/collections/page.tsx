@@ -89,7 +89,14 @@ export default function CollectionsPageClient() {
         .order('name');
 
       if (error) throw error;
-      setCategories(data || []);
+      
+      // 특정 카테고리 제외: 기초/입문, 드럼테크닉, 루디먼트, 리듬패턴, 필인
+      const excludedCategories = ['기초/입문', '드럼테크닉', '루디먼트', '리듬패턴', '필인'];
+      const filteredCategories = (data || []).filter(
+        (category) => !excludedCategories.includes(category.name)
+      );
+      
+      setCategories(filteredCategories);
     } catch (error) {
       console.error('Error fetching categories:', error);
     }
@@ -241,7 +248,7 @@ export default function CollectionsPageClient() {
                       : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
                   }`}
                 >
-                  {t('collectionsPage.category.all') || '전체'}
+{t('collectionsPage.filter.all') || '전체'}
                 </button>
                 {categories.map((category) => (
                   <button
@@ -259,7 +266,7 @@ export default function CollectionsPageClient() {
               </div>
               {selectedCategoryId && (
                 <p className="mt-3 text-sm text-gray-600">
-                  {t('collectionsPage.category.filtered', { 
+                  {t('collectionsPage.filter.filtered', { 
                     count: filteredCollections.length,
                     category: categories.find(c => c.id === selectedCategoryId)?.name || ''
                   }) || `${filteredCollections.length}개의 모음집`}
