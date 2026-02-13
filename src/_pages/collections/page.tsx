@@ -210,6 +210,28 @@ export default function CollectionsPageClient() {
     }
   };
 
+  // 카테고리 이름을 번역하는 함수
+  const getCategoryName = (categoryName: string | null | undefined): string => {
+    if (!categoryName) return t('categoriesPage.categories.other') || '기타';
+    if (locale === 'ko') return categoryName;
+
+    const categoryMap: Record<string, string> = {
+      '가요': t('categoriesPage.categories.kpop') || 'K-POP',
+      '팝': t('categoriesPage.categories.pop') || 'Pop',
+      '락': t('categoriesPage.categories.rock') || 'Rock',
+      'CCM': t('categoriesPage.categories.ccm') || 'CCM',
+      '트로트/성인가요': t('categoriesPage.categories.trot') || 'Trot/Adult Contemporary',
+      '재즈': t('categoriesPage.categories.jazz') || 'Jazz',
+      'J-POP': t('categoriesPage.categories.jpop') || 'J-POP',
+      'OST': t('categoriesPage.categories.ost') || 'OST',
+      '드럼솔로': t('categoriesPage.categories.drumSolo') || 'Drum Solo',
+      '드럼커버': t('categoriesPage.categories.drumCover') || 'Drum Cover',
+      '기타': t('categoriesPage.categories.other') || 'Other',
+    };
+
+    return categoryMap[categoryName] || categoryName;
+  };
+
   if (loading) {
     return (
       <>
@@ -260,15 +282,15 @@ export default function CollectionsPageClient() {
                         : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
                     }`}
                   >
-                    {category.name}
+                    {getCategoryName(category.name)}
                   </button>
                 ))}
               </div>
               {selectedCategoryId && (
                 <p className="mt-3 text-sm text-gray-600">
-                  {t('collectionsPage.filter.filtered', { 
+                  {t('collectionsPage.filter.filtered', {
                     count: filteredCollections.length,
-                    category: categories.find(c => c.id === selectedCategoryId)?.name || ''
+                    category: getCategoryName(categories.find(c => c.id === selectedCategoryId)?.name)
                   }) || `${filteredCollections.length}개의 모음집`}
                 </p>
               )}
@@ -330,7 +352,7 @@ export default function CollectionsPageClient() {
                     </h3>
 
                     {getLocalizedDescription(collection) && (
-                      <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                      <p className="text-sm text-gray-600 mb-3 line-clamp-2 whitespace-pre-line">
                         {getLocalizedDescription(collection)}
                       </p>
                     )}
