@@ -54,6 +54,11 @@ export default function CollectionDetailClient({ slug }: CollectionDetailClientP
   const currency = getSiteCurrency(hostname, i18n.language);
   const locale = i18n.language;
 
+  // 상세페이지 진입 시 스크롤을 최상단으로 이동
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   useEffect(() => {
     fetchUserAndCollection();
   }, [slug]);
@@ -386,7 +391,7 @@ export default function CollectionDetailClient({ slug }: CollectionDetailClientP
   return (
     <>
       <MainHeader user={user} />
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 pb-24 lg:pb-0">
         {/* Back Button */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <button
@@ -434,57 +439,78 @@ export default function CollectionDetailClient({ slug }: CollectionDetailClientP
               </div>
 
               {/* Mobile Purchase Card - shown above sheets on mobile only */}
-              <div className="lg:hidden bg-white rounded-lg shadow-sm p-5">
-                <div className="flex items-center gap-4">
-                  {/* Thumbnail */}
-                  <div className="w-20 h-20 flex-shrink-0 bg-gray-200 rounded-lg overflow-hidden">
-                    {collection.thumbnail_url ? (
-                      <img
-                        src={collection.thumbnail_url}
-                        alt={collection.title}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-400">
-                        <i className="ri-image-line text-2xl"></i>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Price Info */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-gray-400 text-sm line-through">
-                        {formatCurrency(convertFromKrw(totalIndividualPrice, currency, locale), currency)}
-                      </span>
-                      {savings > 0 && (
-                        <span className="bg-green-100 text-green-700 text-[11px] font-semibold px-1.5 py-0.5 rounded">
-                          {t('collectionsDetail.purchase.save', { amount: formatCurrency(convertFromKrw(savings, currency, locale), currency) })}
-                        </span>
-                      )}
+              <div className="lg:hidden bg-white rounded-lg shadow-sm overflow-hidden">
+                {/* Thumbnail - 배너형 이미지 */}
+                <div className="w-full aspect-[2/1] bg-gray-200 overflow-hidden">
+                  {collection.thumbnail_url ? (
+                    <img
+                      src={collection.thumbnail_url}
+                      alt={collection.title}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-gray-400">
+                      <i className="ri-image-line text-4xl"></i>
                     </div>
-                    <div className="text-2xl font-bold text-blue-600">
-                      {collection.sale_price > 0
-                        ? formatCurrency(convertFromKrw(collection.sale_price, currency, locale), currency)
-                        : t('collectionsDetail.free')}
-                    </div>
-                  </div>
+                  )}
                 </div>
 
-                {/* Buy Button */}
-                <button
-                  onClick={handleBuyCollection}
-                  disabled={purchasing}
-                  className={`w-full mt-4 bg-blue-600 text-white px-6 py-3.5 rounded-lg hover:bg-blue-700 transition-colors font-bold text-base shadow-md hover:shadow-lg ${purchasing ? 'opacity-60 cursor-not-allowed' : ''}`}
-                >
-                  {purchasing
-                    ? (t('collectionsDetail.purchase.processing') || '처리 중...')
-                    : (t('collectionsDetail.purchase.buyCollection') || '컬렉션 구매하기')}
-                </button>
+                <div className="p-5">
+                  {/* Price Info */}
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-gray-400 text-sm line-through">
+                      {formatCurrency(convertFromKrw(totalIndividualPrice, currency, locale), currency)}
+                    </span>
+                    {savings > 0 && (
+                      <span className="bg-green-100 text-green-700 text-[11px] font-semibold px-1.5 py-0.5 rounded">
+                        {t('collectionsDetail.purchase.save', { amount: formatCurrency(convertFromKrw(savings, currency, locale), currency) })}
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-2xl font-bold text-blue-600">
+                    {collection.sale_price > 0
+                      ? formatCurrency(convertFromKrw(collection.sale_price, currency, locale), currency)
+                      : t('collectionsDetail.free')}
+                  </div>
 
-                <p className="text-xs text-gray-500 text-center mt-2">
-                  {t('collectionsDetail.purchase.note')}
-                </p>
+                  {/* Buy Button */}
+                  <button
+                    onClick={handleBuyCollection}
+                    disabled={purchasing}
+                    className={`w-full mt-4 bg-blue-600 text-white px-6 py-3.5 rounded-lg hover:bg-blue-700 transition-colors font-bold text-base shadow-md hover:shadow-lg ${purchasing ? 'opacity-60 cursor-not-allowed' : ''}`}
+                  >
+                    {purchasing
+                      ? (t('collectionsDetail.purchase.processing') || '처리 중...')
+                      : (t('collectionsDetail.purchase.buyCollection') || '컬렉션 구매하기')}
+                  </button>
+
+                  <p className="text-xs text-gray-500 text-center mt-2">
+                    {t('collectionsDetail.purchase.note')}
+                  </p>
+                </div>
+              </div>
+
+              {/* Mobile Features Card - 모바일에서도 특장점 표시 */}
+              <div className="lg:hidden bg-white rounded-lg shadow-sm p-5">
+                <h4 className="font-semibold text-gray-900 mb-3 text-sm">{t('collectionsDetail.features.title')}</h4>
+                <ul className="grid grid-cols-2 gap-2 text-sm text-gray-600">
+                  <li className="flex items-start space-x-2">
+                    <i className="ri-check-line text-blue-600 mt-0.5 flex-shrink-0"></i>
+                    <span>{t('collectionsDetail.features.allSheets')}</span>
+                  </li>
+                  <li className="flex items-start space-x-2">
+                    <i className="ri-check-line text-blue-600 mt-0.5 flex-shrink-0"></i>
+                    <span>{t('collectionsDetail.features.highQuality')}</span>
+                  </li>
+                  <li className="flex items-start space-x-2">
+                    <i className="ri-check-line text-blue-600 mt-0.5 flex-shrink-0"></i>
+                    <span>{t('collectionsDetail.features.instantDownload')}</span>
+                  </li>
+                  <li className="flex items-start space-x-2">
+                    <i className="ri-check-line text-blue-600 mt-0.5 flex-shrink-0"></i>
+                    <span>{t('collectionsDetail.features.lifetimeAccess')}</span>
+                  </li>
+                </ul>
               </div>
 
               {/* Included Sheets List */}
@@ -752,6 +778,41 @@ export default function CollectionDetailClient({ slug }: CollectionDetailClientP
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Mobile Fixed Bottom Bar - 스크롤해도 항상 하단에 구매 버튼 표시 */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-[0_-4px_12px_rgba(0,0,0,0.1)] z-50 px-4 py-3">
+        <div className="flex items-center gap-3">
+          {/* Price Info */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-gray-400 line-through">
+                {formatCurrency(convertFromKrw(totalIndividualPrice, currency, locale), currency)}
+              </span>
+              {collection.discount_percentage > 0 && (
+                <span className="text-xs font-bold text-red-500">
+                  -{collection.discount_percentage}%
+                </span>
+              )}
+            </div>
+            <div className="text-lg font-bold text-blue-600 leading-tight">
+              {collection.sale_price > 0
+                ? formatCurrency(convertFromKrw(collection.sale_price, currency, locale), currency)
+                : t('collectionsDetail.free')}
+            </div>
+          </div>
+
+          {/* Buy Button */}
+          <button
+            onClick={handleBuyCollection}
+            disabled={purchasing}
+            className={`flex-shrink-0 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-bold text-sm shadow-md ${purchasing ? 'opacity-60 cursor-not-allowed' : ''}`}
+          >
+            {purchasing
+              ? (t('collectionsDetail.purchase.processing') || '처리 중...')
+              : (t('collectionsDetail.purchase.buyCollection') || '컬렉션 구매하기')}
+          </button>
         </div>
       </div>
     </>

@@ -22,7 +22,7 @@ import { isKoreanSiteHost } from '../../config/hostType';
 
 import type { VirtualAccountInfo } from '../../lib/payments';
 
-type TabKey = 'profile' | 'purchases' | 'downloads' | 'favorites' | 'inquiries' | 'custom-orders';
+type TabKey = 'profile' | 'purchases' | 'favorites' | 'inquiries' | 'custom-orders';
 
 type MaybeDateString = string | null | undefined;
 
@@ -159,7 +159,6 @@ export default function MyPage() {
   const getTabs = useCallback((): { id: TabKey; label: string; icon: string; description?: string }[] => [
     { id: 'profile', label: t('mypage.tabs.profile.label'), icon: 'ri-user-line', description: t('mypage.tabs.profile.description') },
     { id: 'purchases', label: t('mypage.tabs.purchases.label'), icon: 'ri-shopping-bag-line', description: t('mypage.tabs.purchases.description') },
-    { id: 'downloads', label: t('mypage.tabs.downloads.label'), icon: 'ri-download-2-line', description: t('mypage.tabs.downloads.description') },
     { id: 'favorites', label: t('mypage.tabs.favorites.label'), icon: 'ri-heart-line', description: t('mypage.tabs.favorites.description') },
     { id: 'inquiries', label: t('mypage.tabs.inquiries.label'), icon: 'ri-question-answer-line', description: t('mypage.tabs.inquiries.description') },
     { id: 'custom-orders', label: t('mypage.tabs.customOrders.label'), icon: 'ri-file-text-line', description: t('mypage.tabs.customOrders.description') },
@@ -170,7 +169,7 @@ export default function MyPage() {
     const tabParam = searchParams.get('tab') || searchParams.get('section');
     if (
       tabParam &&
-      ['profile', 'purchases', 'downloads', 'favorites', 'inquiries', 'custom-orders'].includes(tabParam)
+      ['profile', 'purchases', 'favorites', 'inquiries', 'custom-orders'].includes(tabParam)
     ) {
       return tabParam as TabKey;
     }
@@ -189,7 +188,6 @@ export default function MyPage() {
 
   const [orders, setOrders] = useState<OrderSummary[]>([]);
   const [downloads, setDownloads] = useState<DownloadableItem[]>([]);
-  const [selectedDownloadIds, setSelectedDownloadIds] = useState<string[]>([]);
   const [selectedPurchaseIds, setSelectedPurchaseIds] = useState<Record<string, string[]>>({});
   const [downloadingKeys, setDownloadingKeys] = useState<string[]>([]);
   const [bulkDownloading, setBulkDownloading] = useState(false);
@@ -242,11 +240,6 @@ export default function MyPage() {
     }
   }, []);
 
-  useEffect(() => {
-    setSelectedDownloadIds((prev) =>
-      prev.filter((key) => downloads.some((item) => buildDownloadKey(item.order_id, item.id) === key))
-    );
-  }, [downloads]);
 
   useEffect(() => {
     if (!user) {
@@ -851,20 +844,6 @@ export default function MyPage() {
     );
   };
 
-  const handleToggleSelectAllDownloads = () => {
-    setSelectedDownloadIds((prev) => {
-      if (downloads.length === 0) {
-        return [];
-      }
-      return prev.length === downloads.length
-        ? []
-        : downloads.map((item) => buildDownloadKey(item.order_id, item.id));
-    });
-  };
-
-  const clearDownloadSelection = () => {
-    setSelectedDownloadIds([]);
-  };
 
   const togglePurchaseSelection = (orderId: string, itemId: string) => {
     setSelectedPurchaseIds((prev) => {
@@ -1038,21 +1017,6 @@ export default function MyPage() {
     }
   };
 
-  const handleDownloadSelected = async () => {
-    const selectedItems = downloads.filter(
-      (item) =>
-        selectedDownloadIds.includes(buildDownloadKey(item.order_id, item.id)) &&
-        DOWNLOADABLE_STATUSES.includes((item.order_status ?? '').toLowerCase()),
-    );
-    await handleDownloadMultiple(selectedItems);
-  };
-
-  const handleDownloadAll = async () => {
-    const downloadableItems = downloads.filter((item) =>
-      DOWNLOADABLE_STATUSES.includes((item.order_status ?? '').toLowerCase()),
-    );
-    await handleDownloadMultiple(downloadableItems);
-  };
 
   const handleDownload = async (item: DownloadableItem) => {
     if (!DOWNLOADABLE_STATUSES.includes((item.order_status ?? '').toLowerCase())) {
@@ -1534,33 +1498,6 @@ export default function MyPage() {
                           })}
                         </div>
                       )}
-                    </div>
-                  )}
-
-                  {activeTab === 'downloads' && (
-                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-6">
-                      <div className="flex flex-wrap items-center justify-between gap-3">
-                        <div>
-                          <h3 className="text-xl font-bold text-gray-900">{t('mypage.downloads.title')}</h3>
-                          <p className="text-sm text-gray-500">{t('mypage.downloads.description')}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm text-gray-500">{t('mypage.downloads.totalItems', { count: downloads.length })}</p>
-                        </div>
-                      </div>
-
-                      <div className="rounded-xl border border-blue-100 bg-blue-50 p-6 text-center">
-                        <i className="ri-download-2-line text-4xl text-blue-500 mb-4" />
-                        <h4 className="text-lg font-semibold text-gray-900 mb-2">{t('purchaseHistory.title')}</h4>
-                        <p className="text-sm text-gray-600 mb-4">{t('purchaseHistory.description')}</p>
-                        <button
-                          onClick={() => router.push('/purchases')}
-                          className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition-colors"
-                        >
-                          <i className="ri-arrow-right-line text-base" />
-                          {t('mypage.downloads.goToPurchaseHistory')}
-                        </button>
-                      </div>
                     </div>
                   )}
 
