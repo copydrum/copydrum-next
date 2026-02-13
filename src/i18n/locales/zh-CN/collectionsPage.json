@@ -3,7 +3,8 @@
   "title": "乐谱合集",
   "subtitle": "发现我们按主题精心策划的鼓谱乐谱合集。",
   "filter": {
-    "all": "全部"
+    "all": "全部",
+    "filtered": "{{category}}: {{count}}个合集"
   },
   "empty": {
     "noCollections": "未注册任何合集。",

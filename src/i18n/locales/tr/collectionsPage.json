@@ -3,7 +3,8 @@
   "title": "Nota Koleksiyonları",
   "subtitle": "Temaya göre özel olarak seçilmiş davul nota koleksiyonlarımızı keşfedin.",
   "filter": {
-    "all": "Tümü"
+    "all": "Tümü",
+    "filtered": "{{category}}: {{count}} koleksiyon"
   },
   "empty": {
     "noCollections": "Kayıtlı koleksiyon yok.",

@@ -3,7 +3,8 @@
   "title": "Collezioni spartiti",
   "subtitle": "Scopri le nostre collezioni di spartiti per batteria curate per tema.",
   "filter": {
-    "all": "Tutti"
+    "all": "Tutti",
+    "filtered": "{{category}}: {{count}} collezioni"
   },
   "empty": {
     "noCollections": "Nessuna collezione registrata.",

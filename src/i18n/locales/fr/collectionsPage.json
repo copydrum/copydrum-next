@@ -3,7 +3,8 @@
   "title": "Collections de partitions",
   "subtitle": "Découvrez nos collections de partitions de batterie spécialement sélectionnées par thème.",
   "filter": {
-    "all": "Tout"
+    "all": "Tout",
+    "filtered": "{{category}} : {{count}} collections"
   },
   "empty": {
     "noCollections": "Aucune collection enregistrée.",

@@ -3,7 +3,8 @@
   "title": "楽譜コレクション",
   "subtitle": "テーマ別に厳選されたドラム楽譜コレクションをご紹介します。",
   "filter": {
-    "all": "すべて"
+    "all": "すべて",
+    "filtered": "{{category}}: {{count}}件のコレクション"
   },
   "empty": {
     "noCollections": "登録されたコレクションがありません。",

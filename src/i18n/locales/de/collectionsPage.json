@@ -3,7 +3,8 @@
   "title": "Notenblatt-Sammlungen",
   "subtitle": "Entdecken Sie unsere speziell kuratierten Schlagzeug-Notenblatt-Sammlungen nach Themen.",
   "filter": {
-    "all": "Alle"
+    "all": "Alle",
+    "filtered": "{{category}}: {{count}} Sammlungen"
   },
   "empty": {
     "noCollections": "Keine Sammlungen registriert.",

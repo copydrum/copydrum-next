@@ -3,7 +3,8 @@
   "title": "樂譜收藏",
   "subtitle": "探索我們按主題精心策劃的鼓譜收藏。",
   "filter": {
-    "all": "全部"
+    "all": "全部",
+    "filtered": "{{category}}: {{count}}個收藏"
   },
   "empty": {
     "noCollections": "尚未註冊任何收藏。",

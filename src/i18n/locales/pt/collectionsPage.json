@@ -3,7 +3,8 @@
   "title": "Coleções de Partituras",
   "subtitle": "Descubra nossas coleções de partituras de bateria especialmente curadas por tema.",
   "filter": {
-    "all": "Todas"
+    "all": "Todas",
+    "filtered": "{{category}}: {{count}} coleções"
   },
   "empty": {
     "noCollections": "Nenhuma coleção registrada.",

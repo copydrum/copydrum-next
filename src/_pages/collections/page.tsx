@@ -301,8 +301,8 @@ export default function CollectionsPageClient() {
           {filteredCollections.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-gray-500">
-                {selectedCategoryId 
-                  ? (t('collectionsPage.empty.noCollectionsInCategory') || '이 카테고리에 해당하는 모음집이 없습니다.')
+                {selectedCategoryId
+                  ? (t('collectionsPage.empty.noCollectionsForCategory') || '이 카테고리에 해당하는 모음집이 없습니다.')
                   : t('collectionsPage.empty.noCollections')}
               </p>
             </div>

@@ -3,7 +3,8 @@
   "title": "Koleksi Lembaran Musik",
   "subtitle": "Temukan koleksi lembaran musik drum yang dikurasi khusus kami berdasarkan tema.",
   "filter": {
-    "all": "Semua"
+    "all": "Semua",
+    "filtered": "{{category}}: {{count}} koleksi"
   },
   "empty": {
     "noCollections": "Tidak ada koleksi yang terdaftar.",
