@@ -120,7 +120,8 @@ export default function Register() {
         options: {
           emailRedirectTo: `${window.location.origin}/auth/callback`,
           data: {
-            role: 'user' // 기본값으로 'user' 고정
+            role: 'user', // 기본값으로 'user' 고정
+            name: formData.email.split('@')[0] // DB 트리거가 raw_user_meta_data에서 이름을 가져갈 수 있도록
           }
         }
       });

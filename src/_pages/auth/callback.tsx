@@ -106,13 +106,13 @@ export default function AuthCallback() {
                 updates.provider = provider;
               }
 
-              // 기존 이름이 '사용자' 또는 비어있으면 소셜 메타데이터에서 이름 업데이트
+              // 기존 이름이 '사용자' 또는 비어있으면 소셜 메타데이터 또는 이메일에서 이름 업데이트
               if (!profile.name || profile.name === '사용자' || profile.name === 'User') {
                 const betterName =
                   userMetadata.full_name?.trim() ||
                   userMetadata.name?.trim() ||
                   userMetadata.user_name?.trim() ||
-                  '';
+                  (data.user.email ? data.user.email.split('@')[0] : '');
                 if (betterName) {
                   updates.name = betterName;
                 }
