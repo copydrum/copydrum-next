@@ -182,7 +182,6 @@ export default function PayPalPaymentButton({
                 alert(
                   t('checkout.paymentVerificationError', 
                     '결제 확인 중 문제가 발생했습니다. 중복 결제하지 마시고 관리자에게 문의하세요. 결제 ID: ') + confirmedPaymentId
-                  )
                 );
               } else {
                 const verifyResult = await verifyResponse.json();
@@ -198,7 +197,6 @@ export default function PayPalPaymentButton({
               alert(
                 t('checkout.paymentVerificationError', 
                   '결제 확인 중 문제가 발생했습니다. 중복 결제하지 마시고 관리자에게 문의하세요. 결제 ID: ') + confirmedPaymentId
-                )
               );
             }
 
