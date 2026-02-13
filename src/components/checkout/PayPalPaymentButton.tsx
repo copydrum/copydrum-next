@@ -33,10 +33,12 @@ export default function PayPalPaymentButton({
   const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
   const user = useAuthStore((state) => state.user);
   const paymentIdRef = useRef<string>('');
   const loadedRef = useRef(false);
   const dbOrderIdRef = useRef<string>(orderId);
+  const isProcessingRef = useRef(false); // 중복 결제 방지
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // 🟢 PortOne V2 SDK PayPal SPB 방식으로 결제 버튼 렌더링
@@ -123,17 +125,28 @@ export default function PayPalPaymentButton({
       await PortOne.loadPaymentUI(requestData, {
         // ━━━ 결제 성공 콜백 ━━━
         onPaymentSuccess: async (paymentResult: any) => {
-          console.log('[PayPal-SDK] ✅ onPaymentSuccess', JSON.stringify(paymentResult, null, 2));
+          // paymentId 추출 (SDK 응답 구조에 따라 다양한 필드명 시도)
+          const confirmedPaymentId =
+            paymentResult.paymentId ||
+            paymentResult.txId ||
+            paymentResult.tx_id ||
+            paymentResult.id ||
+            newPaymentId;
+
+          // 중복 결제 방지
+          if (isProcessingRef.current) {
+            console.warn('[PayPal-SDK] ⚠️ 이미 처리 중인 결제입니다. 중복 호출 무시:', confirmedPaymentId);
+            return;
+          }
+
+          isProcessingRef.current = true;
+          setIsProcessing(true);
           onProcessing();
 
+          console.log('[PayPal-SDK] ✅ onPaymentSuccess', JSON.stringify(paymentResult, null, 2));
+          console.log('[PayPal-SDK] 확인된 paymentId:', confirmedPaymentId);
+
           try {
-            // paymentId 추출 (SDK 응답 구조에 따라 다양한 필드명 시도)
-            const confirmedPaymentId =
-              paymentResult.paymentId ||
-              paymentResult.txId ||
-              paymentResult.tx_id ||
-              paymentResult.id ||
-              newPaymentId;
 
             console.log('[PayPal-SDK] 확인된 paymentId:', confirmedPaymentId);
 
@@ -159,22 +172,56 @@ export default function PayPalPaymentButton({
               });
 
               if (!verifyResponse.ok) {
-                console.warn('[PayPal-SDK] 서버 검증 응답 실패, 성공 페이지에서 재시도 예정');
+                const errorData = await verifyResponse.json().catch(() => ({}));
+                console.error('[PayPal-SDK] ❌ 서버 검증 실패:', {
+                  status: verifyResponse.status,
+                  error: errorData,
+                });
+                
+                // 에러가 발생해도 결제는 완료되었으므로 사용자에게 알림
+                alert(
+                  t('checkout.paymentVerificationError', 
+                    '결제 확인 중 문제가 발생했습니다. 중복 결제하지 마시고 관리자에게 문의하세요. 결제 ID: ') + confirmedPaymentId
+                  )
+                );
               } else {
                 const verifyResult = await verifyResponse.json();
                 console.log('[PayPal-SDK] ✅ 서버 검증 성공 (주문 completed):', verifyResult);
               }
             } catch (verifyErr) {
-              console.warn('[PayPal-SDK] 서버 검증 호출 실패 (성공 페이지에서 재시도):', verifyErr);
+              console.error('[PayPal-SDK] ❌ 서버 검증 호출 실패:', {
+                error: verifyErr,
+                message: verifyErr instanceof Error ? verifyErr.message : String(verifyErr),
+              });
+              
+              // 에러가 발생해도 결제는 완료되었으므로 사용자에게 알림
+              alert(
+                t('checkout.paymentVerificationError', 
+                  '결제 확인 중 문제가 발생했습니다. 중복 결제하지 마시고 관리자에게 문의하세요. 결제 ID: ') + confirmedPaymentId
+                )
+              );
             }
 
             // 성공 콜백 → OnePageCheckout에서 결제 성공 페이지로 이동
             // 기존 orderId를 그대로 전달 (중복 주문 방지)
             onSuccess(confirmedPaymentId, orderId);
           } catch (err) {
-            console.error('[PayPal-SDK] 결제 후 처리 오류:', err);
-            // 결제 자체는 이미 성공했으므로 onSuccess 호출 (성공 페이지에서 재검증)
+            console.error('[PayPal-SDK] ❌ 결제 후 처리 오류:', {
+              error: err,
+              message: err instanceof Error ? err.message : String(err),
+            });
+            
+            // 결제 자체는 이미 성공했으므로 사용자에게 알림
+            alert(
+              t('checkout.paymentProcessingError', 
+                '결제 처리 중 오류가 발생했습니다. 중복 결제하지 마시고 관리자에게 문의하세요.')
+            );
+            
+            // 성공 페이지로 이동 (재검증 시도)
             onSuccess(newPaymentId, orderId);
+          } finally {
+            setIsProcessing(false);
+            isProcessingRef.current = false;
           }
         },
 
@@ -183,6 +230,8 @@ export default function PayPalPaymentButton({
           console.error('[PayPal-SDK] ❌ onPaymentFail', err);
           const errorMessage = err?.message || 'PayPal 결제가 실패했습니다.';
           console.warn('[PayPal-SDK] 결제 실패:', errorMessage);
+          setIsProcessing(false);
+          isProcessingRef.current = false;
           onError(new Error(errorMessage));
         },
       });
@@ -206,7 +255,22 @@ export default function PayPalPaymentButton({
   // ━━━ 컴팩트 모드: OnePageCheckout에서 사용 ━━━
   if (compact) {
     return (
-      <div className="w-full">
+      <div className="w-full relative">
+        {/* 처리 중 오버레이 (전체 화면 차단) */}
+        {isProcessing && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+            <div className="bg-white rounded-xl p-8 max-w-sm mx-4 text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent mx-auto mb-4"></div>
+              <p className="text-lg font-semibold text-gray-900 mb-2">
+                {t('checkout.processing', '결제 처리 중...')}
+              </p>
+              <p className="text-sm text-gray-600">
+                {t('checkout.doNotClose', '창을 닫지 마세요')}
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* 로딩 상태 */}
         {loading && (
           <div className="w-full py-4 px-6 bg-gray-100 rounded-xl flex items-center justify-center gap-3">
@@ -235,7 +299,7 @@ export default function PayPalPaymentButton({
         {/* PortOne SDK가 class="portone-ui-container"를 찾아 PayPal 버튼을 렌더링 */}
         <div
           className="portone-ui-container"
-          style={{ display: loading || error ? 'none' : 'block' }}
+          style={{ display: loading || error || isProcessing ? 'none' : 'block', pointerEvents: isProcessing ? 'none' : 'auto' }}
         />
       </div>
     );
@@ -243,7 +307,22 @@ export default function PayPalPaymentButton({
 
   // ━━━ 풀 모드 ━━━
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 relative">
+      {/* 처리 중 오버레이 (전체 화면 차단) */}
+      {isProcessing && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+          <div className="bg-white rounded-xl p-8 max-w-sm mx-4 text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent mx-auto mb-4"></div>
+            <p className="text-lg font-semibold text-gray-900 mb-2">
+              {t('checkout.processing', '결제 처리 중...')}
+            </p>
+            <p className="text-sm text-gray-600">
+              {t('checkout.doNotClose', '창을 닫지 마세요')}
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className="flex items-center gap-2 mb-4">
         <i className="ri-paypal-line text-2xl text-blue-600"></i>
         <h3 className="text-lg font-semibold text-gray-900">{t('checkout.paypal')}</h3>
@@ -277,7 +356,7 @@ export default function PayPalPaymentButton({
         {/* 🟢 포트원 PayPal SPB 버튼이 렌더링되는 컨테이너 */}
         <div
           className="portone-ui-container"
-          style={{ display: loading || error ? 'none' : 'block' }}
+          style={{ display: loading || error || isProcessing ? 'none' : 'block', pointerEvents: isProcessing ? 'none' : 'auto' }}
         />
 
         <div className="text-xs text-gray-600 text-center">

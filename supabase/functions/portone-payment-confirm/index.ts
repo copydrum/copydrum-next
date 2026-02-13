@@ -32,6 +32,11 @@ interface PortOnePaymentResponse {
   orderId?: string;
   transactionId?: string;
   metadata?: Record<string, unknown>;
+  customer?: {
+    customerId?: string;
+    email?: string;
+    fullName?: string;
+  };
   virtualAccount?: any;
 }
 
@@ -106,7 +111,8 @@ async function getPortOnePayment(
       status: tx.status,
       amount: tx.amount,
       orderId: rawResult.payment.order_name,
-      metadata: tx.metadata || {},
+      metadata: tx.metadata || rawResult.payment.metadata || {},
+      customer: rawResult.payment.customer || {},
       virtualAccount: foundVirtualAccount
     };
   }
@@ -154,26 +160,209 @@ serve(async (req) => {
     let orderData = null;
     
     // transaction_id로 찾기
-    const { data: byTxId } = await supabase
+    const { data: byTxId, error: txError } = await supabase
       .from("orders")
       .select("*")
       .eq("transaction_id", paymentId)
       .maybeSingle();
       
-    if (byTxId) {
+    if (txError) {
+      console.error("[portone-payment-confirm] transaction_id로 주문 조회 실패:", {
+        error: txError,
+        paymentId,
+      });
+    } else if (byTxId) {
       orderData = byTxId;
-    } else if (orderId) {
-      const { data: byOrderId } = await supabase
+      console.log("[portone-payment-confirm] ✅ transaction_id로 주문 조회 성공:", byTxId.id);
+    }
+    
+    // orderId로 찾기
+    if (!orderData && orderId) {
+      const { data: byOrderId, error: orderError } = await supabase
         .from("orders")
         .select("*")
         .eq("id", orderId)
         .maybeSingle();
-      orderData = byOrderId;
+        
+      if (orderError) {
+        console.error("[portone-payment-confirm] orderId로 주문 조회 실패:", {
+          error: orderError,
+          orderId,
+        });
+      } else if (byOrderId) {
+        orderData = byOrderId;
+        console.log("[portone-payment-confirm] ✅ orderId로 주문 조회 성공:", byOrderId.id);
+      }
     }
 
+    // 주문이 없으면 포트원 API에서 주문 정보를 가져와서 생성
     if (!orderData) {
-       console.error("주문을 찾을 수 없음", { paymentId, orderId });
-       return buildResponse({ success: false, error: { message: "Order not found" } }, 404, origin);
+      console.error("[portone-payment-confirm] ⚠️ 주문이 DB에 없음. 포트원 API 조회하여 주문 생성 시도:", {
+        paymentId,
+        orderId: orderId || "없음",
+      });
+
+      try {
+        // metadata에서 clientOrderId 또는 supabaseOrderId 추출
+        const metadata = portonePayment.metadata || {};
+        const clientOrderId = metadata.clientOrderId || metadata.supabaseOrderId || orderId;
+        const customerId = 
+          portonePayment.customer?.customerId || 
+          metadata.userId || 
+          metadata.customerId ||
+          null;
+
+        if (!clientOrderId) {
+          console.error("[portone-payment-confirm] ❌ metadata에 clientOrderId 없음. 주문 생성 불가:", {
+            paymentId,
+            metadata,
+          });
+          return buildResponse(
+            { 
+              success: false, 
+              error: { message: "Order not found and cannot create order: missing clientOrderId in metadata" } 
+            },
+            404,
+            origin
+          );
+        }
+
+        if (!customerId) {
+          console.error("[portone-payment-confirm] ❌ customerId 없음. 주문 생성 불가:", {
+            paymentId,
+            metadata,
+          });
+          return buildResponse(
+            { 
+              success: false, 
+              error: { message: "Order not found and cannot create order: missing customerId" } 
+            },
+            404,
+            origin
+          );
+        }
+
+        // UUID 형식 검증 (RFC 4122 표준: 8-4-4-4-12 형식)
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        const isValidUUID = uuidRegex.test(clientOrderId);
+        
+        // UUID가 아닌 경우 새로운 UUID 생성 (과거 코드에서 넘어온 요청 대비)
+        let finalOrderId: string;
+        let originalClientOrderId: string | undefined;
+        
+        if (isValidUUID) {
+          finalOrderId = clientOrderId;
+          console.log("[portone-payment-confirm] ✅ clientOrderId가 유효한 UUID 형식:", finalOrderId);
+        } else {
+          // UUID가 아니면 새로 생성하고 원본을 보존
+          finalOrderId = crypto.randomUUID();
+          originalClientOrderId = clientOrderId;
+          console.warn("[portone-payment-confirm] ⚠️ clientOrderId가 UUID 형식이 아님. 새 UUID 생성:", {
+            original: clientOrderId,
+            new: finalOrderId,
+          });
+        }
+
+        // 주문 금액 계산 (포트원 금액을 KRW로 변환)
+        const portoneAmount = portonePayment.amount?.total || portonePayment.amount || 0;
+        const portoneCurrency = portonePayment.amount?.currency || "CURRENCY_KRW";
+        let amountKRW = portoneAmount;
+        
+        if (portoneCurrency === "CURRENCY_USD" || portoneCurrency === "USD") {
+          amountKRW = Math.round((portoneAmount / 100) * 1300); // USD 센트 → KRW
+        } else if (portoneCurrency === "CURRENCY_JPY" || portoneCurrency === "JPY") {
+          amountKRW = Math.round(portoneAmount * 10); // JPY → KRW (대략)
+        }
+
+        // 주문 생성
+        const now = new Date();
+        const dateStr = now.toISOString().slice(0, 10).replace(/-/g, "");
+        const randomStr = Math.random().toString(36).substring(2, 8).toUpperCase();
+        const orderNumber = `ORDER-${dateStr}-${randomStr}`;
+
+        // metadata에 원본 clientOrderId 보존 (UUID가 아닌 경우)
+        const orderMetadata: Record<string, unknown> = {
+          type: "sheet_purchase",
+          description: portonePayment.orderId || "포트원 결제",
+          created_from: "portone_payment_confirm_lazy_creation",
+          portone_payment_id: paymentId,
+          portone_metadata: metadata,
+        };
+
+        // UUID가 아니어서 새로 생성한 경우, 원본 clientOrderId를 metadata에 보존
+        if (originalClientOrderId) {
+          orderMetadata.original_client_order_id = originalClientOrderId;
+          orderMetadata.uuid_converted = true;
+        }
+
+        const { data: newOrder, error: createError } = await supabase
+          .from("orders")
+          .insert({
+            id: finalOrderId, // UUID 형식 검증된 ID 사용
+            user_id: customerId,
+            order_number: orderNumber,
+            total_amount: amountKRW,
+            status: "pending",
+            payment_status: "pending",
+            payment_method: null, // 나중에 업데이트
+            order_type: "product",
+            transaction_id: paymentId,
+            metadata: orderMetadata,
+          })
+          .select()
+          .single();
+
+        if (createError || !newOrder) {
+          console.error("[portone-payment-confirm] ❌ 주문 생성 실패:", {
+            error: createError,
+            code: createError?.code,
+            message: createError?.message,
+            details: createError?.details,
+            hint: createError?.hint,
+            paymentId,
+            clientOrderId,
+            customerId,
+            amountKRW,
+          });
+          return buildResponse(
+            { 
+              success: false, 
+              error: { 
+                message: "Order not found and failed to create order",
+                details: createError?.message,
+                code: createError?.code,
+              } 
+            },
+            500,
+            origin
+          );
+        }
+
+        orderData = newOrder;
+        console.log("[portone-payment-confirm] ✅ 주문 생성 성공 (Lazy Creation):", {
+          orderId: orderData.id,
+          orderNumber: orderData.order_number,
+          paymentId,
+        });
+      } catch (createErr) {
+        console.error("[portone-payment-confirm] ❌ 주문 생성 중 예외:", {
+          error: createErr,
+          message: createErr instanceof Error ? createErr.message : String(createErr),
+          paymentId,
+          orderId: orderId || "없음",
+        });
+        return buildResponse(
+          { 
+            success: false, 
+            error: { 
+              message: "Order not found and failed to create order",
+              details: createErr instanceof Error ? createErr.message : String(createErr),
+            } 
+          },
+          500,
+          origin
+        );
+      }
     }
 
     const order = orderData;
@@ -237,7 +426,15 @@ serve(async (req) => {
       .maybeSingle();
 
     if (updateError) {
-      console.error("[portone-payment-confirm] DB 업데이트 실패:", updateError);
+      console.error("[portone-payment-confirm] ❌ DB 업데이트 실패:", {
+        error: updateError,
+        code: updateError.code,
+        message: updateError.message,
+        details: updateError.details,
+        hint: updateError.hint,
+        orderId: order.id,
+        paymentId,
+      });
       throw updateError;
     }
 
@@ -255,7 +452,11 @@ serve(async (req) => {
     }, 200, origin);
 
   } catch (error) {
-    console.error("[portone-payment-confirm] Error:", error);
+    console.error("[portone-payment-confirm] ❌ 오류:", {
+      error,
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+    });
     return buildResponse(
       {
         success: false,

@@ -208,8 +208,8 @@ export default function CartPageWithCheckout() {
         setCheckoutItems(checkoutData);
       }
 
-      // 주문 ID 생성
-      const newOrderId = `order_${Date.now()}_${user.id.substring(0, 8)}`;
+      // 주문 ID 생성 (UUID 형식으로 생성하여 Supabase id 타입과 호환)
+      const newOrderId = crypto.randomUUID();
       setOrderId(newOrderId);
       setShowCheckout(true);
     } catch (error) {

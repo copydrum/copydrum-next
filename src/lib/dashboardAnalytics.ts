@@ -71,6 +71,22 @@ const PERIOD_CONFIG: Record<DashboardAnalyticsPeriod, { buckets: number }> = {
   monthly: { buckets: 30 },   // 최근 30일 (한달)
 };
 
+// 어뷰징 탐지 설정 (환경 변수로 오버라이드 가능)
+const ABUSE_DETECTION_CONFIG = {
+  // Rate-Based 설정
+  MAX_VIEWS_PER_MINUTE: parseInt(process.env.NEXT_PUBLIC_ABUSE_MAX_VIEWS_PER_MINUTE || '30', 10),
+  MAX_VIEWS_PER_SESSION: parseInt(process.env.NEXT_PUBLIC_ABUSE_MAX_VIEWS_PER_SESSION || '500', 10),
+  MIN_AVG_INTERVAL_MS: parseInt(process.env.NEXT_PUBLIC_ABUSE_MIN_AVG_INTERVAL_MS || '2000', 10),
+
+  // Time-Interval 설정
+  CONSECUTIVE_FAST_VIEWS: parseInt(process.env.NEXT_PUBLIC_ABUSE_CONSECUTIVE_FAST_VIEWS || '5', 10),
+  FAST_VIEW_THRESHOLD_MS: parseInt(process.env.NEXT_PUBLIC_ABUSE_FAST_VIEW_THRESHOLD_MS || '1000', 10),
+
+  // 기타 설정
+  MIN_VIEWS_FOR_ANALYSIS: parseInt(process.env.NEXT_PUBLIC_ABUSE_MIN_VIEWS_FOR_ANALYSIS || '10', 10),
+  ENABLE_ABUSE_FILTERING: process.env.NEXT_PUBLIC_ENABLE_ABUSE_FILTERING !== 'false', // 기본값: true
+};
+
 const startOfDay = (date: Date): Date => {
   const d = new Date(date);
   d.setHours(0, 0, 0, 0);
@@ -259,15 +275,15 @@ const generateSeries = (
     if (bucketIndex >= 0) {
       series[bucketIndex].pageViews += 1;
 
-      // 고유 방문자 계산 (session_id 기준만)
+      // 고유 방문자 계산 (session_id, user_id, 또는 페이지뷰 ID 기준)
       const sessionId = row.session_id && row.session_id.trim() !== '' ? row.session_id : null;
+      const userId = row.user_id && row.user_id.trim() !== '' ? row.user_id : null;
+      const visitorKey = sessionId || userId || row.id || `unknown-${row.created_at}`;
 
-      if (sessionId) {
-        if (!uniqueVisitorsPerBucket.has(bucketIndex)) {
-          uniqueVisitorsPerBucket.set(bucketIndex, new Set());
-        }
-        uniqueVisitorsPerBucket.get(bucketIndex)!.add(sessionId);
+      if (!uniqueVisitorsPerBucket.has(bucketIndex)) {
+        uniqueVisitorsPerBucket.set(bucketIndex, new Set());
       }
+      uniqueVisitorsPerBucket.get(bucketIndex)!.add(visitorKey);
     }
   });
 
@@ -322,6 +338,183 @@ const isBotUserAgent = (userAgent: string | null): boolean => {
 
   const lowerUA = userAgent.toLowerCase();
   return botPatterns.some(pattern => lowerUA.includes(pattern.toLowerCase()));
+};
+
+// 어뷰징 세션 정보 타입
+interface SessionAnalysis {
+  sessionId: string;
+  views: PageViewRow[];
+  totalViews: number;
+  avgIntervalMs: number;
+  minIntervalMs: number;
+  maxViewsPerMinute: number;
+  consecutiveFastViews: number;
+  isAbusive: boolean;
+  abuseReasons: string[];
+}
+
+// 세션별 페이지뷰 분석
+const analyzeSessionForAbuse = (
+  sessionId: string,
+  views: PageViewRow[]
+): SessionAnalysis => {
+  const totalViews = views.length;
+  const abuseReasons: string[] = [];
+
+  // 페이지뷰가 너무 적으면 정상으로 간주
+  if (totalViews < ABUSE_DETECTION_CONFIG.MIN_VIEWS_FOR_ANALYSIS) {
+    return {
+      sessionId,
+      views,
+      totalViews,
+      avgIntervalMs: 0,
+      minIntervalMs: 0,
+      maxViewsPerMinute: 0,
+      consecutiveFastViews: 0,
+      isAbusive: false,
+      abuseReasons: [],
+    };
+  }
+
+  // 시간순 정렬
+  const sortedViews = [...views].sort((a, b) => {
+    const timeA = new Date(a.created_at || 0).getTime();
+    const timeB = new Date(b.created_at || 0).getTime();
+    return timeA - timeB;
+  });
+
+  // 1. 총 페이지뷰 수 체크
+  if (totalViews > ABUSE_DETECTION_CONFIG.MAX_VIEWS_PER_SESSION) {
+    abuseReasons.push(
+      `세션당 총 ${totalViews}개 페이지뷰 (임계값: ${ABUSE_DETECTION_CONFIG.MAX_VIEWS_PER_SESSION})`
+    );
+  }
+
+  // 2. 페이지뷰 간격 분석
+  const intervals: number[] = [];
+  for (let i = 1; i < sortedViews.length; i++) {
+    const prevTime = new Date(sortedViews[i - 1].created_at || 0).getTime();
+    const currTime = new Date(sortedViews[i].created_at || 0).getTime();
+    intervals.push(currTime - prevTime);
+  }
+
+  const avgIntervalMs = intervals.length > 0
+    ? intervals.reduce((sum, val) => sum + val, 0) / intervals.length
+    : 0;
+  const minIntervalMs = intervals.length > 0 ? Math.min(...intervals) : 0;
+
+  // 평균 간격이 너무 짧으면 어뷰징
+  if (avgIntervalMs > 0 && avgIntervalMs < ABUSE_DETECTION_CONFIG.MIN_AVG_INTERVAL_MS) {
+    abuseReasons.push(
+      `평균 페이지뷰 간격 ${(avgIntervalMs / 1000).toFixed(2)}초 (임계값: ${ABUSE_DETECTION_CONFIG.MIN_AVG_INTERVAL_MS / 1000}초)`
+    );
+  }
+
+  // 3. 연속 빠른 페이지뷰 체크
+  let consecutiveFastViews = 0;
+  let maxConsecutiveFast = 0;
+  for (const interval of intervals) {
+    if (interval < ABUSE_DETECTION_CONFIG.FAST_VIEW_THRESHOLD_MS) {
+      consecutiveFastViews++;
+      maxConsecutiveFast = Math.max(maxConsecutiveFast, consecutiveFastViews);
+    } else {
+      consecutiveFastViews = 0;
+    }
+  }
+
+  if (maxConsecutiveFast >= ABUSE_DETECTION_CONFIG.CONSECUTIVE_FAST_VIEWS) {
+    abuseReasons.push(
+      `연속 ${maxConsecutiveFast}개 페이지뷰가 ${ABUSE_DETECTION_CONFIG.FAST_VIEW_THRESHOLD_MS / 1000}초 이하 간격`
+    );
+  }
+
+  // 4. 1분 윈도우 내 최대 페이지뷰 수 체크
+  let maxViewsPerMinute = 0;
+  for (let i = 0; i < sortedViews.length; i++) {
+    const windowStart = new Date(sortedViews[i].created_at || 0).getTime();
+    const windowEnd = windowStart + 60 * 1000; // 1분 후
+
+    let viewsInWindow = 0;
+    for (let j = i; j < sortedViews.length; j++) {
+      const viewTime = new Date(sortedViews[j].created_at || 0).getTime();
+      if (viewTime >= windowStart && viewTime < windowEnd) {
+        viewsInWindow++;
+      } else if (viewTime >= windowEnd) {
+        break;
+      }
+    }
+
+    maxViewsPerMinute = Math.max(maxViewsPerMinute, viewsInWindow);
+  }
+
+  if (maxViewsPerMinute > ABUSE_DETECTION_CONFIG.MAX_VIEWS_PER_MINUTE) {
+    abuseReasons.push(
+      `1분 내 최대 ${maxViewsPerMinute}개 페이지뷰 (임계값: ${ABUSE_DETECTION_CONFIG.MAX_VIEWS_PER_MINUTE})`
+    );
+  }
+
+  return {
+    sessionId,
+    views,
+    totalViews,
+    avgIntervalMs,
+    minIntervalMs,
+    maxViewsPerMinute,
+    consecutiveFastViews: maxConsecutiveFast,
+    isAbusive: abuseReasons.length > 0,
+    abuseReasons,
+  };
+};
+
+// 어뷰징 세션 필터링
+const filterAbusiveSessions = (pageViews: PageViewRow[]): PageViewRow[] => {
+  if (!ABUSE_DETECTION_CONFIG.ENABLE_ABUSE_FILTERING) {
+    return pageViews;
+  }
+
+  // 세션별로 그룹화
+  const sessionMap = new Map<string, PageViewRow[]>();
+  pageViews.forEach((view, index) => {
+    // session_id가 없는 경우 user_id 사용, 둘 다 없으면 고유 키 생성
+    const sessionId = view.session_id || view.user_id || view.id || `no-session-${index}`;
+    if (!sessionMap.has(sessionId)) {
+      sessionMap.set(sessionId, []);
+    }
+    sessionMap.get(sessionId)!.push(view);
+  });
+
+  // 각 세션 분석
+  const analyses: SessionAnalysis[] = [];
+  sessionMap.forEach((views, sessionId) => {
+    const analysis = analyzeSessionForAbuse(sessionId, views);
+    analyses.push(analysis);
+  });
+
+  // 어뷰징 세션 통계
+  const abusiveSessions = analyses.filter((a) => a.isAbusive);
+  const totalAbusiveViews = abusiveSessions.reduce((sum, s) => sum + s.totalViews, 0);
+
+  if (abusiveSessions.length > 0) {
+    console.log(`[Abuse Detection] Found ${abusiveSessions.length} abusive sessions with ${totalAbusiveViews} views`);
+    console.log('[Abuse Detection] Top 5 abusive sessions:');
+    abusiveSessions
+      .sort((a, b) => b.totalViews - a.totalViews)
+      .slice(0, 5)
+      .forEach((session) => {
+        console.log(`  - Session ${session.sessionId.substring(0, 8)}...: ${session.totalViews} views`);
+        console.log(`    Reasons: ${session.abuseReasons.join(', ')}`);
+      });
+  }
+
+  // 정상 세션의 페이지뷰만 반환
+  const normalSessions = analyses.filter((a) => !a.isAbusive);
+  const filteredViews = normalSessions.flatMap((s) => s.views);
+
+  console.log(
+    `[Abuse Detection] Filtered ${totalAbusiveViews} views from ${abusiveSessions.length} sessions (${((totalAbusiveViews / pageViews.length) * 100).toFixed(1)}%)`
+  );
+
+  return filteredViews;
 };
 
 const fetchPageViews = async (startIso: string, endIso: string): Promise<PageViewRow[]> => {
@@ -387,12 +580,16 @@ const fetchPageViews = async (startIso: string, endIso: string): Promise<PageVie
   }
 
   // 클라이언트 측 봇 필터링
-  const filteredData = allData.filter(row => !isBotUserAgent(row.user_agent));
+  const botFilteredData = allData.filter(row => !isBotUserAgent(row.user_agent));
 
   console.log(`[fetchPageViews] Period: ${startIso} to ${endIso}`);
-  console.log(`[fetchPageViews] Total: ${allData.length}, After bot filter: ${filteredData.length} (${((filteredData.length / allData.length) * 100).toFixed(1)}% real users)`);
+  console.log(`[fetchPageViews] Total: ${allData.length}, After bot filter: ${botFilteredData.length} (${((botFilteredData.length / allData.length) * 100).toFixed(1)}% real users)`);
 
-  return filteredData;
+  // 어뷰징 세션 필터링
+  const finalData = filterAbusiveSessions(botFilteredData);
+  console.log(`[fetchPageViews] After abuse filter: ${finalData.length} views (removed ${botFilteredData.length - finalData.length} abusive views)`);
+
+  return finalData;
 };
 
 const fetchOrders = async (startIso: string, endIso: string): Promise<OrderRow[]> => {
@@ -472,26 +669,29 @@ export const getDashboardAnalytics = async (
 
   const series = generateSeries(currentBuckets, currentPageViews, currentOrders, currentProfiles, currentInquiries);
 
-  // 고유 방문자 수 계산 (session_id 기준만)
+  // 고유 방문자 수 계산 (session_id 또는 user_id 기준)
   const uniqueVisitorsSet = new Set<string>();
   currentPageViews.forEach((row) => {
     const sessionId = row.session_id && row.session_id.trim() !== '' ? row.session_id : null;
-    if (sessionId) {
-      uniqueVisitorsSet.add(sessionId);
-    }
+    const userId = row.user_id && row.user_id.trim() !== '' ? row.user_id : null;
+
+    // session_id가 있으면 우선 사용, 없으면 user_id 사용, 둘 다 없으면 페이지뷰 ID 사용
+    const visitorKey = sessionId || userId || row.id || `unknown-${row.created_at}`;
+    uniqueVisitorsSet.add(visitorKey);
   });
   const totalVisitors = uniqueVisitorsSet.size;
 
   const totalRevenue = sumRevenue(currentOrders);
   const totalNewUsers = currentProfiles.length;
 
-  // 이전 기간 고유 방문자 수 계산 (session_id 기준만)
+  // 이전 기간 고유 방문자 수 계산 (session_id 또는 user_id 기준)
   const previousVisitorsSet = new Set<string>();
   previousPageViews.forEach((row) => {
     const sessionId = row.session_id && row.session_id.trim() !== '' ? row.session_id : null;
-    if (sessionId) {
-      previousVisitorsSet.add(sessionId);
-    }
+    const userId = row.user_id && row.user_id.trim() !== '' ? row.user_id : null;
+
+    const visitorKey = sessionId || userId || row.id || `unknown-${row.created_at}`;
+    previousVisitorsSet.add(visitorKey);
   });
   const previousVisitors = previousVisitorsSet.size;
   const previousRevenue = sumRevenue(previousOrders);
@@ -510,15 +710,15 @@ export const getDashboardAnalytics = async (
     currentPageViews.forEach((row) => {
       const country = row.country || 'Unknown';
       const sessionId = row.session_id && row.session_id.trim() !== '' ? row.session_id : null;
+      const userId = row.user_id && row.user_id.trim() !== '' ? row.user_id : null;
+      const visitorKey = sessionId || userId || row.id || `unknown-${row.created_at}`;
 
       if (!countryMap.has(country)) {
         countryMap.set(country, { visitors: new Set(), pageViews: 0 });
       }
 
       const countryData = countryMap.get(country)!;
-      if (sessionId) {
-        countryData.visitors.add(sessionId);
-      }
+      countryData.visitors.add(visitorKey);
       countryData.pageViews += 1;
     });
 
@@ -542,15 +742,15 @@ export const getDashboardAnalytics = async (
     currentPageViews.forEach((row) => {
       const referrer = row.referrer || 'Direct';
       const sessionId = row.session_id && row.session_id.trim() !== '' ? row.session_id : null;
+      const userId = row.user_id && row.user_id.trim() !== '' ? row.user_id : null;
+      const visitorKey = sessionId || userId || row.id || `unknown-${row.created_at}`;
 
       if (!referrerMap.has(referrer)) {
         referrerMap.set(referrer, { visitors: new Set(), pageViews: 0 });
       }
 
       const referrerData = referrerMap.get(referrer)!;
-      if (sessionId) {
-        referrerData.visitors.add(sessionId);
-      }
+      referrerData.visitors.add(visitorKey);
       referrerData.pageViews += 1;
     });
 
