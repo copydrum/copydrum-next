@@ -293,8 +293,13 @@ export default function OnePageCheckout({
                   orderId={orderId}
                   amount={totalAmount}
                   orderName={items.length === 1 ? items[0].title : `${items.length} items`}
+                  items={items.map((item) => ({
+                    sheet_id: item.sheet_id,
+                    title: item.title,
+                    price: item.price,
+                  }))}
                   userEmail={userEmail}
-                  onSuccess={(paymentId) => handlePaymentComplete('kakaopay', paymentId)}
+                  onSuccess={(paymentId, dbOrderId) => handlePaymentComplete('kakaopay', paymentId, dbOrderId)}
                   onError={handlePaymentFailed}
                   onProcessing={handlePaymentStart}
                   compact

@@ -119,6 +119,41 @@ export async function POST(request: NextRequest) {
       console.error('[Points Payment] Transaction log error:', transactionError);
     }
 
+    // ✅ purchases 테이블에 구매 기록 삽입 (구매내역 페이지에서 조회 + 재다운로드 지원)
+    try {
+      const { data: orderItems, error: itemsError } = await supabase
+        .from('order_items')
+        .select('id, drum_sheet_id, price')
+        .eq('order_id', orderId);
+
+      if (itemsError) {
+        console.error('[Points Payment] order_items 조회 실패:', itemsError);
+      } else if (orderItems && orderItems.length > 0) {
+        const purchaseRecords = orderItems.map((item: any) => ({
+          user_id: userId,
+          drum_sheet_id: item.drum_sheet_id,
+          order_id: orderId,
+          price_paid: item.price ?? 0,
+        }));
+
+        const { error: purchasesError } = await supabase
+          .from('purchases')
+          .insert(purchaseRecords);
+
+        if (purchasesError && purchasesError.code !== '23505') {
+          // 23505 = unique violation (이미 기록됨) → 무시
+          console.error('[Points Payment] purchases 기록 실패:', purchasesError);
+        } else {
+          console.log('[Points Payment] ✅ purchases 기록 완료:', orderItems.length, '건');
+        }
+      } else {
+        console.warn('[Points Payment] order_items가 없음:', orderId);
+      }
+    } catch (purchaseErr) {
+      console.error('[Points Payment] purchases 기록 중 예외:', purchaseErr);
+      // 치명적이지 않으므로 결제 성공 응답은 유지
+    }
+
     return NextResponse.json({
       success: true,
       remainingPoints: updatedProfile.credits,

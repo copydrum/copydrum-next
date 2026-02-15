@@ -474,19 +474,11 @@ export const requestKakaoPayPayment = async (
         }
 
         // 사용자 정의 성공 콜백 호출
+        // ⚠️ PC(IFRAME) 모드에서는 onSuccess 콜백이 직접 네비게이션을 처리하므로
+        //    여기서 추가 리다이렉트를 하면 경쟁 조건(race condition)이 발생합니다.
+        //    모바일(REDIRECTION) 모드에서는 이 콜백이 실행되지 않으므로 문제 없음.
         if (params.onSuccess) {
           params.onSuccess(paymentResult);
-        }
-
-        // 결제 완료 후 리다이렉트 URL로 이동
-        // 카카오페이는 결제 완료 후 redirectUrl로 자동 리다이렉트되지만,
-        // onPaymentSuccess 콜백에서도 명시적으로 처리하여 이중결제 방지
-        if (returnUrl) {
-          console.log('[portone-kakaopay] 결제 완료 후 리다이렉트', { returnUrl });
-          // 약간의 지연 후 리다이렉트 (콜백 처리 완료 대기)
-          setTimeout(() => {
-            window.location.href = returnUrl;
-          }, 500);
         }
       },
       onPaymentFail: (error: any) => {

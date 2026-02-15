@@ -45,15 +45,70 @@ export default function DodoPaymentForm({
 
   /**
    * 🇰🇷 한국 결제 (PortOne + KG이니시스)
+   * ⚠️ DB에 주문을 먼저 생성한 후 결제를 진행해야 합니다 (Dodo/PayPal과 동일한 패턴)
    */
   const handlePortonePayment = async () => {
     console.log('🇰🇷 한국 결제(PortOne) 실행');
 
     try {
+      // ─── 1단계: DB에 주문이 없으면 먼저 생성 ───
+      let dbOrderId = orderId;
+      let orderExists = false;
+
+      try {
+        const { data } = await supabase
+          .from('orders')
+          .select('id')
+          .eq('id', orderId)
+          .maybeSingle();
+        orderExists = !!data;
+      } catch {
+        orderExists = false;
+      }
+
+      if (!orderExists) {
+        console.log('[PortOne-Card] 주문이 DB에 없음 → 새 주문 생성 시작');
+
+        const description = items.length === 1
+          ? items[0].title
+          : `${items[0].title} 외 ${items.length - 1}건`;
+
+        const createResponse = await fetch('/api/orders/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: user?.id,
+            items: items.map((item) => ({
+              sheetId: item.sheet_id,
+              title: item.title,
+              price: item.price,
+            })),
+            amount,
+            description,
+            paymentMethod: 'card',
+          }),
+        });
+
+        const createResult = await createResponse.json();
+
+        if (!createResult.success || !createResult.orderId) {
+          throw new Error(createResult.error || '주문 생성에 실패했습니다.');
+        }
+
+        dbOrderId = createResult.orderId;
+        console.log('[PortOne-Card] 새 주문 생성 완료:', {
+          dbOrderId,
+          orderNumber: createResult.orderNumber,
+        });
+      } else {
+        console.log('[PortOne-Card] 기존 주문 확인 완료:', dbOrderId);
+      }
+
+      // ─── 2단계: PortOne 카드 결제 요청 ───
       const result = await requestPortonePayment({
         userId: user?.id,
         amount,
-        orderId,
+        orderId: dbOrderId, // DB에 실제 존재하는 주문 ID 사용
         description: orderName,
         buyerEmail: customerEmail,
         buyerName: customerName,
@@ -63,7 +118,7 @@ export default function DodoPaymentForm({
 
       if (result.success && (result.paymentId || result.imp_uid)) {
         console.log('[PortOne V2] Payment success:', result);
-        onSuccess(result.paymentId || result.imp_uid!);
+        onSuccess(result.paymentId || result.imp_uid!, dbOrderId);
       } else {
         throw new Error(result.error_msg || 'Card payment failed');
       }

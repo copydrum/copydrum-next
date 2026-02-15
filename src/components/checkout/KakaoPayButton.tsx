@@ -1,16 +1,18 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { requestKakaoPayPayment } from '@/lib/payments/portone';
 import { useAuthStore } from '@/stores/authStore';
+import { supabase } from '@/lib/supabase';
 
 interface KakaoPayButtonProps {
   orderId: string;
   amount: number;
   orderName: string;
+  items?: { sheet_id: string; title: string; price: number }[];
   userEmail?: string;
-  onSuccess: (paymentId: string) => void;
+  onSuccess: (paymentId: string, dbOrderId?: string) => void;
   onError: (error: Error) => void;
   onProcessing: () => void;
   compact?: boolean;
@@ -20,6 +22,7 @@ export default function KakaoPayButton({
   orderId,
   amount,
   orderName,
+  items,
   userEmail,
   onSuccess,
   onError,
@@ -29,6 +32,7 @@ export default function KakaoPayButton({
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const user = useAuthStore((state) => state.user);
+  const dbOrderIdRef = useRef<string>(orderId);
 
   const handleKakaoPayClick = async () => {
     if (loading) return;
@@ -41,11 +45,66 @@ export default function KakaoPayButton({
         throw new Error('User not authenticated');
       }
 
-      // PortOne 카카오페이 결제 요청
+      // ─── 1단계: DB에 주문이 없으면 먼저 생성 (PayPal/Dodo와 동일한 패턴) ───
+      let dbOrderId = orderId;
+      let orderExists = false;
+
+      try {
+        const { data } = await supabase
+          .from('orders')
+          .select('id')
+          .eq('id', orderId)
+          .maybeSingle();
+        orderExists = !!data;
+      } catch {
+        orderExists = false;
+      }
+
+      if (!orderExists && items && items.length > 0) {
+        console.log('[KakaoPay] 주문이 DB에 없음 → 새 주문 생성 시작');
+
+        const description = items.length === 1
+          ? items[0].title
+          : `${items[0].title} 외 ${items.length - 1}건`;
+
+        const createResponse = await fetch('/api/orders/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: user.id,
+            items: items.map((item) => ({
+              sheetId: item.sheet_id,
+              title: item.title,
+              price: item.price,
+            })),
+            amount,
+            description,
+            paymentMethod: 'kakaopay',
+          }),
+        });
+
+        const createResult = await createResponse.json();
+
+        if (createResult.success && createResult.orderId) {
+          dbOrderId = createResult.orderId;
+          dbOrderIdRef.current = dbOrderId;
+          console.log('[KakaoPay] 새 주문 생성 완료:', {
+            dbOrderId,
+            orderNumber: createResult.orderNumber,
+          });
+        } else {
+          console.warn('[KakaoPay] 주문 생성 실패, 기존 orderId 사용:', createResult.error);
+        }
+      } else {
+        dbOrderIdRef.current = dbOrderId;
+        console.log('[KakaoPay] 기존 주문 확인 완료:', dbOrderId);
+      }
+
+      // ─── 2단계: PortOne 카카오페이 결제 요청 ───
       const result = await requestKakaoPayPayment({
         userId: user.id,
-        amount: amount, // KRW 금액
-        orderId: orderId,
+        amount: amount,
+        orderId: dbOrderId, // DB에 실제 존재하는 주문 ID 사용
         buyerEmail: userEmail || user.email || undefined,
         buyerName: user.user_metadata?.name || undefined,
         buyerTel: user.user_metadata?.phone || undefined,
@@ -53,7 +112,8 @@ export default function KakaoPayButton({
         returnUrl: `${window.location.origin}/payments/portone-paypal/return`,
         onSuccess: (paymentResult) => {
           console.log('[KakaoPay] Payment success:', paymentResult);
-          onSuccess(paymentResult.paymentId || orderId);
+          const finalOrderId = dbOrderIdRef.current || orderId;
+          onSuccess(paymentResult.paymentId || orderId, finalOrderId);
         },
         onError: (error) => {
           console.error('[KakaoPay] Payment error:', error);
