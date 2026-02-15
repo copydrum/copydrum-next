@@ -9768,3 +9768,3308 @@ ONE MORE TIME,ALLDAY PROJECT,중급,ALLDAY PROJECT - ONE MORE TIME.pdf,https://w
                                 </div>
                               )
                             )}
+
+                            {/* 결제 실패/취소 이력 표시 */}
+                            {(() => {
+                              const notes = order.metadata?.payment_notes;
+                              if (!Array.isArray(notes) || notes.length === 0) return null;
+                              return (
+                                <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-4">
+                                  <h4 className="text-sm font-semibold text-amber-800 mb-2 flex items-center gap-1">
+                                    <i className="ri-error-warning-line"></i>
+                                    결제 시도 이력 ({notes.length}건)
+                                  </h4>
+                                  <div className="space-y-2 max-h-40 overflow-y-auto">
+                                    {notes.map((n: any, idx: number) => {
+                                      let typeLabel = '알 수 없음';
+                                      let typeColor = 'text-gray-600';
+                                      if (n.type === 'cancel') { typeLabel = '사용자 취소'; typeColor = 'text-yellow-700'; }
+                                      else if (n.type === 'error') { typeLabel = '결제 에러'; typeColor = 'text-orange-700'; }
+                                      else if (n.type === 'system_error') { typeLabel = '시스템 에러'; typeColor = 'text-red-700'; }
+                                      return (
+                                        <div key={idx} className="flex items-start gap-2 text-xs border-b border-amber-200 pb-1 last:border-0 last:pb-0">
+                                          <span className={`font-medium ${typeColor} whitespace-nowrap`}>[{typeLabel}]</span>
+                                          <span className="text-gray-700 flex-1">{n.message}</span>
+                                          <span className="text-gray-400 whitespace-nowrap">{n.timestamp ? new Date(n.timestamp).toLocaleString('ko-KR') : ''}</span>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
+                              );
+                            })()}
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {renderOrderDetailModal()}
+    </div>
+  );
+  const renderCustomOrderManagement = () => (
+    <div className="space-y-6">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">맞춤 제작 주문 관리</h2>
+          <p className="text-sm text-gray-500">
+            고객 주문제작 신청을 확인하고 견적, 진행 상태, 완료 파일을 관리하세요.
+          </p>
+        </div>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="relative">
+            <i className="ri-search-line absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+            <input
+              type="text"
+              placeholder="곡명, 고객 이메일로 검색"
+              value={customOrderSearchTerm}
+              onChange={(event) => setCustomOrderSearchTerm(event.target.value)}
+              className="w-full rounded-lg border border-gray-300 bg-white py-2 pl-10 pr-4 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 sm:w-64"
+            />
+          </div>
+          <select
+            value={customOrderStatusFilter}
+            onChange={(event) =>
+              setCustomOrderStatusFilter(event.target.value as 'all' | CustomOrderStatus)
+            }
+            className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="all">전체 상태</option>
+            {Object.entries(CUSTOM_ORDER_STATUS_META).map(([value, meta]) => (
+              <option key={value} value={value}>
+                {meta.label}
+              </option>
+            ))}
+          </select>
+          <button
+            type="button"
+            onClick={() => loadCustomOrders()}
+            className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          >
+            <i className="ri-refresh-line mr-1"></i>
+            새로고침
+          </button>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  곡 정보
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  신청자
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  견적 금액
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  상태
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  최근 업데이트
+                </th>
+                <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
+                  작업
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {filteredCustomOrders.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="px-6 py-10 text-center text-sm text-gray-500">
+                    조건에 맞는 주문이 없습니다.
+                  </td>
+                </tr>
+              ) : (
+                filteredCustomOrders.map((order) => {
+                  const meta = CUSTOM_ORDER_STATUS_META[order.status] ?? CUSTOM_ORDER_STATUS_META.pending;
+                  return (
+                    <tr key={order.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-4">
+                        <div className="space-y-1">
+                          <p className="text-sm font-semibold text-gray-900">{order.song_title}</p>
+                          <p className="text-xs text-gray-500">{order.artist}</p>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="space-y-1">
+                          <p className="text-sm font-medium text-gray-900">
+                            {order.profiles?.name ?? '이름 미확인'}
+                          </p>
+                          <p className="text-xs text-gray-500">{order.profiles?.email}</p>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        {typeof order.estimated_price === 'number'
+                          ? `₩${order.estimated_price.toLocaleString('ko-KR')}`
+                          : '견적 미정'}
+                      </td>
+                      <td className="px-6 py-4">
+                        <span
+                          className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${meta.className}`}
+                        >
+                          {meta.label}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-500">
+                        {new Date(order.updated_at ?? order.created_at).toLocaleString('ko-KR')}
+                      </td>
+                      <td className="px-6 py-4 text-right text-sm font-medium">
+                        <div className="flex justify-end gap-2">
+                          {/* [추가] 악보 등록 버튼 */}
+                          {order.status === 'completed' && order.completed_pdf_url && (
+                            <button
+                              type="button"
+                              onClick={() => handleRegisterCustomOrderAsSheet(order)}
+                              className="inline-flex items-center gap-1 rounded-lg bg-green-600 px-3 py-2 text-xs font-semibold text-white hover:bg-green-700"
+                              title="일반 악보로 등록"
+                            >
+                              <i className="ri-music-2-line text-sm"></i>
+                              악보등록
+                            </button>
+                          )}
+                          
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedCustomOrderId(order.id);
+                              setIsCustomOrderModalOpen(true);
+                            }}
+                            className="inline-flex items-center gap-1 rounded-lg bg-blue-600 px-3 py-2 text-xs font-semibold text-white hover:bg-blue-700"
+                          >
+                            <i className="ri-chat-1-line text-sm"></i>
+                            상세 보기
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {isCustomOrderModalOpen && selectedCustomOrderId ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-6">
+          <div className="relative h-[90vh] w-full max-w-4xl overflow-hidden rounded-2xl bg-white shadow-2xl">
+            <CustomOrderDetail
+              orderId={selectedCustomOrderId}
+              onClose={() => {
+                setIsCustomOrderModalOpen(false);
+                setSelectedCustomOrderId(null);
+              }}
+              onUpdated={() => loadCustomOrders()}
+            />
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+  const renderEventDiscountManagement = () => {
+    const activeCount = eventDiscounts.filter((item) => item.status === 'active').length;
+    const scheduledCount = eventDiscounts.filter((item) => item.status === 'scheduled').length;
+    const endedCount = eventDiscounts.filter((item) => item.status === 'ended').length;
+    const totalCount = eventDiscounts.length;
+    const discountPercent = calculateDiscountPercent(eventForm.original_price, DEFAULT_EVENT_PRICE);
+
+    const formatDateTime = (value: string) =>
+      new Date(value).toLocaleString('ko-KR', {
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+
+    const renderStatusBadge = (status: EventDiscountStatus) => {
+      const meta = EVENT_STATUS_META[status];
+      return (
+        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${meta.className}`}>
+          {meta.label}
+        </span>
+      );
+    };
+
+    return (
+      <div className="space-y-6">
+        <div className="space-y-2">
+          <h2 className="text-2xl font-bold text-gray-900">이벤트 할인악보 관리</h2>
+          <p className="text-gray-500">
+            100원 특가 이벤트 악보를 등록하고 이벤트 기간과 활성 상태를 관리하세요. 등록된 악보는 이용자 화면의
+            &lsquo;이벤트 할인악보&rsquo; 코너에 노출됩니다.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="bg-white border border-green-100 rounded-xl p-4 shadow-sm">
+            <p className="text-sm font-medium text-gray-600">진행 중</p>
+            <p className="text-2xl font-bold text-green-600 mt-1">{activeCount}</p>
+          </div>
+          <div className="bg-white border border-blue-100 rounded-xl p-4 shadow-sm">
+            <p className="text-sm font-medium text-gray-600">예정</p>
+            <p className="text-2xl font-bold text-blue-600 mt-1">{scheduledCount}</p>
+          </div>
+          <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm">
+            <p className="text-sm font-medium text-gray-600">종료</p>
+            <p className="text-2xl font-bold text-gray-700 mt-1">{endedCount}</p>
+          </div>
+          <div className="bg-white border border-orange-100 rounded-xl p-4 shadow-sm">
+            <p className="text-sm font-medium text-gray-600">총 등록</p>
+            <p className="text-2xl font-bold text-orange-600 mt-1">{totalCount}</p>
+          </div>
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-3">
+          <div className="lg:col-span-2">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">등록된 이벤트 악보</h3>
+                  <p className="text-sm text-gray-500 mt-1">
+                    이벤트 기간, 할인율, 활성 여부를 빠르게 확인하고 수정할 수 있습니다.
+                  </p>
+                </div>
+                <button
+                  onClick={() => loadEventDiscounts()}
+                  className="inline-flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm"
+                >
+                  <i className="ri-refresh-line text-base"></i>
+                  새로고침
+                </button>
+              </div>
+
+              {isLoadingEventDiscounts ? (
+                <div className="py-16 flex flex-col items-center justify-center gap-3 text-gray-500">
+                  <i className="ri-loader-4-line w-8 h-8 animate-spin text-blue-600"></i>
+                  <p>이벤트 악보를 불러오는 중입니다...</p>
+                </div>
+              ) : eventDiscounts.length === 0 ? (
+                <div className="py-16 text-center text-gray-500">
+                  아직 등록된 이벤트 할인 악보가 없습니다. 오른쪽 폼을 사용해 첫 이벤트를 등록해보세요.
+                </div>
+              ) : (
+                <ul className="divide-y divide-gray-100">
+                  {eventDiscounts.map((event) => {
+                    const percent = calculateDiscountPercent(
+                      event.original_price ?? DEFAULT_EVENT_PRICE,
+                      event.discount_price ?? DEFAULT_EVENT_PRICE
+                    );
+                    return (
+                      <li key={event.id} className="px-6 py-5">
+                        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                          <div className="flex items-start gap-4">
+                            <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
+                              {event.thumbnail_url ? (
+                                <img
+                                  src={event.thumbnail_url}
+                                  alt={event.title || '이벤트 악보'}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <i className="ri-music-2-line text-2xl text-gray-400"></i>
+                              )}
+                            </div>
+                            <div>
+                              <div className="flex flex-wrap items-center gap-2">
+                                <h4 className="text-lg font-semibold text-gray-900">{event.title}</h4>
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-600">
+                                  100원 특가
+                                </span>
+                                {renderStatusBadge(event.status)}
+                                {editingEventId === event.id && (
+                                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-600">
+                                    편집 중
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-sm text-gray-500 mt-1">{event.artist}</p>
+                              <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
+                                <span className="line-through text-gray-400">{formatCurrency(event.original_price)}</span>
+                                <span className="text-lg font-bold text-red-600">
+                                  {formatCurrency(event.discount_price)}
+                                </span>
+                                {percent > 0 && (
+                                  <span className="px-2 py-0.5 text-xs font-semibold text-red-600 bg-red-50 rounded-full">
+                                    {percent}% 할인
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-xs text-gray-500 mt-3">
+                                {formatDateTime(event.event_start)} ~ {formatDateTime(event.event_end)}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex flex-wrap items-center gap-2 lg:flex-col lg:items-end lg:gap-3">
+                            <button
+                              onClick={() => handleEditEventDiscount(event)}
+                              className="px-3 py-2 text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors"
+                            >
+                              편집
+                            </button>
+                            <button
+                              onClick={() => handleToggleEventDiscount(event)}
+                              disabled={updatingEventId === event.id}
+                              className={`px-3 py-2 text-sm font-semibold rounded-lg transition-colors ${event.is_active
+                                ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                : 'bg-green-100 text-green-700 hover:bg-green-200'
+                                } ${updatingEventId === event.id ? 'opacity-70 cursor-not-allowed' : ''}`}
+                            >
+                              {event.is_active ? '비활성화' : '활성화'}
+                            </button>
+                            <button
+                              onClick={() => handleDeleteEventDiscount(event.id)}
+                              disabled={deletingEventId === event.id}
+                              className={`px-3 py-2 text-sm font-semibold text-red-600 hover:text-red-700 transition-colors ${deletingEventId === event.id ? 'opacity-60 cursor-not-allowed' : ''
+                                }`}
+                            >
+                              삭제
+                            </button>
+                          </div>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </div>
+          </div>
+
+          <div>
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+              <div className="px-6 py-4 border-b border-gray-100">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">이벤트 등록 / 수정</h3>
+                    <p className="text-sm text-gray-500 mt-1">악보를 검색해 선택하고 이벤트 기간을 설정하세요.</p>
+                  </div>
+                  {editingEventId && (
+                    <span className="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-1 rounded-full">수정 중</span>
+                  )}
+                </div>
+              </div>
+
+              <div className="px-6 py-6 space-y-6">
+                <div className="space-y-3">
+                  <label className="block text-sm font-medium text-gray-700">이벤트 악보 검색</label>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <input
+                      type="text"
+                      value={eventSearchTerm}
+                      onChange={(e) => setEventSearchTerm(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          searchEventCandidateSheets();
+                        }
+                      }}
+                      placeholder="악보 제목 또는 아티스트를 입력하세요."
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                    <div className="flex gap-2">
+                      <button
+                        onClick={searchEventCandidateSheets}
+                        disabled={isEventSearchLoading}
+                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
+                      >
+                        {isEventSearchLoading ? '검색 중...' : '검색'}
+                      </button>
+                      <button
+                        onClick={resetEventFormState}
+                        className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-semibold"
+                      >
+                        초기화
+                      </button>
+                    </div>
+                  </div>
+
+                  {eventSearchResults.length > 0 && (
+                    <div className="border border-gray-200 rounded-lg max-h-64 overflow-y-auto divide-y divide-gray-100">
+                      {eventSearchResults.map((sheet) => {
+                        const alreadyRegistered = eventDiscounts.some((event) => event.sheet_id === sheet.id);
+                        return (
+                          <button
+                            key={sheet.id}
+                            onClick={() => handleSelectEventCandidate(sheet)}
+                            className={`w-full text-left px-4 py-3 hover:bg-blue-50 transition-colors ${selectedEventSheet?.id === sheet.id ? 'bg-blue-50' : ''
+                              }`}
+                          >
+                            <div className="flex items-center justify-between gap-3">
+                              <div>
+                                <p className="font-semibold text-gray-900">{sheet.title}</p>
+                                <p className="text-sm text-gray-500">{sheet.artist}</p>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-sm font-semibold text-gray-800">{formatCurrency(sheet.price)}</p>
+                                {alreadyRegistered && (
+                                  <span className="inline-flex items-center px-2 py-0.5 text-xs font-semibold rounded-full bg-orange-100 text-orange-600 mt-1">
+                                    이미 등록됨
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+
+                {selectedEventSheet ? (
+                  <div className="rounded-lg border border-orange-200 bg-orange-50 p-4 space-y-2">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-semibold text-orange-700">선택된 악보</p>
+                        <p className="text-lg font-bold text-gray-900">{selectedEventSheet.title}</p>
+                        <p className="text-sm text-gray-600">{selectedEventSheet.artist}</p>
+                      </div>
+                      <button
+                        onClick={clearSelectedEventSheet}
+                        className="text-xs font-semibold text-gray-500 hover:text-gray-700 transition-colors"
+                      >
+                        선택 해제
+                      </button>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2 text-sm">
+                      <span className="text-gray-600">정가</span>
+                      <span className="font-semibold text-gray-900">{formatCurrency(eventForm.original_price)}</span>
+                      <span className="text-gray-400">{'→'}</span>
+                      <span className="text-red-600 font-bold">{formatCurrency(DEFAULT_EVENT_PRICE)}</span>
+                      {discountPercent > 0 && (
+                        <span className="px-2 py-0.5 text-xs font-semibold text-red-600 bg-red-100 rounded-full">
+                          {discountPercent}% 할인
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="rounded-lg border border-dashed border-gray-300 p-4 text-sm text-gray-500">
+                    이벤트로 등록할 악보를 먼저 검색해 선택해주세요.
+                  </div>
+                )}
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">이벤트 기간</label>
+                    <div className="grid grid-cols-1 gap-3">
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs text-gray-500 w-16">시작</span>
+                        <input
+                          type="datetime-local"
+                          value={eventForm.event_start}
+                          onChange={(e) => updateEventForm('event_start', e.target.value)}
+                          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs text-gray-500 w-16">종료</span>
+                        <input
+                          type="datetime-local"
+                          value={eventForm.event_end}
+                          onChange={(e) => updateEventForm('event_end', e.target.value)}
+                          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">이벤트 가격</label>
+                    <div className="grid grid-cols-1 gap-2 text-sm text-gray-600">
+                      <p>
+                        정가{' '}
+                        <span className="font-semibold text-gray-900">
+                          {formatCurrency(eventForm.original_price)}
+                        </span>{' '}
+                        → 이벤트가{' '}
+                        <span className="font-semibold text-red-600">
+                          {formatCurrency(DEFAULT_EVENT_PRICE)}
+                        </span>
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        할인가는 100원으로 고정되며, 할인율은 정가 기준으로 자동 계산됩니다.
+                      </p>
+                    </div>
+                  </div>
+
+                  <label className="flex items-center gap-3 text-sm font-medium text-gray-700">
+                    <input
+                      type="checkbox"
+                      checked={eventForm.is_active}
+                      onChange={(e) => updateEventForm('is_active', e.target.checked)}
+                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                    />
+                    이벤트를 즉시 활성화
+                  </label>
+                </div>
+
+                <button
+                  onClick={handleSaveEventDiscount}
+                  disabled={isSavingEventDiscount}
+                  className="w-full py-3 bg-red-500 text-white rounded-lg font-semibold text-sm hover:bg-red-600 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {isSavingEventDiscount ? '저장 중...' : editingEventId ? '이벤트 수정하기' : '이벤트 등록하기'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+  const renderSettings = () => {
+    if (isLoadingSettings) {
+      return (
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm">
+          <div className="flex items-center gap-3 px-6 py-8 text-gray-600">
+            <i className="ri-loader-4-line h-6 w-6 animate-spin text-blue-600"></i>
+            <span>설정을 불러오는 중입니다...</span>
+          </div>
+        </div>
+      );
+    }
+
+    if (settingsError) {
+      return (
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm">
+          <div className="px-6 py-8">
+            <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-red-700">
+              <div className="flex items-start gap-3">
+                <i className="ri-error-warning-line text-xl"></i>
+                <div>
+                  <p className="font-semibold">설정을 불러오는 중 오류가 발생했습니다.</p>
+                  <p className="mt-1 text-sm">{settingsError}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={loadSiteSettings}
+                className="mt-6 inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700"
+              >
+                <i className="ri-refresh-line"></i>
+                다시 시도
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    const activeConfig = SETTINGS_TAB_CONFIG[activeSettingsTab];
+
+    const renderFooter = (key: SiteSettingKey) => {
+      const meta = settingsMeta[key];
+      return (
+        <div className="flex flex-col gap-3 border-t border-gray-100 pt-6 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-gray-500">
+            마지막 저장: {formatSettingsTimestamp(meta?.updatedAt ?? '')}
+          </p>
+          <button
+            type="submit"
+            className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300"
+            disabled={isSavingSettings}
+          >
+            {isSavingSettings ? '저장 중...' : '변경 사항 저장'}
+          </button>
+        </div>
+      );
+    };
+
+    const renderTabContent = () => {
+      switch (activeSettingsTab) {
+        case 'general':
+          return (
+            <form
+              className="space-y-6"
+              onSubmit={(event) => {
+                event.preventDefault();
+                void handleSaveSettings('general');
+              }}
+            >
+              <div className="grid gap-6">
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700" htmlFor="setting-site-name">
+                      사이트 이름
+                    </label>
+                    <input
+                      id="setting-site-name"
+                      type="text"
+                      value={siteSettings.general.siteName}
+                      onChange={(event) => updateGeneralSetting('siteName', event.target.value)}
+                      className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                      placeholder="CopyDrum"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700" htmlFor="setting-contact-number">
+                      연락처
+                    </label>
+                    <input
+                      id="setting-contact-number"
+                      type="text"
+                      value={siteSettings.general.contactNumber}
+                      onChange={(event) => updateGeneralSetting('contactNumber', event.target.value)}
+                      className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                      placeholder="010-0000-0000"
+                    />
+                  </div>
+                </div>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700" htmlFor="setting-contact-email">
+                      고객 지원 이메일
+                    </label>
+                    <input
+                      id="setting-contact-email"
+                      type="email"
+                      value={siteSettings.general.contactEmail}
+                      onChange={(event) => updateGeneralSetting('contactEmail', event.target.value)}
+                      className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                      placeholder="copydrum@hanmail.net"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700" htmlFor="setting-address">
+                      주소
+                    </label>
+                    <input
+                      id="setting-address"
+                      type="text"
+                      value={siteSettings.general.address}
+                      onChange={(event) => updateGeneralSetting('address', event.target.value)}
+                      className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                      placeholder="서울특별시"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700" htmlFor="setting-about">
+                    소개 문구
+                  </label>
+                  <textarea
+                    id="setting-about"
+                    rows={4}
+                    value={siteSettings.general.about}
+                    onChange={(event) => updateGeneralSetting('about', event.target.value)}
+                    className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                    placeholder="서비스 소개 문구를 입력하세요."
+                  ></textarea>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700" htmlFor="setting-business-hours">
+                    운영 시간
+                  </label>
+                  <input
+                    id="setting-business-hours"
+                    type="text"
+                    value={siteSettings.general.businessHours}
+                    onChange={(event) => updateGeneralSetting('businessHours', event.target.value)}
+                    className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                    placeholder="평일 10:00-18:00 (점심 12:00-13:00)"
+                  />
+                  <p className="mt-1 text-xs text-gray-500">방문자에게 표시되는 기본 운영 시간을 입력하세요.</p>
+                </div>
+              </div>
+              {renderFooter('general')}
+            </form>
+          );
+        case 'payment':
+          return (
+            <form
+              className="space-y-6"
+              onSubmit={(event) => {
+                event.preventDefault();
+                void handleSaveSettings('payment');
+              }}
+            >
+              <div className="grid gap-6">
+                <div className="grid gap-4 md:grid-cols-3">
+                  <div className="md:col-span-1">
+                    <label className="block text-sm font-medium text-gray-700" htmlFor="setting-bank-name">
+                      은행명
+                    </label>
+                    <input
+                      id="setting-bank-name"
+                      type="text"
+                      value={siteSettings.payment.bankName}
+                      onChange={(event) => updatePaymentSetting('bankName', event.target.value)}
+                      className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                      placeholder="국민은행"
+                    />
+                  </div>
+                  <div className="md:col-span-1">
+                    <label className="block text-sm font-medium text-gray-700" htmlFor="setting-account-number">
+                      계좌번호
+                    </label>
+                    <input
+                      id="setting-account-number"
+                      type="text"
+                      value={siteSettings.payment.accountNumber}
+                      onChange={(event) => updatePaymentSetting('accountNumber', event.target.value)}
+                      className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                      placeholder="000000-00-000000"
+                    />
+                  </div>
+                  <div className="md:col-span-1">
+                    <label className="block text-sm font-medium text-gray-700" htmlFor="setting-account-holder">
+                      예금주
+                    </label>
+                    <input
+                      id="setting-account-holder"
+                      type="text"
+                      value={siteSettings.payment.accountHolder}
+                      onChange={(event) => updatePaymentSetting('accountHolder', event.target.value)}
+                      className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                      placeholder="홍길동"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700" htmlFor="setting-payment-guide">
+                    결제 안내 문구
+                  </label>
+                  <textarea
+                    id="setting-payment-guide"
+                    rows={5}
+                    value={siteSettings.payment.paymentGuide}
+                    onChange={(event) => updatePaymentSetting('paymentGuide', event.target.value)}
+                    className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                    placeholder="입금 안내 문구를 입력하세요."
+                  ></textarea>
+                  <p className="mt-1 text-xs text-gray-500">고객에게 안내되는 결제 방법 및 주의사항을 작성합니다.</p>
+                </div>
+              </div>
+              {renderFooter('payment')}
+            </form>
+          );
+        case 'event':
+          return (
+            <form
+              className="space-y-6"
+              onSubmit={(event) => {
+                event.preventDefault();
+                void handleSaveSettings('event');
+              }}
+            >
+              <div className="grid gap-6 md:grid-cols-2">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700" htmlFor="setting-event-discount-rate">
+                    기본 할인율 (%)
+                  </label>
+                  <input
+                    id="setting-event-discount-rate"
+                    type="number"
+                    min={0}
+                    max={100}
+                    step={0.5}
+                    value={siteSettings.event.defaultDiscountRate}
+                    onChange={(event) => {
+                      const value = Number(event.target.value);
+                      const safe = Number.isNaN(value) ? 0 : Math.min(100, Math.max(0, value));
+                      updateEventSetting('defaultDiscountRate', safe);
+                    }}
+                    className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  />
+                  <p className="mt-1 text-xs text-gray-500">새 이벤트 생성 시 기본으로 적용되는 할인율입니다.</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700" htmlFor="setting-event-duration">
+                    기본 이벤트 기간 (일)
+                  </label>
+                  <input
+                    id="setting-event-duration"
+                    type="number"
+                    min={1}
+                    value={siteSettings.event.defaultDurationDays}
+                    onChange={(event) => {
+                      const value = Number(event.target.value);
+                      const safe = Number.isNaN(value) ? 1 : Math.max(1, value);
+                      updateEventSetting('defaultDurationDays', safe);
+                    }}
+                    className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  />
+                  <p className="mt-1 text-xs text-gray-500">이벤트 시작일 기준 기본 종료일까지의 기간입니다.</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700" htmlFor="setting-event-min-price">
+                    최소 할인 가격 (₩)
+                  </label>
+                  <input
+                    id="setting-event-min-price"
+                    type="number"
+                    min={0}
+                    value={siteSettings.event.minPrice}
+                    onChange={(event) => {
+                      const value = Number(event.target.value);
+                      const safe = Number.isNaN(value) ? 0 : Math.max(0, value);
+                      updateEventSetting('minPrice', safe);
+                    }}
+                    className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  />
+                  <p className="mt-1 text-xs text-gray-500">할인 적용 시 허용되는 최솟값입니다.</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700" htmlFor="setting-event-max-price">
+                    최대 할인 가격 (₩)
+                  </label>
+                  <input
+                    id="setting-event-max-price"
+                    type="number"
+                    min={0}
+                    value={siteSettings.event.maxPrice}
+                    onChange={(event) => {
+                      const value = Number(event.target.value);
+                      const safe = Number.isNaN(value) ? 0 : Math.max(0, value);
+                      updateEventSetting('maxPrice', safe);
+                    }}
+                    className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  />
+                  <p className="mt-1 text-xs text-gray-500">할인 적용 시 허용되는 최대값입니다.</p>
+                </div>
+              </div>
+              {renderFooter('event')}
+            </form>
+          );
+        case 'system':
+          return (
+            <form
+              className="space-y-6"
+              onSubmit={(event) => {
+                event.preventDefault();
+                void handleSaveSettings('system');
+              }}
+            >
+              <div className="space-y-5">
+                <div className="flex items-center justify-between rounded-lg border border-gray-200 px-4 py-3">
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">유지보수 모드</p>
+                    <p className="text-xs text-gray-500">활성화 시 방문자에게 점검 안내 메시지를 표시합니다.</p>
+                  </div>
+                  <label className="inline-flex items-center">
+                    <input
+                      type="checkbox"
+                      className="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      checked={siteSettings.system.maintenanceMode}
+                      onChange={(event) => updateSystemSetting('maintenanceMode', event.target.checked)}
+                    />
+                  </label>
+                </div>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700" htmlFor="setting-max-upload">
+                      첨부 파일 최대 용량 (MB)
+                    </label>
+                    <input
+                      id="setting-max-upload"
+                      type="number"
+                      min={1}
+                      value={siteSettings.system.maxUploadSizeMB}
+                      onChange={(event) => {
+                        const value = Number(event.target.value);
+                        const safe = Number.isNaN(value) ? 1 : Math.max(1, value);
+                        updateSystemSetting('maxUploadSizeMB', safe);
+                      }}
+                      className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                    />
+                    <p className="mt-1 text-xs text-gray-500">맞춤 제작 요청 등 파일 업로드 허용 용량입니다.</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700" htmlFor="setting-items-per-page">
+                      페이지당 항목 수
+                    </label>
+                    <input
+                      id="setting-items-per-page"
+                      type="number"
+                      min={1}
+                      value={siteSettings.system.itemsPerPage}
+                      onChange={(event) => {
+                        const value = Number(event.target.value);
+                        const safe = Number.isNaN(value) ? 1 : Math.max(1, value);
+                        updateSystemSetting('itemsPerPage', safe);
+                      }}
+                      className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                    />
+                    <p className="mt-1 text-xs text-gray-500">목록 화면에서 기본으로 보여줄 항목 개수입니다.</p>
+                  </div>
+                </div>
+              </div>
+              {renderFooter('system')}
+            </form>
+          );
+        case 'notification':
+          return (
+            <form
+              className="space-y-6"
+              onSubmit={(event) => {
+                event.preventDefault();
+                void handleSaveSettings('notification');
+              }}
+            >
+              <div className="space-y-4">
+                <label className="inline-flex items-start gap-3 rounded-lg border border-gray-200 px-4 py-3">
+                  <input
+                    type="checkbox"
+                    className="mt-1 h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    checked={siteSettings.notification.orderNotification}
+                    onChange={(event) => updateNotificationSetting('orderNotification', event.target.checked)}
+                  />
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">일반 주문 알림</p>
+                    <p className="text-xs text-gray-500">새로운 일반 주문이 접수되면 알림을 받습니다.</p>
+                  </div>
+                </label>
+                <label className="inline-flex items-start gap-3 rounded-lg border border-gray-200 px-4 py-3">
+                  <input
+                    type="checkbox"
+                    className="mt-1 h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    checked={siteSettings.notification.customOrderNotification}
+                    onChange={(event) => updateNotificationSetting('customOrderNotification', event.target.checked)}
+                  />
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">맞춤 제작 알림</p>
+                    <p className="text-xs text-gray-500">맞춤 제작 요청이 생성되거나 상태가 변경되면 알림을 받습니다.</p>
+                  </div>
+                </label>
+                <label className="inline-flex items-start gap-3 rounded-lg border border-gray-200 px-4 py-3">
+                  <input
+                    type="checkbox"
+                    className="mt-1 h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    checked={siteSettings.notification.inquiryNotification}
+                    onChange={(event) => updateNotificationSetting('inquiryNotification', event.target.checked)}
+                  />
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">상담/문의 알림</p>
+                    <p className="text-xs text-gray-500">새로운 1:1 문의가 접수되면 알림을 받습니다.</p>
+                  </div>
+                </label>
+                <label className="inline-flex items-start gap-3 rounded-lg border border-gray-200 px-4 py-3">
+                  <input
+                    type="checkbox"
+                    className="mt-1 h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    checked={siteSettings.notification.newsletterSubscription}
+                    onChange={(event) => updateNotificationSetting('newsletterSubscription', event.target.checked)}
+                  />
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">뉴스레터 발송 동의</p>
+                    <p className="text-xs text-gray-500">이메일 뉴스레터 및 주요 공지 발송에 동의합니다.</p>
+                  </div>
+                </label>
+              </div>
+              {renderFooter('notification')}
+            </form>
+          );
+        case 'translation':
+          return (
+            <form
+              className="space-y-6"
+              onSubmit={(event) => {
+                event.preventDefault();
+                void handleSaveSettings('translation');
+              }}
+            >
+              <div className="grid gap-6">
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700" htmlFor="setting-default-language">
+                      기본 언어
+                    </label>
+                    <select
+                      id="setting-default-language"
+                      value={siteSettings.translation.defaultLanguage}
+                      onChange={(event) => updateTranslationSetting('defaultLanguage', event.target.value)}
+                      className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                    >
+                      {Object.entries(languages).map(([code, name]) => (
+                        <option key={code} value={code}>
+                          {name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700" htmlFor="setting-available-languages">
+                      지원 언어
+                    </label>
+                    <select
+                      id="setting-available-languages"
+                      multiple
+                      value={siteSettings.translation.availableLanguages}
+                      onChange={(event) => {
+                        const selectedOptions = Array.from(event.target.selectedOptions, (option) => option.value);
+                        updateTranslationSetting('availableLanguages', selectedOptions);
+                      }}
+                      className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                    >
+                      {Object.entries(languages).map(([code, name]) => (
+                        <option key={code} value={code}>
+                          {name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </div>
+              {renderFooter('translation')}
+            </form>
+          );
+        default:
+          return null;
+      }
+    };
+
+    return (
+      <div className="space-y-6">
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm">
+          <div className="border-b border-gray-100 px-6 py-5">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">사이트 설정</h2>
+                <p className="text-sm text-gray-500">서비스 운영 전반에 필요한 설정을 관리하세요.</p>
+              </div>
+              <button
+                type="button"
+                onClick={loadSiteSettings}
+                className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              >
+                <i className="ri-refresh-line"></i>
+                전체 새로고침
+              </button>
+            </div>
+          </div>
+          <div className="flex flex-col lg:flex-row">
+            <div className="lg:min-w-[240px] lg:border-r lg:border-gray-100">
+              <nav className="flex overflow-x-auto border-b border-gray-100 lg:flex-col lg:border-b-0">
+                {SETTINGS_TABS.map((tab) => {
+                  const config = SETTINGS_TAB_CONFIG[tab];
+                  const isActive = activeSettingsTab === tab;
+                  return (
+                    <button
+                      key={tab}
+                      type="button"
+                      onClick={() => setActiveSettingsTab(tab)}
+                      className={`flex-1 min-w-[160px] border-b border-gray-100 px-4 py-3 text-sm font-medium transition-colors last:border-b-0 lg:min-w-full lg:border-b-0 ${isActive
+                        ? 'bg-blue-50 text-blue-700 lg:border-l-4 lg:border-blue-500'
+                        : 'text-gray-600 hover:bg-gray-50 lg:border-l-4 lg:border-transparent'
+                        }`}
+                    >
+                      <div className="flex items-center justify-center gap-2 lg:justify-start">
+                        <i className={`${config.icon} text-base`}></i>
+                        <span>{config.label}</span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </nav>
+            </div>
+            <div className="flex-1">
+              <div className="border-b border-gray-100 px-6 py-5">
+                <div className="flex items-start gap-3">
+                  <div className="rounded-lg bg-blue-50 p-3 text-blue-600">
+                    <i className={`${activeConfig.icon} text-xl`}></i>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold text-gray-900">{activeConfig.label}</h3>
+                    <p className="mt-1 text-sm text-gray-500">{activeConfig.description}</p>
+                  </div>
+                </div>
+              </div>
+              <div className="px-6 py-6">{renderTabContent()}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+  const renderAnalytics = () => {
+    const periodOptions: { value: AnalyticsPeriod; label: string }[] = [
+      { value: 'today', label: '오늘' },
+      { value: '7d', label: '최근 7일' },
+      { value: '30d', label: '최근 30일' },
+      { value: '365d', label: '최근 1년' },
+      { value: 'all', label: '전체 기간' },
+    ];
+
+    const formatGrowthText = (value: number | null | undefined) =>
+      value != null && Number.isFinite(value) ? formatPercentChange(value) : '-';
+
+    const growthBadgeClass = (value: number | null | undefined) => {
+      if (value == null || !Number.isFinite(value)) {
+        return 'bg-gray-100 text-gray-500';
+      }
+      return getChangeBadgeClassName(value);
+    };
+
+    const getCustomOrderStatusLabel = (status: string) =>
+      CUSTOM_ORDER_STATUS_META[status as CustomOrderStatus]?.label ?? status;
+
+    const pieColors = [
+      '#2563eb',
+      '#22c55e',
+      '#f97316',
+      '#a855f7',
+      '#f43f5e',
+      '#0ea5e9',
+      '#6366f1',
+      '#14b8a6',
+      '#ef4444',
+      '#78350f',
+    ];
+
+    const statusColorMap: Record<string, string> = {
+      pending: '#f59e0b',
+      quoted: '#38bdf8',
+      payment_confirmed: '#22c55e',
+      in_progress: '#6366f1',
+      completed: '#9333ea',
+      cancelled: '#ef4444',
+    };
+
+    const isInitialLoading = analyticsLoading && !analyticsData;
+    const hasData = Boolean(analyticsData);
+
+    const revenueData = analyticsData?.revenueTrend ?? [];
+    const popularData = analyticsData?.popularSheets ?? [];
+    const categoryData = analyticsData?.categoryBreakdown ?? [];
+    const customStatusData = analyticsData?.customOrder.statusDistribution ?? [];
+    const newUsersData = analyticsData?.newUsersTrend ?? [];
+
+    const kpiItems = analyticsData
+      ? [
+        {
+          title: '총 매출',
+          value: formatCurrency(analyticsData.summary.totalRevenue),
+          change: analyticsData.summary.revenueGrowth,
+          caption: '완료된 주문 기준',
+          icon: 'ri-coins-line',
+          iconWrapperClass: 'bg-amber-100 text-amber-600',
+        },
+        {
+          title: '총 주문 수',
+          value: analyticsData.summary.totalOrders.toLocaleString('ko-KR'),
+          change: analyticsData.summary.orderGrowth,
+          caption: '기간 내 완료된 주문',
+          icon: 'ri-shopping-bag-3-line',
+          iconWrapperClass: 'bg-blue-100 text-blue-600',
+        },
+        {
+          title: '총 회원 수',
+          value: analyticsData.summary.totalCustomers.toLocaleString('ko-KR'),
+          change: analyticsData.summary.customerGrowth,
+          caption: '신규 회원 증감률',
+          icon: 'ri-user-3-line',
+          iconWrapperClass: 'bg-sky-100 text-sky-600',
+        },
+        {
+          title: '평균 주문 금액',
+          value: formatCurrency(analyticsData.summary.averageOrderValue),
+          change: analyticsData.summary.averageOrderGrowth,
+          caption: '주문당 평균 매출',
+          icon: 'ri-line-chart-line',
+          iconWrapperClass: 'bg-emerald-100 text-emerald-600',
+        },
+      ]
+      : [];
+
+    const isExportDisabled = !analyticsData || analyticsLoading || analyticsExporting;
+
+    return (
+      <div className="space-y-6">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="flex flex-wrap gap-2">
+            {periodOptions.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => handleAnalyticsPeriodChange(option.value)}
+                className={`rounded-lg border px-3 py-1.5 text-sm font-medium transition ${analyticsPeriod === option.value
+                  ? 'border-blue-600 bg-blue-600 text-white shadow-sm'
+                  : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-100'
+                  }`}
+                disabled={analyticsLoading && analyticsPeriod === option.value}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={handleAnalyticsRefresh}
+              className="inline-flex items-center rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-60"
+              disabled={analyticsLoading}
+            >
+              <i className="ri-refresh-line mr-2"></i>
+              새로고침
+            </button>
+            <button
+              type="button"
+              onClick={() => void handleAnalyticsExport()}
+              className="inline-flex items-center rounded-lg border border-blue-600 px-3 py-2 text-sm font-semibold text-blue-600 hover:bg-blue-50 disabled:border-gray-300 disabled:text-gray-400"
+              disabled={isExportDisabled}
+            >
+              <i className="ri-download-2-line mr-2"></i>
+              {analyticsExporting ? '내보내는 중...' : 'Excel 내보내기'}
+            </button>
+          </div>
+        </div>
+
+        {analyticsError && (
+          <div className="rounded-lg border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <div>
+                <p className="font-semibold">데이터를 불러오는 중 오류가 발생했습니다.</p>
+                <p className="mt-1 text-rose-600">{analyticsError}</p>
+              </div>
+              <button
+                type="button"
+                onClick={handleAnalyticsRefresh}
+                className="inline-flex items-center rounded-lg border border-rose-400 px-3 py-2 text-sm font-medium text-rose-700 hover:bg-rose-100"
+              >
+                <i className="ri-refresh-line mr-2"></i>
+                다시 시도
+              </button>
+            </div>
+          </div>
+        )}
+
+        {isInitialLoading ? (
+          <div className="flex min-h-[320px] items-center justify-center rounded-xl border border-gray-200 bg-white">
+            <div className="text-center text-gray-500">
+              <i className="ri-loader-4-line animate-spin text-2xl"></i>
+              <p className="mt-2 text-sm">데이터를 불러오는 중입니다...</p>
+            </div>
+          </div>
+        ) : hasData ? (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
+              {kpiItems.map((item) => (
+                <div key={item.title} className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-sm text-gray-500">{item.title}</p>
+                      <p className="mt-2 text-2xl font-semibold text-gray-900">{item.value}</p>
+                    </div>
+                    <div className={`flex h-12 w-12 items-center justify-center rounded-lg ${item.iconWrapperClass}`}>
+                      <i className={`${item.icon} text-xl`}></i>
+                    </div>
+                  </div>
+                  <div className="mt-4 flex items-center gap-2">
+                    <span
+                      className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${growthBadgeClass(
+                        item.change,
+                      )}`}
+                    >
+                      {formatGrowthText(item.change)}
+                    </span>
+                    <span className="text-xs text-gray-500">{item.caption}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+              <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">매출 추이</h3>
+                    <p className="text-sm text-gray-500">기간 내 매출 흐름</p>
+                  </div>
+                </div>
+                <div className="mt-6 h-[300px]">
+                  {revenueData.length > 0 ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={revenueData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="label" tick={{ fontSize: 12 }} />
+                        <YAxis tickFormatter={(value: number) => `₩${value.toLocaleString('ko-KR')}`} />
+                        <Tooltip
+                          formatter={(value: number, name: string) => {
+                            if (name === 'revenue') {
+                              return [`₩${value.toLocaleString('ko-KR')}`, '매출'];
+                            }
+                            if (name === 'orders') {
+                              return [`${value.toLocaleString('ko-KR')}건`, '주문 수'];
+                            }
+                            return value;
+                          }}
+                        />
+                        <Line type="monotone" dataKey="revenue" name="매출" stroke="#2563eb" strokeWidth={2} dot={false} />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <div className="flex h-full items-center justify-center text-sm text-gray-500">
+                      표시할 데이터가 없습니다.
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">주문 추이</h3>
+                    <p className="text-sm text-gray-500">기간 내 주문 수 변화</p>
+                  </div>
+                </div>
+                <div className="mt-6 h-[300px]">
+                  {revenueData.length > 0 ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={revenueData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="label" tick={{ fontSize: 12 }} />
+                        <YAxis tickFormatter={(value: number) => `${value.toLocaleString('ko-KR')}건`} />
+                        <Tooltip formatter={(value: number) => [`${value.toLocaleString('ko-KR')}건`, '주문 수']} />
+                        <Area type="monotone" dataKey="orders" name="주문 수" stroke="#22c55e" fill="#bbf7d0" fillOpacity={0.6} />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <div className="flex h-full items-center justify-center text-sm text-gray-500">
+                      표시할 데이터가 없습니다.
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+              <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                <div className="mb-6 flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">인기 악보 Top 10</h3>
+                    <p className="text-sm text-gray-500">주문 수 기준 상위 악보</p>
+                  </div>
+                </div>
+                <div className="h-[320px]">
+                  {popularData.length > 0 ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={popularData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis
+                          dataKey="title"
+                          tickFormatter={(value: string) => (value.length > 8 ? `${value.slice(0, 8)}…` : value)}
+                          tick={{ fontSize: 12 }}
+                        />
+                        <YAxis tickFormatter={(value: number) => `${value.toLocaleString('ko-KR')}건`} />
+                        <Tooltip
+                          formatter={(value: number, name: string) =>
+                            name === 'orders'
+                              ? [`${value.toLocaleString('ko-KR')}건`, '주문 수']
+                              : [`₩${value.toLocaleString('ko-KR')}`, '매출']
+                          }
+                        />
+                        <Legend />
+                        <Bar dataKey="orders" name="주문 수" fill="#2563eb" radius={[6, 6, 0, 0]} />
+                        <Bar dataKey="revenue" name="매출" fill="#f59e0b" radius={[6, 6, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <div className="flex h-full items-center justify-center text-sm text-gray-500">
+                      표시할 데이터가 없습니다.
+                    </div>
+                  )}
+                </div>
+                <div className="mt-6 divide-y divide-gray-100 rounded-lg border border-gray-100">
+                  {popularData.slice(0, 5).map((sheet, index) => (
+                    <div key={sheet.sheetId} className="flex items-center justify-between px-4 py-3 text-sm">
+                      <div>
+                        <p className="font-semibold text-gray-900">
+                          {index + 1}. {sheet.title}
+                        </p>
+                        <p className="text-xs text-gray-500">{sheet.artist}</p>
+                      </div>
+                      <div className="text-right text-xs text-gray-500">
+                        <p>주문 {sheet.orders.toLocaleString('ko-KR')}건</p>
+                        <p className="text-gray-600">매출 {formatCurrency(sheet.revenue)}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                <div className="mb-6 flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">카테고리별 판매 비중</h3>
+                    <p className="text-sm text-gray-500">매출 기준 분포</p>
+                  </div>
+                </div>
+                <div className="h-[320px]">
+                  {categoryData.length > 0 ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={categoryData}
+                          dataKey="revenue"
+                          nameKey="categoryName"
+                          innerRadius={60}
+                          outerRadius={100}
+                          paddingAngle={4}
+                        >
+                          {categoryData.map((entry, index) => (
+                            <Cell
+                              key={entry.categoryId ?? `category-${index}`}
+                              fill={pieColors[index % pieColors.length]}
+                            />
+                          ))}
+                        </Pie>
+                        <Tooltip formatter={(value: number) => `₩${value.toLocaleString('ko-KR')}`} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <div className="flex h-full items-center justify-center text-sm text-gray-500">
+                      표시할 데이터가 없습니다.
+                    </div>
+                  )}
+                </div>
+                <div className="mt-6 space-y-3">
+                  {categoryData.map((category, index) => (
+                    <div
+                      key={category.categoryId ?? `category-${index}`}
+                      className="flex items-center justify-between rounded-lg border border-gray-100 px-4 py-3 text-sm"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span
+                          className="inline-flex h-2.5 w-2.5 rounded-full"
+                          style={{ backgroundColor: pieColors[index % pieColors.length] }}
+                        ></span>
+                        <span className="font-medium text-gray-900">{category.categoryName}</span>
+                      </div>
+                      <div className="text-right text-xs text-gray-500">
+                        <p>매출 {formatCurrency(category.revenue)}</p>
+                        <p>주문 {category.orders.toLocaleString('ko-KR')}건</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* 월별 매출 섹션 */}
+            {(() => {
+              const selectedYearData = monthlyRevenueData.find((d) => d.year === monthlyRevenueYear);
+              const minYear = monthlyRevenueData.length > 0 ? monthlyRevenueData[0].year : monthlyRevenueYear;
+              const maxYear = monthlyRevenueData.length > 0 ? monthlyRevenueData[monthlyRevenueData.length - 1].year : monthlyRevenueYear;
+              return (
+                <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                  <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">월별 매출</h3>
+                      <p className="text-sm text-gray-500">연도별 월 매출 현황</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-1 rounded-lg border border-gray-200 bg-gray-50 p-1">
+                        <button
+                          type="button"
+                          onClick={() => setMonthlyRevenueYear((prev) => prev - 1)}
+                          disabled={monthlyRevenueYear <= minYear}
+                          className="flex h-8 w-8 items-center justify-center rounded-md text-gray-600 hover:bg-white hover:shadow-sm disabled:text-gray-300 disabled:hover:bg-transparent disabled:hover:shadow-none transition"
+                        >
+                          <i className="ri-arrow-left-s-line text-lg"></i>
+                        </button>
+                        <span className="min-w-[72px] text-center text-sm font-bold text-gray-900">{monthlyRevenueYear}년</span>
+                        <button
+                          type="button"
+                          onClick={() => setMonthlyRevenueYear((prev) => prev + 1)}
+                          disabled={monthlyRevenueYear >= maxYear}
+                          className="flex h-8 w-8 items-center justify-center rounded-md text-gray-600 hover:bg-white hover:shadow-sm disabled:text-gray-300 disabled:hover:bg-transparent disabled:hover:shadow-none transition"
+                        >
+                          <i className="ri-arrow-right-s-line text-lg"></i>
+                        </button>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => void loadMonthlyRevenue()}
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-50"
+                        disabled={monthlyRevenueLoading}
+                      >
+                        <i className={`ri-refresh-line ${monthlyRevenueLoading ? 'animate-spin' : ''}`}></i>
+                        새로고침
+                      </button>
+                    </div>
+                  </div>
+                  {monthlyRevenueLoading ? (
+                    <div className="flex h-40 items-center justify-center">
+                      <div className="text-center text-gray-500">
+                        <i className="ri-loader-4-line animate-spin text-2xl"></i>
+                        <p className="mt-2 text-sm">월별 매출 데이터를 불러오는 중...</p>
+                      </div>
+                    </div>
+                  ) : !selectedYearData ? (
+                    <div className="flex h-40 items-center justify-center text-sm text-gray-500">
+                      {monthlyRevenueYear}년 데이터가 없습니다.
+                    </div>
+                  ) : (
+                    <div className="overflow-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b border-gray-200 bg-gray-50">
+                            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">월</th>
+                            <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">주문 수</th>
+                            <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">매출액</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100">
+                          {selectedYearData.months.map((m) => {
+                            const now = new Date();
+                            const isFuture = m.year > now.getFullYear() || (m.year === now.getFullYear() && m.month > now.getMonth() + 1);
+                            const isCurrent = m.year === now.getFullYear() && m.month === now.getMonth() + 1;
+                            return (
+                              <tr
+                                key={m.month}
+                                className={`${isCurrent ? 'bg-blue-50' : isFuture ? 'bg-gray-50/50 text-gray-400' : 'hover:bg-gray-50'}`}
+                              >
+                                <td className="px-4 py-3 whitespace-nowrap font-medium text-gray-900">
+                                  {m.month}월
+                                  {isCurrent && <span className="ml-2 inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-semibold text-blue-700">진행중</span>}
+                                </td>
+                                <td className="px-4 py-3 whitespace-nowrap text-right text-gray-700">
+                                  {isFuture ? '-' : `${m.orderCount.toLocaleString('ko-KR')}건`}
+                                </td>
+                                <td className="px-4 py-3 whitespace-nowrap text-right font-medium text-gray-900">
+                                  {isFuture ? '-' : formatCurrency(m.revenue)}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                          <tr className="bg-blue-50 font-semibold border-t-2 border-blue-200">
+                            <td className="px-4 py-3 whitespace-nowrap text-gray-900">{selectedYearData.year}년 합계</td>
+                            <td className="px-4 py-3 whitespace-nowrap text-right text-gray-900">
+                              {selectedYearData.yearOrderCount.toLocaleString('ko-KR')}건
+                            </td>
+                            <td className="px-4 py-3 whitespace-nowrap text-right text-gray-900">
+                              {formatCurrency(selectedYearData.yearTotal)}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
+
+            {/* ═══════════════ 드럼레슨 무료악보 분석 ═══════════════ */}
+            <div className="rounded-xl border border-purple-200 bg-white p-6 shadow-sm">
+              <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                    <i className="ri-music-2-line text-purple-600"></i>
+                    드럼레슨 무료악보 분석
+                  </h3>
+                  <p className="text-sm text-gray-500">무료 악보 다운로드 현황 및 유입 기여도</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  {(['7d', '30d', '90d'] as const).map((p) => (
+                    <button
+                      key={p}
+                      type="button"
+                      onClick={() => setDrumLessonAnalyticsPeriod(p)}
+                      className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
+                        drumLessonAnalyticsPeriod === p
+                          ? 'bg-purple-600 text-white shadow-sm'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}
+                    >
+                      {p === '7d' ? '7일' : p === '30d' ? '30일' : '90일'}
+                    </button>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => loadDrumLessonAnalytics(drumLessonAnalyticsPeriod)}
+                    disabled={drumLessonAnalyticsLoading}
+                    className="ml-2 rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50 transition disabled:opacity-50"
+                  >
+                    <i className={`ri-refresh-line ${drumLessonAnalyticsLoading ? 'animate-spin' : ''}`}></i>
+                  </button>
+                </div>
+              </div>
+
+              {drumLessonAnalyticsLoading && !drumLessonAnalytics ? (
+                <div className="flex h-40 items-center justify-center">
+                  <div className="text-center text-gray-500">
+                    <i className="ri-loader-4-line animate-spin text-2xl"></i>
+                    <p className="mt-2 text-sm">분석 데이터를 불러오는 중...</p>
+                  </div>
+                </div>
+              ) : !drumLessonAnalytics ? (
+                <div className="flex h-40 items-center justify-center text-sm text-gray-500">
+                  <div className="text-center">
+                    <i className="ri-database-2-line text-4xl text-gray-300 mb-2"></i>
+                    <p>아직 다운로드 데이터가 없습니다.</p>
+                    <p className="text-xs text-gray-400 mt-1">무료 악보가 다운로드되면 여기에 분석 데이터가 표시됩니다.</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {/* KPI 카드 */}
+                  <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+                    <div className="rounded-lg border border-gray-100 bg-gradient-to-br from-purple-50 to-white p-4">
+                      <p className="text-xs text-gray-500">총 다운로드</p>
+                      <p className="mt-1 text-2xl font-bold text-gray-900">{drumLessonAnalytics.kpi.totalDownloads.toLocaleString()}</p>
+                    </div>
+                    <div className="rounded-lg border border-gray-100 bg-gradient-to-br from-blue-50 to-white p-4">
+                      <p className="text-xs text-gray-500">오늘</p>
+                      <p className="mt-1 text-2xl font-bold text-blue-600">{drumLessonAnalytics.kpi.todayDownloads.toLocaleString()}</p>
+                    </div>
+                    <div className="rounded-lg border border-gray-100 bg-gradient-to-br from-green-50 to-white p-4">
+                      <p className="text-xs text-gray-500">최근 7일</p>
+                      <p className="mt-1 text-2xl font-bold text-gray-900">{drumLessonAnalytics.kpi.weekDownloads.toLocaleString()}</p>
+                      {drumLessonAnalytics.kpi.weekGrowth !== null && (
+                        <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
+                          drumLessonAnalytics.kpi.weekGrowth >= 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                        }`}>
+                          {drumLessonAnalytics.kpi.weekGrowth >= 0 ? '▲' : '▼'} {Math.abs(Math.round(drumLessonAnalytics.kpi.weekGrowth))}%
+                        </span>
+                      )}
+                    </div>
+                    <div className="rounded-lg border border-gray-100 bg-gradient-to-br from-orange-50 to-white p-4">
+                      <p className="text-xs text-gray-500">최근 30일</p>
+                      <p className="mt-1 text-2xl font-bold text-gray-900">{drumLessonAnalytics.kpi.monthDownloads.toLocaleString()}</p>
+                      {drumLessonAnalytics.kpi.monthGrowth !== null && (
+                        <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
+                          drumLessonAnalytics.kpi.monthGrowth >= 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                        }`}>
+                          {drumLessonAnalytics.kpi.monthGrowth >= 0 ? '▲' : '▼'} {Math.abs(Math.round(drumLessonAnalytics.kpi.monthGrowth))}%
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* 다운로드 추이 차트 */}
+                  <div className="rounded-lg border border-gray-100 bg-gray-50 p-4">
+                    <h4 className="mb-3 text-sm font-semibold text-gray-700">📈 다운로드 추이</h4>
+                    <div className="h-[240px]">
+                      {drumLessonAnalytics.downloadTrend.length > 0 ? (
+                        <ResponsiveContainer width="100%" height="100%">
+                          <AreaChart data={drumLessonAnalytics.downloadTrend}>
+                            <defs>
+                              <linearGradient id="dlGradient" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
+                                <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
+                              </linearGradient>
+                            </defs>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="label" tick={{ fontSize: 11 }} interval={drumLessonAnalyticsPeriod === '7d' ? 0 : drumLessonAnalyticsPeriod === '30d' ? 4 : 13} />
+                            <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
+                            <Tooltip formatter={(value: number) => [`${value}건`, '다운로드']} />
+                            <Area type="monotone" dataKey="count" stroke="#8b5cf6" strokeWidth={2} fill="url(#dlGradient)" />
+                          </AreaChart>
+                        </ResponsiveContainer>
+                      ) : (
+                        <div className="flex h-full items-center justify-center text-sm text-gray-400">
+                          데이터가 없습니다.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* 2열: 인기 악보 + 다운로드 소스 */}
+                  <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+                    {/* 인기 무료 악보 TOP 10 */}
+                    <div className="rounded-lg border border-gray-100 bg-gray-50 p-4">
+                      <h4 className="mb-3 text-sm font-semibold text-gray-700">🏆 인기 무료 악보 TOP 10</h4>
+                      {drumLessonAnalytics.popularSheets.length > 0 ? (
+                        <div className="max-h-[320px] overflow-y-auto">
+                          <table className="w-full text-sm">
+                            <thead className="sticky top-0 bg-gray-50">
+                              <tr className="border-b border-gray-200 text-left text-xs text-gray-500">
+                                <th className="pb-2 pr-2">#</th>
+                                <th className="pb-2 pr-2">곡명</th>
+                                <th className="pb-2 pr-2">아티스트</th>
+                                <th className="pb-2 text-right">다운로드</th>
+                                <th className="pb-2 text-right">유저 수</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {drumLessonAnalytics.popularSheets.map((sheet, idx) => (
+                                <tr key={sheet.sheetId} className="border-b border-gray-100 last:border-0">
+                                  <td className="py-2 pr-2 text-gray-400 font-medium">{idx + 1}</td>
+                                  <td className="py-2 pr-2">
+                                    <div className="font-medium text-gray-900 truncate max-w-[140px]">{sheet.title}</div>
+                                    {sheet.subCategories.filter(c => c !== '드럼레슨').length > 0 && (
+                                      <div className="flex gap-1 mt-0.5">
+                                        {sheet.subCategories.filter(c => c !== '드럼레슨').map(cat => (
+                                          <span key={cat} className="text-[10px] bg-purple-100 text-purple-600 px-1.5 py-0.5 rounded-full">{cat}</span>
+                                        ))}
+                                      </div>
+                                    )}
+                                  </td>
+                                  <td className="py-2 pr-2 text-gray-600 truncate max-w-[100px]">{sheet.artist}</td>
+                                  <td className="py-2 text-right font-semibold text-purple-600">{sheet.downloadCount.toLocaleString()}</td>
+                                  <td className="py-2 text-right text-gray-500">{sheet.uniqueUsers.toLocaleString()}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      ) : (
+                        <div className="flex h-32 items-center justify-center text-sm text-gray-400">
+                          데이터가 없습니다.
+                        </div>
+                      )}
+                    </div>
+
+                    {/* 다운로드 소스별 & 서브카테고리별 분포 */}
+                    <div className="space-y-4">
+                      {/* 다운로드 소스별 분포 */}
+                      <div className="rounded-lg border border-gray-100 bg-gray-50 p-4">
+                        <h4 className="mb-3 text-sm font-semibold text-gray-700">📊 다운로드 경로 분석</h4>
+                        {drumLessonAnalytics.sourceBreakdown.length > 0 ? (
+                          <div className="space-y-2">
+                            {drumLessonAnalytics.sourceBreakdown.map((src) => (
+                              <div key={src.source} className="flex items-center gap-3">
+                                <div className="w-24 text-xs text-gray-600 truncate">{src.label}</div>
+                                <div className="flex-1 h-5 bg-gray-200 rounded-full overflow-hidden">
+                                  <div
+                                    className="h-full bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full transition-all"
+                                    style={{ width: `${Math.max(src.percentage, 2)}%` }}
+                                  ></div>
+                                </div>
+                                <div className="w-16 text-right text-xs font-medium text-gray-700">
+                                  {src.count}건 ({src.percentage}%)
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="flex h-20 items-center justify-center text-sm text-gray-400">
+                            데이터가 없습니다.
+                          </div>
+                        )}
+                      </div>
+
+                      {/* 서브카테고리별 분포 */}
+                      <div className="rounded-lg border border-gray-100 bg-gray-50 p-4">
+                        <h4 className="mb-3 text-sm font-semibold text-gray-700">📂 서브카테고리별 다운로드</h4>
+                        {drumLessonAnalytics.subCategoryBreakdown.length > 0 ? (
+                          <div className="space-y-2">
+                            {drumLessonAnalytics.subCategoryBreakdown.map((cat) => (
+                              <div key={cat.name} className="flex items-center gap-3">
+                                <div className="w-20 text-xs text-gray-600 truncate">{cat.name}</div>
+                                <div className="flex-1 h-5 bg-gray-200 rounded-full overflow-hidden">
+                                  <div
+                                    className="h-full bg-gradient-to-r from-indigo-400 to-purple-400 rounded-full transition-all"
+                                    style={{ width: `${Math.max(cat.percentage, 2)}%` }}
+                                  ></div>
+                                </div>
+                                <div className="w-16 text-right text-xs font-medium text-gray-700">
+                                  {cat.count}건 ({cat.percentage}%)
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="flex h-20 items-center justify-center text-sm text-gray-400">
+                            데이터가 없습니다.
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 유료 전환 분석 */}
+                  <div className="rounded-lg border border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 p-5">
+                    <h4 className="mb-4 text-sm font-semibold text-gray-700 flex items-center gap-2">
+                      <i className="ri-exchange-funds-line text-green-600"></i>
+                      무료 → 유료 전환 분석
+                    </h4>
+                    <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+                      <div className="text-center">
+                        <p className="text-xs text-gray-500">무료 다운로드 회원</p>
+                        <p className="mt-1 text-xl font-bold text-gray-900">
+                          {drumLessonAnalytics.conversion.totalFreeDownloadUsers.toLocaleString()}명
+                        </p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-xs text-gray-500">유료 구매 전환</p>
+                        <p className="mt-1 text-xl font-bold text-green-600">
+                          {drumLessonAnalytics.conversion.convertedUsers.toLocaleString()}명
+                        </p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-xs text-gray-500">전환율</p>
+                        <p className="mt-1 text-xl font-bold" style={{ color: drumLessonAnalytics.conversion.conversionRate > 0 ? '#16a34a' : '#9ca3af' }}>
+                          {drumLessonAnalytics.conversion.conversionRate}%
+                        </p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-xs text-gray-500">비회원 다운로드</p>
+                        <p className="mt-1 text-xl font-bold text-gray-600">
+                          {drumLessonAnalytics.conversion.totalFreeDownloadsAnonymous.toLocaleString()}건
+                        </p>
+                      </div>
+                    </div>
+                    <div className="mt-4 rounded-lg bg-white/60 p-3">
+                      <p className="text-xs text-gray-600">
+                        💡 <strong>전환율 해석:</strong> 무료 악보를 다운로드한 회원 중 유료 악보를 구매한 비율입니다.
+                        {drumLessonAnalytics.conversion.conversionRate > 10
+                          ? ' 전환율이 높습니다! 무료 악보가 유료 구매에 큰 기여를 하고 있습니다.'
+                          : drumLessonAnalytics.conversion.conversionRate > 0
+                            ? ' 전환이 발생하고 있습니다. 더 많은 무료 악보를 통해 전환율을 높일 수 있습니다.'
+                            : ' 아직 전환 데이터가 충분하지 않습니다. 다운로드가 쌓이면 분석이 가능합니다.'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+              <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                <div className="mb-6 flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">커스텀 주문 현황</h3>
+                    <p className="text-sm text-gray-500">상태별 분포와 평균 견적</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                  <div className="rounded-lg border border-gray-100 bg-gray-50 p-4">
+                    <p className="text-xs text-gray-500">총 요청</p>
+                    <p className="mt-1 text-xl font-semibold text-gray-900">
+                      {analyticsData.customOrder.metrics.totalCount.toLocaleString('ko-KR')}건
+                    </p>
+                  </div>
+                  <div className="rounded-lg border border-gray-100 bg-gray-50 p-4">
+                    <p className="text-xs text-gray-500">진행 중</p>
+                    <p className="mt-1 text-xl font-semibold text-gray-900">
+                      {analyticsData.customOrder.metrics.activeCount.toLocaleString('ko-KR')}건
+                    </p>
+                  </div>
+                  <div className="rounded-lg border border-gray-100 bg-gray-50 p-4">
+                    <p className="text-xs text-gray-500">평균 견적 금액</p>
+                    <p className="mt-1 text-xl font-semibold text-gray-900">
+                      {formatCurrency(analyticsData.customOrder.metrics.averageEstimatedPrice)}
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-6 h-[280px]">
+                  {customStatusData.length > 0 ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie data={customStatusData} dataKey="count" nameKey="status" innerRadius={60} outerRadius={100} paddingAngle={4}>
+                          {customStatusData.map((entry, index) => (
+                            <Cell
+                              key={entry.status}
+                              fill={statusColorMap[entry.status] ?? pieColors[index % pieColors.length]}
+                            />
+                          ))}
+                        </Pie>
+                        <Tooltip formatter={(value: number) => `${value.toLocaleString('ko-KR')}건`} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <div className="flex h-full items-center justify-center text-sm text-gray-500">
+                      표시할 데이터가 없습니다.
+                    </div>
+                  )}
+                </div>
+                <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
+                  {customStatusData.map((entry) => (
+                    <div
+                      key={entry.status}
+                      className="flex items-center justify-between rounded-lg border border-gray-100 px-4 py-3 text-sm"
+                    >
+                      <span className="font-medium text-gray-700">
+                        {getCustomOrderStatusLabel(entry.status)}
+                      </span>
+                      <span className="font-semibold text-gray-900">
+                        {entry.count.toLocaleString('ko-KR')}건
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                <div className="mb-6 flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">신규 회원 추이</h3>
+                    <p className="text-sm text-gray-500">기간 내 가입한 회원 수</p>
+                  </div>
+                </div>
+                <div className="h-[320px]">
+                  {newUsersData.length > 0 ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={newUsersData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="label" tick={{ fontSize: 12 }} />
+                        <YAxis tickFormatter={(value: number) => `${value.toLocaleString('ko-KR')}명`} />
+                        <Tooltip formatter={(value: number) => [`${value.toLocaleString('ko-KR')}명`, '신규 회원']} />
+                        <Line type="monotone" dataKey="count" name="신규 회원" stroke="#8b5cf6" strokeWidth={2} dot={false} />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <div className="flex h-full items-center justify-center text-sm text-gray-500">
+                      표시할 데이터가 없습니다.
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+          </div>
+        ) : (
+          <div className="rounded-xl border border-gray-200 bg-white p-12 text-center text-gray-500">
+            아직 집계된 데이터가 없습니다.
+          </div>
+        )}
+      </div>
+    );
+  };
+  const renderCopyrightReport = () => {
+    const totalPurchases = copyrightReportData.reduce(
+      (sum, row) => sum + row.purchaseCount,
+      0,
+    );
+    const totalRevenue = copyrightReportData.reduce((sum, row) => sum + row.revenue, 0);
+    const totalDirectSalesAmount = directSalesData.reduce(
+      (sum, order) => sum + (Number.isFinite(order.totalAmount) ? order.totalAmount : 0),
+      0,
+    );
+    const totalCashChargeAmount = cashChargeData.reduce(
+      (sum, transaction) => sum + (Number.isFinite(transaction.amount) ? transaction.amount : 0),
+      0,
+    );
+    const totalCashBonusAmount = cashChargeData.reduce(
+      (sum, transaction) => sum + (Number.isFinite(transaction.bonusAmount) ? transaction.bonusAmount : 0),
+      0,
+    );
+    const totalCashIssued = cashChargeData.reduce(
+      (sum, transaction) => sum + (Number.isFinite(transaction.totalCredit) ? transaction.totalCredit : 0),
+      0,
+    );
+    const hasPurchaseData = copyrightReportData.length > 0;
+    const hasDirectSalesData = directSalesData.length > 0;
+    const hasCashChargeData = cashChargeData.length > 0;
+    const hasAnyExcelData = hasPurchaseData || hasDirectSalesData || hasCashChargeData;
+    const isTableEmpty = !copyrightReportLoading && !hasPurchaseData;
+
+    return (
+      <div className="space-y-6">
+        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm space-y-6">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">시작일</label>
+              <input
+                type="date"
+                className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                value={copyrightStartDate}
+                onChange={(event) => handleCopyrightStartDateChange(event.target.value)}
+                max={copyrightEndDate}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">종료일</label>
+              <input
+                type="date"
+                className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                value={copyrightEndDate}
+                onChange={(event) => handleCopyrightEndDateChange(event.target.value)}
+                min={copyrightStartDate}
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            {COPYRIGHT_QUICK_RANGES.map((range) => (
+              <button
+                key={range.key}
+                type="button"
+                onClick={() => handleSelectCopyrightQuickRange(range.key)}
+                className={`rounded-lg border px-3 py-1.5 text-sm font-medium transition ${copyrightQuickRange === range.key
+                  ? 'border-blue-600 bg-blue-600 text-white shadow-sm'
+                  : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-100'
+                  }`}
+                disabled={copyrightReportLoading}
+              >
+                {range.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={handleCopyrightSearch}
+              className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:bg-blue-300"
+              disabled={copyrightReportLoading}
+            >
+              <i className="ri-search-line mr-2"></i>
+              자료 조회
+            </button>
+            <button
+              type="button"
+              onClick={() => void handleIntegratedCopyrightExport()}
+              className="inline-flex items-center rounded-lg border border-blue-600 px-4 py-2 text-sm font-semibold text-blue-600 transition hover:bg-blue-50 disabled:border-gray-300 disabled:text-gray-400"
+              disabled={copyrightReportLoading || !hasAnyExcelData}
+            >
+              <i className="ri-file-excel-2-line mr-2"></i>
+              통합 Excel 다운로드
+            </button>
+            <button
+              type="button"
+              onClick={() => void handleCopyrightExport()}
+              className="inline-flex items-center rounded-lg border border-blue-600 px-4 py-2 text-sm font-semibold text-blue-600 transition hover:bg-blue-50 disabled:border-gray-300 disabled:text-gray-400"
+              disabled={copyrightReportLoading || !hasPurchaseData}
+            >
+              <i className="ri-download-2-line mr-2"></i>
+              Excel 다운로드
+            </button>
+            {copyrightReportLoading && (
+              <span className="inline-flex items-center text-sm text-gray-500">
+                <i className="ri-loader-4-line mr-2 animate-spin"></i>
+                데이터를 불러오는 중입니다...
+              </span>
+            )}
+          </div>
+
+          {copyrightReportError && (
+            <div className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-600">
+              {copyrightReportError}
+            </div>
+          )}
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+            <div className="text-sm text-gray-500">총 구매 수</div>
+            <div className="mt-2 text-2xl font-semibold text-gray-900">
+              {totalPurchases.toLocaleString('ko-KR')}건
+            </div>
+            <p className="mt-1 text-xs text-gray-500">
+              선택한 기간 동안 판매된 악보의 총 구매 수입니다.
+            </p>
+          </div>
+          <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+            <div className="text-sm text-gray-500">직접 결제 매출</div>
+            <div className="mt-2 text-2xl font-semibold text-gray-900">
+              {formatCurrency(Math.round(totalDirectSalesAmount))}
+            </div>
+            <p className="mt-1 text-xs text-gray-500">
+              카드·무통장입금·카카오페이로 결제된 주문 금액 합계입니다.
+            </p>
+          </div>
+          <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+            <div className="text-sm text-gray-500">캐시 충전 금액 (유상)</div>
+            <div className="mt-2 text-2xl font-semibold text-gray-900">
+              {formatCurrency(Math.round(totalCashChargeAmount))}
+            </div>
+            <p className="mt-1 text-xs text-gray-500">
+              고객이 실제 결제한 캐시 충전 금액 합계입니다. (보너스 제외)
+            </p>
+          </div>
+          <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+            <div className="text-sm text-gray-500">캐시 실결제 금액</div>
+            <div className="mt-2 text-2xl font-semibold text-gray-900">
+              {formatCurrency(Math.round(totalCashChargeAmount))}
+            </div>
+            <p className="mt-1 text-xs text-gray-500">
+              캐시 충전 시 결제된 금액입니다. 보너스 지급: {formatCurrency(Math.round(totalCashBonusAmount))} · 총 지급 캐시:
+              {formatCurrency(Math.round(totalCashIssued))}
+            </p>
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+          <div className="overflow-x-auto">
+            {copyrightReportLoading ? (
+              <div className="flex h-48 items-center justify-center text-sm text-gray-500">
+                <i className="ri-loader-4-line mr-2 animate-spin"></i>
+                데이터를 불러오는 중입니다...
+              </div>
+            ) : isTableEmpty ? (
+              <div className="flex h-48 flex-col items-center justify-center text-sm text-gray-500">
+                <i className="ri-information-line mb-2 text-xl"></i>
+                선택한 기간에 해당하는 판매 데이터가 없습니다.
+              </div>
+            ) : (
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                      SONG ID
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                      작품명
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                      가수명
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                      앨범명
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                      장르
+                    </th>
+                    <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-500">
+                      구매 수
+                    </th>
+                    <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-500">
+                      매출액
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100 bg-white">
+                  {copyrightReportData.map((row) => (
+                    <tr key={row.songId}>
+                      <td className="px-4 py-3 text-sm font-semibold text-gray-900">{row.songId}</td>
+                      <td className="px-4 py-3 text-sm text-gray-800">{row.title || '-'}</td>
+                      <td className="px-4 py-3 text-sm text-gray-700">{row.artist || '-'}</td>
+                      <td className="px-4 py-3 text-sm text-gray-600">{row.albumName || '-'}</td>
+                      <td className="px-4 py-3 text-sm text-gray-600">{row.categoryName || '-'}</td>
+                      <td className="px-4 py-3 text-right text-sm font-semibold text-gray-900">
+                        {row.purchaseCount.toLocaleString('ko-KR')}
+                      </td>
+                      <td className="px-4 py-3 text-right text-sm font-semibold text-blue-700">
+                        {formatCurrency(Math.round(row.revenue))}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </div>
+
+        <div className="mt-8 space-y-4">
+          <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">직접 결제 매출</h3>
+              <p className="text-sm text-gray-500">
+                카드·무통장입금·카카오페이로 결제된 주문 내역입니다.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => void handleDirectSalesExport()}
+              className="inline-flex items-center rounded-lg border border-blue-600 px-4 py-2 text-sm font-semibold text-blue-600 transition hover:bg-blue-50 disabled:border-gray-300 disabled:text-gray-400"
+              disabled={copyrightReportLoading || directSalesData.length === 0}
+            >
+              <i className="ri-download-2-line mr-2"></i>
+              Excel 다운로드
+            </button>
+          </div>
+
+          <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+            <div className="overflow-x-auto">
+              {copyrightReportLoading ? (
+                <div className="flex h-48 items-center justify-center text-sm text-gray-500">
+                  <i className="ri-loader-4-line mr-2 animate-spin"></i>
+                  데이터를 불러오는 중입니다...
+                </div>
+              ) : directSalesData.length === 0 ? (
+                <div className="flex h-48 items-center justify-center text-sm text-gray-500">
+                  선택한 기간의 직접 결제 매출 데이터가 없습니다.
+                </div>
+              ) : (
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                        주문번호
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                        주문일시
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                        결제수단
+                      </th>
+                      <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-500">
+                        주문금액
+                      </th>
+                      <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-500">
+                        악보 수량
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                        고객 이메일
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100 bg-white">
+                    {directSalesData.map((order) => (
+                      <tr key={order.orderId}>
+                        <td className="px-4 py-3 text-sm font-semibold text-gray-900">
+                          {order.orderNumber ?? order.orderId}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-700">{formatDateTime(order.orderedAt)}</td>
+                        <td className="px-4 py-3 text-sm text-gray-700">{order.paymentMethodLabel}</td>
+                        <td className="px-4 py-3 text-right text-sm font-semibold text-gray-900">
+                          {formatCurrency(order.totalAmount)}
+                        </td>
+                        <td className="px-4 py-3 text-right text-sm text-gray-700">
+                          {order.itemCount.toLocaleString('ko-KR')}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-600">{order.customerEmail ?? '-'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-8 space-y-4">
+          <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">캐시 충전 내역 (유상)</h3>
+              <p className="text-sm text-gray-500">
+                고객이 결제한 캐시 충전 내역과 보너스 지급 정보를 확인할 수 있습니다.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => void handleCashChargeExport()}
+              className="inline-flex items-center rounded-lg border border-blue-600 px-4 py-2 text-sm font-semibold text-blue-600 transition hover:bg-blue-50 disabled:border-gray-300 disabled:text-gray-400"
+              disabled={copyrightReportLoading || cashChargeData.length === 0}
+            >
+              <i className="ri-download-2-line mr-2"></i>
+              Excel 다운로드
+            </button>
+          </div>
+
+          <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+            <div className="overflow-x-auto">
+              {copyrightReportLoading ? (
+                <div className="flex h-48 items-center justify-center text-sm text-gray-500">
+                  <i className="ri-loader-4-line mr-2 animate-spin"></i>
+                  데이터를 불러오는 중입니다...
+                </div>
+              ) : cashChargeData.length === 0 ? (
+                <div className="flex h-48 items-center justify-center text-sm text-gray-500">
+                  선택한 기간의 캐시 충전 데이터가 없습니다.
+                </div>
+              ) : (
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                        충전일시
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                        고객 이메일
+                      </th>
+                      <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-500">
+                        유상 금액
+                      </th>
+                      <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-500">
+                        보너스 금액
+                      </th>
+                      <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-500">
+                        총 지급 캐시
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                        결제수단
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100 bg-white">
+                    {cashChargeData.map((transaction) => (
+                      <tr key={transaction.id}>
+                        <td className="px-4 py-3 text-sm text-gray-700">{formatDateTime(transaction.chargedAt)}</td>
+                        <td className="px-4 py-3 text-sm text-gray-700">{transaction.userEmail ?? '-'}</td>
+                        <td className="px-4 py-3 text-right text-sm font-semibold text-gray-900">
+                          {formatCurrency(transaction.amount)}
+                        </td>
+                        <td className="px-4 py-3 text-right text-sm text-gray-700">
+                          {formatCurrency(transaction.bonusAmount)}
+                        </td>
+                        <td className="px-4 py-3 text-right text-sm font-semibold text-gray-900">
+                          {formatCurrency(transaction.totalCredit)}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-700">
+                          <div>{transaction.paymentLabel}</div>
+                          {transaction.description ? (
+                            <div className="text-xs text-gray-500">{transaction.description}</div>
+                          ) : null}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // 인기곡 순위 관리 상태
+  const [popularitySelectedGenre, setPopularitySelectedGenre] = useState<string>('');
+  const [popularityRanks, setPopularityRanks] = useState<Map<number, DrumSheet | null>>(new Map());
+  const [popularitySearchTerm, setPopularitySearchTerm] = useState('');
+  const [popularitySearchResults, setPopularitySearchResults] = useState<DrumSheet[]>([]);
+  const [popularitySearchLoading, setPopularitySearchLoading] = useState(false);
+  const [popularitySearchModalOpen, setPopularitySearchModalOpen] = useState(false);
+  const [popularitySearchTargetRank, setPopularitySearchTargetRank] = useState<number | null>(null);
+  const [popularitySaving, setPopularitySaving] = useState(false);
+  const [popularityHasChanges, setPopularityHasChanges] = useState(false);
+  const [popularityOriginalRanks, setPopularityOriginalRanks] = useState<Map<number, DrumSheet | null>>(new Map());
+
+  // 인기곡 순위 관리: 카테고리 목록 로드
+  useEffect(() => {
+    if (activeMenu !== 'popularity') return;
+
+    // categories가 비어있으면 로드
+    if (categories.length === 0) {
+      loadCategories();
+    } else if (!popularitySelectedGenre && categories.length > 0) {
+      // categories가 있지만 선택된 장르가 없으면 첫 번째 장르 선택
+      setPopularitySelectedGenre(categories[0].id);
+    }
+  }, [activeMenu, categories, popularitySelectedGenre]);
+
+  // 인기곡 순위 관리: 선택된 장르의 순위 로드
+  useEffect(() => {
+    if (activeMenu !== 'popularity' || !popularitySelectedGenre) return;
+
+    const loadPopularityRanks = async () => {
+      try {
+        const ranksMap = new Map<number, DrumSheet | null>();
+        // 1-10위 초기화
+        for (let i = 1; i <= 10; i++) {
+          ranksMap.set(i, null);
+        }
+
+        // 1. 먼저 drum_sheet_categories에서 순위 로드 (최신 방식)
+        const { data: categoryRanks, error: categoryError } = await supabase
+          .from('drum_sheet_categories')
+          .select(`
+            popularity_rank,
+            sheet:drum_sheets (
+              id,
+              title,
+              artist,
+              thumbnail_url,
+              category_id
+            )
+          `)
+          .eq('category_id', popularitySelectedGenre)
+          .not('popularity_rank', 'is', null)
+          .order('popularity_rank', { ascending: true });
+
+        if (categoryError) {
+          console.warn('drum_sheet_categories 로드 실패:', categoryError);
+        } else if (categoryRanks && categoryRanks.length > 0) {
+          // drum_sheet_categories에서 데이터가 있으면 사용
+          categoryRanks.forEach((row: any) => {
+            const rank = row.popularity_rank;
+            const sheet = row.sheet;
+            if (rank && sheet && rank >= 1 && rank <= 10) {
+              ranksMap.set(rank, sheet as DrumSheet);
+            }
+          });
+        } else {
+          // 2. drum_sheet_categories에 데이터가 없으면 drum_sheets.popularity_rank를 fallback으로 사용
+          const { data: sheetRanks, error: sheetError } = await supabase
+            .from('drum_sheets')
+            .select('id, title, artist, thumbnail_url, category_id, popularity_rank')
+            .eq('category_id', popularitySelectedGenre)
+            .eq('is_active', true)
+            .not('popularity_rank', 'is', null)
+            .gte('popularity_rank', 1)
+            .lte('popularity_rank', 10)
+            .order('popularity_rank', { ascending: true });
+
+          if (sheetError) {
+            console.warn('drum_sheets.popularity_rank 로드 실패:', sheetError);
+          } else if (sheetRanks && sheetRanks.length > 0) {
+            // 기존 데이터를 drum_sheet_categories로 마이그레이션
+            sheetRanks.forEach((sheet: any) => {
+              const rank = sheet.popularity_rank;
+              if (rank && rank >= 1 && rank <= 10) {
+                ranksMap.set(rank, sheet as DrumSheet);
+                
+                // drum_sheet_categories에 자동 마이그레이션 (백그라운드)
+                supabase
+                  .from('drum_sheet_categories')
+                  .upsert({
+                    sheet_id: sheet.id,
+                    category_id: popularitySelectedGenre,
+                    popularity_rank: rank,
+                  }, { onConflict: 'sheet_id,category_id' })
+                  .then(({ error: migrateError }) => {
+                    if (migrateError) {
+                      console.warn('자동 마이그레이션 실패:', migrateError);
+                    }
+                  });
+              }
+            });
+          }
+        }
+
+        setPopularityRanks(ranksMap);
+        setPopularityOriginalRanks(new Map(ranksMap));
+        setPopularityHasChanges(false);
+      } catch (error) {
+        console.error('순위 로드 실패:', error);
+        alert('순위를 불러오는데 실패했습니다.');
+      }
+    };
+
+    loadPopularityRanks();
+  }, [activeMenu, popularitySelectedGenre]);
+
+  const renderPopularityManagement = () => {
+
+    // 장르 목록 가져오기
+    const genreOrder = ['가요', '팝', '락', 'CCM', '트로트/성인가요', '재즈', 'J-POP', 'OST', '드럼솔로', '드럼커버'];
+    const sortedCategories = categories.length > 0 
+      ? [...categories].sort((a, b) => {
+          const indexA = genreOrder.indexOf(a.name);
+          const indexB = genreOrder.indexOf(b.name);
+          if (indexA === -1 && indexB === -1) return 0;
+          if (indexA === -1) return 1;
+          if (indexB === -1) return -1;
+          return indexA - indexB;
+        })
+      : [];
+
+    // 악보 검색
+    const handleSearchSheets = async (searchTerm: string) => {
+      if (!searchTerm.trim() || !popularitySelectedGenre) {
+        setPopularitySearchResults([]);
+        return;
+      }
+
+      setPopularitySearchLoading(true);
+      try {
+        // 1. 기본 category_id로 검색
+        const { data: basicResults, error: basicError } = await supabase
+          .from('drum_sheets')
+          .select('id, title, artist, thumbnail_url, category_id')
+          .eq('category_id', popularitySelectedGenre)
+          .eq('is_active', true)
+          .or(`title.ilike.%${searchTerm}%,artist.ilike.%${searchTerm}%`)
+          .limit(20);
+
+        if (basicError) throw basicError;
+
+        // 2. drum_sheet_categories를 통한 추가 카테고리 검색
+        const { data: categoryRelations, error: relationError } = await supabase
+          .from('drum_sheet_categories')
+          .select(`
+            sheet_id,
+            sheet:drum_sheets (
+              id,
+              title,
+              artist,
+              thumbnail_url,
+              category_id
+            )
+          `)
+          .eq('category_id', popularitySelectedGenre);
+
+        if (relationError) {
+          console.warn('추가 카테고리 검색 실패:', relationError);
+        }
+
+        // 3. 결과 병합 및 중복 제거
+        const resultMap = new Map<string, any>();
+        
+        // 기본 결과 추가
+        if (basicResults) {
+          basicResults.forEach(sheet => {
+            resultMap.set(sheet.id, sheet);
+          });
+        }
+
+        // 추가 카테고리 결과 추가 (검색어 필터링)
+        if (categoryRelations) {
+          categoryRelations.forEach((relation: any) => {
+            const sheet = relation.sheet;
+            if (sheet && !resultMap.has(sheet.id)) {
+              const searchLower = searchTerm.toLowerCase();
+              const titleMatch = sheet.title?.toLowerCase().includes(searchLower);
+              const artistMatch = sheet.artist?.toLowerCase().includes(searchLower);
+              
+              if (titleMatch || artistMatch) {
+                resultMap.set(sheet.id, sheet);
+              }
+            }
+          });
+        }
+
+        const mergedResults = Array.from(resultMap.values()).slice(0, 20);
+        setPopularitySearchResults(mergedResults);
+      } catch (error) {
+        console.error('악보 검색 실패:', error);
+        alert('악보 검색에 실패했습니다.');
+      } finally {
+        setPopularitySearchLoading(false);
+      }
+    };
+
+    // 순위에 악보 배정
+    const handleAssignSheet = (rank: number, sheet: DrumSheet) => {
+      // 중복 체크: 같은 악보가 다른 순위에 있는지 확인
+      const newRanks = new Map(popularityRanks);
+      let hasDuplicate = false;
+      
+      newRanks.forEach((existingSheet, existingRank) => {
+        if (existingSheet && existingSheet.id === sheet.id && existingRank !== rank) {
+          hasDuplicate = true;
+        }
+      });
+
+      if (hasDuplicate) {
+        if (!confirm(`이 악보는 이미 다른 순위에 배정되어 있습니다. 기존 순위를 제거하고 ${rank}위로 이동하시겠습니까?`)) {
+          return;
+        }
+        // 기존 순위에서 제거
+        newRanks.forEach((existingSheet, existingRank) => {
+          if (existingSheet && existingSheet.id === sheet.id) {
+            newRanks.set(existingRank, null);
+          }
+        });
+      }
+
+      // 새 순위에 배정
+      newRanks.set(rank, sheet);
+      setPopularityRanks(newRanks);
+      setPopularityHasChanges(true);
+      setPopularitySearchModalOpen(false);
+      setPopularitySearchTerm('');
+    };
+
+    // 순위에서 악보 제거
+    const handleRemoveSheet = (rank: number) => {
+      if (!confirm(`${rank}위의 악보를 제거하시겠습니까?`)) {
+        return;
+      }
+
+      const newRanks = new Map(popularityRanks);
+      newRanks.set(rank, null);
+      setPopularityRanks(newRanks);
+      setPopularityHasChanges(true);
+    };
+
+    // 순위 위로 이동 (1위는 위로 이동 불가)
+    const handleMoveUp = (rank: number) => {
+      if (rank <= 1) return;
+
+      const newRanks = new Map(popularityRanks);
+      const currentSheet: DrumSheet | null = newRanks.get(rank) ?? null;
+      const upperSheet: DrumSheet | null = newRanks.get(rank - 1) ?? null;
+
+      // 위 순위와 교체
+      newRanks.set(rank - 1, currentSheet);
+      newRanks.set(rank, upperSheet);
+      setPopularityRanks(newRanks);
+      setPopularityHasChanges(true);
+    };
+
+    // 순위 아래로 이동 (10위는 아래로 이동 불가)
+    const handleMoveDown = (rank: number) => {
+      if (rank >= 10) return;
+
+      const newRanks = new Map(popularityRanks);
+      const currentSheet: DrumSheet | null = newRanks.get(rank) ?? null;
+      const lowerSheet: DrumSheet | null = newRanks.get(rank + 1) ?? null;
+
+      // 아래 순위와 교체
+      newRanks.set(rank + 1, currentSheet);
+      newRanks.set(rank, lowerSheet);
+      setPopularityRanks(newRanks);
+      setPopularityHasChanges(true);
+    };
+
+    // 순위 저장
+    const handleSaveRanks = async () => {
+      if (!popularitySelectedGenre) return;
+
+      setPopularitySaving(true);
+      try {
+        // 1) 선택된 장르의 기존 순위 초기화 (drum_sheet_categories)
+        const { error: clearError } = await supabase
+          .from('drum_sheet_categories')
+          .update({ popularity_rank: null })
+          .eq('category_id', popularitySelectedGenre);
+
+        if (clearError) throw clearError;
+
+        // 2) drum_sheets.popularity_rank도 초기화 (선택된 장르의 기본 category_id를 가진 악보들)
+        const sheetIds: string[] = [];
+        popularityRanks.forEach((sheet) => {
+          if (sheet) {
+            sheetIds.push(sheet.id);
+          }
+        });
+
+        if (sheetIds.length > 0) {
+          // 선택된 장르의 기본 category_id를 가진 악보들의 popularity_rank 초기화
+          const { error: clearSheetsError } = await supabase
+            .from('drum_sheets')
+            .update({ popularity_rank: null })
+            .eq('category_id', popularitySelectedGenre);
+
+          if (clearSheetsError) {
+            console.warn('drum_sheets.popularity_rank 초기화 실패:', clearSheetsError);
+          }
+        }
+
+        // 3) 새 순위 배정 (drum_sheet_categories에 upsert)
+        const updates: Array<{ sheet_id: string; category_id: string; popularity_rank: number }> = [];
+        popularityRanks.forEach((sheet, rank) => {
+          if (sheet) {
+            updates.push({
+              sheet_id: sheet.id,
+              category_id: popularitySelectedGenre,
+              popularity_rank: rank,
+            });
+          }
+        });
+
+        if (updates.length > 0) {
+          const { error: upsertError } = await supabase
+            .from('drum_sheet_categories')
+            .upsert(updates, { onConflict: 'sheet_id,category_id' });
+
+          if (upsertError) throw upsertError;
+
+          // 4) drum_sheets.popularity_rank도 동기화 (기본 category_id가 선택된 장르인 경우만)
+          const sheetUpdates = updates
+            .filter(update => {
+              // 해당 악보의 기본 category_id가 선택된 장르와 일치하는지 확인
+              const sheet = Array.from(popularityRanks.values()).find(s => s?.id === update.sheet_id);
+              return sheet && (sheet as any).category_id === popularitySelectedGenre;
+            })
+            .map(update => ({
+              id: update.sheet_id,
+              popularity_rank: update.popularity_rank,
+            }));
+
+          if (sheetUpdates.length > 0) {
+            // 배치 업데이트
+            const updatePromises = sheetUpdates.map(update =>
+              supabase
+                .from('drum_sheets')
+                .update({ popularity_rank: update.popularity_rank })
+                .eq('id', update.id)
+            );
+
+            const updateResults = await Promise.all(updatePromises);
+            const updateErrors = updateResults.filter(result => result.error);
+            if (updateErrors.length > 0) {
+              console.warn('drum_sheets.popularity_rank 동기화 일부 실패:', updateErrors);
+            }
+          }
+        }
+
+        setPopularityOriginalRanks(new Map(popularityRanks));
+        setPopularityHasChanges(false);
+        alert('순위가 저장되었습니다.');
+      } catch (error) {
+        console.error('순위 저장 실패:', error);
+        alert('순위 저장에 실패했습니다.');
+      } finally {
+        setPopularitySaving(false);
+      }
+    };
+
+    // 초기화
+    const handleResetRanks = () => {
+      if (!popularityHasChanges) return;
+      if (!confirm('변경사항을 취소하고 마지막 저장 상태로 되돌리시겠습니까?')) {
+        return;
+      }
+
+      setPopularityRanks(new Map(popularityOriginalRanks));
+      setPopularityHasChanges(false);
+    };
+
+    return (
+      <div className="space-y-6">
+        <div className="space-y-2">
+          <h2 className="text-2xl font-bold text-gray-900">인기곡 순위 관리</h2>
+          <p className="text-gray-500">
+            장르별로 인기곡 순위를 1-10위까지 지정할 수 있습니다. 지정된 순위는 메인 페이지의 인기곡 섹션에 표시됩니다.
+          </p>
+        </div>
+
+        {/* 장르 탭 */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+          {sortedCategories.length > 0 ? (
+            <div className="flex flex-wrap gap-2">
+              {sortedCategories.map((category) => (
+                <button
+                  key={category.id}
+                  onClick={() => {
+                    setPopularitySelectedGenre(category.id);
+                    setPopularityHasChanges(false);
+                  }}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    popularitySelectedGenre === category.id
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  {category.name}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-4 text-gray-500">
+              <i className="ri-loader-4-line animate-spin text-2xl mb-2 block"></i>
+              <p>장르 목록을 불러오는 중...</p>
+            </div>
+          )}
+        </div>
+
+        {/* 저장/초기화 버튼 */}
+        <div className="flex items-center justify-between bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+          <div className="flex items-center gap-2">
+            {popularityHasChanges && (
+              <span className="text-sm text-orange-600 font-medium">변경사항이 있습니다</span>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleResetRanks}
+              disabled={!popularityHasChanges || popularitySaving}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                popularityHasChanges && !popularitySaving
+                  ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  : 'bg-gray-50 text-gray-400 cursor-not-allowed'
+              }`}
+            >
+              초기화
+            </button>
+            <button
+              onClick={handleSaveRanks}
+              disabled={!popularityHasChanges || popularitySaving}
+              className={`px-4 py-2 rounded-lg text-sm font-medium text-white transition-colors ${
+                popularityHasChanges && !popularitySaving
+                  ? 'bg-blue-600 hover:bg-blue-700'
+                  : 'bg-gray-300 cursor-not-allowed'
+              }`}
+            >
+              {popularitySaving ? '저장 중...' : '저장'}
+            </button>
+          </div>
+        </div>
+
+        {/* 순위 관리 영역 */}
+        {popularitySelectedGenre && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            {Array.from({ length: 10 }, (_, i) => i + 1).map((rank) => {
+              const sheet = popularityRanks.get(rank);
+              return (
+                <div
+                  key={rank}
+                  className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 space-y-3"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-lg font-bold text-gray-900">{rank}위</span>
+                    <div className="flex items-center gap-1">
+                      {/* 위로 이동 버튼 */}
+                      {sheet && rank > 1 && (
+                        <button
+                          onClick={() => handleMoveUp(rank)}
+                          className="text-blue-500 hover:text-blue-700 transition-colors"
+                          title="위로 이동"
+                        >
+                          <i className="ri-arrow-up-line text-lg"></i>
+                        </button>
+                      )}
+                      {/* 아래로 이동 버튼 */}
+                      {sheet && rank < 10 && (
+                        <button
+                          onClick={() => handleMoveDown(rank)}
+                          className="text-blue-500 hover:text-blue-700 transition-colors"
+                          title="아래로 이동"
+                        >
+                          <i className="ri-arrow-down-line text-lg"></i>
+                        </button>
+                      )}
+                      {/* 제거 버튼 */}
+                      {sheet && (
+                        <button
+                          onClick={() => handleRemoveSheet(rank)}
+                          className="text-red-500 hover:text-red-700 transition-colors"
+                          title="순위 제거"
+                        >
+                          <i className="ri-close-line text-xl"></i>
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {sheet ? (
+                    <div className="space-y-2">
+                      {sheet.thumbnail_url ? (
+                        <img
+                          src={sheet.thumbnail_url}
+                          alt={sheet.title}
+                          className="w-full aspect-square object-cover rounded-lg"
+                        />
+                      ) : (
+                        <div className="w-full aspect-square bg-gray-100 rounded-lg flex items-center justify-center">
+                          <i className="ri-music-line text-4xl text-gray-400"></i>
+                        </div>
+                      )}
+                      <div className="space-y-1">
+                        <p className="text-sm font-semibold text-gray-900 truncate" title={sheet.title}>
+                          {sheet.title}
+                        </p>
+                        <p className="text-xs text-gray-500 truncate" title={sheet.artist}>
+                          {sheet.artist}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => {
+                          setPopularitySearchTargetRank(rank);
+                          setPopularitySearchModalOpen(true);
+                        }}
+                        className="w-full px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                      >
+                        변경
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        setPopularitySearchTargetRank(rank);
+                        setPopularitySearchModalOpen(true);
+                      }}
+                      className="w-full py-8 border-2 border-dashed border-gray-300 rounded-lg text-gray-400 hover:border-blue-400 hover:text-blue-600 transition-colors"
+                    >
+                      <i className="ri-add-line text-2xl mb-2 block"></i>
+                      <span className="text-sm">악보 검색</span>
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* 악보 검색 모달 */}
+        {popularitySearchModalOpen && popularitySearchTargetRank && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+            <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[80vh] flex flex-col">
+              <div className="flex items-center justify-between p-4 border-b border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  {popularitySearchTargetRank}위 악보 검색
+                </h3>
+                <button
+                  onClick={() => {
+                    setPopularitySearchModalOpen(false);
+                    setPopularitySearchTerm('');
+                    setPopularitySearchResults([]);
+                  }}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <i className="ri-close-line text-xl"></i>
+                </button>
+              </div>
+
+              <div className="p-4 border-b border-gray-200">
+                <input
+                  type="text"
+                  value={popularitySearchTerm}
+                  onChange={(e) => {
+                    setPopularitySearchTerm(e.target.value);
+                    handleSearchSheets(e.target.value);
+                  }}
+                  placeholder="제목 또는 아티스트로 검색..."
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-4">
+                {popularitySearchLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <i className="ri-loader-4-line animate-spin text-2xl text-blue-600"></i>
+                  </div>
+                ) : popularitySearchResults.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {popularitySearchResults.map((result) => (
+                      <button
+                        key={result.id}
+                        onClick={() => handleAssignSheet(popularitySearchTargetRank!, result)}
+                        className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-colors text-left"
+                      >
+                        {result.thumbnail_url ? (
+                          <img
+                            src={result.thumbnail_url}
+                            alt={result.title}
+                            className="w-16 h-16 object-cover rounded"
+                          />
+                        ) : (
+                          <div className="w-16 h-16 bg-gray-100 rounded flex items-center justify-center">
+                            <i className="ri-music-line text-2xl text-gray-400"></i>
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-gray-900 truncate">{result.title}</p>
+                          <p className="text-xs text-gray-500 truncate">{result.artist}</p>
+                        </div>
+                        <i className="ri-arrow-right-line text-gray-400"></i>
+                      </button>
+                    ))}
+                  </div>
+                ) : popularitySearchTerm ? (
+                  <div className="text-center py-8 text-gray-500">
+                    검색 결과가 없습니다.
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-gray-500">
+                    검색어를 입력하세요.
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const renderMarketing = () => {
+    return (
+      <div className="space-y-6">
+        <div className="space-y-2">
+          <h2 className="text-2xl font-bold text-gray-900">마케팅 자동화 관리</h2>
+          <p className="text-gray-500">
+            티스토리, 핀터레스트 등 외부 플랫폼에 악보 미리보기를 자동으로 포스팅합니다.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="lg:col-span-2">
+            <MarketingStatus />
+          </div>
+          <div className="lg:col-span-2">
+            <MarketingSettings onSettingsChange={() => { }} />
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderMainContent = () => {
+    switch (activeMenu) {
+      case 'dashboard':
+        return renderDashboard();
+      case 'sheets':
+        return renderSheetManagement();
+      case 'categories':
+        return renderCategoryManagement();
+      case 'collections':
+        return renderCollectionManagement();
+      case 'event-discounts':
+        return renderEventDiscountManagement();
+      case 'member-list':
+        return renderMemberManagement();
+      case 'orders':
+        return renderOrderManagement();
+      case 'inquiries':
+        return renderInquiryManagement();
+      case 'custom-orders':
+        return renderCustomOrderManagement();
+      case 'points':
+        return renderCashManagement();
+      case 'analytics':
+        return renderAnalytics();
+      case 'copyright-report':
+        return renderCopyrightReport();
+      case 'settings':
+        return renderSettings();
+      case 'marketing':
+        return renderMarketing();
+      case 'drum-lessons':
+        return <DrumLessonManagement />;
+      case 'popularity':
+        return renderPopularityManagement();
+      default:
+        return renderDashboard();
+    }
+  };
+
+  if (loading || !authChecked) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <i className="ri-loader-4-line w-8 h-8 animate-spin text-blue-600 mx-auto mb-4"></i>
+          <p className="text-gray-600">로딩 중...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600">접근 권한이 없습니다.</p>
+        </div>
+      </div>
+    );
+  }
+
+  const handleMenuClick = (menu: string) => {
+    setActiveMenu(menu);
+    setIsMobileMenuOpen(false);
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 flex">
+      {/* 모바일 오버레이 */}
+      {isMobileMenuOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm md:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* 사이드바 */}
+      <div className={`fixed md:static inset-y-0 left-0 z-50 w-64 bg-white shadow-sm border-r border-gray-200 flex flex-col transform transition-transform duration-300 ease-in-out md:transform-none ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+        }`}>
+        <div className="p-4 md:p-6 border-b border-gray-200 flex items-center justify-between">
+          <h1 className="text-lg md:text-xl font-bold text-gray-900">관리자 패널</h1>
+          <button
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="md:hidden flex items-center justify-center h-8 w-8 rounded-full hover:bg-gray-100 text-gray-500"
+            aria-label="메뉴 닫기"
+          >
+            <i className="ri-close-line text-xl"></i>
+          </button>
+        </div>
+
+        <nav className="flex-1 p-3 md:p-4 space-y-2 overflow-y-auto">
+          <button
+            onClick={() => handleMenuClick('dashboard')}
+            className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-left transition-colors ${activeMenu === 'dashboard' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100'
+              }`}
+          >
+            <i className="ri-home-line w-5 h-5"></i>
+            <span className="text-sm md:text-base">대시보드</span>
+          </button>
+
+          <button
+            onClick={() => handleMenuClick('member-list')}
+            className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-left transition-colors ${activeMenu === 'member-list' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100'
+              }`}
+          >
+            <i className="ri-user-line w-5 h-5"></i>
+            <span className="text-sm md:text-base">회원 관리</span>
+          </button>
+
+          <button
+            onClick={() => handleMenuClick('sheets')}
+            className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-left transition-colors ${activeMenu === 'sheets' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100'
+              }`}
+          >
+            <i className="ri-music-line w-5 h-5"></i>
+            <span className="text-sm md:text-base">악보 관리</span>
+          </button>
+
+          <button
+            onClick={() => handleMenuClick('drum-lessons')}
+            className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-left transition-colors ${activeMenu === 'drum-lessons' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100'
+              }`}
+          >
+            <i className="ri-play-circle-line w-5 h-5"></i>
+            <span className="text-sm md:text-base">드럼레슨 관리</span>
+          </button>
+
+          <button
+            onClick={() => handleMenuClick('categories')}
+            className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-left transition-colors ${activeMenu === 'categories' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100'
+              }`}
+          >
+            <i className="ri-folder-open-line w-5 h-5"></i>
+            <span className="text-sm md:text-base">카테고리 관리</span>
+          </button>
+
+          <button
+            onClick={() => handleMenuClick('collections')}
+            className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-left transition-colors ${activeMenu === 'collections' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100'
+              }`}
+          >
+            <i className="ri-bookmark-line w-5 h-5"></i>
+            <span className="text-sm md:text-base">악보모음집 관리</span>
+          </button>
+
+          <button
+            onClick={() => handleMenuClick('event-discounts')}
+            className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-left transition-colors ${activeMenu === 'event-discounts' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100'
+              }`}
+          >
+            <i className="ri-fire-line w-5 h-5"></i>
+            <span className="text-sm md:text-base">이벤트 할인악보</span>
+          </button>
+
+          <button
+            onClick={() => handleMenuClick('orders')}
+            className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-left transition-colors ${activeMenu === 'orders' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100'
+              }`}
+          >
+            <i className="ri-shopping-cart-line w-5 h-5"></i>
+            <span className="text-sm md:text-base">주문 관리</span>
+          </button>
+
+          <button
+            onClick={() => handleMenuClick('inquiries')}
+            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-left transition-colors ${activeMenu === 'inquiries' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100'
+              }`}
+          >
+            <span className="flex items-center gap-3">
+              <i className="ri-customer-service-2-line w-5 h-5"></i>
+              <span className="text-sm md:text-base">문의 관리</span>
+            </span>
+            {pendingInquiryCount > 0 && (
+              <span className="inline-flex min-w-[20px] justify-center rounded-full bg-red-500 px-1.5 py-0.5 text-xs font-semibold text-white">
+                {pendingInquiryCount > 99 ? '99+' : pendingInquiryCount}
+              </span>
+            )}
+          </button>
+
+          <button
+            onClick={() => handleMenuClick('custom-orders')}
+            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-left transition-colors ${activeMenu === 'custom-orders' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100'
+              }`}
+          >
+            <span className="flex items-center gap-3">
+              <i className="ri-clipboard-line w-5 h-5"></i>
+              <span className="text-sm md:text-base">주문 제작 관리</span>
+            </span>
+            {pendingCustomOrderCount > 0 && (
+              <span className="inline-flex min-w-[20px] justify-center rounded-full bg-red-500 px-1.5 py-0.5 text-xs font-semibold text-white">
+                {pendingCustomOrderCount > 99 ? '99+' : pendingCustomOrderCount}
+              </span>
+            )}
+          </button>
+
+          <button
+            onClick={() => handleMenuClick('points')}
+            className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-left transition-colors ${activeMenu === 'points' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100'
+              }`}
+          >
+            <i className="ri-star-line w-5 h-5"></i>
+            <span className="text-sm md:text-base">적립금 관리</span>
+          </button>
+
+          <button
+            onClick={() => handleMenuClick('copyright-report')}
+            className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-left transition-colors ${activeMenu === 'copyright-report'
+              ? 'bg-blue-100 text-blue-700'
+              : 'text-gray-700 hover:bg-gray-100'
+              }`}
+          >
+            <i className="ri-file-chart-line w-5 h-5"></i>
+            <span className="text-sm md:text-base">저작권 보고</span>
+          </button>
+
+          <button
+            onClick={() => handleMenuClick('analytics')}
+            className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-left transition-colors ${activeMenu === 'analytics' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100'
+              }`}
+          >
+            <i className="ri-bar-chart-line w-5 h-5"></i>
+            <span className="text-sm md:text-base">분석</span>
+          </button>
+
+          <button
+            onClick={() => handleMenuClick('settings')}
+            className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-left transition-colors ${activeMenu === 'settings' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100'
+              }`}
+          >
+            <i className="ri-settings-line w-5 h-5"></i>
+            <span className="text-sm md:text-base">설정</span>
+          </button>
+
+          <button
+            onClick={() => handleMenuClick('marketing')}
+            className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-left transition-colors ${activeMenu === 'marketing' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100'
+              }`}
+          >
+            <i className="ri-share-forward-line w-5 h-5"></i>
+            <span className="text-sm md:text-base">마케팅 자동화</span>
+          </button>
+
+          <button
+            onClick={() => handleMenuClick('popularity')}
+            className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-left transition-colors ${activeMenu === 'popularity' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100'
+              }`}
+          >
+            <i className="ri-trophy-line w-5 h-5"></i>
+            <span className="text-sm md:text-base">인기곡 순위 관리</span>
+          </button>
+        </nav>
+
+        <div className="p-3 md:p-4 border-t border-gray-200">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-left text-red-600 hover:bg-red-50 transition-colors"
+          >
+            <i className="ri-logout-box-line w-5 h-5"></i>
+            <span className="text-sm md:text-base">로그아웃</span>
+          </button>
+        </div>
+      </div>
+
+      {/* 메인 컨텐츠 */}
+      <div className="flex-1 flex flex-col w-full md:w-auto">
+        {/* 헤더 - 모바일에서도 표시 */}
+        <header className="block bg-white shadow-sm border-b border-gray-200 sticky top-0 z-30">
+          <div className="px-4 md:px-6 py-3 md:py-4">
+            <div className="flex justify-between items-center gap-3">
+              <div className="flex items-center gap-3 flex-1 min-w-0">
+                <button
+                  onClick={() => setIsMobileMenuOpen(true)}
+                  className="md:hidden flex items-center justify-center h-10 w-10 rounded-full hover:bg-gray-100 text-gray-600"
+                  aria-label="메뉴 열기"
+                >
+                  <i className="ri-menu-line text-xl"></i>
+                </button>
+                <h2 className="text-base md:text-lg font-semibold text-gray-900 truncate">
+                  {activeMenu === 'dashboard' ? '대시보드' :
+                    activeMenu === 'member-list' ? '회원 관리' :
+                      activeMenu === 'sheets' ? '악보 관리' :
+                        activeMenu === 'drum-lessons' ? '드럼레슨 관리' :
+                          activeMenu === 'categories' ? '카테고리 관리' :
+                            activeMenu === 'collections' ? '악보모음집 관리' :
+                              activeMenu === 'event-discounts' ? '이벤트 할인악보 관리' :
+                                activeMenu === 'orders' ? '주문 관리' :
+                                  activeMenu === 'inquiries' ? '채팅 상담 관리' :
+                                    activeMenu === 'custom-orders' ? '주문 제작 관리' :
+                                      activeMenu === 'points' ? '적립금 관리' :
+                                        activeMenu === 'copyright-report' ? '저작권 보고' :
+                                          activeMenu === 'analytics' ? '분석' :
+                                            activeMenu === 'settings' ? '설정' :
+                                              activeMenu === 'marketing' ? '마케팅 자동화' :
+                                                activeMenu === 'popularity' ? '인기곡 순위 관리' : '대시보드'}
+                </h2>
+              </div>
+              <div className="flex items-center">
+                <span className="text-sm md:text-base text-gray-700 truncate max-w-[120px] md:max-w-none">{user?.email?.split('@')[0]}님</span>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* 메인 컨텐츠 영역 */}
+        <main className="flex-1 p-3 md:p-6 overflow-auto">
+          {renderMainContent()}
+        </main>
+      </div>
+    </div>
+  );
+};
+
+export default AdminPage;
