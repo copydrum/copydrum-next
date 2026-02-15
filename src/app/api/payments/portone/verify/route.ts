@@ -93,7 +93,11 @@ export async function POST(request: NextRequest) {
     let order: any = null;
 
     // 1. 주문 정보 조회 (orderId가 있으면 먼저 조회)
-    if (orderId) {
+    // UUID 형식 검증 (DB의 id 컬럼이 UUID 타입이므로 non-UUID 전달 시 PostgreSQL 에러 발생)
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const isValidUUID = orderId ? uuidRegex.test(orderId) : false;
+
+    if (orderId && isValidUUID) {
       const { data: orderData, error: orderError } = await supabase
         .from('orders')
         .select('*')
@@ -112,6 +116,8 @@ export async function POST(request: NextRequest) {
         order = orderData;
         console.log('[verify] ✅ 주문 조회 성공 (orderId:', orderId, ')');
       }
+    } else if (orderId && !isValidUUID) {
+      console.warn('[verify] ⚠️ orderId가 UUID 형식이 아님, 건너뜀:', orderId);
     }
 
     // 2. 주문이 없으면 transaction_id로 조회 시도

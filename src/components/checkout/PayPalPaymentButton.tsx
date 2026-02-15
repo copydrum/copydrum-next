@@ -59,6 +59,45 @@ export default function PayPalPaymentButton({
       const storeId = process.env.NEXT_PUBLIC_PORTONE_STORE_ID!;
       const channelKey = process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY_PAYPAL!;
 
+      // ─── 1단계: DB에 주문이 없으면 먼저 생성 (Dodo/Points와 동일한 패턴) ───
+      let dbOrderId = orderId;
+      try {
+        const description = items.length === 1
+          ? items[0].title
+          : `${items[0].title} 외 ${items.length - 1}건`;
+
+        const createResponse = await fetch('/api/orders/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: user.id,
+            items: items.map((item) => ({
+              sheetId: item.sheet_id,
+              title: item.title,
+              price: item.price,
+            })),
+            amount,
+            description,
+            paymentMethod: 'paypal',
+          }),
+        });
+
+        const createResult = await createResponse.json();
+
+        if (createResult.success && createResult.orderId) {
+          dbOrderId = createResult.orderId;
+          dbOrderIdRef.current = dbOrderId;
+          console.log('[PayPal-SDK] ✅ DB 주문 생성 완료:', {
+            dbOrderId,
+            orderNumber: createResult.orderNumber,
+          });
+        } else {
+          console.warn('[PayPal-SDK] ⚠️ 주문 생성 실패, 기존 orderId 사용:', createResult.error);
+        }
+      } catch (createErr) {
+        console.warn('[PayPal-SDK] ⚠️ 주문 생성 중 오류, 기존 orderId 사용:', createErr);
+      }
+
       // ─── 결제 고유 ID 생성 ───
       const newPaymentId = `pay_${uuidv4()}`;
       paymentIdRef.current = newPaymentId;
@@ -114,7 +153,9 @@ export default function PayPalPaymentButton({
           fullName: user.user_metadata?.name || undefined,
         },
         metadata: {
-          clientOrderId: orderId,
+          clientOrderId: dbOrderId,   // DB 주문 UUID 사용
+          supabaseOrderId: dbOrderId, // 중복 저장 (웹훅 대비)
+          userId: user.id,
         },
       };
 
@@ -150,9 +191,9 @@ export default function PayPalPaymentButton({
 
             console.log('[PayPal-SDK] 확인된 paymentId:', confirmedPaymentId);
 
-            // ─── 기존 주문의 transaction_id를 업데이트 ───
-            // ⚠️ 새 주문을 생성하지 않음! 결제 페이지 진입 시 이미 생성된 주문(orderId)을 사용
-            dbOrderIdRef.current = orderId;
+            // ─── DB 주문 ID 사용 (loadPayPalButton에서 생성한 실제 UUID) ───
+            const finalOrderId = dbOrderIdRef.current || orderId;
+            console.log('[PayPal-SDK] 사용할 orderId:', finalOrderId);
 
             // ─── 서버 측 결제 검증 → 주문 상태를 completed로 업데이트 ───
             // /api/payments/portone/verify에서:
@@ -166,7 +207,7 @@ export default function PayPalPaymentButton({
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                   paymentId: confirmedPaymentId,
-                  orderId: orderId,
+                  orderId: finalOrderId,
                   paymentMethod: 'paypal',
                 }),
               });
@@ -201,8 +242,8 @@ export default function PayPalPaymentButton({
             }
 
             // 성공 콜백 → OnePageCheckout에서 결제 성공 페이지로 이동
-            // 기존 orderId를 그대로 전달 (중복 주문 방지)
-            onSuccess(confirmedPaymentId, orderId);
+            // DB에 실제 저장된 주문 UUID를 전달
+            onSuccess(confirmedPaymentId, finalOrderId);
           } catch (err) {
             console.error('[PayPal-SDK] ❌ 결제 후 처리 오류:', {
               error: err,
@@ -216,7 +257,8 @@ export default function PayPalPaymentButton({
             );
             
             // 성공 페이지로 이동 (재검증 시도)
-            onSuccess(newPaymentId, orderId);
+            const fallbackOrderId = dbOrderIdRef.current || orderId;
+            onSuccess(newPaymentId, fallbackOrderId);
           } finally {
             setIsProcessing(false);
             isProcessingRef.current = false;

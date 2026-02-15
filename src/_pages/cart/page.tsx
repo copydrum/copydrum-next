@@ -81,7 +81,7 @@ export default function CartPageWithCheckout() {
           quantity: 1,
         }));
 
-        const newOrderId = `order_${Date.now()}_${user.id.substring(0, 8)}`;
+        const newOrderId = crypto.randomUUID();
 
         setCheckoutItems(checkoutData);
         setOrderId(newOrderId);
