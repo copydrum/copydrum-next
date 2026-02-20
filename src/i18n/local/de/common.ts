@@ -228,5 +228,8 @@ export default {
   'category.drumSolo': 'Schlagzeug-Solo',
   'category.drumCover': 'Schlagzeug-Cover',
   'category.other': 'Sonstiges',
+
+  // Mobile footer
+  'home.businessInfo': 'Kundensupport',
 };
 

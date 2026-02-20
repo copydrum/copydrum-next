@@ -464,7 +464,7 @@ export default {
   'home.customOrderCTADescription': '원하시는 곡의 드럼 악보를 전문가가 직접 제작해드립니다.',
   'home.customOrderCTADescription2': '지금 주문제작으로 나만의 악보를 받아보세요.',
   'home.customOrderCTAButton': '주문제작 신청하기',
-  'home.businessInfo': '카피드럼 사업자정보',
+  'home.businessInfo': '고객 지원',
 
   // Category/Genre Names
   'category.kpop': '가요',

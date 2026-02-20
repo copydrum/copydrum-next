@@ -228,5 +228,8 @@ export default {
   'category.drumSolo': 'Trống Solo',
   'category.drumCover': 'Trống Cover',
   'category.other': 'Khác',
+
+  // Mobile footer
+  'home.businessInfo': 'Hỗ trợ khách hàng',
 };
 

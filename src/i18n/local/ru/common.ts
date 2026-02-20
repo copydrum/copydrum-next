@@ -228,5 +228,8 @@ export default {
   'category.drumSolo': 'Соло на Барабанах',
   'category.drumCover': 'Кавер на Барабанах',
   'category.other': 'Другое',
+
+  // Mobile footer
+  'home.businessInfo': 'Поддержка клиентов',
 };
 

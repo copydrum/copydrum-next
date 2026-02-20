@@ -474,7 +474,7 @@ export default {
   'home.customOrderCTADescription': '専門家があなたの希望する曲のドラム楽譜を制作します。',
   'home.customOrderCTADescription2': '今すぐ注文して、あなただけのカスタム楽譜を手に入れましょう。',
   'home.customOrderCTAButton': 'カスタム注文を依頼する',
-  'home.businessInfo': 'COPYDRUM 事業者情報',
+  'home.businessInfo': 'カスタマーサポート',
 
   // Category/Genre Names
   'category.kpop': 'K-POP',

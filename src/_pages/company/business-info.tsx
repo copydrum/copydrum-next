@@ -36,14 +36,15 @@ export default function BusinessInfoPage() {
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
-        <div>
+        {/* 카피드럼 사업자 정보 숨김 처리 (복구 시 hidden 클래스 제거) */}
+        <div className="hidden">
           <h1 className="text-3xl font-bold text-gray-900 mb-3">카피드럼 사업자 정보</h1>
           <p className="text-gray-600">
             카피드럼의 필수 사업자 정보 및 고객 안내 사항을 확인하실 수 있습니다.
           </p>
         </div>
 
-        <section className="rounded-2xl border border-gray-200 bg-white shadow-sm">
+        <section className="hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
           <div className="divide-y divide-gray-100">
             {infoRows.map((row) => (
               <div key={row.label} className="flex flex-col sm:flex-row sm:items-center px-6 py-4">

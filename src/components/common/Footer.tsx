@@ -195,16 +195,20 @@ export default function Footer() {
             // 기존 회사 정보 블록 (한국어/영어/기타 언어 사이트)
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
               <div className="text-sm text-gray-400 space-y-2 flex-1">
-                <p>{t('footer.companyInfo')}</p>
-                <p>{t('footer.telecomLicense')}</p>
-                <p>{t('footer.address')}</p>
+                {/* 사업자 정보 숨김 처리 (복구 시 hidden 클래스 제거) */}
+                <p className="hidden">{t('footer.companyInfo')}</p>
+                <p className="hidden">{t('footer.telecomLicense')}</p>
+                <p className="hidden">{t('footer.address')}</p>
                 {isKoreanSite ? (
                   <>
-                    <p>{t('footer.contactInfo')}</p>
+                    <p className="hidden">{t('footer.contactInfo')}</p>
                     <p>{t('footer.email')}</p>
                   </>
                 ) : (
-                  <p>{t('footer.contactInfoGlobal')}</p>
+                  <>
+                    <p className="hidden">{t('footer.contactInfoGlobal')}</p>
+                    <p>{t('footer.email')}</p>
+                  </>
                 )}
                 <div className="mt-8 pt-8 border-t border-gray-800 text-center text-gray-400 text-sm">
                   <p>{t('footer.copyright', { year: new Date().getFullYear() })}</p>

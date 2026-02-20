@@ -228,5 +228,8 @@ export default {
   'category.drumSolo': 'ड्रम सोलो',
   'category.drumCover': 'ड्रम कवर',
   'category.other': 'अन्य',
+
+  // Mobile footer
+  'home.businessInfo': 'ग्राहक सहायता',
 };
 

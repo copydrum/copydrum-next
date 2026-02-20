@@ -228,5 +228,8 @@ export default {
   'category.drumSolo': 'Drum Solo',
   'category.drumCover': 'Drum Cover',
   'category.other': 'Lainnya',
+
+  // Mobile footer
+  'home.businessInfo': 'Dukungan Pelanggan',
 };
 

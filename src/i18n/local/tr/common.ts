@@ -228,5 +228,8 @@ export default {
   'category.drumSolo': 'Bateri Solo',
   'category.drumCover': 'Bateri Cover',
   'category.other': 'Diğer',
+
+  // Mobile footer
+  'home.businessInfo': 'Müşteri Desteği',
 };
 

@@ -228,5 +228,8 @@ export default {
   'category.drumSolo': '鼓独奏',
   'category.drumCover': '鼓翻奏',
   'category.other': '其他',
+
+  // Mobile footer
+  'home.businessInfo': '客户支持',
 };
 

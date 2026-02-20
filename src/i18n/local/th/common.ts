@@ -228,5 +228,8 @@ export default {
   'category.drumSolo': 'ดรัมโซโล',
   'category.drumCover': 'ดรัมคัฟเวอร์',
   'category.other': 'อื่นๆ',
+
+  // Mobile footer
+  'home.businessInfo': 'ฝ่ายบริการลูกค้า',
 };
 

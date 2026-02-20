@@ -228,5 +228,8 @@ export default {
   'category.drumSolo': 'Solo de Bateria',
   'category.drumCover': 'Cover de Bateria',
   'category.other': 'Outros',
+
+  // Mobile footer
+  'home.businessInfo': 'Suporte ao Cliente',
 };
 

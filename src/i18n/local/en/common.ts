@@ -476,7 +476,7 @@ export default {
   'home.customOrderCTADescription': 'Our professionals will create a drum sheet for your desired song.',
   'home.customOrderCTADescription2': 'Order now and get your own custom sheet music.',
   'home.customOrderCTAButton': 'Request Custom Order',
-  'home.businessInfo': 'COPYDRUM Business Information',
+  'home.businessInfo': 'Customer Support',
 
   // Category/Genre Names
   'category.kpop': 'K-POP',
