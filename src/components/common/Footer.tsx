@@ -165,24 +165,27 @@ export default function Footer() {
           {isJapaneseSite ? (
             // 일본 사이트 전용: 특정商取引法에 기반한 표기
             <div className="text-sm text-gray-400 space-y-3">
-              <h3 className="text-base font-semibold text-white mb-4">【特定商取引法に基づく表記】</h3>
-              <div className="space-y-2">
+              {/* 특정상거래법 표기 숨김 처리 (복구 시 hidden 클래스 제거) */}
+              <h3 className="hidden text-base font-semibold text-white mb-4">【特定商取引法に基づく表記】</h3>
+              <div className="hidden space-y-2">
                 <p><span className="font-medium">販売業者：</span>株式会社KG Inicis Japan</p>
                 <p><span className="font-medium">責任者：</span>キム・ジュンウ</p>
                 <p><span className="font-medium">住所：</span>東京都新宿区新宿２丁目１番１０号</p>
                 <p><span className="font-medium">電話番号：</span>03-6825-5531</p>
-                <p><span className="font-medium">メールアドレス：</span>copydrum@hanmail.net</p>
                 <p><span className="font-medium">ホームページ：</span>https://jp.copydrum.com</p>
                 <p><span className="font-medium">サイト名：</span>CopyDrum</p>
               </div>
-              <div className="mt-4 space-y-2">
+              <div className="space-y-2">
+                <p><span className="font-medium">メールアドレス：</span>copydrum@hanmail.net</p>
+              </div>
+              <div className="hidden mt-4 space-y-2">
                 <p><span className="font-medium">商品の販売価格：</span>商品ごとに表示</p>
                 <p><span className="font-medium">商品以外の必要料金：</span>決済手数料</p>
                 <p><span className="font-medium">支払い方法：</span>クレジットカード / PayPal</p>
                 <p><span className="font-medium">支払い時期：</span>決済時に確定</p>
                 <p><span className="font-medium">商品の引渡時期：</span>決済完了後、即時にダウンロードが可能です。</p>
               </div>
-              <div className="mt-4 space-y-2">
+              <div className="hidden mt-4 space-y-2">
                 <p><span className="font-medium">返品・交換：</span></p>
                 <p className="pl-4">デジタル商品の性質上、返品・交換には応じられません。</p>
                 <p className="pl-4">データ破損等がございましたら、お問い合わせにてご連絡ください。</p>
