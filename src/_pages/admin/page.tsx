@@ -1164,6 +1164,8 @@ const AdminPage: React.FC = () => {
   const [orderStartDate, setOrderStartDate] = useState('');
   const [orderEndDate, setOrderEndDate] = useState('');
   const [orderSortKey, setOrderSortKey] = useState<OrderSortKey>('date_desc');
+  const [orderCurrentPage, setOrderCurrentPage] = useState(1);
+  const [orderItemsPerPage] = useState(50);
   const [selectedOrderIds, setSelectedOrderIds] = useState<Set<string>>(new Set());
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isOrderDetailModalOpen, setIsOrderDetailModalOpen] = useState(false);
@@ -2491,7 +2493,13 @@ const AdminPage: React.FC = () => {
     setOrderStartDate('');
     setOrderEndDate('');
     setOrderSortKey('date_desc');
+    setOrderCurrentPage(1);
   };
+
+  // 주문 검색/필터 변경 시 첫 페이지로 리셋
+  useEffect(() => {
+    setOrderCurrentPage(1);
+  }, [orderSearchTerm, orderStatusFilter, orderPaymentFilter, orderStartDate, orderEndDate, orderSortKey]);
 
   const handleExportOrders = () => {
     if (sortedOrders.length === 0) {
@@ -2556,11 +2564,21 @@ const AdminPage: React.FC = () => {
 
   const handleSelectAllOrders = (checked: boolean) => {
     if (checked) {
-      // 현재 필터링/정렬된 주문 전체 선택
-      const allIds = sortedOrders.map((o) => o.id);
-      setSelectedOrderIds(new Set(allIds));
+      // 현재 페이지의 주문 전체 선택
+      const pageIds = paginatedOrders.map((o) => o.id);
+      setSelectedOrderIds((prev) => {
+        const next = new Set(prev);
+        pageIds.forEach((id) => next.add(id));
+        return next;
+      });
     } else {
-      setSelectedOrderIds(new Set());
+      // 현재 페이지의 주문 전체 해제
+      const pageIds = new Set(paginatedOrders.map((o) => o.id));
+      setSelectedOrderIds((prev) => {
+        const next = new Set(prev);
+        pageIds.forEach((id) => next.delete(id));
+        return next;
+      });
     }
   };
 
@@ -5541,6 +5559,12 @@ ONE MORE TIME,ALLDAY PROJECT,중급,ALLDAY PROJECT - ONE MORE TIME.pdf,https://w
 
   const totalOrderCount = orders.length;
   const filteredOrderCount = filteredOrders.length;
+
+  // 주문 페이지네이션 계산
+  const orderTotalPages = Math.ceil(sortedOrders.length / orderItemsPerPage);
+  const orderStartIndex = (orderCurrentPage - 1) * orderItemsPerPage;
+  const orderEndIndex = orderStartIndex + orderItemsPerPage;
+  const paginatedOrders = sortedOrders.slice(orderStartIndex, orderEndIndex);
 
   const filteredCustomOrders = customOrders.filter((order) => {
     const keyword = customOrderSearchTerm.toLowerCase();
@@ -9415,7 +9439,12 @@ ONE MORE TIME,ALLDAY PROJECT,중급,ALLDAY PROJECT - ONE MORE TIME.pdf,https://w
               <span className="font-semibold text-gray-700">
                 {filteredOrderCount.toLocaleString('ko-KR')}건
               </span>{' '}
-              표시 중
+              필터됨
+              {sortedOrders.length > 0 && (
+                <span className="ml-1 text-gray-400">
+                  ({orderStartIndex + 1}-{Math.min(orderEndIndex, sortedOrders.length)}번째 표시)
+                </span>
+              )}
             </p>
             <div className="flex items-center gap-2">
               <button
@@ -9450,8 +9479,8 @@ ONE MORE TIME,ALLDAY PROJECT,중급,ALLDAY PROJECT - ONE MORE TIME.pdf,https://w
                     type="checkbox"
                     className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                     checked={
-                      sortedOrders.length > 0 &&
-                      selectedOrderIds.size === sortedOrders.length
+                      paginatedOrders.length > 0 &&
+                      paginatedOrders.every((o) => selectedOrderIds.has(o.id))
                     }
                     onChange={(e) => handleSelectAllOrders(e.target.checked)}
                   />
@@ -9467,14 +9496,14 @@ ONE MORE TIME,ALLDAY PROJECT,중급,ALLDAY PROJECT - ONE MORE TIME.pdf,https://w
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {sortedOrders.length === 0 ? (
+              {paginatedOrders.length === 0 ? (
                 <tr>
                   <td colSpan={9} className="px-6 py-10 text-center text-sm text-gray-500">
                     조건에 맞는 주문이 없습니다.
                   </td>
                 </tr>
               ) : (
-                sortedOrders.map((order) => {
+                paginatedOrders.map((order) => {
                   const statusMeta = getOrderStatusMetaSafe(order.status);
                   const itemCount = order.order_items?.length ?? 0;
                   const paymentLabel = getPaymentMethodLabel(order.payment_method, order);
@@ -9808,6 +9837,90 @@ ONE MORE TIME,ALLDAY PROJECT,중급,ALLDAY PROJECT - ONE MORE TIME.pdf,https://w
             </tbody>
           </table>
         </div>
+
+        {/* 주문 페이지네이션 */}
+        {orderTotalPages > 1 && (
+          <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
+            <div className="text-sm text-gray-700">
+              전체 {sortedOrders.length.toLocaleString('ko-KR')}건 중{' '}
+              {orderStartIndex + 1}-{Math.min(orderEndIndex, sortedOrders.length)}건 표시
+            </div>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => setOrderCurrentPage(1)}
+                disabled={orderCurrentPage === 1}
+                className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${orderCurrentPage === 1
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                  }`}
+              >
+                <i className="ri-skip-back-mini-line"></i>
+              </button>
+              <button
+                onClick={() => setOrderCurrentPage(prev => Math.max(1, prev - 1))}
+                disabled={orderCurrentPage === 1}
+                className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${orderCurrentPage === 1
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                  }`}
+              >
+                <i className="ri-arrow-left-s-line"></i>
+              </button>
+
+              {Array.from({ length: orderTotalPages }, (_, i) => i + 1).map((page) => {
+                if (
+                  page === 1 ||
+                  page === orderTotalPages ||
+                  (page >= orderCurrentPage - 2 && page <= orderCurrentPage + 2)
+                ) {
+                  return (
+                    <button
+                      key={page}
+                      onClick={() => setOrderCurrentPage(page)}
+                      className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${orderCurrentPage === page
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                        }`}
+                    >
+                      {page}
+                    </button>
+                  );
+                } else if (
+                  page === orderCurrentPage - 3 ||
+                  page === orderCurrentPage + 3
+                ) {
+                  return (
+                    <span key={page} className="px-2 text-gray-400">
+                      ...
+                    </span>
+                  );
+                }
+                return null;
+              })}
+
+              <button
+                onClick={() => setOrderCurrentPage(prev => Math.min(orderTotalPages, prev + 1))}
+                disabled={orderCurrentPage === orderTotalPages}
+                className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${orderCurrentPage === orderTotalPages
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                  }`}
+              >
+                <i className="ri-arrow-right-s-line"></i>
+              </button>
+              <button
+                onClick={() => setOrderCurrentPage(orderTotalPages)}
+                disabled={orderCurrentPage === orderTotalPages}
+                className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${orderCurrentPage === orderTotalPages
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                  }`}
+              >
+                <i className="ri-skip-forward-mini-line"></i>
+              </button>
+            </div>
+          </div>
+        )}
       </div>
       {renderOrderDetailModal()}
     </div>
