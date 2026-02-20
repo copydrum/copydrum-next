@@ -231,5 +231,16 @@ export default {
 
   // Mobile footer
   'home.businessInfo': 'ग्राहक सहायता',
+
+  // खाता हटाएं
+  'mypage.deleteAccount.title': 'खाता हटाएं',
+  'mypage.deleteAccount.description': 'खाता हटाने पर सभी व्यक्तिगत जानकारी, ऑर्डर इतिहास, पसंदीदा और सभी डेटा स्थायी रूप से हटा दिए जाएंगे और पुनर्प्राप्त नहीं किए जा सकते।',
+  'mypage.deleteAccount.button': 'खाता हटाएं',
+  'mypage.deleteAccount.processing': 'प्रोसेसिंग...',
+  'mypage.deleteAccount.confirmFirst': 'क्या आप वाकई अपना खाता हटाना चाहते हैं?\n\nसभी डेटा स्थायी रूप से हटा दिए जाएंगे और पुनर्प्राप्त नहीं किए जा सकते।',
+  'mypage.deleteAccount.confirmFinal': 'अंतिम पुष्टि: अपना खाता हटाएं?\n\nयह क्रिया पूर्ववत नहीं की जा सकती।',
+  'mypage.deleteAccount.sessionExpired': 'आपका सत्र समाप्त हो गया है। कृपया फिर से लॉग इन करें।',
+  'mypage.deleteAccount.error': 'खाता हटाते समय एक त्रुटि हुई।',
+  'mypage.deleteAccount.success': 'आपका खाता सफलतापूर्वक हटा दिया गया है।',
 };
 

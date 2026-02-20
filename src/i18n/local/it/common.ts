@@ -231,5 +231,16 @@ export default {
 
   // Mobile footer
   'home.businessInfo': 'Assistenza Clienti',
+
+  // Elimina account
+  'mypage.deleteAccount.title': 'Elimina account',
+  'mypage.deleteAccount.description': 'L\'eliminazione dell\'account comporterà la rimozione permanente di tutti i dati personali, cronologia ordini, preferiti e tutti i dati. Questa azione non può essere annullata.',
+  'mypage.deleteAccount.button': 'Elimina account',
+  'mypage.deleteAccount.processing': 'Elaborazione...',
+  'mypage.deleteAccount.confirmFirst': 'Sei sicuro di voler eliminare il tuo account?\n\nTutti i dati verranno eliminati permanentemente e non potranno essere recuperati.',
+  'mypage.deleteAccount.confirmFinal': 'Conferma finale: Eliminare il tuo account?\n\nQuesta azione non può essere annullata.',
+  'mypage.deleteAccount.sessionExpired': 'La sessione è scaduta. Effettua nuovamente l\'accesso.',
+  'mypage.deleteAccount.error': 'Si è verificato un errore durante l\'eliminazione dell\'account.',
+  'mypage.deleteAccount.success': 'Il tuo account è stato eliminato con successo.',
 };
 

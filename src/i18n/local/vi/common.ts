@@ -231,5 +231,16 @@ export default {
 
   // Mobile footer
   'home.businessInfo': 'Hỗ trợ khách hàng',
+
+  // Xóa tài khoản
+  'mypage.deleteAccount.title': 'Xóa tài khoản',
+  'mypage.deleteAccount.description': 'Khi xóa tài khoản, tất cả thông tin cá nhân, lịch sử đơn hàng, mục yêu thích và toàn bộ dữ liệu sẽ bị xóa vĩnh viễn và không thể khôi phục.',
+  'mypage.deleteAccount.button': 'Xóa tài khoản',
+  'mypage.deleteAccount.processing': 'Đang xử lý...',
+  'mypage.deleteAccount.confirmFirst': 'Bạn có chắc chắn muốn xóa tài khoản?\n\nTất cả dữ liệu sẽ bị xóa vĩnh viễn và không thể khôi phục.',
+  'mypage.deleteAccount.confirmFinal': 'Xác nhận cuối cùng: Xóa tài khoản của bạn?\n\nHành động này không thể hoàn tác.',
+  'mypage.deleteAccount.sessionExpired': 'Phiên của bạn đã hết hạn. Vui lòng đăng nhập lại.',
+  'mypage.deleteAccount.error': 'Đã xảy ra lỗi khi xóa tài khoản của bạn.',
+  'mypage.deleteAccount.success': 'Tài khoản của bạn đã được xóa thành công.',
 };
 

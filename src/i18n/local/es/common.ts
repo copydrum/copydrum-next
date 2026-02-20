@@ -231,5 +231,16 @@ export default {
 
   // Mobile footer
   'home.businessInfo': 'Atención al Cliente',
+
+  // Eliminar cuenta
+  'mypage.deleteAccount.title': 'Eliminar cuenta',
+  'mypage.deleteAccount.description': 'Al eliminar su cuenta, todos los datos personales, historial de pedidos, favoritos y todos los datos se eliminarán permanentemente y no se podrán recuperar.',
+  'mypage.deleteAccount.button': 'Eliminar cuenta',
+  'mypage.deleteAccount.processing': 'Procesando...',
+  'mypage.deleteAccount.confirmFirst': '¿Está seguro de que desea eliminar su cuenta?\n\nTodos los datos se eliminarán permanentemente y no se podrán recuperar.',
+  'mypage.deleteAccount.confirmFinal': 'Confirmación final: ¿Eliminar su cuenta?\n\nEsta acción no se puede deshacer.',
+  'mypage.deleteAccount.sessionExpired': 'Su sesión ha expirado. Por favor, inicie sesión nuevamente.',
+  'mypage.deleteAccount.error': 'Se produjo un error al eliminar su cuenta.',
+  'mypage.deleteAccount.success': 'Su cuenta ha sido eliminada exitosamente.',
 };
 

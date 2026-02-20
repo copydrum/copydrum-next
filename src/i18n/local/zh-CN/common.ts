@@ -231,5 +231,16 @@ export default {
 
   // Mobile footer
   'home.businessInfo': '客户支持',
+
+  // 注销账户
+  'mypage.deleteAccount.title': '注销账户',
+  'mypage.deleteAccount.description': '注销账户后，所有个人信息、订单记录、收藏夹等所有数据将被永久删除，无法恢复。',
+  'mypage.deleteAccount.button': '注销账户',
+  'mypage.deleteAccount.processing': '处理中...',
+  'mypage.deleteAccount.confirmFirst': '您确定要注销账户吗？\n\n所有数据将被永久删除，无法恢复。',
+  'mypage.deleteAccount.confirmFinal': '最终确认：注销您的账户？\n\n此操作无法撤销。',
+  'mypage.deleteAccount.sessionExpired': '您的会话已过期，请重新登录。',
+  'mypage.deleteAccount.error': '注销账户时发生错误。',
+  'mypage.deleteAccount.success': '您的账户已成功注销。',
 };
 

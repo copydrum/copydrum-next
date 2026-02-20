@@ -231,5 +231,16 @@ export default {
 
   // Mobile footer
   'home.businessInfo': '客戶支援',
+
+  // 刪除帳戶
+  'mypage.deleteAccount.title': '刪除帳戶',
+  'mypage.deleteAccount.description': '刪除帳戶後，所有個人資訊、訂單記錄、收藏夾等所有資料將被永久刪除，無法恢復。',
+  'mypage.deleteAccount.button': '刪除帳戶',
+  'mypage.deleteAccount.processing': '處理中...',
+  'mypage.deleteAccount.confirmFirst': '您確定要刪除帳戶嗎？\n\n所有資料將被永久刪除，無法恢復。',
+  'mypage.deleteAccount.confirmFinal': '最終確認：刪除您的帳戶？\n\n此操作無法撤銷。',
+  'mypage.deleteAccount.sessionExpired': '您的工作階段已過期，請重新登入。',
+  'mypage.deleteAccount.error': '刪除帳戶時發生錯誤。',
+  'mypage.deleteAccount.success': '您的帳戶已成功刪除。',
 };
 

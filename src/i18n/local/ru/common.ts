@@ -231,5 +231,16 @@ export default {
 
   // Mobile footer
   'home.businessInfo': 'Поддержка клиентов',
+
+  // Удаление аккаунта
+  'mypage.deleteAccount.title': 'Удалить аккаунт',
+  'mypage.deleteAccount.description': 'При удалении аккаунта все личные данные, история заказов, избранное и все данные будут безвозвратно удалены и не могут быть восстановлены.',
+  'mypage.deleteAccount.button': 'Удалить аккаунт',
+  'mypage.deleteAccount.processing': 'Обработка...',
+  'mypage.deleteAccount.confirmFirst': 'Вы уверены, что хотите удалить свой аккаунт?\n\nВсе данные будут безвозвратно удалены и не могут быть восстановлены.',
+  'mypage.deleteAccount.confirmFinal': 'Окончательное подтверждение: Удалить аккаунт?\n\nЭто действие нельзя отменить.',
+  'mypage.deleteAccount.sessionExpired': 'Ваша сессия истекла. Пожалуйста, войдите снова.',
+  'mypage.deleteAccount.error': 'Произошла ошибка при удалении аккаунта.',
+  'mypage.deleteAccount.success': 'Ваш аккаунт был успешно удалён.',
 };
 

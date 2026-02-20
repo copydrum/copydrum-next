@@ -231,5 +231,16 @@ export default {
 
   // Mobile footer
   'home.businessInfo': 'Müşteri Desteği',
+
+  // Hesap Silme
+  'mypage.deleteAccount.title': 'Hesabı Sil',
+  'mypage.deleteAccount.description': 'Hesabınızı sildiğinizde tüm kişisel bilgiler, sipariş geçmişi, favoriler ve tüm veriler kalıcı olarak silinecek ve kurtarılamayacaktır.',
+  'mypage.deleteAccount.button': 'Hesabı Sil',
+  'mypage.deleteAccount.processing': 'İşleniyor...',
+  'mypage.deleteAccount.confirmFirst': 'Hesabınızı silmek istediğinizden emin misiniz?\n\nTüm veriler kalıcı olarak silinecek ve kurtarılamayacaktır.',
+  'mypage.deleteAccount.confirmFinal': 'Son onay: Hesabınızı silin?\n\nBu işlem geri alınamaz.',
+  'mypage.deleteAccount.sessionExpired': 'Oturumunuz sona erdi. Lütfen tekrar giriş yapın.',
+  'mypage.deleteAccount.error': 'Hesabınız silinirken bir hata oluştu.',
+  'mypage.deleteAccount.success': 'Hesabınız başarıyla silindi.',
 };
 

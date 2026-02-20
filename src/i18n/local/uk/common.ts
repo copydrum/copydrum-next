@@ -231,5 +231,16 @@ export default {
 
   // Mobile footer
   'home.businessInfo': 'Підтримка клієнтів',
+
+  // Видалення акаунту
+  'mypage.deleteAccount.title': 'Видалити акаунт',
+  'mypage.deleteAccount.description': 'При видаленні акаунту всі особисті дані, історія замовлень, обране та всі дані будуть безповоротно видалені і не можуть бути відновлені.',
+  'mypage.deleteAccount.button': 'Видалити акаунт',
+  'mypage.deleteAccount.processing': 'Обробка...',
+  'mypage.deleteAccount.confirmFirst': 'Ви впевнені, що хочете видалити свій акаунт?\n\nУсі дані будуть безповоротно видалені і не можуть бути відновлені.',
+  'mypage.deleteAccount.confirmFinal': 'Остаточне підтвердження: Видалити акаунт?\n\nЦю дію неможливо скасувати.',
+  'mypage.deleteAccount.sessionExpired': 'Ваша сесія закінчилася. Будь ласка, увійдіть знову.',
+  'mypage.deleteAccount.error': 'Сталася помилка при видаленні акаунту.',
+  'mypage.deleteAccount.success': 'Ваш акаунт було успішно видалено.',
 };
 

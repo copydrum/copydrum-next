@@ -231,5 +231,16 @@ export default {
 
   // Mobile footer
   'home.businessInfo': 'Dukungan Pelanggan',
+
+  // Hapus Akun
+  'mypage.deleteAccount.title': 'Hapus Akun',
+  'mypage.deleteAccount.description': 'Menghapus akun akan menghapus semua data pribadi, riwayat pesanan, favorit, dan semua data secara permanen dan tidak dapat dipulihkan.',
+  'mypage.deleteAccount.button': 'Hapus Akun',
+  'mypage.deleteAccount.processing': 'Memproses...',
+  'mypage.deleteAccount.confirmFirst': 'Apakah Anda yakin ingin menghapus akun?\n\nSemua data akan dihapus secara permanen dan tidak dapat dipulihkan.',
+  'mypage.deleteAccount.confirmFinal': 'Konfirmasi akhir: Hapus akun Anda?\n\nTindakan ini tidak dapat dibatalkan.',
+  'mypage.deleteAccount.sessionExpired': 'Sesi Anda telah berakhir. Silakan login kembali.',
+  'mypage.deleteAccount.error': 'Terjadi kesalahan saat menghapus akun Anda.',
+  'mypage.deleteAccount.success': 'Akun Anda telah berhasil dihapus.',
 };
 

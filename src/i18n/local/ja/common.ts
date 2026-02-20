@@ -723,4 +723,15 @@ export default {
   'mypage.console.inquirySubmitError': 'お問い合わせ送信エラー:',
   'mypage.console.profileUpdateError': 'プロフィール更新エラー:',
   'mypage.console.favoriteRemoveError': 'お気に入り削除エラー:',
+
+  // 退会
+  'mypage.deleteAccount.title': '退会',
+  'mypage.deleteAccount.description': '退会すると、すべての個人情報、注文履歴、お気に入りなど、すべてのデータが永久に削除され、復元できません。',
+  'mypage.deleteAccount.button': '退会する',
+  'mypage.deleteAccount.processing': '処理中...',
+  'mypage.deleteAccount.confirmFirst': '本当に退会しますか？\n\n退会すると、すべてのデータが削除され、復元できません。',
+  'mypage.deleteAccount.confirmFinal': '退会を最終確認しますか？\n\nこの操作は元に戻せません。',
+  'mypage.deleteAccount.sessionExpired': 'セッションの有効期限が切れました。再度ログインしてください。',
+  'mypage.deleteAccount.error': '退会処理中にエラーが発生しました。',
+  'mypage.deleteAccount.success': '退会が完了しました。',
 };

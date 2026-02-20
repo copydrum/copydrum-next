@@ -781,18 +781,18 @@ export default function MyPage() {
     }
 
     // 첫 번째 확인
-    const firstConfirm = confirm('정말로 회원탈퇴를 하시겠습니까?\n\n회원탈퇴 시 모든 데이터가 삭제되며 복구할 수 없습니다.');
+    const firstConfirm = confirm(t('mypage.deleteAccount.confirmFirst'));
     if (!firstConfirm) return;
 
     // 두 번째 확인 (이중 확인)
-    const secondConfirm = confirm('회원탈퇴를 최종 확인하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.');
+    const secondConfirm = confirm(t('mypage.deleteAccount.confirmFinal'));
     if (!secondConfirm) return;
 
     setDeletingAccount(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.access_token) {
-        throw new Error('세션이 만료되었습니다. 다시 로그인해주세요.');
+        throw new Error(t('mypage.deleteAccount.sessionExpired'));
       }
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_PUBLIC_SUPABASE_URL}/functions/v1/delete-account`, {
@@ -806,17 +806,17 @@ export default function MyPage() {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || '회원탈퇴 중 오류가 발생했습니다.');
+        throw new Error(result.error || t('mypage.deleteAccount.error'));
       }
 
-      alert('회원탈퇴가 완료되었습니다.');
+      alert(t('mypage.deleteAccount.success'));
       
       // 로그아웃 및 홈으로 리다이렉트
       await supabase.auth.signOut();
       router.push('/');
     } catch (error: any) {
       console.error('회원탈퇴 오류:', error);
-      alert(error.message || '회원탈퇴 중 오류가 발생했습니다.');
+      alert(error.message || t('mypage.deleteAccount.error'));
     } finally {
       setDeletingAccount(false);
     }
@@ -1287,9 +1287,9 @@ export default function MyPage() {
                       {/* 회원탈퇴 섹션 */}
                       <div className="mt-8 pt-8 border-t border-gray-200">
                         <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-                          <h4 className="text-lg font-semibold text-red-900 mb-2">회원탈퇴</h4>
+                          <h4 className="text-lg font-semibold text-red-900 mb-2">{t('mypage.deleteAccount.title')}</h4>
                           <p className="text-sm text-red-700 mb-4">
-                            회원탈퇴 시 모든 개인정보, 주문 내역, 즐겨찾기 등 모든 데이터가 영구적으로 삭제되며 복구할 수 없습니다.
+                            {t('mypage.deleteAccount.description')}
                           </p>
                           <button
                             onClick={handleDeleteAccount}
@@ -1300,7 +1300,7 @@ export default function MyPage() {
                                 : 'bg-red-600 hover:bg-red-700'
                             }`}
                           >
-                            {deletingAccount ? '처리 중...' : '회원탈퇴'}
+                            {deletingAccount ? t('mypage.deleteAccount.processing') : t('mypage.deleteAccount.button')}
                           </button>
                         </div>
                       </div>

@@ -231,5 +231,16 @@ export default {
 
   // Mobile footer
   'home.businessInfo': 'Support Client',
+
+  // Supprimer le compte
+  'mypage.deleteAccount.title': 'Supprimer le compte',
+  'mypage.deleteAccount.description': 'La suppression de votre compte entraînera la suppression définitive de toutes vos données personnelles, historique de commandes, favoris et toutes les données. Cette action est irréversible.',
+  'mypage.deleteAccount.button': 'Supprimer le compte',
+  'mypage.deleteAccount.processing': 'Traitement...',
+  'mypage.deleteAccount.confirmFirst': 'Êtes-vous sûr de vouloir supprimer votre compte ?\n\nToutes les données seront définitivement supprimées et ne pourront pas être récupérées.',
+  'mypage.deleteAccount.confirmFinal': 'Confirmation finale : Supprimer votre compte ?\n\nCette action est irréversible.',
+  'mypage.deleteAccount.sessionExpired': 'Votre session a expiré. Veuillez vous reconnecter.',
+  'mypage.deleteAccount.error': 'Une erreur est survenue lors de la suppression de votre compte.',
+  'mypage.deleteAccount.success': 'Votre compte a été supprimé avec succès.',
 };
 

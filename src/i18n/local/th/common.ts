@@ -231,5 +231,16 @@ export default {
 
   // Mobile footer
   'home.businessInfo': 'ฝ่ายบริการลูกค้า',
+
+  // ลบบัญชี
+  'mypage.deleteAccount.title': 'ลบบัญชี',
+  'mypage.deleteAccount.description': 'การลบบัญชีจะลบข้อมูลส่วนบุคคล ประวัติการสั่งซื้อ รายการโปรด และข้อมูลทั้งหมดอย่างถาวร ไม่สามารถกู้คืนได้',
+  'mypage.deleteAccount.button': 'ลบบัญชี',
+  'mypage.deleteAccount.processing': 'กำลังดำเนินการ...',
+  'mypage.deleteAccount.confirmFirst': 'คุณแน่ใจหรือไม่ว่าต้องการลบบัญชี?\n\nข้อมูลทั้งหมดจะถูกลบอย่างถาวรและไม่สามารถกู้คืนได้',
+  'mypage.deleteAccount.confirmFinal': 'ยืนยันขั้นสุดท้าย: ลบบัญชีของคุณ?\n\nการดำเนินการนี้ไม่สามารถย้อนกลับได้',
+  'mypage.deleteAccount.sessionExpired': 'เซสชันของคุณหมดอายุแล้ว กรุณาเข้าสู่ระบบอีกครั้ง',
+  'mypage.deleteAccount.error': 'เกิดข้อผิดพลาดขณะลบบัญชีของคุณ',
+  'mypage.deleteAccount.success': 'บัญชีของคุณถูกลบเรียบร้อยแล้ว',
 };
 

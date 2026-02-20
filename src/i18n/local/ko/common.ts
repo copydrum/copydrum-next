@@ -535,5 +535,16 @@ export default {
   'mypage.total': '총',
   'mypage.cart': '장바구니',
   'mypage.inCart': '장바구니에 있음',
+
+  // 회원탈퇴
+  'mypage.deleteAccount.title': '회원탈퇴',
+  'mypage.deleteAccount.description': '회원탈퇴 시 모든 개인정보, 주문 내역, 즐겨찾기 등 모든 데이터가 영구적으로 삭제되며 복구할 수 없습니다.',
+  'mypage.deleteAccount.button': '회원탈퇴',
+  'mypage.deleteAccount.processing': '처리 중...',
+  'mypage.deleteAccount.confirmFirst': '정말로 회원탈퇴를 하시겠습니까?\n\n회원탈퇴 시 모든 데이터가 삭제되며 복구할 수 없습니다.',
+  'mypage.deleteAccount.confirmFinal': '회원탈퇴를 최종 확인하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.',
+  'mypage.deleteAccount.sessionExpired': '세션이 만료되었습니다. 다시 로그인해주세요.',
+  'mypage.deleteAccount.error': '회원탈퇴 중 오류가 발생했습니다.',
+  'mypage.deleteAccount.success': '회원탈퇴가 완료되었습니다.',
 };
 

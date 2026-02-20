@@ -231,5 +231,16 @@ export default {
 
   // Mobile footer
   'home.businessInfo': 'Kundensupport',
+
+  // Konto löschen
+  'mypage.deleteAccount.title': 'Konto löschen',
+  'mypage.deleteAccount.description': 'Beim Löschen Ihres Kontos werden alle persönlichen Daten, Bestellverläufe, Favoriten und sämtliche Daten dauerhaft gelöscht und können nicht wiederhergestellt werden.',
+  'mypage.deleteAccount.button': 'Konto löschen',
+  'mypage.deleteAccount.processing': 'Verarbeitung...',
+  'mypage.deleteAccount.confirmFirst': 'Möchten Sie Ihr Konto wirklich löschen?\n\nAlle Daten werden dauerhaft gelöscht und können nicht wiederhergestellt werden.',
+  'mypage.deleteAccount.confirmFinal': 'Endgültige Bestätigung: Konto löschen?\n\nDieser Vorgang kann nicht rückgängig gemacht werden.',
+  'mypage.deleteAccount.sessionExpired': 'Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an.',
+  'mypage.deleteAccount.error': 'Beim Löschen Ihres Kontos ist ein Fehler aufgetreten.',
+  'mypage.deleteAccount.success': 'Ihr Konto wurde erfolgreich gelöscht.',
 };
 

@@ -231,5 +231,16 @@ export default {
 
   // Mobile footer
   'home.businessInfo': 'Suporte ao Cliente',
+
+  // Excluir conta
+  'mypage.deleteAccount.title': 'Excluir conta',
+  'mypage.deleteAccount.description': 'Ao excluir sua conta, todos os dados pessoais, histórico de pedidos, favoritos e todos os dados serão permanentemente excluídos e não poderão ser recuperados.',
+  'mypage.deleteAccount.button': 'Excluir conta',
+  'mypage.deleteAccount.processing': 'Processando...',
+  'mypage.deleteAccount.confirmFirst': 'Tem certeza de que deseja excluir sua conta?\n\nTodos os dados serão permanentemente excluídos e não poderão ser recuperados.',
+  'mypage.deleteAccount.confirmFinal': 'Confirmação final: Excluir sua conta?\n\nEsta ação não pode ser desfeita.',
+  'mypage.deleteAccount.sessionExpired': 'Sua sessão expirou. Por favor, faça login novamente.',
+  'mypage.deleteAccount.error': 'Ocorreu um erro ao excluir sua conta.',
+  'mypage.deleteAccount.success': 'Sua conta foi excluída com sucesso.',
 };
 

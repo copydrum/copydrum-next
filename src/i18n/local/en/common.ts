@@ -725,5 +725,16 @@ export default {
   'mypage.console.inquirySubmitError': 'Inquiry submit error:',
   'mypage.console.profileUpdateError': 'Profile update error:',
   'mypage.console.favoriteRemoveError': 'Favorite remove error:',
+
+  // Delete Account
+  'mypage.deleteAccount.title': 'Delete Account',
+  'mypage.deleteAccount.description': 'Deleting your account will permanently remove all personal information, order history, favorites, and all data. This action cannot be undone.',
+  'mypage.deleteAccount.button': 'Delete Account',
+  'mypage.deleteAccount.processing': 'Processing...',
+  'mypage.deleteAccount.confirmFirst': 'Are you sure you want to delete your account?\n\nAll data will be permanently deleted and cannot be recovered.',
+  'mypage.deleteAccount.confirmFinal': 'Final confirmation: Delete your account?\n\nThis action cannot be undone.',
+  'mypage.deleteAccount.sessionExpired': 'Your session has expired. Please log in again.',
+  'mypage.deleteAccount.error': 'An error occurred while deleting your account.',
+  'mypage.deleteAccount.success': 'Your account has been successfully deleted.',
 };
 
