@@ -1,8 +1,8 @@
 'use client';
 import { useLocaleRouter } from '@/hooks/useLocaleRouter';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { User } from '@supabase/supabase-js';
-import { Loader2, Search, Download, X } from 'lucide-react';
+import { Loader2, Search, Download, X, ChevronLeft, ChevronRight } from 'lucide-react';
 
 import MainHeader from '../../components/common/MainHeader';
 import Footer from '../../components/common/Footer';
@@ -144,6 +144,8 @@ const buildThumbnailUrl = (sheet: SupabaseDrumSheetRow): string => {
   return generateDefaultThumbnail(1280, 720);
 };
 
+const ITEMS_PER_PAGE = 12;
+
 const FreeSheetsPage = () => {
   const [user, setUser] = useState<User | null>(null);
   const [sheets, setSheets] = useState<FreeSheet[]>([]);
@@ -156,8 +158,10 @@ const FreeSheetsPage = () => {
   const [favoriteLoadingIds, setFavoriteLoadingIds] = useState<Set<string>>(new Set());
   const [expandedVideoId, setExpandedVideoId] = useState<string | null>(null);
   const [downloadingIds, setDownloadingIds] = useState<Set<string>>(new Set());
+  const [currentPage, setCurrentPage] = useState(1);
   const router = useLocaleRouter();
   const { t, i18n } = useTranslation();
+  const contentRef = useRef<HTMLElement>(null);
 
   const getCategoryName = (categoryKo: string): string => {
     const categoryMap: Record<string, string> = {
@@ -487,6 +491,24 @@ const FreeSheetsPage = () => {
     return result;
   }, [searchTerm, selectedCategory, sortOption, sheets]);
 
+  // 필터/검색/정렬 변경 시 페이지 1로 리셋
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedCategory, sortOption]);
+
+  // 페이지네이션 계산
+  const totalPages = Math.max(1, Math.ceil(filteredSheets.length / ITEMS_PER_PAGE));
+  const paginatedSheets = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredSheets.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [filteredSheets, currentPage]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // 콘텐츠 영역으로 스크롤
+    contentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   // SEO
   const baseUrl = languageDomainMap[i18n.language as keyof typeof languageDomainMap] || (typeof window !== 'undefined' ? window.location.origin : '');
   const canonicalUrl = baseUrl ? `${baseUrl}/free-sheets` : '/free-sheets';
@@ -551,7 +573,7 @@ const FreeSheetsPage = () => {
       </section>
 
       {/* Filters & Content */}
-      <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <section ref={contentRef} className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-6">
           {/* Category Tabs */}
           <div className="-mx-4 overflow-x-auto px-4 pb-1">
@@ -635,7 +657,7 @@ const FreeSheetsPage = () => {
           ) : (
             /* ====== Card Grid ====== */
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {filteredSheets.map((sheet) => {
+              {paginatedSheets.map((sheet) => {
                 const isFav = favoriteIds.has(sheet.id);
                 const isFavLoading = favoriteLoadingIds.has(sheet.id);
                 const isDownloading = downloadingIds.has(sheet.id);
@@ -807,6 +829,68 @@ const FreeSheetsPage = () => {
                   </div>
                 );
               })}
+            </div>
+          )}
+
+          {/* 페이지네이션 */}
+          {!loading && totalPages > 1 && (
+            <div className="mt-8 flex items-center justify-center gap-1.5">
+              {/* 이전 버튼 */}
+              <button
+                onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+                disabled={currentPage === 1}
+                className={`flex items-center justify-center w-9 h-9 rounded-lg text-sm font-medium transition-colors ${
+                  currentPage === 1
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                }`}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+
+              {/* 페이지 번호 */}
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+                if (
+                  page === 1 ||
+                  page === totalPages ||
+                  (page >= currentPage - 2 && page <= currentPage + 2)
+                ) {
+                  return (
+                    <button
+                      key={page}
+                      onClick={() => handlePageChange(page)}
+                      className={`flex items-center justify-center min-w-[36px] h-9 px-2.5 rounded-lg text-sm font-medium transition-colors ${
+                        currentPage === page
+                          ? 'bg-blue-600 text-white shadow-sm'
+                          : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  );
+                }
+                if (page === currentPage - 3 || page === currentPage + 3) {
+                  return (
+                    <span key={page} className="px-1.5 text-gray-400">
+                      ...
+                    </span>
+                  );
+                }
+                return null;
+              })}
+
+              {/* 다음 버튼 */}
+              <button
+                onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+                disabled={currentPage === totalPages}
+                className={`flex items-center justify-center w-9 h-9 rounded-lg text-sm font-medium transition-colors ${
+                  currentPage === totalPages
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                }`}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
             </div>
           )}
         </div>
