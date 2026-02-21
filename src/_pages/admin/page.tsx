@@ -4729,7 +4729,7 @@ ONE MORE TIME,ALLDAY PROJECT,중급,ALLDAY PROJECT - ONE MORE TIME.pdf,https://w
           const fileName = norm(row.파일명 || row.filename || row.fileName || row['파일명'] || '');
           const youtubeUrl = norm(row.유튜브링크 || row.youtube_url || row.youtubeUrl || row['유튜브링크'] || '');
           const genreInput = norm(row.장르 || row.genre || row.Genre || row['장르'] || '');
-          const price = num(row.가격 || row.price || row.Price || 0);
+          const price = num(row.원화 || row.가격 || row.price || row.Price || 0);
           const tempo = num(row.템포 || row.tempo || row.Tempo || 0); // [추가] 템포
 
           if (!title || !artist) {
@@ -4781,6 +4781,29 @@ ONE MORE TIME,ALLDAY PROJECT,중급,ALLDAY PROJECT - ONE MORE TIME.pdf,https://w
             console.log(`행 ${rowNum}: Spotify 정보 가져오기 완료 - 썸네일: ${thumbnailUrl ? '있음' : '없음'}`);
           } catch (spotifyError) {
             console.warn(`행 ${rowNum}: Spotify 정보 가져오기 실패 (계속 진행):`, spotifyError);
+          }
+
+          // 2-1. 유튜브 링크가 있으면 유튜브 썸네일을 상품 썸네일로 사용
+          if (youtubeUrl) {
+            const videoId = extractVideoId(youtubeUrl);
+            if (videoId) {
+              try {
+                const maxResUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+                const response = await fetch(maxResUrl, { method: 'HEAD' });
+                if (response.ok) {
+                  thumbnailUrl = maxResUrl;
+                  console.log(`행 ${rowNum}: 유튜브 썸네일 사용 (maxresdefault): ${maxResUrl}`);
+                } else {
+                  const fallbackUrl = `https://img.youtube.com/vi/${videoId}/0.jpg`;
+                  thumbnailUrl = fallbackUrl;
+                  console.log(`행 ${rowNum}: 유튜브 썸네일 사용 (0.jpg 폴백): ${fallbackUrl}`);
+                }
+              } catch (error) {
+                const fallbackUrl = `https://img.youtube.com/vi/${videoId}/0.jpg`;
+                thumbnailUrl = fallbackUrl;
+                console.log(`행 ${rowNum}: 유튜브 썸네일 사용 (0.jpg 폴백): ${fallbackUrl}`);
+              }
+            }
           }
 
           // 3. 장르 매핑 및 카테고리 선택 로직
