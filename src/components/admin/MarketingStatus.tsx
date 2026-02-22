@@ -22,6 +22,7 @@ interface DrumSheet {
     preview_image_url: string;
     pdf_url: string;
     youtube_url: string;
+    slug?: string;
 }
 
 const PLATFORMS = [
@@ -241,7 +242,9 @@ export default function MarketingStatus() {
     };
 
     const handleCopyLink = (sheet: DrumSheet) => {
-        const url = `https://en.copydrum.com/drum-sheet/${sheet.slug}`;
+        const url = activeTab === 'naver'
+            ? `https://copydrum.com/drum-sheet/${sheet.slug}`
+            : `https://en.copydrum.com/drum-sheet/${sheet.slug}`;
         navigator.clipboard.writeText(url).then(() => {
             alert('상품 링크가 복사되었습니다: ' + url);
         });
@@ -250,56 +253,127 @@ export default function MarketingStatus() {
     const handleCopyBody = (sheet: DrumSheet) => {
         const isNaver = activeTab === 'naver';
         const isPinterest = activeTab === 'pinterest';
+        const isTistory = activeTab === 'tistory';
+
+        const sheetUrl = isNaver
+            ? `https://copydrum.com/drum-sheet/${sheet.slug}`
+            : `https://en.copydrum.com/drum-sheet/${sheet.slug}`;
+
+        const imageHtml = sheet.preview_image_url
+            ? `<img src="${sheet.preview_image_url}" alt="${sheet.title} ${isNaver ? '드럼 악보 미리보기' : 'Drum Sheet Music Preview'}" style="max-width:100%;height:auto;display:block;margin:10px auto;" />`
+            : '';
+
+        // 네이버/티스토리용: table 기반 버튼 (bgcolor 속성은 대부분의 블로그 에디터에서 지원)
+        const tableButton = (label: string) => `
+<div style="text-align:center;margin:25px 0;">
+<table border="0" cellspacing="0" cellpadding="0" align="center" style="border-collapse:separate;">
+<tr>
+<td align="center" bgcolor="#2563eb" style="border-radius:10px;padding:18px 40px;">
+<a href="${sheetUrl}" target="_blank" style="text-decoration:none;color:#ffffff;font-size:20px;font-weight:bold;">🥁 ${label}</a>
+</td>
+</tr>
+</table>
+</div>`;
+
+        // 구글 블로거용: 인라인 CSS 버튼 (구글 블로거는 인라인 스타일 완벽 지원)
+        const inlineButton = (label: string) => `
+<p style="text-align:center;margin:30px 0;">
+<a href="${sheetUrl}" target="_blank" style="background-color:#2563eb;color:#ffffff;padding:20px 40px;text-decoration:none;border-radius:8px;font-size:20px;font-weight:bold;display:inline-block;box-shadow:0 4px 6px rgba(0,0,0,0.1);">
+🥁 ${label}
+</a>
+</p>`;
+
         let content = '';
+
+        if (isPinterest) {
+            // 핀터레스트: 플레인 텍스트 + URL 포함
+            content = `🥁 ${sheet.artist} - ${sheet.title} | Drum Sheet Music
+
+Get this drum sheet music at CopyDrum!
+👉 ${sheetUrl}
+${sheet.youtube_url ? `\n🎬 Watch: ${sheet.youtube_url}` : ''}`;
+
+            navigator.clipboard.writeText(content.trim()).then(() => {
+                alert('설명이 복사되었습니다.');
+            });
+            return;
+        }
 
         if (isNaver) {
             content = `
 <p>안녕하세요! CopyDrum입니다.</p>
 <p>오늘 소개해드릴 드럼 악보는 <strong>${sheet.artist}</strong>의 <strong>${sheet.title}</strong>입니다.</p>
 <br/>
-${sheet.preview_image_url ? `<img src="${sheet.preview_image_url}" alt="${sheet.title} 드럼 악보 미리보기" style="max-width: 100%;" />` : ''}
+${imageHtml}
 <br/>
 <p>이 악보는 CopyDrum에서 구매하실 수 있습니다.</p>
-<p style="text-align: center; margin: 30px 0;">
-    <a href="https://copydrum.com/drum-sheet/${sheet.slug}" target="_blank" style="background-color: #2563eb; color: #ffffff; padding: 20px 40px; text-decoration: none; border-radius: 8px; font-size: 20px; font-weight: bold; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-        악보 보러가기
-    </a>
-</p>
+${tableButton('악보 보러가기')}
 <br/>
 ${sheet.youtube_url ? `<p>관련 영상: <a href="${sheet.youtube_url}">${sheet.youtube_url}</a></p>` : ''}
-            `;
-        } else if (isPinterest) {
-            // Pinterest uses plain text
-            content = `Hello! This is CopyDrum.
-Today we are introducing drum sheet music for ${sheet.artist} - ${sheet.title}.
-
-You can purchase this sheet music at CopyDrum (en.copydrum.com).`;
-        } else {
+`;
+        } else if (isTistory) {
             content = `
 <p>Hello! This is CopyDrum.</p>
 <p>Today we are introducing drum sheet music for <strong>${sheet.artist}</strong> - <strong>${sheet.title}</strong>.</p>
 <br/>
-${sheet.preview_image_url ? `<img src="${sheet.preview_image_url}" alt="${sheet.title} Drum Sheet Music Preview" style="max-width: 100%;" />` : ''}
+${imageHtml}
 <br/>
 <p>You can purchase this sheet music at CopyDrum.</p>
-<p style="text-align: center; margin: 30px 0;">
-    <a href="https://copydrum.com/drum-sheet/${sheet.slug}" target="_blank" style="background-color: #2563eb; color: #ffffff; padding: 20px 40px; text-decoration: none; border-radius: 8px; font-size: 20px; font-weight: bold; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-        Get Sheet Music
-    </a>
-</p>
+${tableButton('Get Sheet Music')}
 <br/>
 ${sheet.youtube_url ? `<p>Related Video: <a href="${sheet.youtube_url}">${sheet.youtube_url}</a></p>` : ''}
-            `;
+`;
+        } else {
+            // 구글 블로거, 페이스북 등: 인라인 CSS 버튼
+            content = `
+<p>Hello! This is CopyDrum.</p>
+<p>Today we are introducing drum sheet music for <strong>${sheet.artist}</strong> - <strong>${sheet.title}</strong>.</p>
+<br/>
+${imageHtml}
+<br/>
+<p>You can purchase this sheet music at CopyDrum.</p>
+${inlineButton('Get Sheet Music')}
+<br/>
+${sheet.youtube_url ? `<p>Related Video: <a href="${sheet.youtube_url}">${sheet.youtube_url}</a></p>` : ''}
+`;
         }
 
-        if (isPinterest) {
-            navigator.clipboard.writeText(content).then(() => {
-                alert('설명이 복사되었습니다.');
-            });
+        // DOM 기반 복사: 이미지가 포함된 리치 텍스트를 안정적으로 복사
+        const tempContainer = document.createElement('div');
+        tempContainer.innerHTML = content;
+        tempContainer.style.position = 'fixed';
+        tempContainer.style.left = '-9999px';
+        tempContainer.style.top = '0';
+        tempContainer.style.opacity = '0';
+        document.body.appendChild(tempContainer);
+
+        const range = document.createRange();
+        range.selectNodeContents(tempContainer);
+        const selection = window.getSelection();
+        if (selection) {
+            selection.removeAllRanges();
+            selection.addRange(range);
+        }
+
+        let copied = false;
+        try {
+            copied = document.execCommand('copy');
+        } catch (err) {
+            console.warn('execCommand copy failed:', err);
+        }
+
+        if (selection) {
+            selection.removeAllRanges();
+        }
+        document.body.removeChild(tempContainer);
+
+        if (copied) {
+            alert(isNaver ? '본문 내용이 복사되었습니다. 블로그 에디터에 붙여넣기 하세요.' : 'Content copied. Paste it into your blog editor.');
         } else {
-            // Copy as rich text (HTML)
+            // Fallback: ClipboardItem API
             const blob = new Blob([content], { type: 'text/html' });
-            const textBlob = new Blob([content], { type: 'text/plain' });
+            const strippedText = content.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+            const textBlob = new Blob([strippedText], { type: 'text/plain' });
             const item = new ClipboardItem({
                 'text/html': blob,
                 'text/plain': textBlob
@@ -518,24 +592,20 @@ ${sheet.youtube_url ? `<p>Related Video: <a href="${sheet.youtube_url}">${sheet.
                                             <i className="ri-hashtag"></i>
                                             태그 복사
                                         </button>
-                                        {activeTab === 'pinterest' && (
-                                            <>
-                                                <button
-                                                    onClick={() => handleDownloadImage(sheet)}
-                                                    className="flex items-center gap-1 px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors"
-                                                >
-                                                    <i className="ri-download-line"></i>
-                                                    이미지 다운
-                                                </button>
-                                                <button
-                                                    onClick={() => handleCopyLink(sheet)}
-                                                    className="flex items-center gap-1 px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors"
-                                                >
-                                                    <i className="ri-link"></i>
-                                                    링크 복사
-                                                </button>
-                                            </>
-                                        )}
+                                        <button
+                                            onClick={() => handleDownloadImage(sheet)}
+                                            className="flex items-center gap-1 px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors"
+                                        >
+                                            <i className="ri-download-line"></i>
+                                            이미지 다운
+                                        </button>
+                                        <button
+                                            onClick={() => handleCopyLink(sheet)}
+                                            className="flex items-center gap-1 px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors"
+                                        >
+                                            <i className="ri-link"></i>
+                                            링크 복사
+                                        </button>
                                         <button
                                             onClick={() => handleMarkAsPosted(sheet)}
                                             className="flex items-center gap-1 px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 shadow-sm transition-colors"
