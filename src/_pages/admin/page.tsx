@@ -2659,7 +2659,7 @@ const AdminPage: React.FC = () => {
             status,
             payment_method,
             total_amount,
-            profiles:profiles!orders_user_id_fkey (
+            profiles (
               id,
               email
             ),
@@ -2764,7 +2764,7 @@ const AdminPage: React.FC = () => {
             balance_after,
             description,
             created_at,
-            profiles:profiles!cash_transactions_user_id_fkey (
+            profiles (
               email
             )
           `,
