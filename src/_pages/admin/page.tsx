@@ -2507,11 +2507,18 @@ const AdminPage: React.FC = () => {
       return;
     }
 
-    const headers = ['주문ID', '주문일시', '고객명', '이메일', '결제수단', '상태', '총금액', '구매악보수'];
+    const headers = ['주문ID', '주문일시', '고객명', '이메일', '결제수단', '상태', '총금액', '구매악보수', '구매악보 곡명', '아티스트명'];
     const rows = sortedOrders.map((order) => {
       const paymentLabel = getPaymentMethodLabel(order.payment_method, order);
       const statusLabel = getOrderStatusMetaSafe(order.status).label;
       const itemCount = order.order_items?.length ?? 0;
+
+      const sheetTitles = (order.order_items ?? [])
+        .map((item) => item.drum_sheets?.title || item.sheet_title || '제목 없음')
+        .join(' / ');
+      const artistNames = (order.order_items ?? [])
+        .map((item) => item.drum_sheets?.artist || '아티스트 없음')
+        .join(' / ');
 
       return [
         order.id,
@@ -2522,6 +2529,8 @@ const AdminPage: React.FC = () => {
         statusLabel,
         order.total_amount,
         itemCount,
+        sheetTitles,
+        artistNames,
       ];
     });
 
