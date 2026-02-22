@@ -795,7 +795,7 @@ export default function MyPage() {
         throw new Error(t('mypage.deleteAccount.sessionExpired'));
       }
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_PUBLIC_SUPABASE_URL}/functions/v1/delete-account`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/delete-account`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${session.access_token}`,
