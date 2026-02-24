@@ -12431,15 +12431,18 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
 
     // 장르 목록 가져오기
     const genreOrder = ['가요', '팝', '락', 'CCM', '트로트/성인가요', '재즈', 'J-POP', 'OST', '드럼솔로', '드럼커버'];
+    const excludedCategories = ['필인', '리듬패턴', '기초/입문', '드럼테크닉', '루디먼트', '드럼레슨'];
     const sortedCategories = categories.length > 0 
-      ? [...categories].sort((a, b) => {
-          const indexA = genreOrder.indexOf(a.name);
-          const indexB = genreOrder.indexOf(b.name);
-          if (indexA === -1 && indexB === -1) return 0;
-          if (indexA === -1) return 1;
-          if (indexB === -1) return -1;
-          return indexA - indexB;
-        })
+      ? [...categories]
+          .filter(cat => !excludedCategories.includes(cat.name))
+          .sort((a, b) => {
+            const indexA = genreOrder.indexOf(a.name);
+            const indexB = genreOrder.indexOf(b.name);
+            if (indexA === -1 && indexB === -1) return 0;
+            if (indexA === -1) return 1;
+            if (indexB === -1) return -1;
+            return indexA - indexB;
+          })
       : [];
 
     // 악보 검색
