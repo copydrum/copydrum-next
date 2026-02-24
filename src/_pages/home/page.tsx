@@ -121,8 +121,9 @@ export default function Home() {
       // Genre order matching category page
       const genreOrder = ['가요', '팝', '락', 'CCM', '트로트/성인가요', '재즈', 'J-POP', 'OST', '드럼솔로', '드럼커버'];
 
-      // Filter out drum lesson category
-      const filteredCategories = (data || []).filter(cat => cat.name !== '드럼레슨');
+      // Filter out drum lesson category and non-genre categories
+      const excludedCategories = ['드럼레슨', '루디먼트', '드럼테크닉', '기초/입문', '리듬패턴', '필인'];
+      const filteredCategories = (data || []).filter(cat => !excludedCategories.includes(cat.name));
 
       // Sort by genre order
       const sortedCategories = filteredCategories.sort((a, b) => {
