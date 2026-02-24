@@ -4659,10 +4659,10 @@ const AdminPage: React.FC = () => {
   };
 
   const downloadSheetCsvSample = () => {
-    const csvContent = `곡명,아티스트,난이도,파일명,유튜브링크,장르,가격,템포
-ONE MORE TIME,ALLDAY PROJECT,중급,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.youtube.com/watch?v=영상ID,POP,3000,120
-곡 제목 2,아티스트 2,초급,아티스트2-곡제목2.pdf,,ROCK,5000,95
-곡 제목 3,아티스트 3,고급,아티스트3-곡제목3.pdf,https://youtu.be/영상ID,KPOP,10000,140`;
+    const csvContent = `곡명,아티스트,파일명,유튜브링크,장르,가격,템포,앨범명,페이지수,난이도
+ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.youtube.com/watch?v=영상ID,POP,3000,120,,,중급
+곡 제목 2,아티스트 2,아티스트2-곡제목2.pdf,,ROCK,5000,95,,,초급
+곡 제목 3,아티스트 3,아티스트3-곡제목3.pdf,https://youtu.be/영상ID,KPOP,10000,140,,,고급`;
     const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' }); // UTF-8 BOM 추가
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
@@ -4731,15 +4731,17 @@ ONE MORE TIME,ALLDAY PROJECT,중급,ALLDAY PROJECT - ONE MORE TIME.pdf,https://w
         const rowNum = i + 2; // 헤더 제외하고 1부터 시작, 실제로는 2행부터
 
         try {
-          // [수정] CSV 필드 파싱 (템포 추가)
+          // [수정] CSV 필드 파싱 (열 순서: A곡명, B아티스트, C파일명, D유튜브링크, E장르, F가격, G템포, H앨범명, I페이지수, J난이도)
           const title = norm(row.곡명 || row.title || row.Title || row['곡 제목'] || '');
           const artist = norm(row.아티스트 || row.artist || row.Artist || '');
-          const difficultyInput = norm(row.난이도 || row.difficulty || row.Difficulty || '초급');
           const fileName = norm(row.파일명 || row.filename || row.fileName || row['파일명'] || '');
           const youtubeUrl = norm(row.유튜브링크 || row.youtube_url || row.youtubeUrl || row['유튜브링크'] || '');
           const genreInput = norm(row.장르 || row.genre || row.Genre || row['장르'] || '');
           const price = num(row.원화 || row.가격 || row.price || row.Price || 0);
-          const tempo = num(row.템포 || row.tempo || row.Tempo || 0); // [추가] 템포
+          const tempo = num(row.템포 || row.tempo || row.Tempo || 0);
+          const csvAlbumName = norm(row.앨범명 || row.album_name || row.albumName || row['앨범명'] || '');
+          const csvPageCount = num(row.페이지수 || row.page_count || row.pageCount || row['페이지수'] || 0);
+          const difficultyInput = norm(row.난이도 || row.difficulty || row.Difficulty || '초급'); // J열
 
           if (!title || !artist) {
             console.warn(`행 ${rowNum}: 제목 또는 아티스트가 없어 건너뜁니다.`);
@@ -4764,7 +4766,7 @@ ONE MORE TIME,ALLDAY PROJECT,중급,ALLDAY PROJECT - ONE MORE TIME.pdf,https://w
 
           // 2. Spotify API로 썸네일 및 앨범 정보 가져오기
           let thumbnailUrl = '';
-          let albumName = '';
+          let albumName = csvAlbumName; // CSV에서 제공된 앨범명 우선 사용
           let categoryId = '';
 
           try {
@@ -4773,7 +4775,7 @@ ONE MORE TIME,ALLDAY PROJECT,중급,ALLDAY PROJECT - ONE MORE TIME.pdf,https://w
 
             if (spotifyResult) {
               thumbnailUrl = spotifyResult.albumCoverUrl || '';
-              albumName = spotifyResult.albumName || '';
+              if (!albumName) albumName = spotifyResult.albumName || ''; // CSV 앨범명이 없을 때만 Spotify 값 사용
 
               // CSV에서 장르가 없고 Spotify에서 장르를 가져온 경우 카테고리 자동 선택
               if (!genreInput && spotifyResult.genre) {
@@ -4839,7 +4841,7 @@ ONE MORE TIME,ALLDAY PROJECT,중급,ALLDAY PROJECT - ONE MORE TIME.pdf,https://w
           // 4. PDF 파일 처리 (업로드된 파일 목록에서 매칭)
           let pdfUrl = '';
           let previewImageUrl = '';
-          let pageCount = 0;
+          let pageCount = csvPageCount > 0 ? csvPageCount : 0; // CSV 페이지수가 있으면 우선 사용
 
           if (fileName) {
             // [추가] 사용자가 선택한 파일들 중에서 이름이 일치하는 파일 찾기
@@ -4872,12 +4874,70 @@ ONE MORE TIME,ALLDAY PROJECT,중급,ALLDAY PROJECT - ONE MORE TIME.pdf,https://w
                     .getPublicUrl(uploadPath);
                   pdfUrl = urlData.publicUrl;
 
-                  // 페이지 수 추출 (선택 사항)
+                  // 페이지 수 추출 (CSV에서 제공되지 않은 경우에만)
+                  if (pageCount === 0) {
+                    try {
+                      const pageCountResult = await extractPdfPageCount(matchedFile);
+                      if (pageCountResult > 0) pageCount = pageCountResult;
+                    } catch (e) {
+                      console.warn(`행 ${rowNum}: 페이지 수 추출 실패`);
+                    }
+                  }
+
+                  // 미리보기 이미지 생성 (PDF 첫 페이지 → 모자이크 처리 → 업로드)
                   try {
-                    const pageCountResult = await extractPdfPageCount(matchedFile);
-                    if (pageCountResult > 0) pageCount = pageCountResult;
-                  } catch (e) {
-                    console.warn(`행 ${rowNum}: 페이지 수 추출 실패`);
+                    console.log(`행 ${rowNum}: 미리보기 이미지 생성 시작...`);
+                    const arrayBuffer = await matchedFile.arrayBuffer();
+                    const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+                    const pdf = await loadingTask.promise;
+                    if (pdf.numPages > 0) {
+                      const page = await pdf.getPage(1);
+                      const viewport = page.getViewport({ scale: 2.0 });
+                      const canvas = document.createElement('canvas');
+                      const context = canvas.getContext('2d');
+                      if (context) {
+                        canvas.width = viewport.width;
+                        canvas.height = viewport.height;
+                        await page.render({
+                          canvasContext: context,
+                          viewport: viewport
+                        }).promise;
+
+                        // 하단 부분에 모자이크 효과 적용
+                        const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                        const mosaicImageData = applyMosaicToImageData(imageData, 15);
+                        context.putImageData(mosaicImageData, 0, 0);
+
+                        const blob = await new Promise<Blob>((resolve, reject) => {
+                          canvas.toBlob((b) => {
+                            if (b) resolve(b);
+                            else reject(new Error('Canvas를 Blob으로 변환 실패'));
+                          }, 'image/jpeg', 0.85);
+                        });
+
+                        const imageFileName = `preview_${Date.now()}_${Math.random().toString(36).substring(7)}.jpg`;
+                        const imageFilePath = `previews/${imageFileName}`;
+
+                        const { error: imageUploadError } = await supabase.storage
+                          .from('drum-sheets')
+                          .upload(imageFilePath, blob, {
+                            contentType: 'image/jpeg',
+                            upsert: true
+                          });
+
+                        if (!imageUploadError) {
+                          const { data: imageUrlData } = supabase.storage
+                            .from('drum-sheets')
+                            .getPublicUrl(imageFilePath);
+                          previewImageUrl = imageUrlData.publicUrl;
+                          console.log(`행 ${rowNum}: 미리보기 이미지 생성 완료`);
+                        } else {
+                          console.warn(`행 ${rowNum}: 미리보기 이미지 업로드 실패`, imageUploadError);
+                        }
+                      }
+                    }
+                  } catch (previewError) {
+                    console.warn(`행 ${rowNum}: 미리보기 이미지 생성 실패 (악보 등록은 계속 진행):`, previewError);
                   }
                 } else {
                   console.error(`행 ${rowNum}: PDF 업로드 실패`, uploadError);
@@ -7195,8 +7255,8 @@ ONE MORE TIME,ALLDAY PROJECT,중급,ALLDAY PROJECT - ONE MORE TIME.pdf,https://w
                   </button>
                 </div>
                 <p className="text-xs text-blue-600 mt-2">
-                  * 필수 항목: 곡명, 아티스트<br/>
-                  * 추가 항목: 난이도, 파일명, 유튜브링크, 장르(KPOP, POP 등), 가격, 템포
+                  * 필수 항목: A열 곡명, B열 아티스트<br/>
+                  * 추가 항목: C파일명, D유튜브링크, E장르, F가격, G템포, H앨범명, I페이지수, <strong>J난이도(초급/중급/고급)</strong>
                 </p>
               </div>
               {/* 2단계: PDF 파일 다중 선택 */}
