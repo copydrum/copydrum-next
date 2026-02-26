@@ -7642,7 +7642,12 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
                       <p className="text-sm text-gray-500">카테고리가 없습니다.</p>
                     ) : (
                       <div className="space-y-2">
-                        {categories.map((category) => (
+                        {categories
+                          .filter((category) => {
+                            const excludedCategories = ['필인', '리듬패턴', '기초/입문', '드럼테크닉', '루디먼트', '드럼레슨'];
+                            return !excludedCategories.includes(category.name);
+                          })
+                          .map((category) => (
                           <label key={category.id} className="flex items-center space-x-2 cursor-pointer hover:bg-white p-1 rounded">
                             <input
                               type="checkbox"
