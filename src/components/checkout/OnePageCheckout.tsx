@@ -165,7 +165,9 @@ export default function OnePageCheckout({
 
                 {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
                 {/* 🔵 섹션 1: 카드 & 월렛 결제 (메인 결제 수단)  */}
+                {/* ⚠️ 도도페이먼트 옵션 숨김 처리 (프론트엔드 노출만 차단) */}
                 {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+                {false && (
                 <div className="space-y-3">
                   {/* 섹션 라벨 */}
                   <div className="flex items-center gap-2">
@@ -251,6 +253,7 @@ export default function OnePageCheckout({
                     </span>
                   </div>
                 </div>
+                )}
 
                 {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
                 {/* ── OR 구분선 ──                              */}

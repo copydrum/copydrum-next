@@ -356,7 +356,7 @@ export default {
   'sheetDetail.difficulty.advanced': '고급',
   'sheetDetail.difficulty.notSet': '미설정',
   'sheetDetail.instrumentPart': '악기파트 : 드럼',
-  'sheetDetail.includes': '포함 내용',
+  'sheetDetail.includes': '구매 전 확인사항',
   'sheetDetail.noLyrics': '가사없음',
   'sheetDetail.performanceVideo': '연주 영상',
   'sheetDetail.checkPerformanceVideo': '이 악보의 연주 영상을 확인해보세요',
