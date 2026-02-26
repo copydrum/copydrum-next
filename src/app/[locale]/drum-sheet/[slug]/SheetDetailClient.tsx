@@ -466,6 +466,48 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
                   </div>
                 </div>
               )}
+
+              {/* 모바일 전용: 구매 전 확인사항 */}
+              <div className="lg:hidden bg-gray-50 rounded-lg p-6 mt-6">
+                <h3 className="font-semibold text-gray-900 mb-4">{t('sheetDetail.includes')}</h3>
+                <ul className="space-y-2 text-sm text-gray-600">
+                  <li className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                    <span>{t('sheetDetail.highQualityPdf')}</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                    <span>{t('sheetDetail.printableFormat')}</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                    <span>{t('sheetDetail.instantDownloadFeature')}</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                    <span>{t('sheetDetail.lifetimeAccess')}</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                    <span>{t('sheetDetail.noLyrics')}</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* 모바일 전용: 환불 규정 */}
+              <div className="lg:hidden bg-gray-50 rounded-lg p-6 mt-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-3">{t('sheetDetail.refundPolicy')}</h3>
+                <p className="text-sm text-gray-700 mb-2">
+                  {t('sheetDetail.refundPolicyDescription')}
+                </p>
+                <p className="text-sm text-gray-700">
+                  {t('sheetDetail.refundPolicyLinkText')}{' '}
+                  <a href="/policy/refund" className="text-blue-600 hover:text-blue-800 underline">
+                    {t('sheetDetail.refundPolicyLink')}
+                  </a>
+                  {t('sheetDetail.refundPolicyLinkSuffix')}
+                </p>
+              </div>
             </div>
 
             {/* Sheet Info */}
@@ -666,8 +708,8 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
             </div>
           )}
 
-          {/* 환불 규정 안내 블록 */}
-          <div className="bg-gray-50 rounded-lg p-6 mt-8">
+          {/* 환불 규정 안내 블록 - 데스크톱 전용 */}
+          <div className="hidden lg:block bg-gray-50 rounded-lg p-6 mt-8">
             <h3 className="text-lg font-semibold text-gray-900 mb-3">{t('sheetDetail.refundPolicy')}</h3>
             <p className="text-sm text-gray-700 mb-2">{t('sheetDetail.refundPolicyDescription')}</p>
             <p className="text-sm text-gray-700">
