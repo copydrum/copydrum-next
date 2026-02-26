@@ -165,9 +165,10 @@ export default function OnePageCheckout({
 
                 {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
                 {/* 🔵 섹션 1: 카드 & 월렛 결제 (메인 결제 수단)  */}
-                {/* ⚠️ 도도페이먼트 옵션 숨김 처리 (프론트엔드 노출만 차단) */}
+                {/* ⚠️ 도도페이먼트(해외카드) 숨김, KG이니시스(한국카드)는 표시 */}
+                {/* 한국어: KG이니시스 표시 / 해외: 도도페이먼트 숨김 */}
                 {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-                {false && (
+                {i18n.language === 'ko' && (
                 <div className="space-y-3">
                   {/* 섹션 라벨 */}
                   <div className="flex items-center gap-2">
@@ -256,17 +257,20 @@ export default function OnePageCheckout({
                 )}
 
                 {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-                {/* ── OR 구분선 ──                              */}
+                {/* ── OR 구분선 (한국어: KG이니시스↔카카오페이 사이, 해외: 숨김) ── */}
                 {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+                {i18n.language === 'ko' && (
                 <div className="flex items-center gap-3 my-1">
                   <div className="flex-1 h-px bg-gray-300"></div>
                   <span className="text-xs font-semibold text-gray-400 uppercase tracking-widest select-none">OR</span>
                   <div className="flex-1 h-px bg-gray-300"></div>
                 </div>
+                )}
 
                 {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-                {/* 🟡 섹션 2: PayPal 결제                       */}
+                {/* 🟡 섹션 2: PayPal 결제 (한국어 페이지에서는 숨김) */}
                 {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+                {i18n.language !== 'ko' && (
                 <div className="border-2 border-gray-200 rounded-xl p-4 bg-gray-50/50 hover:border-[#0070ba]/30 transition-colors space-y-3">
                   {/* 섹션 라벨 */}
                   <div className="flex items-center gap-2">
@@ -290,8 +294,10 @@ export default function OnePageCheckout({
                     compact
                   />
                 </div>
+                )}
 
-                {/* ━━━ 카카오페이 버튼 ━━━ */}
+                {/* ━━━ 카카오페이 버튼 (한국어 페이지에서만 표시) ━━━ */}
+                {i18n.language === 'ko' && (
                 <KakaoPayButton
                   orderId={orderId}
                   amount={totalAmount}
@@ -307,11 +313,12 @@ export default function OnePageCheckout({
                   onProcessing={handlePaymentStart}
                   compact
                 />
+                )}
 
                 {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-                {/* 🟠 포인트 결제 (아코디언)                     */}
+                {/* 🟠 포인트 결제 (아코디언) - 한국어 페이지에서만 표시 */}
                 {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-                {hasPoints && (
+                {i18n.language === 'ko' && hasPoints && (
                   <div className="border-t border-gray-200 pt-3 mt-1">
                     <button
                       onClick={() => setShowPointsForm(!showPointsForm)}
