@@ -184,6 +184,18 @@ export default function PurchaseHistoryContent({ user }: PurchaseHistoryContentP
                 order_expected_completion_date: order.expected_completion_date ?? null,
               };
               
+              // 디버깅: 예상완료일이 있는 경우 로그 출력
+              if (order.expected_completion_date) {
+                console.log('[PurchaseHistoryContent] 예상완료일이 있는 주문 아이템:', {
+                  orderId: order.id,
+                  sheetTitle: item.drum_sheets?.title,
+                  salesType: item.drum_sheets?.sales_type,
+                  expectedCompletionDate: order.expected_completion_date,
+                  hasPdf: !!item.drum_sheets?.pdf_url,
+                  isPreorder: item.drum_sheets?.sales_type === 'PREORDER',
+                });
+              }
+              
               // 디버깅: 선주문 상품인 경우 로그 출력
               if (item.drum_sheets?.sales_type === 'PREORDER') {
                 console.log('[PurchaseHistoryContent] 선주문 상품 발견:', {
@@ -531,40 +543,45 @@ export default function PurchaseHistoryContent({ user }: PurchaseHistoryContentP
             let progressText = t('mypage.downloads.preorderInProgress');
             let expectedCompletionText = '';
             
-            // 예상 완료일 표시 (선주문 제작 진행 중인 경우)
-            if (isPreorderInProgress) {
-              if (item.order_expected_completion_date) {
-                try {
-                  const formattedDate = formatDateToKorean(item.order_expected_completion_date);
-                  if (formattedDate) {
-                    expectedCompletionText = t('mypage.downloads.expectedCompletionDate', {
-                      date: formattedDate,
-                    });
-                  } else {
-                    console.warn('[PurchaseHistoryContent] 예상 완료일 포맷팅 결과가 비어있음:', {
-                      orderId: item.order_id,
-                      rawDate: item.order_expected_completion_date,
-                    });
-                  }
-                } catch (e) {
-                  // 날짜 파싱 실패 시 기본 텍스트 사용
-                  console.warn('[PurchaseHistoryContent] 예상 완료일 포맷팅 오류:', {
-                    error: e,
-                    rawDate: item.order_expected_completion_date,
+            // 예상 완료일 표시 (예상완료일이 있으면 항상 표시)
+            // 선주문 제작 진행 중이거나, 예상완료일이 있는 경우 표시
+            const shouldShowExpectedCompletion = isPreorderInProgress || !!item.order_expected_completion_date;
+            
+            if (shouldShowExpectedCompletion && item.order_expected_completion_date) {
+              try {
+                const formattedDate = formatDateToKorean(item.order_expected_completion_date);
+                if (formattedDate) {
+                  expectedCompletionText = t('mypage.downloads.expectedCompletionDate', {
+                    date: formattedDate,
+                  });
+                } else {
+                  console.warn('[PurchaseHistoryContent] 예상 완료일 포맷팅 결과가 비어있음:', {
                     orderId: item.order_id,
-                    sheetTitle: item.drum_sheets?.title,
+                    rawDate: item.order_expected_completion_date,
+                    salesType: item.drum_sheets?.sales_type,
+                    hasPdf: !!item.drum_sheets?.pdf_url,
                   });
                 }
-              } else {
-                // 예상 완료일이 없는 경우 디버깅 로그
-                console.warn('[PurchaseHistoryContent] 선주문 제작 진행 중이지만 예상 완료일이 없음:', {
+              } catch (e) {
+                // 날짜 파싱 실패 시 기본 텍스트 사용
+                console.warn('[PurchaseHistoryContent] 예상 완료일 포맷팅 오류:', {
+                  error: e,
+                  rawDate: item.order_expected_completion_date,
                   orderId: item.order_id,
                   sheetTitle: item.drum_sheets?.title,
                   salesType: item.drum_sheets?.sales_type,
                   hasPdf: !!item.drum_sheets?.pdf_url,
-                  orderExpectedCompletionDate: item.order_expected_completion_date,
                 });
               }
+            } else if (isPreorderInProgress && !item.order_expected_completion_date) {
+              // 예상 완료일이 없는 경우 디버깅 로그
+              console.warn('[PurchaseHistoryContent] 선주문 제작 진행 중이지만 예상 완료일이 없음:', {
+                orderId: item.order_id,
+                sheetTitle: item.drum_sheets?.title,
+                salesType: item.drum_sheets?.sales_type,
+                hasPdf: !!item.drum_sheets?.pdf_url,
+                orderExpectedCompletionDate: item.order_expected_completion_date,
+              });
             }
 
             return (
@@ -604,7 +621,7 @@ export default function PurchaseHistoryContent({ user }: PurchaseHistoryContentP
                     </div>
                   </div>
                 </div>
-                {isPreorderInProgress && (
+                {(isPreorderInProgress || expectedCompletionText) && (
                   <div className="px-2 py-1.5 rounded-md bg-blue-50 border border-blue-200">
                     {expectedCompletionText ? (
                       <p className="text-sm font-medium text-blue-700">{expectedCompletionText}</p>
