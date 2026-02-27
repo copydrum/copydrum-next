@@ -240,6 +240,11 @@ export async function POST(request: NextRequest) {
         // normalized_key 생성
         const normalizedKey = generateNormalizedKey(artist, title);
         
+        // 디버깅: 정규화 결과 로깅 (중요한 케이스만)
+        if (artist.includes('(') || title.includes('(') || artist.includes('(') || title.includes('(')) {
+          console.log(`[bulk-preorder] 📝 [${i + 1}/${items.length}] 정규화: "${artist}" + "${title}" -> "${normalizedKey}"`);
+        }
+        
         // normalized_key가 빈 문자열이면 스킵 (중복 키 에러 방지)
         if (!normalizedKey || normalizedKey.trim().length === 0) {
           console.log(`[bulk-preorder] ⏭️ [${i + 1}/${items.length}] normalized_key가 빈 문자열로 생성되어 스킵: artist="${artist}", title="${title}"`);
@@ -292,29 +297,151 @@ export async function POST(request: NextRequest) {
     console.log(`[bulk-preorder] ✅ ${processedItems.length}개 항목 처리 완료`);
 
     // ============================================================
-    // 3단계: 기존 normalized_key 조회 (중복 검사)
+    // 3단계: 배치 내 중복 제거 (같은 normalized_key가 여러 번 나오는 경우)
     // ============================================================
-    const normalizedKeys = processedItems.map(item => item.normalized_key);
-    const existingKeys = new Set<string>();
+    const seenKeysInBatch = new Set<string>();
+    const uniqueProcessedItems: ProcessedItem[] = [];
+    const batchDuplicates: string[] = [];
 
-    if (normalizedKeys.length > 0) {
-      console.log(`[bulk-preorder] 🔍 기존 항목 중복 검사 시작...`);
+    for (const item of processedItems) {
+      if (seenKeysInBatch.has(item.normalized_key)) {
+        batchDuplicates.push(`${item.artist} - ${item.title}`);
+        console.log(`[bulk-preorder] ⚠️ 배치 내 중복 발견: ${item.artist} - ${item.title} (normalized_key: ${item.normalized_key})`);
+        continue;
+      }
+      seenKeysInBatch.add(item.normalized_key);
+      uniqueProcessedItems.push(item);
+    }
+
+    if (batchDuplicates.length > 0) {
+      console.log(`[bulk-preorder] ⚠️ 배치 내 중복 항목 ${batchDuplicates.length}개 제거됨`);
+    }
+
+    // ============================================================
+    // 4단계: 기존 악보 조회 및 정규화 비교 (강화된 중복 검사)
+    // ============================================================
+    // 문제: DB에 있는 기존 normalized_key가 이전 버전의 정규화 함수로 생성되었을 수 있음
+    // 해결: artist와 title을 직접 조회하여 현재 버전의 정규화 함수로 재정규화하여 비교
+    const existingKeys = new Set<string>();
+    const existingSheetsMap = new Map<string, { id: string; sales_type: string | null }>(); // normalized_key -> sheet info
+
+    if (uniqueProcessedItems.length > 0) {
+      console.log(`[bulk-preorder] 🔍 기존 항목 중복 검사 시작 (강화된 방식)...`);
       
-      // 배치로 조회 (Supabase의 in 쿼리 제한 고려, 최대 100개씩)
+      // 1단계: 빠른 경로 - normalized_key로 직접 조회 시도
+      const normalizedKeys = uniqueProcessedItems.map(item => item.normalized_key);
+      const quickCheckMap = new Map<string, { id: string; sales_type: string | null }>();
+      
       const batchSize = 100;
       for (let i = 0; i < normalizedKeys.length; i += batchSize) {
         const batch = normalizedKeys.slice(i, i + batchSize);
-        const { data: existing, error: checkError } = await supabase
+        const { data: quickCheck } = await supabase
           .from('drum_sheets')
-          .select('normalized_key')
+          .select('id, normalized_key, sales_type')
           .in('normalized_key', batch);
         
-        if (checkError) {
-          console.warn(`[bulk-preorder] ⚠️ 중복 검사 오류 (배치 ${i / batchSize + 1}):`, checkError);
-        } else {
-          existing?.forEach(item => {
-            if (item.normalized_key) {
-              existingKeys.add(item.normalized_key);
+        quickCheck?.forEach(sheet => {
+          if (sheet.normalized_key) {
+            quickCheckMap.set(sheet.normalized_key, {
+              id: sheet.id,
+              sales_type: sheet.sales_type || null
+            });
+          }
+        });
+      }
+
+      // 빠른 경로에서 찾지 못한 항목들만 정밀 검사
+      const itemsNeedingPreciseCheck = uniqueProcessedItems.filter(
+        item => !quickCheckMap.has(item.normalized_key)
+      );
+
+      console.log(`[bulk-preorder] 🔍 빠른 경로: ${quickCheckMap.size}개 발견, 정밀 검사 필요: ${itemsNeedingPreciseCheck.length}개`);
+
+      // 빠른 경로에서 찾은 항목들을 결과에 추가
+      quickCheckMap.forEach((sheetInfo, key) => {
+        existingKeys.add(key);
+        existingSheetsMap.set(key, sheetInfo);
+      });
+
+      // 2단계: 정밀 검사 - artist와 title로 재정규화하여 비교
+      if (itemsNeedingPreciseCheck.length > 0) {
+        console.log(`[bulk-preorder] 🔍 정밀 검사 대상: ${itemsNeedingPreciseCheck.map(i => `${i.artist} - ${i.title}`).join(', ')}`);
+        
+        // 모든 기존 악보를 조회 (artist, title 포함)
+        // limit을 제거하고 모든 데이터를 가져오기 위해 페이지네이션 사용
+        const allExistingSheets: any[] = [];
+        let page = 0;
+        const pageSize = 1000;
+        let hasMore = true;
+
+        while (hasMore) {
+          const { data: batch, error: fetchError } = await supabase
+            .from('drum_sheets')
+            .select('id, artist, title, normalized_key, sales_type')
+            .range(page * pageSize, (page + 1) * pageSize - 1)
+            .order('created_at', { ascending: false });
+
+          if (fetchError) {
+            console.warn(`[bulk-preorder] ⚠️ 기존 악보 조회 오류 (페이지 ${page}):`, fetchError);
+            hasMore = false;
+            break;
+          }
+
+          if (!batch || batch.length === 0) {
+            hasMore = false;
+            break;
+          }
+
+          allExistingSheets.push(...batch);
+
+          if (batch.length < pageSize) {
+            hasMore = false;
+          } else {
+            page++;
+          }
+        }
+
+        console.log(`[bulk-preorder] 🔍 총 ${allExistingSheets.length}개 기존 악보 조회 완료`);
+
+        if (allExistingSheets.length > 0) {
+          // 기존 악보들을 현재 버전 정규화 함수로 재정규화하여 맵 생성
+          const renormalizedMap = new Map<string, { id: string; sales_type: string | null }>();
+          
+          allExistingSheets.forEach(sheet => {
+            if (sheet.artist && sheet.title) {
+              try {
+                const renormalizedKey = generateNormalizedKey(sheet.artist, sheet.title);
+                // 같은 키가 여러 개 있을 수 있으므로 첫 번째 것만 사용 (또는 더 최신 것)
+                if (!renormalizedMap.has(renormalizedKey)) {
+                  renormalizedMap.set(renormalizedKey, {
+                    id: sheet.id,
+                    sales_type: sheet.sales_type || null
+                  });
+                }
+                // 디버깅: NMIXX나 TIC TIC 관련 로그
+                if (sheet.artist.toUpperCase().includes('NMIXX') || sheet.title.toUpperCase().includes('TIC TIC')) {
+                  console.log(`[bulk-preorder] 🔍 [디버깅] 기존 악보 정규화: "${sheet.artist}" + "${sheet.title}" -> "${renormalizedKey}"`);
+                }
+              } catch (error) {
+                console.warn(`[bulk-preorder] ⚠️ 정규화 오류 (기존 악보): ${sheet.artist} - ${sheet.title}`, error);
+              }
+            }
+          });
+
+          console.log(`[bulk-preorder] 🔍 재정규화 맵 생성 완료: ${renormalizedMap.size}개 키`);
+
+          // 정밀 검사가 필요한 항목들과 비교
+          itemsNeedingPreciseCheck.forEach(item => {
+            const itemKey = item.normalized_key;
+            console.log(`[bulk-preorder] 🔍 정밀 검사: "${item.artist} - ${item.title}" -> normalized_key: "${itemKey}"`);
+            
+            if (renormalizedMap.has(itemKey)) {
+              const sheetInfo = renormalizedMap.get(itemKey)!;
+              existingKeys.add(itemKey);
+              existingSheetsMap.set(itemKey, sheetInfo);
+              console.log(`[bulk-preorder] ✅ 정밀 검사로 중복 발견: "${item.artist} - ${item.title}" (기존 ID: ${sheetInfo.id}, 재정규화 키: ${itemKey})`);
+            } else {
+              console.log(`[bulk-preorder] ❌ 정밀 검사 결과 중복 없음: "${item.artist} - ${item.title}" (키: ${itemKey})`);
             }
           });
         }
@@ -324,31 +451,113 @@ export async function POST(request: NextRequest) {
     }
 
     // ============================================================
-    // 4단계: 새로운 항목만 필터링 및 중복 항목 카운트
+    // 5단계: 중복 항목 처리 (선주문 상품 업데이트 또는 스킵)
     // ============================================================
-    const newItems = processedItems.filter(
-      item => !existingKeys.has(item.normalized_key)
-    );
+    const newItems: ProcessedItem[] = [];
+    const itemsToUpdate: Array<{ sheetId: string; item: ProcessedItem }> = [];
+    const skippedItems: ProcessedItem[] = [];
 
-    // 중복으로 판정된 항목만 카운트 (정확한 집계)
-    const duplicateItems = processedItems.filter(
-      item => existingKeys.has(item.normalized_key)
-    );
-    const skippedCount = duplicateItems.length;
+    for (const item of uniqueProcessedItems) {
+      if (existingKeys.has(item.normalized_key)) {
+        const existingSheet = existingSheetsMap.get(item.normalized_key);
+        if (existingSheet) {
+          // 기존 상품이 선주문 상품이면 업데이트 대상으로 추가
+          if (existingSheet.sales_type === 'PREORDER') {
+            itemsToUpdate.push({
+              sheetId: existingSheet.id,
+              item: item
+            });
+            console.log(`[bulk-preorder] 🔄 업데이트 대상: ${item.artist} - ${item.title} (기존 선주문 상품 ID: ${existingSheet.id})`);
+          } else {
+            // 일반 상품이면 스킵
+            skippedItems.push(item);
+            console.log(`[bulk-preorder] ⏭️ 스킵: ${item.artist} - ${item.title} (기존 일반 상품)`);
+          }
+        } else {
+          skippedItems.push(item);
+        }
+      } else {
+        // 새로운 항목
+        newItems.push(item);
+      }
+    }
 
-    if (newItems.length === 0) {
+    const skippedCount = skippedItems.length + batchDuplicates.length;
+
+    // ============================================================
+    // 6단계: 기존 선주문 상품 업데이트
+    // ============================================================
+    let updatedCount = 0;
+    if (itemsToUpdate.length > 0) {
+      console.log(`[bulk-preorder] 🔄 ${itemsToUpdate.length}개 기존 선주문 상품 업데이트 시작...`);
+      
+      for (const { sheetId, item } of itemsToUpdate) {
+        try {
+          // 업데이트할 데이터 준비
+          const updateData: any = {
+            price: Number(item.price) || 0,
+            category_id: item.category_id,
+            thumbnail_url: item.album_image_url,
+            album_name: item.album_name,
+            youtube_url: item.youtube_url,
+            updated_at: new Date().toISOString(),
+          };
+
+          // description이 있으면 업데이트 (SEO용 다국어 설명)
+          if (item.description) {
+            updateData.description = item.description;
+          } else {
+            // description이 없으면 자동 생성
+            const artist = item.artist?.trim() || '알 수 없음';
+            const title = item.title?.trim() || '알 수 없음';
+            updateData.description = JSON.stringify(generateSeoDescriptions(artist, title));
+          }
+
+          // 썸네일이 없으면 유튜브에서 추출 시도
+          if (!updateData.thumbnail_url && item.youtube_url) {
+            const videoId = extractVideoId(item.youtube_url);
+            if (videoId) {
+              try {
+                updateData.thumbnail_url = await getYoutubeThumbnailUrl(videoId);
+              } catch (error) {
+                console.warn(`[bulk-preorder] ⚠️ 썸네일 추출 실패: ${item.artist} - ${item.title}`, error);
+              }
+            }
+          }
+
+          const { error: updateError } = await supabase
+            .from('drum_sheets')
+            .update(updateData)
+            .eq('id', sheetId);
+
+          if (updateError) {
+            console.error(`[bulk-preorder] ❌ 업데이트 실패: ${item.artist} - ${item.title}`, updateError);
+          } else {
+            updatedCount++;
+            console.log(`[bulk-preorder] ✅ 업데이트 완료: ${item.artist} - ${item.title}`);
+          }
+        } catch (error) {
+          console.error(`[bulk-preorder] ❌ 업데이트 중 오류: ${item.artist} - ${item.title}`, error);
+        }
+      }
+
+      console.log(`[bulk-preorder] 🔄 업데이트 완료: ${updatedCount}/${itemsToUpdate.length}개`);
+    }
+
+    if (newItems.length === 0 && itemsToUpdate.length === 0) {
       console.log(`[bulk-preorder] ℹ️ 모든 항목이 이미 존재합니다. (건너뜀: ${skippedCount}개)`);
       return NextResponse.json({
         success: true,
         total: items.length,
         success: 0,
-        skipped: skippedCount, // 중복 항목만 카운트 (에러는 별도 처리)
+        updated: updatedCount,
+        skipped: skippedCount,
         errors: errors.length > 0 ? errors : undefined,
       });
     }
 
     // ============================================================
-    // 5단계: 새로운 항목만 DB에 삽입 (slug 자동 생성 포함)
+    // 7단계: 새로운 항목만 DB에 삽입 (slug 자동 생성 포함)
     // ============================================================
     console.log(`[bulk-preorder] 💾 ${newItems.length}개 새 항목 DB 삽입 준비 시작...`);
 
@@ -521,9 +730,74 @@ export async function POST(request: NextRequest) {
 
     console.log(`[bulk-preorder] 💾 DB 삽입 시작...`);
 
+    // 삽입 전 최종 중복 검사 (Race Condition 방지) - 강화된 방식
+    // 문제: DB의 기존 normalized_key가 이전 버전 정규화 함수로 생성되었을 수 있음
+    // 해결: artist와 title을 조회하여 현재 버전으로 재정규화하여 비교
+    const finalExistingKeys = new Set<string>();
+    
+    if (insertDataWithSlugs.length > 0) {
+      console.log(`[bulk-preorder] 🔍 삽입 직전 최종 중복 검사 시작 (강화된 방식)...`);
+      
+      // 모든 기존 악보를 조회하여 artist와 title로 재정규화 비교
+      const { data: allExistingSheets } = await supabase
+        .from('drum_sheets')
+        .select('id, artist, title, normalized_key, sales_type')
+        .limit(10000); // 충분히 큰 수로 제한
+
+      if (allExistingSheets) {
+        // 기존 악보들을 현재 버전 정규화 함수로 재정규화하여 맵 생성
+        const renormalizedMap = new Map<string, { id: string; sales_type: string | null }>(); // renormalized_key -> sheet info
+        
+        allExistingSheets.forEach(sheet => {
+          if (sheet.artist && sheet.title) {
+            try {
+              const renormalizedKey = generateNormalizedKey(sheet.artist, sheet.title);
+              renormalizedMap.set(renormalizedKey, {
+                id: sheet.id,
+                sales_type: sheet.sales_type || null
+              });
+            } catch (error) {
+              // 정규화 실패 시 무시
+            }
+          }
+        });
+
+        // 삽입할 항목들과 비교
+        insertDataWithSlugs.forEach(item => {
+          if (renormalizedMap.has(item.normalized_key)) {
+            finalExistingKeys.add(item.normalized_key);
+            const existingSheet = renormalizedMap.get(item.normalized_key);
+            console.log(`[bulk-preorder] ⚠️ 삽입 직전 중복 발견: ${item.artist} - ${item.title} (기존 ID: ${existingSheet?.id})`);
+          }
+        });
+      }
+    }
+
+    // 최종 중복 제거
+    const finalNewItems = insertDataWithSlugs.filter(
+      item => !finalExistingKeys.has(item.normalized_key)
+    );
+
+    if (finalNewItems.length < insertDataWithSlugs.length) {
+      const finalSkipped = insertDataWithSlugs.length - finalNewItems.length;
+      console.log(`[bulk-preorder] ⚠️ 삽입 직전 중복 ${finalSkipped}개 추가 발견 및 제거`);
+    }
+
+    if (finalNewItems.length === 0) {
+      console.log(`[bulk-preorder] ℹ️ 삽입 직전 중복 검사 결과 모든 항목이 이미 존재합니다.`);
+      return NextResponse.json({
+        success: true,
+        total: items.length,
+        success: 0,
+        updated: updatedCount,
+        skipped: skippedCount + (insertDataWithSlugs.length - finalNewItems.length),
+        errors: errors.length > 0 ? errors : undefined,
+      });
+    }
+
     const { data: insertedData, error: insertError } = await supabase
       .from('drum_sheets')
-      .insert(insertDataWithSlugs)
+      .insert(finalNewItems)
       .select('id, normalized_key, slug');
 
     if (insertError) {
@@ -576,16 +850,17 @@ export async function POST(request: NextRequest) {
 
     const newlyInserted = insertedData?.length || 0;
 
-    console.log(`[bulk-preorder] ✅ 처리 완료: 총 ${items.length}개, 성공 ${newlyInserted}개, 건너뜀 (중복) ${skippedCount}개, 오류 ${errors.length}개`);
+    console.log(`[bulk-preorder] ✅ 처리 완료: 총 ${items.length}개, 신규 등록 ${newlyInserted}개, 업데이트 ${updatedCount}개, 건너뜀 (중복) ${skippedCount}개, 오류 ${errors.length}개`);
 
     // ============================================================
-    // 6단계: 결과 반환
+    // 7단계: 결과 반환
     // ============================================================
     return NextResponse.json({
       success: true,
       total: items.length,
       success: newlyInserted,
-      skipped: skippedCount, // 중복 항목만 카운트 (정확한 집계)
+      updated: updatedCount,
+      skipped: skippedCount,
       errors: errors.length > 0 ? errors : undefined,
     });
 

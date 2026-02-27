@@ -4863,6 +4863,32 @@ const AdminPage: React.FC = () => {
     }
   };
 
+  const handleBulkDeleteSheets = async () => {
+    if (selectedSheetIds.length === 0) {
+      alert('삭제할 악보를 선택해주세요.');
+      return;
+    }
+
+    const confirmMessage = `선택한 ${selectedSheetIds.length}개의 악보를 정말로 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.`;
+    if (!confirm(confirmMessage)) return;
+
+    try {
+      const { error } = await supabase
+        .from('drum_sheets')
+        .delete()
+        .in('id', selectedSheetIds);
+
+      if (error) throw error;
+
+      alert(`${selectedSheetIds.length}개의 악보가 삭제되었습니다.`);
+      setSelectedSheetIds([]);
+      loadSheets();
+    } catch (error) {
+      console.error('악보 일괄 삭제 오류:', error);
+      alert('악보 일괄 삭제 중 오류가 발생했습니다.');
+    }
+  };
+
   const startBulkAddSheets = () => {
     setShowSheetBulkModal(true);
   };
@@ -7283,13 +7309,22 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
         <h2 className="text-2xl font-bold text-gray-900">악보 관리</h2>
         <div className="flex space-x-2">
           {selectedSheetIds.length > 0 && (
-            <button
-              onClick={() => setShowBulkEditModal(true)}
-              className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center space-x-2"
-            >
-              <i className="ri-edit-box-line w-4 h-4"></i>
-              <span>일괄 수정 ({selectedSheetIds.length}개)</span>
-            </button>
+            <>
+              <button
+                onClick={() => setShowBulkEditModal(true)}
+                className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center space-x-2"
+              >
+                <i className="ri-edit-box-line w-4 h-4"></i>
+                <span>일괄 수정 ({selectedSheetIds.length}개)</span>
+              </button>
+              <button
+                onClick={() => void handleBulkDeleteSheets()}
+                className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center space-x-2"
+              >
+                <i className="ri-delete-bin-line w-4 h-4"></i>
+                <span>일괄 삭제 ({selectedSheetIds.length}개)</span>
+              </button>
+            </>
           )}
           <button
             onClick={() => setIsAddingSheet(true)}
