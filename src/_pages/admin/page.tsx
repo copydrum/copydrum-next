@@ -2015,7 +2015,7 @@ const AdminPage: React.FC = () => {
 
         const { data, error } = await supabase
           .from('drum_sheets')
-          .select('id, title, artist, difficulty, price, category_id, created_at, is_active, thumbnail_url, album_name, page_count, tempo, youtube_url, sales_type, preorder_deadline, categories (id, name)')
+          .select('id, title, artist, difficulty, price, category_id, created_at, is_active, thumbnail_url, album_name, page_count, tempo, youtube_url, sales_type, preorder_deadline, description, categories (id, name)')
           .order('created_at', { ascending: false })
           .range(from, to)
           .limit(pageSize);
@@ -2039,7 +2039,29 @@ const AdminPage: React.FC = () => {
               console.log(`  [${index + 1}] ID: ${sheet.id}, 제목: ${sheet.title}, 난이도: "${sheet.difficulty}" (타입: ${typeof sheet.difficulty})`);
             });
           }
-          allSheets = [...allSheets, ...data];
+          // description 파싱 처리 (JSON 문자열인 경우 객체로 변환)
+          const parsedData = data.map((sheet: any) => {
+            if (sheet.description) {
+              try {
+                // JSON 문자열인 경우 파싱
+                if (typeof sheet.description === 'string' && sheet.description.trim().startsWith('{')) {
+                  sheet.description = JSON.parse(sheet.description);
+                }
+                // 파싱된 객체에서 한국어 추출 (화면 표시용)
+                if (typeof sheet.description === 'object' && sheet.description !== null) {
+                  sheet.description_display = sheet.description.ko || sheet.description.en || Object.values(sheet.description)[0] || '';
+                } else {
+                  sheet.description_display = sheet.description;
+                }
+              } catch (e) {
+                // 파싱 실패 시 원본 문자열 사용
+                sheet.description_display = sheet.description;
+              }
+            }
+            return sheet;
+          });
+          
+          allSheets = [...allSheets, ...parsedData];
           console.log(`✅ [${page + 1}/${totalPages}] 현재까지 로드된 악보 수: ${allSheets.length}개 (이번 페이지: ${data.length}개)`);
           from += pageSize;
         } else {

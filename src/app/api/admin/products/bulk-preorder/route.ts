@@ -49,11 +49,29 @@ async function getYoutubeThumbnailUrl(videoId: string): Promise<string> {
 }
 
 /**
- * SEO용 상세 설명 자동 생성 함수
- * 엑셀에 description이 없을 경우 자동으로 생성
+ * SEO용 상세 설명 자동 생성 함수 (17개 언어 일괄 생성)
+ * 엑셀에 description이 없을 경우 모든 언어의 설명을 자동으로 생성
  */
-function generateSeoDescription(artist: string, title: string): string {
-  return `이 페이지는 카피드럼에서 제공하는 ${artist}의 ${title} 드럼 악보 선주문 전용 페이지입니다. 본 악보는 아직 PDF로 제작되지 않았으나, 결제해 주시면 카피드럼 마스터가 1:1 우선순위로 즉시 채보 작업에 착수합니다. 세상에서 가장 빠르고 정확한 ${artist} - ${title} 고품질 드럼 악보를 누구보다 먼저 소장해 보세요. 작업이 완료되면 고객님의 이메일로 즉시 안내해 드립니다.`;
+function generateSeoDescriptions(artist: string, title: string): Record<string, string> {
+  return {
+    ko: `이 페이지는 카피드럼에서 제공하는 ${artist}의 ${title} 드럼 악보 선주문 전용 페이지입니다. 본 악보는 아직 PDF로 제작되지 않았으나, 결제해 주시면 카피드럼 마스터가 1:1 우선순위로 즉시 채보 작업에 착수합니다. 세상에서 가장 빠르고 정확한 ${artist} - ${title} 고품질 드럼 악보를 누구보다 먼저 소장해 보세요. 작업이 완료되면 고객님의 이메일로 즉시 안내해 드립니다.`,
+    en: `This page is a pre-order exclusive page for ${artist}'s ${title} drum sheet music provided by CopyDrum. This sheet music has not yet been produced as a PDF, but when you complete payment, CopyDrum masters will immediately begin transcription work with 1:1 priority. Be the first to own the world's fastest and most accurate high-quality drum sheet music for ${artist} - ${title}. Once the work is completed, we will notify you immediately via email.`,
+    ja: `このページは、CopyDrumが提供する${artist}の${title}ドラム楽譜の予約注文専用ページです。この楽譜はまだPDFとして制作されていませんが、お支払いいただければ、CopyDrumマスターが1対1の優先順位で即座に採譜作業に着手します。世界で最も速く、正確な${artist} - ${title}の高品質ドラム楽譜を誰よりも早くお手元に。作業が完了次第、お客様のメールに即座にお知らせいたします。`,
+    'zh-CN': `此页面是CopyDrum提供的${artist}的${title}鼓谱预购专用页面。此乐谱尚未制作成PDF，但完成付款后，CopyDrum大师将立即以1对1的优先级开始制谱工作。抢先拥有世界上最快速、最准确的${artist} - ${title}高品质鼓谱。工作完成后，我们将立即通过电子邮件通知您。`,
+    'zh-TW': `此頁面是CopyDrum提供的${artist}的${title}鼓譜預購專用頁面。此樂譜尚未製作成PDF，但完成付款後，CopyDrum大師將立即以1對1的優先級開始製譜工作。搶先擁有世界上最快速、最準確的${artist} - ${title}高品質鼓譜。工作完成後，我們將立即通過電子郵件通知您。`,
+    es: `Esta página es una página exclusiva de pre-pedido para la partitura de batería ${title} de ${artist} proporcionada por CopyDrum. Esta partitura aún no ha sido producida como PDF, pero cuando complete el pago, los maestros de CopyDrum comenzarán inmediatamente el trabajo de transcripción con prioridad 1:1. Sea el primero en poseer la partitura de batería de alta calidad más rápida y precisa del mundo para ${artist} - ${title}. Una vez completado el trabajo, le notificaremos inmediatamente por correo electrónico.`,
+    fr: `Cette page est une page exclusive de précommande pour la partition de batterie ${title} de ${artist} fournie par CopyDrum. Cette partition n'a pas encore été produite en PDF, mais lorsque vous complétez le paiement, les maîtres de CopyDrum commenceront immédiatement le travail de transcription avec une priorité 1:1. Soyez le premier à posséder la partition de batterie de haute qualité la plus rapide et la plus précise au monde pour ${artist} - ${title}. Une fois le travail terminé, nous vous en informerons immédiatement par e-mail.`,
+    de: `Diese Seite ist eine exklusive Vorbestellungsseite für ${artist}'s ${title} Schlagzeug-Noten, die von CopyDrum bereitgestellt werden. Diese Noten wurden noch nicht als PDF produziert, aber wenn Sie die Zahlung abschließen, beginnen CopyDrum-Meister sofort mit der Transkriptionsarbeit mit 1:1-Priorität. Seien Sie der Erste, der die schnellste und genaueste hochwertige Schlagzeug-Noten der Welt für ${artist} - ${title} besitzt. Sobald die Arbeit abgeschlossen ist, werden wir Sie sofort per E-Mail benachrichtigen.`,
+    it: `Questa pagina è una pagina esclusiva di pre-ordine per lo spartito per batteria ${title} di ${artist} fornito da CopyDrum. Questo spartito non è ancora stato prodotto come PDF, ma quando completi il pagamento, i maestri di CopyDrum inizieranno immediatamente il lavoro di trascrizione con priorità 1:1. Sii il primo a possedere lo spartito per batteria di alta qualità più veloce e preciso al mondo per ${artist} - ${title}. Una volta completato il lavoro, ti avviseremo immediatamente via e-mail.`,
+    pt: `Esta página é uma página exclusiva de pré-encomenda para a partitura de bateria ${title} de ${artist} fornecida pela CopyDrum. Esta partitura ainda não foi produzida como PDF, mas quando você completar o pagamento, os mestres da CopyDrum começarão imediatamente o trabalho de transcrição com prioridade 1:1. Seja o primeiro a possuir a partitura de bateria de alta qualidade mais rápida e precisa do mundo para ${artist} - ${title}. Assim que o trabalho for concluído, notificaremos você imediatamente por e-mail.`,
+    ru: `Эта страница является эксклюзивной страницей предзаказа для нот для ударных ${title} от ${artist}, предоставляемых CopyDrum. Эти ноты еще не были произведены в формате PDF, но когда вы завершите оплату, мастера CopyDrum немедленно начнут работу по транскрипции с приоритетом 1:1. Станьте первым, кто получит самые быстрые и точные высококачественные ноты для ударных для ${artist} - ${title}. После завершения работы мы немедленно уведомим вас по электронной почте.`,
+    th: `หน้านี้เป็นหน้าสำหรับสั่งซื้อล่วงหน้าเฉพาะสำหรับโน้ตกลอง ${title} ของ ${artist} ที่ให้บริการโดย CopyDrum โน้ตนี้ยังไม่ได้ผลิตเป็น PDF แต่เมื่อคุณชำระเงินเสร็จสิ้น ปรมาจารย์ของ CopyDrum จะเริ่มงานถอดโน้ตทันทีด้วยลำดับความสำคัญ 1:1 เป็นคนแรกที่ครอบครองโน้ตกลองคุณภาพสูงที่เร็วและแม่นยำที่สุดในโลกสำหรับ ${artist} - ${title} เมื่องานเสร็จสมบูรณ์ เราจะแจ้งให้คุณทราบทันทีทางอีเมล`,
+    vi: `Trang này là trang đặt trước độc quyền cho bản nhạc trống ${title} của ${artist} do CopyDrum cung cấp. Bản nhạc này chưa được sản xuất dưới dạng PDF, nhưng khi bạn hoàn tất thanh toán, các bậc thầy của CopyDrum sẽ ngay lập tức bắt đầu công việc phiên âm với mức độ ưu tiên 1:1. Hãy là người đầu tiên sở hữu bản nhạc trống chất lượng cao nhanh nhất và chính xác nhất thế giới cho ${artist} - ${title}. Khi công việc hoàn tất, chúng tôi sẽ thông báo cho bạn ngay lập tức qua email.`,
+    hi: `यह पृष्ठ CopyDrum द्वारा प्रदान किए गए ${artist} के ${title} ड्रम शीट संगीत के लिए एक विशेष पूर्व-आदेश पृष्ठ है। यह शीट संगीत अभी तक PDF के रूप में निर्मित नहीं किया गया है, लेकिन जब आप भुगतान पूरा करते हैं, तो CopyDrum मास्टर्स 1:1 प्राथमिकता के साथ तुरंत ट्रांसक्रिप्शन कार्य शुरू करेंगे। ${artist} - ${title} के लिए दुनिया के सबसे तेज़ और सटीक उच्च-गुणवत्ता वाले ड्रम शीट संगीत के मालिक बनने वाले पहले व्यक्ति बनें। कार्य पूरा होने के बाद, हम आपको तुरंत ईमेल के माध्यम से सूचित करेंगे।`,
+    id: `Halaman ini adalah halaman pra-pesanan eksklusif untuk lembaran musik drum ${title} oleh ${artist} yang disediakan oleh CopyDrum. Lembaran musik ini belum diproduksi sebagai PDF, tetapi ketika Anda menyelesaikan pembayaran, master CopyDrum akan segera memulai pekerjaan transkripsi dengan prioritas 1:1. Jadilah yang pertama memiliki lembaran musik drum berkualitas tinggi tercepat dan paling akurat di dunia untuk ${artist} - ${title}. Setelah pekerjaan selesai, kami akan memberi tahu Anda segera melalui email.`,
+    tr: `Bu sayfa, CopyDrum tarafından sağlanan ${artist}'nin ${title} davul notası için özel bir ön sipariş sayfasıdır. Bu nota henüz PDF olarak üretilmemiştir, ancak ödemeyi tamamladığınızda, CopyDrum ustaları 1:1 öncelikle hemen transkripsiyon çalışmasına başlayacaktır. ${artist} - ${title} için dünyanın en hızlı ve en doğru yüksek kaliteli davul notasının sahibi olan ilk kişi olun. İş tamamlandığında, size e-posta yoluyla hemen bildireceğiz.`,
+    uk: `Ця сторінка є ексклюзивною сторінкою попереднього замовлення для нот для ударних ${title} від ${artist}, наданих CopyDrum. Ці ноти ще не були виготовлені у форматі PDF, але коли ви завершите оплату, майстри CopyDrum негайно почнуть роботу з транскрипції з пріоритетом 1:1. Станьте першим, хто отримає найшвидші та найточніші високоякісні ноти для ударних для ${artist} - ${title}. Після завершення роботи ми негайно повідомимо вас електронною поштою.`,
+  };
 }
 
 /**
@@ -374,35 +392,15 @@ export async function POST(request: NextRequest) {
       const finalPrice = isNaN(priceValue) ? 0 : Math.max(0, Math.round(priceValue));
 
       // ============================================================
-      // SEO용 상세 설명 자동 생성 로직
+      // SEO용 상세 설명 자동 생성 로직 (17개 언어 일괄 생성)
       // ============================================================
-      // 엑셀에 description이 비어있으면 자동 생성
-      let finalDescription: string | null = null;
-      if (item.description && item.description.trim()) {
-        // 엑셀에 description이 있으면 그대로 사용
-        finalDescription = item.description.trim();
-        console.log(`[bulk-preorder] ✅ [${i + 1}/${newItems.length}] 엑셀 description 사용: ${item.artist} - ${item.title}`);
-      } else {
-        // 엑셀에 description이 없으면 자동 생성
-        const artist = item.artist?.trim() || '';
-        const title = item.title?.trim() || '';
-        if (artist && title) {
-          finalDescription = generateSeoDescription(artist, title);
-          console.log(`[bulk-preorder] 📝 [${i + 1}/${newItems.length}] SEO description 자동 생성: ${artist} - ${title}`);
-        } else {
-          // 방어 코드: artist나 title이 없으면 기본 텍스트 생성
-          finalDescription = generateSeoDescription(artist || '알 수 없음', title || '알 수 없음');
-          console.log(`[bulk-preorder] ⚠️ [${i + 1}/${newItems.length}] artist/title 누락, 기본 description 생성`);
-        }
-      }
+      // 엑셀에 description이 있든 없든 무조건 17개 언어 모두 자동 생성
+      const artist = item.artist?.trim() || '알 수 없음';
+      const title = item.title?.trim() || '알 수 없음';
       
-      // 최종 방어 코드: finalDescription이 여전히 null이면 강제로 생성
-      if (!finalDescription || finalDescription.trim() === '') {
-        const artist = item.artist?.trim() || '알 수 없음';
-        const title = item.title?.trim() || '알 수 없음';
-        finalDescription = generateSeoDescription(artist, title);
-        console.log(`[bulk-preorder] 🛡️ [${i + 1}/${newItems.length}] 방어 코드: description 강제 생성: ${artist} - ${title}`);
-      }
+      // 17개 언어 모두 자동 생성
+      const finalDescription = generateSeoDescriptions(artist, title);
+      console.log(`[bulk-preorder] 📝 [${i + 1}/${newItems.length}] SEO description 자동 생성 (17개 언어): ${artist} - ${title}`);
 
       // ============================================================
       // 스마트 폴백 썸네일 결정 로직
@@ -469,7 +467,7 @@ export async function POST(request: NextRequest) {
         thumbnail_url: thumbnailUrl,
         album_name: item.album_name,
         youtube_url: finalYoutubeUrl,
-        description: finalDescription, // SEO용 상세 설명 (자동 생성 또는 엑셀 데이터)
+        description: JSON.stringify(finalDescription), // SEO용 상세 설명 (17개 언어 다국어 객체를 JSON 문자열로 변환)
         slug: slug, // 필수 컬럼: slug 자동 생성
         // 엑셀에 없는 필드는 null 또는 기본값
         difficulty: null,

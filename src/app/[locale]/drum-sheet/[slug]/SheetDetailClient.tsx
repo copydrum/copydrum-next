@@ -51,6 +51,40 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
   // 옛날 결제 시스템 state 제거 - 이제 /payments/[orderId] 페이지 사용
   const { i18n, t } = useTranslation();
   const { isKoreanSite } = useSiteLanguage();
+  
+  // description 파싱 및 언어별 추출
+  const getDescriptionForCurrentLanguage = (): string | null => {
+    if (!sheet.description) return null;
+    
+    try {
+      // JSON 문자열인 경우 파싱
+      let descriptionObj: Record<string, string> | string = sheet.description;
+      if (typeof sheet.description === 'string' && sheet.description.trim().startsWith('{')) {
+        descriptionObj = JSON.parse(sheet.description);
+      }
+      
+      // 객체인 경우 현재 언어에 맞는 description 추출
+      if (typeof descriptionObj === 'object' && descriptionObj !== null) {
+        const currentLang = i18n.language || 'ko';
+        // 언어 코드 매핑 (zh-cn -> zh-CN 등)
+        const langMap: Record<string, string> = {
+          'zh-cn': 'zh-CN',
+          'zh-tw': 'zh-TW',
+        };
+        const normalizedLang = langMap[currentLang] || currentLang;
+        
+        return descriptionObj[normalizedLang] || descriptionObj[currentLang] || descriptionObj.ko || descriptionObj.en || Object.values(descriptionObj)[0] || null;
+      }
+      
+      // 문자열인 경우 그대로 반환
+      return typeof descriptionObj === 'string' ? descriptionObj : null;
+    } catch (e) {
+      // 파싱 실패 시 원본 문자열 반환
+      return typeof sheet.description === 'string' ? sheet.description : null;
+    }
+  };
+  
+  const displayDescription = getDescriptionForCurrentLanguage();
 
   // 통화 로직
   const hostname = typeof window !== 'undefined' ? window.location.hostname : 'copydrum.com';
@@ -496,11 +530,11 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
               )}
 
               {/* 모바일 전용: 상세 설명 (Description) */}
-              {sheet.description && (
+              {displayDescription && (
                 <div className="lg:hidden bg-white border border-gray-200 rounded-lg p-6 mt-6">
                   <h3 className="font-semibold text-gray-900 mb-3">{t('sheetDetail.description', '상세 설명')}</h3>
                   <div className="prose prose-sm max-w-none text-gray-700 leading-relaxed whitespace-pre-line">
-                    {sheet.description}
+                    {displayDescription}
                   </div>
                 </div>
               )}
@@ -708,11 +742,11 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
               </div>
 
               {/* 데스크톱 전용: 상세 설명 (Description) */}
-              {sheet.description && (
+              {displayDescription && (
                 <div className="hidden lg:block bg-white border border-gray-200 rounded-lg p-6 mt-6">
                   <h3 className="font-semibold text-gray-900 mb-3">{t('sheetDetail.description', '상세 설명')}</h3>
                   <div className="prose prose-sm max-w-none text-gray-700 leading-relaxed whitespace-pre-line">
-                    {sheet.description}
+                    {displayDescription}
                   </div>
                 </div>
               )}
