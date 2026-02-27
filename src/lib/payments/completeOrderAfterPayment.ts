@@ -238,11 +238,20 @@ export const completeOrderAfterPayment = async (
           const expectedCompletionDate = calculateExpectedCompletionDate(paymentConfirmedAt);
           expectedCompletionDateStr = formatDateToYMD(expectedCompletionDate);
 
-          console.log('[completeOrderAfterPayment] 선주문 예상 완료일 계산 완료', {
+          console.log('[completeOrderAfterPayment] ✅ 선주문 예상 완료일 계산 완료', {
             orderId,
             paymentDate: paymentConfirmedAt,
             expectedCompletionDate: expectedCompletionDateStr,
             timezone: 'Asia/Seoul (KST)',
+            hasPreorderItems: true,
+            sheetCount: sheets.length,
+            preorderSheetCount: sheets.filter((s) => s.sales_type === 'PREORDER').length,
+          });
+        } else {
+          console.log('[completeOrderAfterPayment] ℹ️ 선주문 상품 없음 (예상 완료일 계산 건너뜀)', {
+            orderId,
+            sheetCount: sheets.length,
+            sheetSalesTypes: sheets.map((s) => s.sales_type),
           });
         }
       } else if (sheetsError) {
@@ -279,6 +288,15 @@ export const completeOrderAfterPayment = async (
   // 선주문 상품인 경우 예상 완료일 추가
   if (expectedCompletionDateStr) {
     updatePayload.expected_completion_date = expectedCompletionDateStr;
+    console.log('[completeOrderAfterPayment] 📅 예상 완료일을 updatePayload에 추가:', {
+      orderId,
+      expected_completion_date: expectedCompletionDateStr,
+    });
+  } else {
+    console.log('[completeOrderAfterPayment] ℹ️ 예상 완료일 없음 (일반 상품 또는 계산 실패)', {
+      orderId,
+      expectedCompletionDateStr,
+    });
   }
 
   const { error: orderUpdateError } = await supabase
@@ -287,9 +305,24 @@ export const completeOrderAfterPayment = async (
     .eq('id', orderId);
 
   if (orderUpdateError) {
-    console.error('[completeOrderAfterPayment] 주문 상태 업데이트 실패', orderUpdateError);
+    console.error('[completeOrderAfterPayment] ❌ 주문 상태 업데이트 실패', {
+      orderId,
+      code: orderUpdateError.code,
+      message: orderUpdateError.message,
+      details: orderUpdateError.details,
+      hint: orderUpdateError.hint,
+      updatePayload,
+      error: orderUpdateError,
+    });
     throw new Error('주문 상태 업데이트에 실패했습니다.');
   }
+
+  console.log('[completeOrderAfterPayment] ✅ 주문 상태 업데이트 성공', {
+    orderId,
+    expected_completion_date: updatePayload.expected_completion_date || '없음',
+    status: updatePayload.status,
+    payment_status: updatePayload.payment_status,
+  });
 
   // 4. 결제 거래 로그 업데이트
   const { error: paymentLogError } = await supabase

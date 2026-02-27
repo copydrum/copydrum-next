@@ -175,15 +175,50 @@ export default function PurchaseHistoryContent({ user }: PurchaseHistoryContentP
         DOWNLOADABLE_STATUSES.includes((order.status ?? '').toLowerCase())
           ? order.order_items
             .filter((item) => item.sheet_slug)
-            .map((item) => ({
-              ...item,
-              order_id: order.id,
-              order_status: order.status,
-              order_created_at: order.created_at,
-              order_expected_completion_date: order.expected_completion_date ?? null,
-            }))
+            .map((item) => {
+              const mappedItem = {
+                ...item,
+                order_id: order.id,
+                order_status: order.status,
+                order_created_at: order.created_at,
+                order_expected_completion_date: order.expected_completion_date ?? null,
+              };
+              
+              // 디버깅: 선주문 상품인 경우 로그 출력
+              if (item.drum_sheets?.sales_type === 'PREORDER') {
+                console.log('[PurchaseHistoryContent] 선주문 상품 발견:', {
+                  orderId: order.id,
+                  sheetTitle: item.drum_sheets?.title,
+                  salesType: item.drum_sheets?.sales_type,
+                  expectedCompletionDate: order.expected_completion_date,
+                  hasPdf: !!item.drum_sheets?.pdf_url,
+                });
+              }
+              
+              return mappedItem;
+            })
           : []
       );
+
+      // 디버깅: 선주문 상품이 있는지 확인
+      const preorderItems = downloadItems.filter(
+        (item) => item.drum_sheets?.sales_type === 'PREORDER' && !item.drum_sheets?.pdf_url
+      );
+      if (preorderItems.length > 0) {
+        console.log('[PurchaseHistoryContent] ✅ 선주문 제작 진행 중 상품 발견:', preorderItems.map((item) => ({
+          orderId: item.order_id,
+          sheetTitle: item.drum_sheets?.title,
+          salesType: item.drum_sheets?.sales_type,
+          expectedCompletionDate: item.order_expected_completion_date,
+          hasPdf: !!item.drum_sheets?.pdf_url,
+        })));
+      }
+
+      console.log('[PurchaseHistoryContent] 📊 주문 내역 로드 완료:', {
+        totalOrders: filteredOrders.length,
+        totalDownloadItems: downloadItems.length,
+        preorderItemsCount: preorderItems.length,
+      });
 
       setDownloads(downloadItems);
       setSelectedDownloadIds((prev) => {
@@ -193,7 +228,11 @@ export default function PurchaseHistoryContent({ user }: PurchaseHistoryContentP
         return prev.filter((key) => validKeys.has(key));
       });
     } catch (error) {
-      console.error('주문 내역 로드 오류:', error);
+      console.error('[PurchaseHistoryContent] ❌ 주문 내역 로드 오류:', {
+        message: error instanceof Error ? error.message : String(error),
+        error: error,
+        stack: error instanceof Error ? error.stack : undefined,
+      });
       setDownloads([]);
     } finally {
       setLoading(false);
@@ -493,17 +532,38 @@ export default function PurchaseHistoryContent({ user }: PurchaseHistoryContentP
             let expectedCompletionText = '';
             
             // 예상 완료일 표시 (선주문 제작 진행 중인 경우)
-            if (isPreorderInProgress && item.order_expected_completion_date) {
-              try {
-                const formattedDate = formatDateToKorean(item.order_expected_completion_date);
-                if (formattedDate) {
-                  expectedCompletionText = t('mypage.downloads.expectedCompletionDate', {
-                    date: formattedDate,
+            if (isPreorderInProgress) {
+              if (item.order_expected_completion_date) {
+                try {
+                  const formattedDate = formatDateToKorean(item.order_expected_completion_date);
+                  if (formattedDate) {
+                    expectedCompletionText = t('mypage.downloads.expectedCompletionDate', {
+                      date: formattedDate,
+                    });
+                  } else {
+                    console.warn('[PurchaseHistoryContent] 예상 완료일 포맷팅 결과가 비어있음:', {
+                      orderId: item.order_id,
+                      rawDate: item.order_expected_completion_date,
+                    });
+                  }
+                } catch (e) {
+                  // 날짜 파싱 실패 시 기본 텍스트 사용
+                  console.warn('[PurchaseHistoryContent] 예상 완료일 포맷팅 오류:', {
+                    error: e,
+                    rawDate: item.order_expected_completion_date,
+                    orderId: item.order_id,
+                    sheetTitle: item.drum_sheets?.title,
                   });
                 }
-              } catch (e) {
-                // 날짜 파싱 실패 시 기본 텍스트 사용
-                console.warn('[PurchaseHistoryContent] 예상 완료일 포맷팅 오류:', e, item.order_expected_completion_date);
+              } else {
+                // 예상 완료일이 없는 경우 디버깅 로그
+                console.warn('[PurchaseHistoryContent] 선주문 제작 진행 중이지만 예상 완료일이 없음:', {
+                  orderId: item.order_id,
+                  sheetTitle: item.drum_sheets?.title,
+                  salesType: item.drum_sheets?.sales_type,
+                  hasPdf: !!item.drum_sheets?.pdf_url,
+                  orderExpectedCompletionDate: item.order_expected_completion_date,
+                });
               }
             }
 
@@ -544,9 +604,15 @@ export default function PurchaseHistoryContent({ user }: PurchaseHistoryContentP
                     </div>
                   </div>
                 </div>
-                {isPreorderInProgress && expectedCompletionText && (
+                {isPreorderInProgress && (
                   <div className="px-2 py-1.5 rounded-md bg-blue-50 border border-blue-200">
-                    <p className="text-sm font-medium text-blue-700">{expectedCompletionText}</p>
+                    {expectedCompletionText ? (
+                      <p className="text-sm font-medium text-blue-700">{expectedCompletionText}</p>
+                    ) : (
+                      <p className="text-sm font-medium text-blue-600">
+                        {t('mypage.downloads.preorderInProgress')}
+                      </p>
+                    )}
                   </div>
                 )}
                 <div className="flex flex-wrap items-center gap-2">
