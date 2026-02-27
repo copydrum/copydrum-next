@@ -44,7 +44,7 @@ import {
 } from 'recharts';
 import { languages } from '../../i18n/languages';
 import * as XLSX from 'xlsx';
-import { formatDateToKorean } from '../../utils/businessDays';
+import { formatDateToKorean } from '@/utils/businessDays';
 
 const PURCHASE_LOG_ENABLED = process.env.NEXT_PUBLIC_ENABLE_PURCHASE_LOGS === 'true';
 

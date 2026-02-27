@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { calculateExpectedCompletionDate, formatDateToYMD } from '../../../../utils/businessDays';
+import { calculateExpectedCompletionDate, formatDateToYMD } from '@/utils/businessDays';
 
 // ✅ Service Role Key가 있으면 Admin 권한으로 RLS 우회
 function createAdminClient() {

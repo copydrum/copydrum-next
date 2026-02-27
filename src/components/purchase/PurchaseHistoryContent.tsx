@@ -6,7 +6,7 @@ import type { User } from '@supabase/supabase-js';
 import { useTranslation } from 'react-i18next';
 import { generateDefaultThumbnail } from '../../lib/defaultThumbnail';
 import { buildDownloadKey, downloadFile, getDownloadFileName, requestSignedDownloadUrl } from '../../utils/downloadHelpers';
-import { formatDateToKorean } from '../../utils/businessDays';
+import { formatDateToKorean } from '@/utils/businessDays';
 
 const DOWNLOADABLE_STATUSES = ['completed', 'payment_confirmed', 'paid'];
 
@@ -543,9 +543,10 @@ export default function PurchaseHistoryContent({ user }: PurchaseHistoryContentP
             let progressText = t('mypage.downloads.preorderInProgress');
             let expectedCompletionText = '';
             
-            // 예상 완료일 표시 (예상완료일이 있으면 항상 표시)
-            // 선주문 제작 진행 중이거나, 예상완료일이 있는 경우 표시
-            const shouldShowExpectedCompletion = isPreorderInProgress || !!item.order_expected_completion_date;
+            // 예상 완료일 표시 (선주문 상품일 때만 표시)
+            // 선주문 제작 진행 중이거나, 선주문 상품이면서 예상완료일이 있는 경우 표시
+            const isPreorderItem = item.drum_sheets?.sales_type === 'PREORDER';
+            const shouldShowExpectedCompletion = isPreorderInProgress || (isPreorderItem && !!item.order_expected_completion_date);
             
             if (shouldShowExpectedCompletion && item.order_expected_completion_date) {
               try {
@@ -621,7 +622,7 @@ export default function PurchaseHistoryContent({ user }: PurchaseHistoryContentP
                     </div>
                   </div>
                 </div>
-                {(isPreorderInProgress || expectedCompletionText) && (
+                {shouldShowExpectedCompletion && (isPreorderInProgress || expectedCompletionText) && (
                   <div className="px-2 py-1.5 rounded-md bg-blue-50 border border-blue-200">
                     {expectedCompletionText ? (
                       <p className="text-sm font-medium text-blue-700">{expectedCompletionText}</p>

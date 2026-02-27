@@ -135,56 +135,96 @@ export default function PaymentSuccessPage() {
           const isDodoSucceeded = dodoStatus === 'succeeded';
           
           if (isDodoSucceeded && dodoPaymentId) {
-            console.log('[payment-success] Dodo 결제 완료 → 주문 상태 업데이트', {
+            console.log('[payment-success] Dodo 결제 완료 → completeOrderAfterPayment 호출', {
               orderId,
               dodoPaymentId,
               dodoStatus,
             });
 
-            // 주문 상태를 completed로 업데이트 (payment_method 포함)
-            const { error: updateError } = await supabase
-              .from('orders')
-              .update({
-                status: 'completed',
-                payment_status: 'paid',
-                payment_method: 'dodo',
-                transaction_id: dodoPaymentId,
-                updated_at: new Date().toISOString(),
-              })
-              .eq('id', orderId)
-              .eq('user_id', user.id);
+            // completeOrderAfterPayment를 API를 통해 호출 (예상 완료일 계산 포함)
+            try {
+              const response = await fetch('/api/orders/complete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  orderId,
+                  paymentMethod: 'dodo',
+                  transactionId: dodoPaymentId,
+                  paymentConfirmedAt: new Date().toISOString(),
+                  paymentProvider: 'dodo',
+                }),
+              });
 
-            if (updateError) {
-              console.error('[payment-success] Dodo 주문 상태 업데이트 실패:', updateError);
-            } else {
-              // 구매 내역(purchases) 테이블에도 기록
-              try {
-                const { data: orderItemsForPurchase } = await supabase
-                  .from('order_items')
-                  .select('id, drum_sheet_id, price')
-                  .eq('order_id', orderId);
+              const result = await response.json();
 
-                if (orderItemsForPurchase && orderItemsForPurchase.length > 0) {
-                  const purchaseRecords = orderItemsForPurchase.map((item: any) => ({
-                    user_id: user.id,
-                    drum_sheet_id: item.drum_sheet_id,
-                    order_id: orderId,
-                    price_paid: item.price ?? 0,
-                  }));
+              if (!result.success) {
+                console.error('[payment-success] completeOrderAfterPayment 실패:', result.error);
+                // Fallback: 직접 업데이트 시도
+                const { error: updateError } = await supabase
+                  .from('orders')
+                  .update({
+                    status: 'completed',
+                    payment_status: 'paid',
+                    payment_method: 'dodo',
+                    transaction_id: dodoPaymentId,
+                    updated_at: new Date().toISOString(),
+                  })
+                  .eq('id', orderId)
+                  .eq('user_id', user.id);
 
-                  const { error: purchasesError } = await supabase
-                    .from('purchases')
-                    .insert(purchaseRecords);
-
-                  if (purchasesError && purchasesError.code !== '23505') {
-                    // 23505 = unique violation (이미 기록됨) → 무시
-                    console.warn('[payment-success] purchases 기록 실패 (치명적이지 않음):', purchasesError);
-                  } else {
-                    console.log('[payment-success] purchases 기록 완료');
-                  }
+                if (updateError) {
+                  console.error('[payment-success] Dodo 주문 상태 업데이트 실패:', updateError);
                 }
-              } catch (purchaseErr) {
-                console.warn('[payment-success] purchases 기록 중 오류:', purchaseErr);
+              } else {
+                console.log('[payment-success] ✅ completeOrderAfterPayment 성공');
+              }
+            } catch (error) {
+              console.error('[payment-success] completeOrderAfterPayment 호출 실패:', error);
+              // Fallback: 직접 업데이트 시도
+              const { error: updateError } = await supabase
+                .from('orders')
+                .update({
+                  status: 'completed',
+                  payment_status: 'paid',
+                  payment_method: 'dodo',
+                  transaction_id: dodoPaymentId,
+                  updated_at: new Date().toISOString(),
+                })
+                .eq('id', orderId)
+                .eq('user_id', user.id);
+
+              if (updateError) {
+                console.error('[payment-success] Dodo 주문 상태 업데이트 실패:', updateError);
+              } else {
+                // 구매 내역(purchases) 테이블에도 기록
+                try {
+                  const { data: orderItemsForPurchase } = await supabase
+                    .from('order_items')
+                    .select('id, drum_sheet_id, price')
+                    .eq('order_id', orderId);
+
+                  if (orderItemsForPurchase && orderItemsForPurchase.length > 0) {
+                    const purchaseRecords = orderItemsForPurchase.map((item: any) => ({
+                      user_id: user.id,
+                      drum_sheet_id: item.drum_sheet_id,
+                      order_id: orderId,
+                      price_paid: item.price ?? 0,
+                    }));
+
+                    const { error: purchasesError } = await supabase
+                      .from('purchases')
+                      .insert(purchaseRecords);
+
+                    if (purchasesError && purchasesError.code !== '23505') {
+                      // 23505 = unique violation (이미 기록됨) → 무시
+                      console.warn('[payment-success] purchases 기록 실패 (치명적이지 않음):', purchasesError);
+                    } else {
+                      console.log('[payment-success] purchases 기록 완료');
+                    }
+                  }
+                } catch (purchaseErr) {
+                  console.warn('[payment-success] purchases 기록 중 오류:', purchaseErr);
+                }
               }
             }
           } else {
