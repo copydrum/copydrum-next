@@ -71,8 +71,8 @@
   "refundPolicyLinkText": "Detaylar için lütfen",
   "refundPolicyLinkSuffix": "kontrol edin",
   "description": "Açıklama",
-  "preorderAddToCart": "Ön Siparişi Sepete Ekle",
-  "preorderBuyNow": "Öncelikli Üretim Talep Et",
+  "preorderAddToCart": "Sepete Ekle",
+  "preorderBuyNow": "Şimdi Satın Al",
   "preorderPlaceholder": {
     "title": "Şu anda üretim kuyruğunda olan nota",
     "description": "Sipariş verildiğinde öncelikli olarak üretilecektir.",

@@ -71,8 +71,8 @@
   "refundPolicyLinkText": "Para más detalles, por favor consulta nuestra",
   "refundPolicyLinkSuffix": "",
   "description": "Descripción",
-  "preorderAddToCart": "Añadir Pre-pedido al Carrito",
-  "preorderBuyNow": "Solicitar Producción Prioritaria",
+  "preorderAddToCart": "Añadir al Carrito",
+  "preorderBuyNow": "Comprar Ahora",
   "preorderPlaceholder": {
     "title": "Partitura actualmente en cola de producción",
     "description": "Se producirá con prioridad al realizar el pedido.",

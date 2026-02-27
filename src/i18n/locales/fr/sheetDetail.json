@@ -71,8 +71,8 @@
   "refundPolicyLinkText": "Pour plus de détails, veuillez consulter notre",
   "refundPolicyLinkSuffix": "",
   "description": "Description",
-  "preorderAddToCart": "Ajouter la Précommande au Panier",
-  "preorderBuyNow": "Demander une Production Prioritaire",
+  "preorderAddToCart": "Ajouter au Panier",
+  "preorderBuyNow": "Acheter Maintenant",
   "preorderPlaceholder": {
     "title": "Partition actuellement en file d'attente de production",
     "description": "Sera produite en priorité lors de la commande.",

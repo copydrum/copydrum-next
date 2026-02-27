@@ -71,8 +71,8 @@
   "refundPolicyLinkText": "Для деталей, пожалуйста, проверьте нашу",
   "refundPolicyLinkSuffix": "",
   "description": "Описание",
-  "preorderAddToCart": "Добавить Предзаказ в Корзину",
-  "preorderBuyNow": "Запросить Приоритетное Производство",
+  "preorderAddToCart": "Добавить в Корзину",
+  "preorderBuyNow": "Купить Сейчас",
   "preorderPlaceholder": {
     "title": "Партитура в очереди на производство",
     "description": "Будет произведена с приоритетом при заказе.",

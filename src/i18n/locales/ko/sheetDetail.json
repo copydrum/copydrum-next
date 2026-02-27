@@ -71,8 +71,8 @@
   "refundPolicyLinkText": "자세한 내용은",
   "refundPolicyLinkSuffix": "을 확인해 주세요.",
   "description": "상세 설명",
-  "preorderAddToCart": "선주문 장바구니 담기",
-  "preorderBuyNow": "우선 제작 신청하기",
+  "preorderAddToCart": "장바구니 담기",
+  "preorderBuyNow": "바로구매",
   "preorderPlaceholder": {
     "title": "현재 제작 대기 중인 악보입니다",
     "description": "주문 시 우선적으로 제작됩니다.",

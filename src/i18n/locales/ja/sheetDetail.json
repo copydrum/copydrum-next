@@ -71,8 +71,8 @@
   "refundPolicyLinkText": "詳細は",
   "refundPolicyLinkSuffix": "をご確認ください。",
   "description": "詳細説明",
-  "preorderAddToCart": "予約注文をカートに追加",
-  "preorderBuyNow": "優先制作を申請",
+  "preorderAddToCart": "カートに追加",
+  "preorderBuyNow": "今すぐ購入",
   "preorderPlaceholder": {
     "title": "現在制作待ちの楽譜です",
     "description": "ご注文時に優先的に制作されます。",

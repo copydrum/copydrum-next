@@ -71,8 +71,8 @@
   "refundPolicyLinkText": "विवरण के लिए, कृपया हमारी जांच करें",
   "refundPolicyLinkSuffix": "",
   "description": "विवरण",
-  "preorderAddToCart": "प्री-ऑर्डर को कार्ट में जोड़ें",
-  "preorderBuyNow": "प्राथमिकता उत्पादन का अनुरोध करें",
+  "preorderAddToCart": "कार्ट में जोड़ें",
+  "preorderBuyNow": "अभी खरीदें",
   "preorderPlaceholder": {
     "title": "वर्तमान में उत्पादन कतार में शीट संगीत",
     "description": "ऑर्डर करने पर प्राथमिकता के साथ उत्पादित किया जाएगा।",

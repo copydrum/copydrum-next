@@ -71,8 +71,8 @@
   "refundPolicyLinkText": "Untuk detail, silakan periksa",
   "refundPolicyLinkSuffix": "",
   "description": "Deskripsi",
-  "preorderAddToCart": "Tambahkan Pre-order ke Keranjang",
-  "preorderBuyNow": "Minta Produksi Prioritas",
+  "preorderAddToCart": "Tambahkan ke Keranjang",
+  "preorderBuyNow": "Beli Sekarang",
   "preorderPlaceholder": {
     "title": "Partitur saat ini dalam antrian produksi",
     "description": "Akan diproduksi dengan prioritas saat memesan.",

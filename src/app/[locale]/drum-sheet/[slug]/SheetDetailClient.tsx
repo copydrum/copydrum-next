@@ -721,7 +721,7 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
                           {isInCart(sheet.id)
                             ? t('categoriesPage.alreadyPurchasedGeneric') || t('categories.alreadyInCart')
                             : sheet.sales_type === 'PREORDER'
-                            ? t('sheetDetail.preorderAddToCart', '선주문 장바구니 담기')
+                            ? t('sheetDetail.preorderAddToCart', '장바구니 담기')
                             : t('categoriesPage.addToCart')}
                         </span>
                       </button>
@@ -960,7 +960,7 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
                       {buyingNow
                         ? (t('sheetDetail.purchaseProcessing') || '...')
                         : sheet.sales_type === 'PREORDER'
-                        ? t('sheetDetail.preorderBuyNow', '우선 제작 신청하기')
+                        ? t('sheetDetail.preorderBuyNow', '바로구매')
                         : t('categoriesPage.buyNow')}
                     </span>
                   </button>

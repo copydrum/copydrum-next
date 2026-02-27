@@ -71,8 +71,8 @@
   "refundPolicyLinkText": "สำหรับรายละเอียด กรุณาตรวจสอบ",
   "refundPolicyLinkSuffix": "",
   "description": "คำอธิบาย",
-  "preorderAddToCart": "เพิ่มการสั่งซื้อล่วงหน้าในตะกร้า",
-  "preorderBuyNow": "ขอการผลิตแบบลำดับความสำคัญ",
+  "preorderAddToCart": "เพิ่มในตะกร้า",
+  "preorderBuyNow": "ซื้อเลย",
   "preorderPlaceholder": {
     "title": "แผ่นเพลงอยู่ในคิวการผลิต",
     "description": "จะถูกผลิตด้วยลำดับความสำคัญเมื่อสั่งซื้อ",

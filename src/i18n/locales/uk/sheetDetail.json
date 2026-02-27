@@ -71,8 +71,8 @@
   "refundPolicyLinkText": "Для деталей, будь ласка, перевірте нашу",
   "refundPolicyLinkSuffix": "",
   "description": "Опис",
-  "preorderAddToCart": "Додати Передзамовлення до Кошика",
-  "preorderBuyNow": "Запросити Пріоритетне Виробництво",
+  "preorderAddToCart": "Додати до Кошика",
+  "preorderBuyNow": "Купити Зараз",
   "preorderPlaceholder": {
     "title": "Ноти зараз у черзі на виробництво",
     "description": "Буде вироблено з пріоритетом при замовленні.",

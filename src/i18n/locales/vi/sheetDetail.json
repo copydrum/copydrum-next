@@ -71,8 +71,8 @@
   "refundPolicyLinkText": "Để biết chi tiết, vui lòng kiểm tra",
   "refundPolicyLinkSuffix": "",
   "description": "Mô tả",
-  "preorderAddToCart": "Thêm Đặt Trước vào Giỏ Hàng",
-  "preorderBuyNow": "Yêu Cầu Sản Xuất Ưu Tiên",
+  "preorderAddToCart": "Thêm vào Giỏ Hàng",
+  "preorderBuyNow": "Mua Ngay",
   "preorderPlaceholder": {
     "title": "Bản nhạc hiện đang trong hàng đợi sản xuất",
     "description": "Sẽ được sản xuất ưu tiên khi đặt hàng.",

@@ -71,8 +71,8 @@
   "refundPolicyLinkText": "Für Details überprüfen Sie bitte unsere",
   "refundPolicyLinkSuffix": "",
   "description": "Beschreibung",
-  "preorderAddToCart": "Vorbestellung zum Warenkorb hinzufügen",
-  "preorderBuyNow": "Prioritätsproduktion anfordern",
+  "preorderAddToCart": "In den Warenkorb",
+  "preorderBuyNow": "Jetzt Kaufen",
   "preorderPlaceholder": {
     "title": "Notenblatt befindet sich derzeit in der Produktionswarteschlange",
     "description": "Wird bei Bestellung vorrangig produziert.",

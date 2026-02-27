@@ -71,8 +71,8 @@
   "refundPolicyLinkText": "For details, please check our",
   "refundPolicyLinkSuffix": "",
   "description": "Description",
-  "preorderAddToCart": "Add Pre-order to Cart",
-  "preorderBuyNow": "Request Priority Production",
+  "preorderAddToCart": "Add to Cart",
+  "preorderBuyNow": "Buy Now",
   "preorderPlaceholder": {
     "title": "Sheet music currently in production queue",
     "description": "Will be produced with priority upon order.",

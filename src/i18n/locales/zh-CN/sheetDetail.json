@@ -71,8 +71,8 @@
   "refundPolicyLinkText": "详情请查看我们的",
   "refundPolicyLinkSuffix": "",
   "description": "详细说明",
-  "preorderAddToCart": "加入预购购物车",
-  "preorderBuyNow": "申请优先制作",
+  "preorderAddToCart": "加入购物车",
+  "preorderBuyNow": "立即购买",
   "preorderPlaceholder": {
     "title": "当前正在制作队列中的乐谱",
     "description": "下单时将优先制作。",
