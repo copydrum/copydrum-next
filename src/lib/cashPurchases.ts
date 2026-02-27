@@ -1,5 +1,6 @@
 import { supabase } from './supabase';
 import { generateOrderNumber } from './payments/orderUtils';
+import { calculateExpectedCompletionDate, formatDateToYMD } from '../utils/businessDays';
 
 export type CashPurchaseItem = {
   sheetId: string;
@@ -84,22 +85,55 @@ export const processCashPurchase = async ({
 
   try {
     orderNumber = generateOrderNumber();
+    const paymentConfirmedAt = new Date().toISOString();
+
+    // 선주문 상품 확인 및 예상 완료일 계산
+    let expectedCompletionDateStr: string | null = null;
+    if (items.length > 0) {
+      const sheetIds = items.map((item) => item.sheetId).filter(Boolean);
+      if (sheetIds.length > 0) {
+        const { data: sheets, error: sheetsError } = await supabase
+          .from('drum_sheets')
+          .select('id, sales_type')
+          .in('id', sheetIds);
+
+        if (!sheetsError && sheets) {
+          const hasPreorderItems = sheets.some((sheet) => sheet.sales_type === 'PREORDER');
+          if (hasPreorderItems) {
+            const expectedCompletionDate = calculateExpectedCompletionDate(paymentConfirmedAt);
+            expectedCompletionDateStr = formatDateToYMD(expectedCompletionDate);
+            console.log('[processCashPurchase] ✅ 선주문 예상 완료일 계산 완료:', {
+              expectedCompletionDate: expectedCompletionDateStr,
+              paymentDate: paymentConfirmedAt,
+              preorderSheetCount: sheets.filter((s) => s.sales_type === 'PREORDER').length,
+            });
+          }
+        } else if (sheetsError) {
+          console.warn('[processCashPurchase] 상품 정보 조회 실패 (예상 완료일 계산 건너뜀):', sheetsError);
+        }
+      }
+    }
+
+    const orderInsertPayload: Record<string, unknown> = {
+      user_id: userId,
+      order_number: orderNumber,
+      total_amount: normalizedTotal,
+      status: 'completed',
+      payment_status: 'paid',
+      payment_confirmed_at: paymentConfirmedAt,
+      payment_method: paymentMethod,
+      order_type: 'product',
+    };
+
+    // 예상 완료일이 계산된 경우 추가
+    if (expectedCompletionDateStr) {
+      orderInsertPayload.expected_completion_date = expectedCompletionDateStr;
+      console.log('[processCashPurchase] 📅 저장할 예상 완료일:', expectedCompletionDateStr);
+    }
 
     const { data: orderInsertData, error: orderInsertError } = await supabase
       .from('orders')
-      .insert([
-        {
-          user_id: userId,
-          order_number: orderNumber,
-          total_amount: normalizedTotal,
-          status: 'completed', // ✅ 이건 잘 하셨습니다 (건드리지 마세요)
-          // 👇 [수정] 아래 두 줄을 꼭 추가해야 목록에 나옵니다!
-          payment_status: 'paid', 
-          payment_confirmed_at: new Date().toISOString(), 
-          payment_method: paymentMethod,
-          order_type: 'product', // 주문 타입 추가 (캐시로 악보 구매)
-        },
-      ])
+      .insert([orderInsertPayload])
       .select('id')
       .single();
 

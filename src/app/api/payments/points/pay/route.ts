@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { calculateExpectedCompletionDate, formatDateToYMD } from '../../../../utils/businessDays';
 
 // ✅ Service Role Key가 있으면 Admin 권한으로 RLS 우회
 function createAdminClient() {
@@ -75,15 +76,58 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // 선주문 상품 확인 및 예상 완료일 계산
+    let expectedCompletionDateStr: string | null = null;
+    const paymentConfirmedAt = new Date().toISOString();
+
+    const { data: orderItems, error: itemsQueryError } = await supabase
+      .from('order_items')
+      .select('drum_sheet_id')
+      .eq('order_id', orderId);
+
+    if (!itemsQueryError && orderItems && orderItems.length > 0) {
+      const sheetIds = orderItems.map((item: any) => item.drum_sheet_id).filter(Boolean);
+      if (sheetIds.length > 0) {
+        const { data: sheets, error: sheetsError } = await supabase
+          .from('drum_sheets')
+          .select('id, sales_type')
+          .in('id', sheetIds);
+
+        if (!sheetsError && sheets) {
+          const hasPreorderItems = sheets.some((sheet) => sheet.sales_type === 'PREORDER');
+          if (hasPreorderItems) {
+            const expectedCompletionDate = calculateExpectedCompletionDate(paymentConfirmedAt);
+            expectedCompletionDateStr = formatDateToYMD(expectedCompletionDate);
+            console.log('[Points Payment] ✅ 선주문 예상 완료일 계산 완료:', {
+              orderId,
+              expectedCompletionDate: expectedCompletionDateStr,
+              paymentDate: paymentConfirmedAt,
+            });
+          }
+        } else if (sheetsError) {
+          console.warn('[Points Payment] 상품 정보 조회 실패 (예상 완료일 계산 건너뜀):', sheetsError);
+        }
+      }
+    }
+
     // 주문 상태 업데이트
+    const updatePayload: Record<string, unknown> = {
+      status: 'completed',
+      payment_status: 'paid',
+      payment_method: 'points',
+      payment_confirmed_at: paymentConfirmedAt,
+      updated_at: paymentConfirmedAt,
+    };
+
+    // 예상 완료일이 계산된 경우 추가
+    if (expectedCompletionDateStr) {
+      updatePayload.expected_completion_date = expectedCompletionDateStr;
+      console.log('[Points Payment] 📅 저장할 예상 완료일:', expectedCompletionDateStr);
+    }
+
     const { error: orderError } = await supabase
       .from('orders')
-      .update({
-        status: 'completed',
-        payment_status: 'paid',
-        payment_method: 'points',
-        updated_at: new Date().toISOString(),
-      })
+      .update(updatePayload)
       .eq('id', orderId);
 
     if (orderError) {
