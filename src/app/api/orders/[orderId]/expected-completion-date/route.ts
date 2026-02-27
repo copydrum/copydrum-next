@@ -58,8 +58,21 @@ export async function PUT(
       .single();
 
     if (orderError || !order) {
+      console.error('[update-expected-completion-date] 주문 조회 실패:', {
+        orderId,
+        code: orderError?.code,
+        message: orderError?.message,
+        details: orderError?.details,
+        hint: orderError?.hint,
+        error: orderError,
+      });
       return NextResponse.json(
-        { success: false, error: '주문을 찾을 수 없습니다.' },
+        { 
+          success: false, 
+          error: '주문을 찾을 수 없습니다.',
+          details: orderError?.message || String(orderError),
+          code: orderError?.code,
+        },
         { status: 404 }
       );
     }
@@ -71,12 +84,22 @@ export async function PUT(
       .eq('id', orderId);
 
     if (updateError) {
-      console.error('[update-expected-completion-date] 업데이트 실패:', updateError);
+      console.error('[update-expected-completion-date] 업데이트 실패:', {
+        orderId,
+        expected_completion_date,
+        code: updateError.code,
+        message: updateError.message,
+        details: updateError.details,
+        hint: updateError.hint,
+        error: updateError,
+      });
       return NextResponse.json(
         {
           success: false,
           error: '예상 완료일 업데이트에 실패했습니다.',
-          details: updateError.message,
+          details: updateError.message || String(updateError),
+          code: updateError.code,
+          hint: updateError.hint,
         },
         { status: 500 }
       );

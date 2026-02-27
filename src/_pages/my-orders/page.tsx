@@ -212,6 +212,13 @@ const MyOrdersPage = () => {
     const { data, error } = await query;
 
     if (error) {
+      console.error('[my-orders] 주문 조회 오류:', {
+        code: error.code,
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        error: error,
+      });
       throw error;
     }
 

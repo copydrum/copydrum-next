@@ -68,12 +68,20 @@ export async function PUT(request: NextRequest) {
       .in('id', orderIds);
 
     if (ordersError) {
-      console.error('[bulk-update-expected-completion-date] 주문 조회 실패:', ordersError);
+      console.error('[bulk-update-expected-completion-date] 주문 조회 실패:', {
+        code: ordersError.code,
+        message: ordersError.message,
+        details: ordersError.details,
+        hint: ordersError.hint,
+        error: ordersError,
+      });
       return NextResponse.json(
         {
           success: false,
           error: '주문 정보를 조회하는 중 오류가 발생했습니다.',
-          details: ordersError.message,
+          details: ordersError.message || String(ordersError),
+          code: ordersError.code,
+          hint: ordersError.hint,
         },
         { status: 500 }
       );

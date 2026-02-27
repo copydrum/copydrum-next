@@ -122,25 +122,46 @@ export default function PurchaseHistoryContent({ user }: PurchaseHistoryContentP
         throw ordersError;
       }
 
-      const normalizedOrders = (ordersData || []).map((order: any) => ({
-        ...order,
-        order_items: (order.order_items || []).map((item: any) => ({
-          ...item,
-          // drum_sheets.slug을 우선 사용, 없으면 drum_sheet_id로 폴백
-          sheet_slug: item.drum_sheets?.slug ?? item.drum_sheet_id ?? '',
-          drum_sheets: item.drum_sheets
-            ? {
-                ...item.drum_sheets,
-                pdf_url: item.drum_sheets.pdf_url ?? null,
-                sales_type: item.drum_sheets.sales_type ?? null,
-                preorder_deadline: item.drum_sheets.preorder_deadline ?? null,
-                categories: item.drum_sheets.categories
-                  ? { name: item.drum_sheets.categories.name }
-                  : null,
-              }
-            : null,
-        })),
-      }));
+      const normalizedOrders = (ordersData || []).map((order: any) => {
+        try {
+          return {
+            ...order,
+            // expected_completion_date: null 체크 및 유효성 검증
+            expected_completion_date: order.expected_completion_date && 
+              typeof order.expected_completion_date === 'string' &&
+              order.expected_completion_date.trim() !== ''
+              ? order.expected_completion_date
+              : null,
+            order_items: (order.order_items || []).map((item: any) => ({
+              ...item,
+              // drum_sheets.slug을 우선 사용, 없으면 drum_sheet_id로 폴백
+              sheet_slug: item.drum_sheets?.slug ?? item.drum_sheet_id ?? '',
+              drum_sheets: item.drum_sheets
+                ? {
+                    ...item.drum_sheets,
+                    pdf_url: item.drum_sheets.pdf_url ?? null,
+                    sales_type: item.drum_sheets.sales_type ?? null,
+                    preorder_deadline: item.drum_sheets.preorder_deadline ?? null,
+                    categories: item.drum_sheets.categories
+                      ? { name: item.drum_sheets.categories.name }
+                      : null,
+                  }
+                : null,
+            })),
+          };
+        } catch (mapError) {
+          console.error('[PurchaseHistoryContent] 주문 데이터 정규화 오류:', {
+            orderId: order?.id,
+            error: mapError,
+          });
+          // 에러가 발생한 주문은 기본값으로 반환
+          return {
+            ...order,
+            expected_completion_date: null,
+            order_items: [],
+          };
+        }
+      });
 
       // order_items가 있고, order_type이 'product'인 주문만 필터링 (악보 구매만)
       // order_type이 없어도 order_items가 있으면 악보 구매로 간주
@@ -474,11 +495,15 @@ export default function PurchaseHistoryContent({ user }: PurchaseHistoryContentP
             // 예상 완료일 표시 (선주문 제작 진행 중인 경우)
             if (isPreorderInProgress && item.order_expected_completion_date) {
               try {
-                expectedCompletionText = t('mypage.downloads.expectedCompletionDate', {
-                  date: formatDateToKorean(item.order_expected_completion_date),
-                });
+                const formattedDate = formatDateToKorean(item.order_expected_completion_date);
+                if (formattedDate) {
+                  expectedCompletionText = t('mypage.downloads.expectedCompletionDate', {
+                    date: formattedDate,
+                  });
+                }
               } catch (e) {
                 // 날짜 파싱 실패 시 기본 텍스트 사용
+                console.warn('[PurchaseHistoryContent] 예상 완료일 포맷팅 오류:', e, item.order_expected_completion_date);
               }
             }
 

@@ -2214,31 +2214,72 @@ const AdminPage: React.FC = () => {
         )
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('[loadOrders] Supabase 쿼리 에러:', {
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          error: error,
+        });
+        throw error;
+      }
 
       const normalizedOrders: Order[] =
-        data?.map((order: any) => ({
-          ...order,
-          order_number: order.order_number ?? null,
-          status: normalizeOrderStatus(order.status),
-          raw_status: order.status ?? null,
-          payment_method: order.payment_method ?? null,
-          payment_status: order.payment_status ?? null,
-          transaction_id: order.transaction_id ?? null,
-          depositor_name: order.depositor_name ?? null,
-          payment_confirmed_at: order.payment_confirmed_at ?? null,
-          virtual_account_info: (order.virtual_account_info ?? null) as VirtualAccountInfo | null,
-          metadata: order.metadata ?? null,
-          order_type: order.order_type ?? null, // 주문 타입 추가
-          expected_completion_date: order.expected_completion_date ?? null,
-          order_items: Array.isArray(order.order_items)
-            ? order.order_items.map((item: any) => ({
-              ...item,
-              sheet_id: item.drum_sheet_id ?? item.sheet_id ?? null,
-              drum_sheets: item.drum_sheets ?? null,
-            }))
-            : [],
-        })) ?? [];
+        data?.map((order: any) => {
+          try {
+            return {
+              ...order,
+              order_number: order.order_number ?? null,
+              status: normalizeOrderStatus(order.status),
+              raw_status: order.status ?? null,
+              payment_method: order.payment_method ?? null,
+              payment_status: order.payment_status ?? null,
+              transaction_id: order.transaction_id ?? null,
+              depositor_name: order.depositor_name ?? null,
+              payment_confirmed_at: order.payment_confirmed_at ?? null,
+              virtual_account_info: (order.virtual_account_info ?? null) as VirtualAccountInfo | null,
+              metadata: order.metadata ?? null,
+              order_type: order.order_type ?? null,
+              // expected_completion_date: null 체크 및 유효성 검증
+              expected_completion_date: order.expected_completion_date && 
+                typeof order.expected_completion_date === 'string' &&
+                order.expected_completion_date.trim() !== ''
+                ? order.expected_completion_date
+                : null,
+              order_items: Array.isArray(order.order_items)
+                ? order.order_items.map((item: any) => ({
+                  ...item,
+                  sheet_id: item.drum_sheet_id ?? item.sheet_id ?? null,
+                  drum_sheets: item.drum_sheets ?? null,
+                }))
+                : [],
+            };
+          } catch (mapError) {
+            console.error('[loadOrders] 주문 데이터 정규화 오류:', {
+              orderId: order?.id,
+              error: mapError,
+              orderData: order,
+            });
+            // 에러가 발생한 주문은 기본값으로 반환
+            return {
+              ...order,
+              order_number: order.order_number ?? null,
+              status: 'pending',
+              raw_status: order.status ?? null,
+              payment_method: null,
+              payment_status: null,
+              transaction_id: null,
+              depositor_name: null,
+              payment_confirmed_at: null,
+              virtual_account_info: null,
+              metadata: null,
+              order_type: null,
+              expected_completion_date: null,
+              order_items: [],
+            };
+          }
+        }) ?? [];
 
       setOrders(normalizedOrders);
 
@@ -2249,7 +2290,13 @@ const AdminPage: React.FC = () => {
         }
       }
     } catch (error) {
-      console.error('주문 목록 로드 오류:', error);
+      console.error('[loadOrders] 주문 목록 로드 오류:', {
+        message: error instanceof Error ? error.message : String(error),
+        error: error,
+        stack: error instanceof Error ? error.stack : undefined,
+      });
+      // 에러 발생 시 빈 배열로 설정하여 화면이 깨지지 않도록 함
+      setOrders([]);
     }
   };
 
@@ -9853,7 +9900,9 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
                           ) : (
                             <div className="flex items-center gap-2">
                               <dd className="font-medium text-gray-900">
-                                {currentDate ? formatDateToKorean(currentDate) : '미설정'}
+                                {currentDate && currentDate.trim() !== '' 
+                                  ? formatDateToKorean(currentDate) || '미설정'
+                                  : '미설정'}
                               </dd>
                               <button
                                 type="button"

@@ -136,13 +136,30 @@ export function formatDateToYMD(date: Date): string {
 
 /**
  * 날짜를 YYYY. M. D 형식의 문자열로 변환 (한국어 형식)
- * @param date - 변환할 날짜
- * @returns YYYY. M. D 형식의 문자열
+ * @param date - 변환할 날짜 (Date 객체, ISO 문자열, 또는 null/undefined)
+ * @returns YYYY. M. D 형식의 문자열, null이면 빈 문자열 반환
  */
-export function formatDateToKorean(date: Date | string): string {
-  const d = typeof date === 'string' ? new Date(date) : date;
-  const year = d.getFullYear();
-  const month = d.getMonth() + 1;
-  const day = d.getDate();
-  return `${year}. ${month}. ${day}`;
+export function formatDateToKorean(date: Date | string | null | undefined): string {
+  // null 또는 undefined 체크
+  if (!date) {
+    return '';
+  }
+
+  try {
+    const d = typeof date === 'string' ? new Date(date) : date;
+    
+    // 유효한 날짜인지 확인
+    if (isNaN(d.getTime())) {
+      console.warn('[formatDateToKorean] 유효하지 않은 날짜:', date);
+      return '';
+    }
+
+    const year = d.getFullYear();
+    const month = d.getMonth() + 1;
+    const day = d.getDate();
+    return `${year}. ${month}. ${day}`;
+  } catch (error) {
+    console.error('[formatDateToKorean] 날짜 포맷팅 오류:', error, '입력값:', date);
+    return '';
+  }
 }
