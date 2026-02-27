@@ -88,7 +88,8 @@
     "preview": "Önizleme",
     "downloadUnavailable": "İndirme Mevcut Değil",
     "preorderInProgress": "Üretim Devam Ediyor",
-    "preorderInProgressWithDeadline": "Üretim Devam Ediyor (~{{deadline}} tahmini tamamlanma)"
+    "preorderInProgressWithDeadline": "Üretim Devam Ediyor (~{{deadline}} tahmini tamamlanma)",
+    "expectedCompletionDate": "Tahmini tarih: {{date}}"
   },
   "favorites": {
     "title": "Favori Notalar",

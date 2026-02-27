@@ -90,7 +90,8 @@
     "downloadUnavailable": "다운로드 불가",
     "goToPurchaseHistory": "구매내역 페이지로 이동",
     "preorderInProgress": "제작 진행 중",
-    "preorderInProgressWithDeadline": "제작 진행 중 (~{{deadline}} 완성 예정)"
+    "preorderInProgressWithDeadline": "제작 진행 중 (~{{deadline}} 완성 예정)",
+    "expectedCompletionDate": "예상 완료일: {{date}}"
   },
   "favorites": {
     "title": "찜한 악보",

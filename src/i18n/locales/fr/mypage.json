@@ -88,7 +88,8 @@
     "preview": "Aperçu",
     "downloadUnavailable": "Téléchargement Indisponible",
     "preorderInProgress": "Production en Cours",
-    "preorderInProgressWithDeadline": "Production en Cours (~{{deadline}} achèvement prévu)"
+    "preorderInProgressWithDeadline": "Production en Cours (~{{deadline}} achèvement prévu)",
+    "expectedCompletionDate": "Date prévue: {{date}}"
   },
   "favorites": {
     "title": "Partitions Favorites",

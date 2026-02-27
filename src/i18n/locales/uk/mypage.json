@@ -88,7 +88,8 @@
     "preview": "Попередній Перегляд",
     "downloadUnavailable": "Завантаження Недоступне",
     "preorderInProgress": "Виробництво в Процесі",
-    "preorderInProgressWithDeadline": "Виробництво в Процесі (~{{deadline}} очікуване завершення)"
+    "preorderInProgressWithDeadline": "Виробництво в Процесі (~{{deadline}} очікуване завершення)",
+    "expectedCompletionDate": "Очікувана дата: {{date}}"
   },
   "favorites": {
     "title": "Обрані Ноти",

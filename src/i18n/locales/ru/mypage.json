@@ -88,7 +88,8 @@
     "preview": "Предпросмотр",
     "downloadUnavailable": "Скачивание Недоступно",
     "preorderInProgress": "Производство в Процессе",
-    "preorderInProgressWithDeadline": "Производство в Процессе (~{{deadline}} ожидаемое завершение)"
+    "preorderInProgressWithDeadline": "Производство в Процессе (~{{deadline}} ожидаемое завершение)",
+    "expectedCompletionDate": "Ожидаемая дата: {{date}}"
   },
   "favorites": {
     "title": "Избранные Партитуры",

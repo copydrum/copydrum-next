@@ -44,6 +44,7 @@ import {
 } from 'recharts';
 import { languages } from '../../i18n/languages';
 import * as XLSX from 'xlsx';
+import { formatDateToKorean } from '../../utils/businessDays';
 
 const PURCHASE_LOG_ENABLED = process.env.NEXT_PUBLIC_ENABLE_PURCHASE_LOGS === 'true';
 
@@ -132,6 +133,7 @@ interface Order {
   virtual_account_info?: VirtualAccountInfo | null;
   metadata?: Record<string, any> | null;
   order_type?: 'product' | 'cash' | null;
+  expected_completion_date?: string | null;
   created_at: string;
   updated_at: string;
   profiles?: Profile;
@@ -1183,6 +1185,11 @@ const AdminPage: React.FC = () => {
   const [isOrderDetailModalOpen, setIsOrderDetailModalOpen] = useState(false);
   const [orderActionLoading, setOrderActionLoading] = useState<'delete' | 'refund' | 'confirm' | null>(null);
   const [depositConfirmed, setDepositConfirmed] = useState(false); // 입금 확인 체크박스 상태
+  const [editingExpectedCompletionDate, setEditingExpectedCompletionDate] = useState<string | null>(null);
+  const [updatingExpectedCompletionDate, setUpdatingExpectedCompletionDate] = useState(false);
+  const [isBulkUpdateModalOpen, setIsBulkUpdateModalOpen] = useState(false);
+  const [bulkUpdateDate, setBulkUpdateDate] = useState<string>('');
+  const [bulkUpdating, setBulkUpdating] = useState(false);
   const [expandedOrderIds, setExpandedOrderIds] = useState<string[]>([]);
   const isOrderExpanded = useCallback(
     (orderId: string) => expandedOrderIds.includes(orderId),
@@ -2176,6 +2183,7 @@ const AdminPage: React.FC = () => {
           virtual_account_info,
           metadata,
           order_type,
+          expected_completion_date,
           created_at,
           updated_at,
           profiles (
@@ -2198,7 +2206,8 @@ const AdminPage: React.FC = () => {
               price,
               thumbnail_url,
               pdf_url,
-              preview_image_url
+              preview_image_url,
+              sales_type
             )
           )
         `
@@ -2221,6 +2230,7 @@ const AdminPage: React.FC = () => {
           virtual_account_info: (order.virtual_account_info ?? null) as VirtualAccountInfo | null,
           metadata: order.metadata ?? null,
           order_type: order.order_type ?? null, // 주문 타입 추가
+          expected_completion_date: order.expected_completion_date ?? null,
           order_items: Array.isArray(order.order_items)
             ? order.order_items.map((item: any) => ({
               ...item,
@@ -2253,6 +2263,45 @@ const AdminPage: React.FC = () => {
     setIsOrderDetailModalOpen(false);
     setSelectedOrder(null);
     setOrderActionLoading(null);
+    setEditingExpectedCompletionDate(null);
+  };
+
+  const handleUpdateExpectedCompletionDate = async () => {
+    if (!selectedOrder || !editingExpectedCompletionDate) {
+      return;
+    }
+
+    setUpdatingExpectedCompletionDate(true);
+    try {
+      const response = await fetch(`/api/orders/${selectedOrder.id}/expected-completion-date`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ expected_completion_date: editingExpectedCompletionDate }),
+      });
+
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error || '예상 완료일 업데이트에 실패했습니다.');
+      }
+
+      // 주문 목록 새로고침
+      await loadOrders();
+      
+      // 선택된 주문도 업데이트
+      const updatedOrder = orders.find((o) => o.id === selectedOrder.id);
+      if (updatedOrder) {
+        setSelectedOrder(updatedOrder);
+      }
+
+      setEditingExpectedCompletionDate(null);
+      alert('예상 완료일이 업데이트되었습니다.');
+    } catch (error) {
+      console.error('예상 완료일 업데이트 오류:', error);
+      alert(error instanceof Error ? error.message : '예상 완료일 업데이트 중 오류가 발생했습니다.');
+    } finally {
+      setUpdatingExpectedCompletionDate(false);
+    }
   };
 
   const handleDeleteOrderWithoutRefund = async () => {
@@ -2638,6 +2687,67 @@ const AdminPage: React.FC = () => {
         pageIds.forEach((id) => next.delete(id));
         return next;
       });
+    }
+  };
+
+  const handleOpenBulkUpdateModal = () => {
+    if (selectedOrderIds.size === 0) return;
+    
+    // 오늘 날짜를 기본값으로 설정
+    const today = new Date();
+    const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    setBulkUpdateDate(todayStr);
+    setIsBulkUpdateModalOpen(true);
+  };
+
+  const handleCloseBulkUpdateModal = () => {
+    setIsBulkUpdateModalOpen(false);
+    setBulkUpdateDate('');
+  };
+
+  const handleBulkUpdateExpectedCompletionDate = async () => {
+    if (selectedOrderIds.size === 0 || !bulkUpdateDate) {
+      alert('날짜를 선택해주세요.');
+      return;
+    }
+
+    setBulkUpdating(true);
+    try {
+      const response = await fetch('/api/orders/bulk-update-expected-completion-date', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderIds: Array.from(selectedOrderIds),
+          expected_completion_date: bulkUpdateDate,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error || '예상 완료일 일괄 업데이트에 실패했습니다.');
+      }
+
+      // 성공 메시지
+      const message = result.skippedCount > 0
+        ? `${result.updatedCount}개의 주문이 업데이트되었습니다. (일반 상품 ${result.skippedCount}개 제외)`
+        : `${result.updatedCount}개의 주문이 업데이트되었습니다.`;
+      
+      alert(message);
+
+      // 체크박스 초기화
+      setSelectedOrderIds(new Set());
+      
+      // 모달 닫기
+      handleCloseBulkUpdateModal();
+
+      // 주문 목록 새로고침
+      await loadOrders();
+    } catch (error) {
+      console.error('예상 완료일 일괄 업데이트 오류:', error);
+      alert(error instanceof Error ? error.message : '예상 완료일 일괄 업데이트 중 오류가 발생했습니다.');
+    } finally {
+      setBulkUpdating(false);
     }
   };
 
@@ -9487,6 +9597,100 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
     }
   };
 
+  const renderBulkUpdateModal = () => {
+    if (!isBulkUpdateModalOpen) {
+      return null;
+    }
+
+    return (
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-6"
+        onClick={handleCloseBulkUpdateModal}
+      >
+        <div
+          className="relative w-full max-w-md rounded-2xl bg-white shadow-2xl"
+          onClick={(event) => event.stopPropagation()}
+        >
+          <div className="flex items-start justify-between border-b border-gray-100 px-6 py-5">
+            <div>
+              <h3 className="text-2xl font-bold text-gray-900">예상 완료일 일괄 수정</h3>
+              <p className="mt-1 text-sm text-gray-500">
+                선택한 {selectedOrderIds.size}개 주문의 예상 완료일을 변경합니다.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={handleCloseBulkUpdateModal}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 text-gray-500 transition-colors hover:border-gray-300 hover:text-gray-700"
+            >
+              <i className="ri-close-line text-xl"></i>
+            </button>
+          </div>
+
+          <div className="space-y-6 px-6 py-6">
+            <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+              <div className="flex items-start gap-3">
+                <i className="ri-information-line text-xl text-blue-600 mt-0.5"></i>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-blue-900">안내</p>
+                  <p className="mt-1 text-xs text-blue-700">
+                    선주문 상품이 포함된 주문만 업데이트됩니다. 일반 다운로드 상품은 자동으로 제외됩니다.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="bulk-update-date" className="block text-sm font-medium text-gray-700">
+                예상 완료일
+              </label>
+              <input
+                id="bulk-update-date"
+                type="date"
+                value={bulkUpdateDate}
+                onChange={(e) => setBulkUpdateDate(e.target.value)}
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                min={new Date().toISOString().split('T')[0]}
+              />
+              <p className="text-xs text-gray-500">
+                선택한 날짜가 모든 선주문 주문의 예상 완료일로 설정됩니다.
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                onClick={handleCloseBulkUpdateModal}
+                disabled={bulkUpdating}
+                className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-50"
+              >
+                취소
+              </button>
+              <button
+                type="button"
+                onClick={handleBulkUpdateExpectedCompletionDate}
+                disabled={bulkUpdating || !bulkUpdateDate}
+                className="inline-flex items-center justify-center rounded-lg bg-purple-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-purple-700 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {bulkUpdating ? (
+                  <>
+                    <i className="ri-loader-4-line mr-2 animate-spin text-base"></i>
+                    업데이트 중...
+                  </>
+                ) : (
+                  <>
+                    <i className="ri-check-line mr-2 text-base"></i>
+                    적용
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const renderOrderDetailModal = () => {
     if (!isOrderDetailModalOpen || !selectedOrder) {
       return null;
@@ -9608,6 +9812,62 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
                       <dt className="text-gray-500">입금자명</dt>
                       <dd className="font-medium text-gray-900">{selectedOrder.depositor_name || '-'}</dd>
                     </div>
+                    {/* 선주문 상품인 경우 예상 완료일 표시 및 수정 */}
+                    {(() => {
+                      const hasPreorderItems = selectedOrder.order_items?.some(
+                        (item) => item.drum_sheets?.sales_type === 'PREORDER'
+                      );
+                      if (!hasPreorderItems) return null;
+
+                      const isEditing = editingExpectedCompletionDate !== null;
+                      const currentDate = selectedOrder.expected_completion_date || editingExpectedCompletionDate || '';
+
+                      return (
+                        <div className="flex flex-col gap-2 col-span-2">
+                          <dt className="text-gray-500">예상 완료일</dt>
+                          {isEditing ? (
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="date"
+                                value={editingExpectedCompletionDate || ''}
+                                onChange={(e) => setEditingExpectedCompletionDate(e.target.value)}
+                                className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              />
+                              <button
+                                type="button"
+                                onClick={handleUpdateExpectedCompletionDate}
+                                disabled={updatingExpectedCompletionDate}
+                                className="inline-flex items-center rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
+                              >
+                                {updatingExpectedCompletionDate ? '저장 중...' : '저장'}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setEditingExpectedCompletionDate(null)}
+                                disabled={updatingExpectedCompletionDate}
+                                className="inline-flex items-center rounded-lg border border-gray-300 px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                              >
+                                취소
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-2">
+                              <dd className="font-medium text-gray-900">
+                                {currentDate ? formatDateToKorean(currentDate) : '미설정'}
+                              </dd>
+                              <button
+                                type="button"
+                                onClick={() => setEditingExpectedCompletionDate(currentDate || '')}
+                                className="inline-flex items-center rounded-lg border border-gray-300 px-2 py-1 text-xs font-semibold text-gray-700 hover:bg-gray-50"
+                              >
+                                <i className="ri-edit-line mr-1"></i>
+                                수정
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
                   </dl>
                 </section>
 
@@ -9936,14 +10196,24 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
             </div>
             <div className="flex items-center gap-2">
               {selectedOrderIds.size > 0 && (
-                <button
-                  type="button"
-                  onClick={() => void handleBulkDeleteOrders()}
-                  className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700"
-                >
-                  <i className="ri-delete-bin-line text-base"></i>
-                  선택 삭제 ({selectedOrderIds.size})
-                </button>
+                <>
+                  <button
+                    type="button"
+                    onClick={handleOpenBulkUpdateModal}
+                    className="inline-flex items-center gap-2 rounded-lg bg-purple-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-700"
+                  >
+                    <i className="ri-calendar-edit-line text-base"></i>
+                    예상 완료일 일괄 수정 ({selectedOrderIds.size})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => void handleBulkDeleteOrders()}
+                    className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700"
+                  >
+                    <i className="ri-delete-bin-line text-base"></i>
+                    선택 삭제 ({selectedOrderIds.size})
+                  </button>
+                </>
               )}
               <button
                 type="button"
@@ -10143,6 +10413,24 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
                   // 주문 타입 배지 스타일
                   const getOrderTypeBadge = () => {
                     if (isProduct) {
+                      // 선주문 상품 포함 여부 확인
+                      const hasPreorderItems = orderItems.some(
+                        (item) => item.drum_sheets?.sales_type === 'PREORDER'
+                      );
+                      
+                      if (hasPreorderItems) {
+                        return (
+                          <div className="flex flex-col gap-1">
+                            <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800">
+                              악보 구매
+                            </span>
+                            <span className="inline-flex items-center rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-800">
+                              선주문
+                            </span>
+                          </div>
+                        );
+                      }
+                      
                       return (
                         <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800">
                           악보 구매
@@ -10550,6 +10838,7 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
         )}
       </div>
       {renderOrderDetailModal()}
+      {renderBulkUpdateModal()}
     </div>
   );
   const renderCustomOrderManagement = () => (

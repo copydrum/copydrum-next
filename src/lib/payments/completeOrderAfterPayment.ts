@@ -10,6 +10,7 @@
  */
 import { supabase } from '../supabase';
 import type { PaymentMethod } from './types';
+import { calculateExpectedCompletionDate, formatDateToYMD } from '../../utils/businessDays';
 
 interface CompleteOrderAfterPaymentOptions {
   /** 트랜잭션 ID (PG사 거래 ID 또는 수동 확인 ID) */
@@ -149,6 +150,9 @@ export const completeOrderAfterPayment = async (
   }
 
   // 2. 악보 구매 처리 (purchases 테이블에 기록)
+  // 선주문 상품의 예상 완료일 계산을 위한 변수
+  let expectedCompletionDateStr: string | null = null;
+
   if (isSheetPurchase && order.order_items) {
     const PURCHASE_LOG_ENABLED = true; // 필요시 환경변수로 제어
 
@@ -224,6 +228,23 @@ export const completeOrderAfterPayment = async (
             });
           }
         }
+
+        // 2-2. 주문의 expected_completion_date 계산 및 저장
+        // 선주문 상품이 포함된 주문인지 확인
+        const hasPreorderItems = sheets.some((sheet) => sheet.sales_type === 'PREORDER');
+        
+        if (hasPreorderItems) {
+          // 결제 확인일 기준으로 예상 완료일 계산 (한국 시간 기준, 마감 시간 규칙 적용)
+          const expectedCompletionDate = calculateExpectedCompletionDate(paymentConfirmedAt);
+          expectedCompletionDateStr = formatDateToYMD(expectedCompletionDate);
+
+          console.log('[completeOrderAfterPayment] 선주문 예상 완료일 계산 완료', {
+            orderId,
+            paymentDate: paymentConfirmedAt,
+            expectedCompletionDate: expectedCompletionDateStr,
+            timezone: 'Asia/Seoul (KST)',
+          });
+        }
       } else if (sheetsError) {
         console.warn('[completeOrderAfterPayment] 상품 정보 조회 실패 (preorder_deadline 설정 건너뜀)', sheetsError);
       }
@@ -253,6 +274,11 @@ export const completeOrderAfterPayment = async (
 
   if (depositorName) {
     updatePayload.depositor_name = depositorName;
+  }
+
+  // 선주문 상품인 경우 예상 완료일 추가
+  if (expectedCompletionDateStr) {
+    updatePayload.expected_completion_date = expectedCompletionDateStr;
   }
 
   const { error: orderUpdateError } = await supabase

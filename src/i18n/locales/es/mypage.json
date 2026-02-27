@@ -88,7 +88,8 @@
     "preview": "Vista Previa",
     "downloadUnavailable": "Descarga No Disponible",
     "preorderInProgress": "Producción en Curso",
-    "preorderInProgressWithDeadline": "Producción en Curso (~{{deadline}} finalización prevista)"
+    "preorderInProgressWithDeadline": "Producción en Curso (~{{deadline}} finalización prevista)",
+    "expectedCompletionDate": "Fecha prevista: {{date}}"
   },
   "favorites": {
     "title": "Partituras Favoritas",

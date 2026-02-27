@@ -88,7 +88,8 @@
     "preview": "ดูตัวอย่าง",
     "downloadUnavailable": "ดาวน์โหลดไม่พร้อมใช้งาน",
     "preorderInProgress": "กำลังผลิต",
-    "preorderInProgressWithDeadline": "กำลังผลิต (~{{deadline}} คาดว่าจะเสร็จสมบูรณ์)"
+    "preorderInProgressWithDeadline": "กำลังผลิต (~{{deadline}} คาดว่าจะเสร็จสมบูรณ์)",
+    "expectedCompletionDate": "วันที่คาดว่าจะเสร็จ: {{date}}"
   },
   "favorites": {
     "title": "แผ่นเพลงโปรด",

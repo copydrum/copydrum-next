@@ -6,6 +6,7 @@ import type { User } from '@supabase/supabase-js';
 import { useTranslation } from 'react-i18next';
 import { generateDefaultThumbnail } from '../../lib/defaultThumbnail';
 import { buildDownloadKey, downloadFile, getDownloadFileName, requestSignedDownloadUrl } from '../../utils/downloadHelpers';
+import { formatDateToKorean } from '../../utils/businessDays';
 
 const DOWNLOADABLE_STATUSES = ['completed', 'payment_confirmed', 'paid'];
 
@@ -34,6 +35,7 @@ interface DownloadableItem extends OrderItemDetail {
   order_id: string;
   order_status: string;
   order_created_at: string;
+  order_expected_completion_date?: string | null;
 }
 
 interface OrderSummary {
@@ -81,6 +83,7 @@ export default function PurchaseHistoryContent({ user }: PurchaseHistoryContentP
           payment_method,
           payment_status,
           order_type,
+          expected_completion_date,
           order_items (
             id,
             drum_sheet_id,
@@ -156,6 +159,7 @@ export default function PurchaseHistoryContent({ user }: PurchaseHistoryContentP
               order_id: order.id,
               order_status: order.status,
               order_created_at: order.created_at,
+              order_expected_completion_date: order.expected_completion_date ?? null,
             }))
           : []
       );
@@ -465,13 +469,14 @@ export default function PurchaseHistoryContent({ user }: PurchaseHistoryContentP
 
             // 제작 진행 중 텍스트 생성
             let progressText = t('mypage.downloads.preorderInProgress');
-            if (isPreorderInProgress && item.drum_sheets?.preorder_deadline) {
+            let expectedCompletionText = '';
+            
+            // 예상 완료일 표시 (선주문 제작 진행 중인 경우)
+            if (isPreorderInProgress && item.order_expected_completion_date) {
               try {
-                const deadlineDate = new Date(item.drum_sheets.preorder_deadline);
-                const month = (deadlineDate.getMonth() + 1).toString().padStart(2, '0');
-                const day = deadlineDate.getDate().toString().padStart(2, '0');
-                const deadline = `${month}/${day}`;
-                progressText = t('mypage.downloads.preorderInProgressWithDeadline', { deadline });
+                expectedCompletionText = t('mypage.downloads.expectedCompletionDate', {
+                  date: formatDateToKorean(item.order_expected_completion_date),
+                });
               } catch (e) {
                 // 날짜 파싱 실패 시 기본 텍스트 사용
               }
@@ -514,6 +519,11 @@ export default function PurchaseHistoryContent({ user }: PurchaseHistoryContentP
                     </div>
                   </div>
                 </div>
+                {isPreorderInProgress && expectedCompletionText && (
+                  <div className="px-2 py-1.5 rounded-md bg-blue-50 border border-blue-200">
+                    <p className="text-sm font-medium text-blue-700">{expectedCompletionText}</p>
+                  </div>
+                )}
                 <div className="flex flex-wrap items-center gap-2">
                   {isPreorderInProgress ? (
                     // 제작 진행 중: 미리보기와 다운로드 버튼 대신 상태 뱃지 표시

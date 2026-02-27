@@ -88,7 +88,8 @@
     "preview": "Pratinjau",
     "downloadUnavailable": "Unduhan Tidak Tersedia",
     "preorderInProgress": "Produksi Sedang Berlangsung",
-    "preorderInProgressWithDeadline": "Produksi Sedang Berlangsung (~{{deadline}} perkiraan penyelesaian)"
+    "preorderInProgressWithDeadline": "Produksi Sedang Berlangsung (~{{deadline}} perkiraan penyelesaian)",
+    "expectedCompletionDate": "Tanggal perkiraan: {{date}}"
   },
   "favorites": {
     "title": "Lembaran Favorit",

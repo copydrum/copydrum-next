@@ -88,7 +88,8 @@
     "preview": "プレビュー",
     "downloadUnavailable": "ダウンロード不可",
     "preorderInProgress": "制作進行中",
-    "preorderInProgressWithDeadline": "制作進行中 (~{{deadline}} 完成予定)"
+    "preorderInProgressWithDeadline": "制作進行中 (~{{deadline}} 完成予定)",
+    "expectedCompletionDate": "予定完成日: {{date}}"
   },
   "favorites": {
     "title": "お気に入り楽譜",

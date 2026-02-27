@@ -88,7 +88,8 @@
     "preview": "Xem trước",
     "downloadUnavailable": "Tải xuống không khả dụng",
     "preorderInProgress": "Đang Sản Xuất",
-    "preorderInProgressWithDeadline": "Đang Sản Xuất (~{{deadline}} dự kiến hoàn thành)"
+    "preorderInProgressWithDeadline": "Đang Sản Xuất (~{{deadline}} dự kiến hoàn thành)",
+    "expectedCompletionDate": "Ngày dự kiến: {{date}}"
   },
   "favorites": {
     "title": "Sheet yêu thích",

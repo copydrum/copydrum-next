@@ -88,7 +88,8 @@
     "preview": "Vorschau",
     "downloadUnavailable": "Download nicht verfügbar",
     "preorderInProgress": "Produktion läuft",
-    "preorderInProgressWithDeadline": "Produktion läuft (~{{deadline}} voraussichtliche Fertigstellung)"
+    "preorderInProgressWithDeadline": "Produktion läuft (~{{deadline}} voraussichtliche Fertigstellung)",
+    "expectedCompletionDate": "Voraussichtliches Datum: {{date}}"
   },
   "favorites": {
     "title": "Favorisierte Notenblätter",

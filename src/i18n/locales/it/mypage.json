@@ -88,7 +88,8 @@
     "preview": "Anteprima",
     "downloadUnavailable": "Download non disponibile",
     "preorderInProgress": "Produzione in Corso",
-    "preorderInProgressWithDeadline": "Produzione in Corso (~{{deadline}} completamento previsto)"
+    "preorderInProgressWithDeadline": "Produzione in Corso (~{{deadline}} completamento previsto)",
+    "expectedCompletionDate": "Data prevista: {{date}}"
   },
   "favorites": {
     "title": "Spartiti preferiti",
