@@ -86,7 +86,9 @@
     "noDownloads": "Keine herunterladbaren Notenblätter verfügbar.",
     "purchaseDate": "Kaufdatum",
     "preview": "Vorschau",
-    "downloadUnavailable": "Download nicht verfügbar"
+    "downloadUnavailable": "Download nicht verfügbar",
+    "preorderInProgress": "Produktion läuft",
+    "preorderInProgressWithDeadline": "Produktion läuft (~{{deadline}} voraussichtliche Fertigstellung)"
   },
   "favorites": {
     "title": "Favorisierte Notenblätter",

@@ -86,7 +86,9 @@
     "noDownloads": "ไม่มีแผ่นเพลงที่ดาวน์โหลดได้",
     "purchaseDate": "วันที่ซื้อ",
     "preview": "ดูตัวอย่าง",
-    "downloadUnavailable": "ดาวน์โหลดไม่พร้อมใช้งาน"
+    "downloadUnavailable": "ดาวน์โหลดไม่พร้อมใช้งาน",
+    "preorderInProgress": "กำลังผลิต",
+    "preorderInProgressWithDeadline": "กำลังผลิต (~{{deadline}} คาดว่าจะเสร็จสมบูรณ์)"
   },
   "favorites": {
     "title": "แผ่นเพลงโปรด",

@@ -86,7 +86,9 @@
     "noDownloads": "कोई डाउनलोड करने योग्य शीट म्यूजिक उपलब्ध नहीं है।",
     "purchaseDate": "खरीदारी तिथि",
     "preview": "पूर्वावलोकन",
-    "downloadUnavailable": "डाउनलोड उपलब्ध नहीं है"
+    "downloadUnavailable": "डाउनलोड उपलब्ध नहीं है",
+    "preorderInProgress": "उत्पादन प्रगति में",
+    "preorderInProgressWithDeadline": "उत्पादन प्रगति में (~{{deadline}} अपेक्षित पूर्णता)"
   },
   "favorites": {
     "title": "पसंदीदा शीट",

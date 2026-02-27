@@ -86,7 +86,9 @@
     "noDownloads": "沒有可下載的樂譜。",
     "purchaseDate": "購買日期",
     "preview": "預覽",
-    "downloadUnavailable": "下載不可用"
+    "downloadUnavailable": "下載不可用",
+    "preorderInProgress": "製作進行中",
+    "preorderInProgressWithDeadline": "製作進行中 (~{{deadline}} 預計完成)"
   },
   "favorites": {
     "title": "我的最愛樂譜",

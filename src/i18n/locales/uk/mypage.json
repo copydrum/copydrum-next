@@ -86,7 +86,9 @@
     "noDownloads": "Немає доступних нот для завантаження.",
     "purchaseDate": "Дата Покупки",
     "preview": "Попередній Перегляд",
-    "downloadUnavailable": "Завантаження Недоступне"
+    "downloadUnavailable": "Завантаження Недоступне",
+    "preorderInProgress": "Виробництво в Процесі",
+    "preorderInProgressWithDeadline": "Виробництво в Процесі (~{{deadline}} очікуване завершення)"
   },
   "favorites": {
     "title": "Обрані Ноти",

@@ -87,7 +87,9 @@
     "purchaseDate": "Purchase Date",
     "preview": "Preview",
     "downloadUnavailable": "Download Unavailable",
-    "goToPurchaseHistory": "Go to Purchase History"
+    "goToPurchaseHistory": "Go to Purchase History",
+    "preorderInProgress": "Production in Progress",
+    "preorderInProgressWithDeadline": "Production in Progress (~{{deadline}} expected completion)"
   },
   "favorites": {
     "title": "Favorite Sheets",

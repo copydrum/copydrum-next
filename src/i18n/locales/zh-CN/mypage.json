@@ -86,7 +86,9 @@
     "noDownloads": "没有可下载的乐谱。",
     "purchaseDate": "购买日期",
     "preview": "预览",
-    "downloadUnavailable": "下载不可用"
+    "downloadUnavailable": "下载不可用",
+    "preorderInProgress": "制作进行中",
+    "preorderInProgressWithDeadline": "制作进行中 (~{{deadline}} 预计完成)"
   },
   "favorites": {
     "title": "收藏的乐谱",

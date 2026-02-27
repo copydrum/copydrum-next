@@ -86,7 +86,9 @@
     "noDownloads": "Aucune partition téléchargeable disponible.",
     "purchaseDate": "Date d'Achat",
     "preview": "Aperçu",
-    "downloadUnavailable": "Téléchargement Indisponible"
+    "downloadUnavailable": "Téléchargement Indisponible",
+    "preorderInProgress": "Production en Cours",
+    "preorderInProgressWithDeadline": "Production en Cours (~{{deadline}} achèvement prévu)"
   },
   "favorites": {
     "title": "Partitions Favorites",

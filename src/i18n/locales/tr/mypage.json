@@ -86,7 +86,9 @@
     "noDownloads": "İndirilebilir nota mevcut değil.",
     "purchaseDate": "Satın Alma Tarihi",
     "preview": "Önizleme",
-    "downloadUnavailable": "İndirme Mevcut Değil"
+    "downloadUnavailable": "İndirme Mevcut Değil",
+    "preorderInProgress": "Üretim Devam Ediyor",
+    "preorderInProgressWithDeadline": "Üretim Devam Ediyor (~{{deadline}} tahmini tamamlanma)"
   },
   "favorites": {
     "title": "Favori Notalar",

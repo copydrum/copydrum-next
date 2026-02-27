@@ -23,6 +23,9 @@ interface OrderItemDetail {
     slug?: string;
     thumbnail_url: string | null;
     preview_image_url: string | null;
+    pdf_url: string | null;
+    sales_type: string | null;
+    preorder_deadline: string | null;
     categories?: { name: string | null } | null;
   } | null;
 }
@@ -91,6 +94,9 @@ export default function PurchaseHistoryContent({ user }: PurchaseHistoryContentP
               slug,
               thumbnail_url,
               preview_image_url,
+              pdf_url,
+              sales_type,
+              preorder_deadline,
               categories (
                 name
               )
@@ -122,6 +128,9 @@ export default function PurchaseHistoryContent({ user }: PurchaseHistoryContentP
           drum_sheets: item.drum_sheets
             ? {
                 ...item.drum_sheets,
+                pdf_url: item.drum_sheets.pdf_url ?? null,
+                sales_type: item.drum_sheets.sales_type ?? null,
+                preorder_deadline: item.drum_sheets.preorder_deadline ?? null,
                 categories: item.drum_sheets.categories
                   ? { name: item.drum_sheets.categories.name }
                   : null,
@@ -172,6 +181,12 @@ export default function PurchaseHistoryContent({ user }: PurchaseHistoryContentP
 
   const toggleDownloadSelection = (item: DownloadableItem) => {
     if (!DOWNLOADABLE_STATUSES.includes((item.order_status ?? '').toLowerCase())) {
+      return;
+    }
+
+    // 선주문 상품이면서 PDF가 없는 경우 선택 불가
+    const isPreorderInProgress = item.drum_sheets?.sales_type === 'PREORDER' && !item.drum_sheets?.pdf_url;
+    if (isPreorderInProgress) {
       return;
     }
 
@@ -277,22 +292,39 @@ export default function PurchaseHistoryContent({ user }: PurchaseHistoryContentP
 
   const handleDownloadSelected = async () => {
     const selectedItems = downloads.filter(
-      (item) =>
-        selectedDownloadIds.includes(buildDownloadKey(item.order_id, item.id)) &&
-        DOWNLOADABLE_STATUSES.includes((item.order_status ?? '').toLowerCase())
+      (item) => {
+        const key = buildDownloadKey(item.order_id, item.id);
+        if (!selectedDownloadIds.includes(key)) return false;
+        if (!DOWNLOADABLE_STATUSES.includes((item.order_status ?? '').toLowerCase())) return false;
+        // 선주문 상품이면서 PDF가 없는 경우 제외
+        const isPreorderInProgress = item.drum_sheets?.sales_type === 'PREORDER' && !item.drum_sheets?.pdf_url;
+        if (isPreorderInProgress) return false;
+        return true;
+      }
     );
     await handleDownloadMultiple(selectedItems);
   };
 
   const handleDownloadAll = async () => {
-    const downloadableItems = downloads.filter((item) =>
-      DOWNLOADABLE_STATUSES.includes((item.order_status ?? '').toLowerCase())
-    );
+    const downloadableItems = downloads.filter((item) => {
+      if (!DOWNLOADABLE_STATUSES.includes((item.order_status ?? '').toLowerCase())) return false;
+      // 선주문 상품이면서 PDF가 없는 경우 제외
+      const isPreorderInProgress = item.drum_sheets?.sales_type === 'PREORDER' && !item.drum_sheets?.pdf_url;
+      if (isPreorderInProgress) return false;
+      return true;
+    });
     await handleDownloadMultiple(downloadableItems);
   };
 
   const handleDownload = async (item: DownloadableItem) => {
     if (!DOWNLOADABLE_STATUSES.includes((item.order_status ?? '').toLowerCase())) {
+      alert(t('mypage.errors.downloadRestrictedMultiple'));
+      return;
+    }
+
+    // 선주문 상품이면서 PDF가 없는 경우 다운로드 불가
+    const isPreorderInProgress = item.drum_sheets?.sales_type === 'PREORDER' && !item.drum_sheets?.pdf_url;
+    if (isPreorderInProgress) {
       alert(t('mypage.errors.downloadRestrictedMultiple'));
       return;
     }
@@ -416,6 +448,34 @@ export default function PurchaseHistoryContent({ user }: PurchaseHistoryContentP
             const isDownloadableStatus = DOWNLOADABLE_STATUSES.includes(
               (item.order_status ?? '').toLowerCase()
             );
+            
+            // 선주문 상품이면서 PDF가 없는 경우 (제작 진행 중)
+            const isPreorderInProgress = item.drum_sheets?.sales_type === 'PREORDER' && !item.drum_sheets?.pdf_url;
+            // 선주문 상품이지만 PDF가 있는 경우 (제작 완료)
+            const isPreorderCompleted = item.drum_sheets?.sales_type === 'PREORDER' && item.drum_sheets?.pdf_url;
+            
+            // 체크박스 비활성화 조건: 다운로드 불가능한 상태이거나 선주문 제작 진행 중인 경우
+            const isCheckboxDisabled = bulkDownloading || !isDownloadableStatus || isPreorderInProgress;
+            
+            // 미리보기 버튼 비활성화 조건: 선주문 제작 진행 중인 경우
+            const isPreviewDisabled = bulkDownloading || isPreorderInProgress;
+            
+            // 다운로드 버튼 비활성화 조건: 다운로드 중이거나 다운로드 불가능한 상태이거나 선주문 제작 진행 중인 경우
+            const isDownloadDisabled = isDownloading || !isDownloadableStatus || isPreorderInProgress;
+
+            // 제작 진행 중 텍스트 생성
+            let progressText = t('mypage.downloads.preorderInProgress');
+            if (isPreorderInProgress && item.drum_sheets?.preorder_deadline) {
+              try {
+                const deadlineDate = new Date(item.drum_sheets.preorder_deadline);
+                const month = (deadlineDate.getMonth() + 1).toString().padStart(2, '0');
+                const day = deadlineDate.getDate().toString().padStart(2, '0');
+                const deadline = `${month}/${day}`;
+                progressText = t('mypage.downloads.preorderInProgressWithDeadline', { deadline });
+              } catch (e) {
+                // 날짜 파싱 실패 시 기본 텍스트 사용
+              }
+            }
 
             return (
               <div
@@ -430,7 +490,7 @@ export default function PurchaseHistoryContent({ user }: PurchaseHistoryContentP
                     type="checkbox"
                     checked={isSelected}
                     onChange={() => toggleDownloadSelection(item)}
-                    disabled={bulkDownloading || !isDownloadableStatus}
+                    disabled={isCheckboxDisabled}
                     className="mt-1 h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                   />
                   <div className="flex flex-1 items-center gap-3">
@@ -455,30 +515,40 @@ export default function PurchaseHistoryContent({ user }: PurchaseHistoryContentP
                   </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
-                  <button
-                    onClick={() => handlePreview(item)}
-                    disabled={bulkDownloading}
-                    className={`flex-1 min-w-[120px] px-3 py-2 rounded-lg text-sm font-semibold transition ${bulkDownloading
-                      ? 'border border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
-                      : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
-                      }`}
-                  >
-                    {t('mypage.downloads.preview')}
-                  </button>
-                  <button
-                    onClick={() => handleDownload(item)}
-                    disabled={isDownloading || !isDownloadableStatus}
-                    className={`flex-1 min-w-[120px] px-3 py-2 rounded-lg text-sm font-semibold text-white transition ${isDownloading || !isDownloadableStatus
-                      ? 'bg-blue-300 cursor-not-allowed'
-                      : 'bg-blue-600 hover:bg-blue-700'
-                      }`}
-                  >
-                    {isDownloading
-                      ? t('mypage.downloads.downloading')
-                      : isDownloadableStatus
-                        ? t('mypage.downloads.download')
-                        : t('mypage.downloads.downloadUnavailable')}
-                  </button>
+                  {isPreorderInProgress ? (
+                    // 제작 진행 중: 미리보기와 다운로드 버튼 대신 상태 뱃지 표시
+                    <div className="flex-1 min-w-[120px] px-3 py-2 rounded-lg text-sm font-semibold text-white bg-gray-400 cursor-not-allowed text-center">
+                      {progressText}
+                    </div>
+                  ) : (
+                    // 제작 완료 또는 일반 상품: 일반 버튼 표시
+                    <>
+                      <button
+                        onClick={() => handlePreview(item)}
+                        disabled={isPreviewDisabled}
+                        className={`flex-1 min-w-[120px] px-3 py-2 rounded-lg text-sm font-semibold transition ${isPreviewDisabled
+                          ? 'border border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
+                          : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
+                          }`}
+                      >
+                        {t('mypage.downloads.preview')}
+                      </button>
+                      <button
+                        onClick={() => handleDownload(item)}
+                        disabled={isDownloadDisabled}
+                        className={`flex-1 min-w-[120px] px-3 py-2 rounded-lg text-sm font-semibold text-white transition ${isDownloadDisabled
+                          ? 'bg-blue-300 cursor-not-allowed'
+                          : 'bg-blue-600 hover:bg-blue-700'
+                          }`}
+                      >
+                        {isDownloading
+                          ? t('mypage.downloads.downloading')
+                          : isDownloadableStatus
+                            ? t('mypage.downloads.download')
+                            : t('mypage.downloads.downloadUnavailable')}
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             );

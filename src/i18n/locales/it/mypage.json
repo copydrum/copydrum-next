@@ -86,7 +86,9 @@
     "noDownloads": "Nessuno spartito scaricabile disponibile.",
     "purchaseDate": "Data acquisto",
     "preview": "Anteprima",
-    "downloadUnavailable": "Download non disponibile"
+    "downloadUnavailable": "Download non disponibile",
+    "preorderInProgress": "Produzione in Corso",
+    "preorderInProgressWithDeadline": "Produzione in Corso (~{{deadline}} completamento previsto)"
   },
   "favorites": {
     "title": "Spartiti preferiti",

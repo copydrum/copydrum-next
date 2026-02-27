@@ -86,7 +86,9 @@
     "noDownloads": "No hay partituras descargables disponibles.",
     "purchaseDate": "Fecha de Compra",
     "preview": "Vista Previa",
-    "downloadUnavailable": "Descarga No Disponible"
+    "downloadUnavailable": "Descarga No Disponible",
+    "preorderInProgress": "Producción en Curso",
+    "preorderInProgressWithDeadline": "Producción en Curso (~{{deadline}} finalización prevista)"
   },
   "favorites": {
     "title": "Partituras Favoritas",

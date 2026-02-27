@@ -86,7 +86,9 @@
     "noDownloads": "Tidak ada lembaran musik yang dapat diunduh tersedia.",
     "purchaseDate": "Tanggal Pembelian",
     "preview": "Pratinjau",
-    "downloadUnavailable": "Unduhan Tidak Tersedia"
+    "downloadUnavailable": "Unduhan Tidak Tersedia",
+    "preorderInProgress": "Produksi Sedang Berlangsung",
+    "preorderInProgressWithDeadline": "Produksi Sedang Berlangsung (~{{deadline}} perkiraan penyelesaian)"
   },
   "favorites": {
     "title": "Lembaran Favorit",

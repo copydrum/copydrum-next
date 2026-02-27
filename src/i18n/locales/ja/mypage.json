@@ -86,7 +86,9 @@
     "noDownloads": "ダウンロード可能な楽譜がありません。",
     "purchaseDate": "購入日",
     "preview": "プレビュー",
-    "downloadUnavailable": "ダウンロード不可"
+    "downloadUnavailable": "ダウンロード不可",
+    "preorderInProgress": "制作進行中",
+    "preorderInProgressWithDeadline": "制作進行中 (~{{deadline}} 完成予定)"
   },
   "favorites": {
     "title": "お気に入り楽譜",

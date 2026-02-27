@@ -86,7 +86,9 @@
     "noDownloads": "Нет доступных партитур для скачивания.",
     "purchaseDate": "Дата Покупки",
     "preview": "Предпросмотр",
-    "downloadUnavailable": "Скачивание Недоступно"
+    "downloadUnavailable": "Скачивание Недоступно",
+    "preorderInProgress": "Производство в Процессе",
+    "preorderInProgressWithDeadline": "Производство в Процессе (~{{deadline}} ожидаемое завершение)"
   },
   "favorites": {
     "title": "Избранные Партитуры",

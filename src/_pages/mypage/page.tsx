@@ -880,7 +880,16 @@ export default function MyPage() {
 
   const toggleSelectAllInOrder = (orderId: string, orderItems: OrderItemDetail[]) => {
     setSelectedPurchaseIds((prev) => {
-      const selectableIds = orderItems.filter((item) => item.sheet_id).map((item) => item.id);
+      // 선주문 제작 진행 중인 항목은 제외하고 선택 가능한 항목만 필터링
+      const selectableIds = orderItems
+        .filter((item) => {
+          if (!item.sheet_id) return false;
+          // 선주문 상품이면서 PDF가 없는 경우 제외
+          const isPreorderInProgress = item.drum_sheets?.sales_type === 'PREORDER' && !item.drum_sheets?.pdf_url;
+          if (isPreorderInProgress) return false;
+          return true;
+        })
+        .map((item) => item.id);
       if (selectableIds.length === 0) {
         return prev;
       }
@@ -910,7 +919,13 @@ export default function MyPage() {
     }
 
     const selectedItems = order.order_items
-      .filter((item) => item.sheet_id && selectedIds.includes(item.id))
+      .filter((item) => {
+        if (!item.sheet_id || !selectedIds.includes(item.id)) return false;
+        // 선주문 상품이면서 PDF가 없는 경우 제외
+        const isPreorderInProgress = item.drum_sheets?.sales_type === 'PREORDER' && !item.drum_sheets?.pdf_url;
+        if (isPreorderInProgress) return false;
+        return true;
+      })
       .map<DownloadableItem>((item) => ({
         ...item,
         order_id: order.id,
@@ -928,7 +943,13 @@ export default function MyPage() {
     }
 
     const items = order.order_items
-      .filter((item) => item.sheet_id)
+      .filter((item) => {
+        if (!item.sheet_id) return false;
+        // 선주문 상품이면서 PDF가 없는 경우 제외
+        const isPreorderInProgress = item.drum_sheets?.sales_type === 'PREORDER' && !item.drum_sheets?.pdf_url;
+        if (isPreorderInProgress) return false;
+        return true;
+      })
       .map<DownloadableItem>((item) => ({
         ...item,
         order_id: order.id,
@@ -1449,7 +1470,7 @@ export default function MyPage() {
                                             className="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                                             checked={isSelectable ? isSelected : false}
                                             onChange={() => togglePurchaseSelection(order.id, item.id)}
-                                            disabled={!isSelectable || bulkDownloading}
+                                            disabled={!isSelectable || bulkDownloading || (item.drum_sheets?.sales_type === 'PREORDER' && !item.drum_sheets?.pdf_url)}
                                           />
                                           <img
                                             src={
@@ -1480,16 +1501,22 @@ export default function MyPage() {
                                           </span>
                                           {(() => {
                                             const isPreorder = item.drum_sheets?.sales_type === 'PREORDER';
+                                            const hasPdf = !!item.drum_sheets?.pdf_url;
                                             const deadline = item.drum_sheets?.preorder_deadline;
                                             
-                                            if (isPreorder) {
-                                              // 선주문 상품: 비활성화된 버튼 + 완성 예정일 표시
-                                              let buttonText = '⏳ 채보 진행 중';
+                                            // 선주문 상품이면서 PDF가 없는 경우 (제작 진행 중)
+                                            if (isPreorder && !hasPdf) {
+                                              let buttonText = t('mypage.downloads.preorderInProgress');
                                               if (deadline) {
-                                                const deadlineDate = new Date(deadline);
-                                                const month = (deadlineDate.getMonth() + 1).toString().padStart(2, '0');
-                                                const day = deadlineDate.getDate().toString().padStart(2, '0');
-                                                buttonText = `⏳ 채보 진행 중 (~${month}/${day} 완성 예정)`;
+                                                try {
+                                                  const deadlineDate = new Date(deadline);
+                                                  const month = (deadlineDate.getMonth() + 1).toString().padStart(2, '0');
+                                                  const day = deadlineDate.getDate().toString().padStart(2, '0');
+                                                  const deadlineStr = `${month}/${day}`;
+                                                  buttonText = t('mypage.downloads.preorderInProgressWithDeadline', { deadline: deadlineStr });
+                                                } catch (e) {
+                                                  // 날짜 파싱 실패 시 기본 텍스트 사용
+                                                }
                                               }
                                               
                                               return (
@@ -1501,7 +1528,7 @@ export default function MyPage() {
                                                 </button>
                                               );
                                             } else {
-                                              // 일반 상품: 기존 다운로드 버튼
+                                              // 일반 상품 또는 선주문 상품이지만 PDF가 있는 경우 (제작 완료): 기존 다운로드 버튼
                                               return (
                                                 <button
                                                   onClick={() => handleDownload(downloadItem)}

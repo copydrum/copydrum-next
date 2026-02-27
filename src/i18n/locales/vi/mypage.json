@@ -86,7 +86,9 @@
     "noDownloads": "Không có sheet music nào có thể tải xuống.",
     "purchaseDate": "Ngày mua",
     "preview": "Xem trước",
-    "downloadUnavailable": "Tải xuống không khả dụng"
+    "downloadUnavailable": "Tải xuống không khả dụng",
+    "preorderInProgress": "Đang Sản Xuất",
+    "preorderInProgressWithDeadline": "Đang Sản Xuất (~{{deadline}} dự kiến hoàn thành)"
   },
   "favorites": {
     "title": "Sheet yêu thích",

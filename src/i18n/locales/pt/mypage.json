@@ -86,7 +86,9 @@
     "noDownloads": "Nenhuma partitura disponível para download.",
     "purchaseDate": "Data da Compra",
     "preview": "Visualizar",
-    "downloadUnavailable": "Download Indisponível"
+    "downloadUnavailable": "Download Indisponível",
+    "preorderInProgress": "Produção em Andamento",
+    "preorderInProgressWithDeadline": "Produção em Andamento (~{{deadline}} conclusão prevista)"
   },
   "favorites": {
     "title": "Partituras Favoritas",
