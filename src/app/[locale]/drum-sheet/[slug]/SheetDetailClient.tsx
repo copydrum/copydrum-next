@@ -895,45 +895,52 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
       <div className="hidden lg:block mt-16">
         <Footer />
       </div>
-      {/* 모바일: 하단 고정 구매 바 높이만큼 여백만 추가 */}
-      <div className="h-24 lg:hidden" />
+      {/* 모바일: 하단 고정 구매 바 높이만큼 여백 추가 (2단 레이아웃으로 높이 증가) */}
+      <div className="h-32 lg:hidden" />
 
-      {/* === Mobile: 하단 고정 구매 바 === */}
+      {/* === Mobile: 하단 고정 구매 바 (2단 레이아웃) === */}
       {sheet && (
         <div className="lg:hidden fixed bottom-14 left-0 right-0 z-40 bg-white border-t border-gray-200 shadow-[0_-4px_12px_rgba(0,0,0,0.08)]">
-          <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5">
-            <div className="flex-shrink-0 min-w-0">
-              <span className="text-base sm:text-lg font-bold text-blue-600">{isFreeSheet ? 'FREE' : formatCurrency(displayPrice)}</span>
-              <p className="text-[9px] sm:text-[10px] text-gray-400">{t('sheetDetail.instantDownload')}</p>
-            </div>
-            <div className="flex-1 flex gap-1.5 sm:gap-2 min-w-0">
-              {isFreeSheet ? (
-                /* 무료 악보: 바로 다운로드 버튼 */
+          <div className="flex flex-col">
+            {isFreeSheet ? (
+              /* 무료 악보: 바로 다운로드 버튼 */
+              <div className="flex items-center gap-3 px-4 py-3">
+                <div className="flex-shrink-0">
+                  <span className="text-lg font-bold text-blue-600">FREE</span>
+                  <p className="text-[10px] text-gray-400">{t('sheetDetail.instantDownload')}</p>
+                </div>
                 <button
                   onClick={handleFreeDownload}
                   disabled={downloadingFree}
-                  className="flex-1 flex items-center justify-center gap-1.5 py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs sm:text-sm font-semibold active:scale-95 transition-all disabled:opacity-60 min-w-0"
+                  className="flex-1 flex items-center justify-center gap-1.5 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-semibold active:scale-95 transition-all disabled:opacity-60"
                 >
                   {downloadingFree ? (
-                    <i className="ri-loader-4-line text-sm sm:text-base animate-spin"></i>
+                    <i className="ri-loader-4-line text-base animate-spin"></i>
                   ) : (
-                    <i className="ri-download-line text-sm sm:text-base"></i>
+                    <i className="ri-download-line text-base"></i>
                   )}
-                  <span className="truncate text-xs sm:text-sm">{downloadingFree ? '...' : (t('freeSheets.actions.viewFreeSheet') || '무료 다운로드')}</span>
+                  <span className="truncate">{downloadingFree ? '...' : (t('freeSheets.actions.viewFreeSheet') || '무료 다운로드')}</span>
                 </button>
-              ) : (
-                <>
+              </div>
+            ) : (
+              <>
+                {/* 상단: 가격 + 장바구니 버튼 */}
+                <div className="flex items-center gap-3 px-4 py-2.5 border-b border-gray-100">
+                  <div className="flex-shrink-0">
+                    <span className="text-lg font-bold text-blue-600">{formatCurrency(displayPrice)}</span>
+                    <p className="text-[10px] text-gray-400">{t('sheetDetail.instantDownload')}</p>
+                  </div>
                   <button
                     onClick={handleAddToCart}
                     disabled={isInCart(sheet.id)}
-                    className={`flex-shrink-0 flex items-center justify-center gap-1 px-2 sm:px-3 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-semibold transition-all active:scale-95 min-w-0 ${
+                    className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-semibold transition-all active:scale-95 ${
                       isInCart(sheet.id)
                         ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200 active:bg-gray-300'
                     }`}
                   >
-                    <ShoppingCart className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
-                    <span className="hidden sm:inline truncate">
+                    <ShoppingCart className="w-4 h-4 flex-shrink-0" />
+                    <span className="truncate">
                       {isInCart(sheet.id)
                         ? t('categoriesPage.alreadyPurchasedGeneric') || t('categories.alreadyInCart')
                         : sheet.sales_type === 'PREORDER'
@@ -941,12 +948,15 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
                         : t('categoriesPage.addToCart')}
                     </span>
                   </button>
+                </div>
+                {/* 하단: 바로구매 버튼 */}
+                <div className="px-4 py-2.5">
                   <button
                     onClick={handleBuyNow}
                     disabled={buyingNow}
-                    className="flex-1 flex items-center justify-center py-2.5 sm:py-3 rounded-xl bg-blue-600 text-white text-xs sm:text-sm font-semibold hover:bg-blue-700 active:bg-blue-800 active:scale-95 transition-all disabled:opacity-60 min-w-0"
+                    className="w-full flex items-center justify-center py-3 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 active:bg-blue-800 active:scale-95 transition-all disabled:opacity-60"
                   >
-                    <span className="truncate text-xs sm:text-sm">
+                    <span className="truncate">
                       {buyingNow
                         ? (t('sheetDetail.purchaseProcessing') || '...')
                         : sheet.sales_type === 'PREORDER'
@@ -954,9 +964,9 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
                         : t('categoriesPage.buyNow')}
                     </span>
                   </button>
-                </>
-              )}
-            </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
