@@ -799,12 +799,7 @@ export default function Home() {
                         <div className="absolute bottom-0 left-0 right-0 px-2 pb-2 text-center text-white">
                           <div className="flex items-center justify-center gap-2 flex-wrap">
                             <h4 className="text-sm font-bold line-clamp-2 leading-tight">{sheet.title}</h4>
-                            {/* Pre-order 뱃지 (제목 옆) */}
-                            {sheet.sales_type === 'PREORDER' && (
-                              <span className="inline-flex items-center px-2 py-0.5 text-xs font-bold bg-purple-100 text-purple-700 rounded-full border border-purple-200 whitespace-nowrap">
-                                {t('common.badge_preorder', 'Pre-order')}
-                              </span>
-                            )}
+                            {/* Pre-order 뱃지 제거 (모바일 버전) */}
                           </div>
                           <p className="text-xs text-white/80 line-clamp-1 mt-0.5">{sheet.artist}</p>
                         </div>

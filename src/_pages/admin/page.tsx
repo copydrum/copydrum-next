@@ -1175,6 +1175,7 @@ const AdminPage: React.FC = () => {
   const [orderSearchTerm, setOrderSearchTerm] = useState('');
   const [orderStatusFilter, setOrderStatusFilter] = useState<'all' | OrderStatus>('all');
   const [orderPaymentFilter, setOrderPaymentFilter] = useState<'all' | string>('all');
+  const [preorderFilter, setPreorderFilter] = useState<'all' | 'preorder'>('all');
   const [orderStartDate, setOrderStartDate] = useState('');
   const [orderEndDate, setOrderEndDate] = useState('');
   const [orderSortKey, setOrderSortKey] = useState<OrderSortKey>('date_desc');
@@ -2636,6 +2637,7 @@ const AdminPage: React.FC = () => {
   const clearOrderFilters = () => {
     setOrderStatusFilter('all');
     setOrderPaymentFilter('all');
+    setPreorderFilter('all');
     setOrderStartDate('');
     setOrderEndDate('');
     setOrderSortKey('date_desc');
@@ -2645,7 +2647,7 @@ const AdminPage: React.FC = () => {
   // 주문 검색/필터 변경 시 첫 페이지로 리셋
   useEffect(() => {
     setOrderCurrentPage(1);
-  }, [orderSearchTerm, orderStatusFilter, orderPaymentFilter, orderStartDate, orderEndDate, orderSortKey]);
+  }, [orderSearchTerm, orderStatusFilter, orderPaymentFilter, preorderFilter, orderStartDate, orderEndDate, orderSortKey]);
 
   const handleExportOrders = () => {
     if (sortedOrders.length === 0) {
@@ -5960,6 +5962,13 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
     const paymentKey = order.payment_method ? normalizePaymentMethodKey(order.payment_method) : '';
     const matchesPayment = orderPaymentFilter === 'all' ? true : paymentKey === orderPaymentFilter;
 
+    // 선주문 필터: order_items 중 하나라도 sales_type이 'PREORDER'인지 확인
+    const orderItems = order.order_items ?? [];
+    const hasPreorderItems = orderItems.some(
+      (item) => item.drum_sheets?.sales_type === 'PREORDER'
+    );
+    const matchesPreorder = preorderFilter === 'all' ? true : preorderFilter === 'preorder' ? hasPreorderItems : !hasPreorderItems;
+
     const createdAt = order.created_at ? new Date(order.created_at) : null;
     const matchesStart = filterStartDate
       ? createdAt
@@ -5972,7 +5981,7 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
         : false
       : true;
 
-    return matchesSearch && matchesStatus && matchesPayment && matchesStart && matchesEnd;
+    return matchesSearch && matchesStatus && matchesPayment && matchesPreorder && matchesStart && matchesEnd;
   });
   const statusPriority: Record<OrderStatus, number> = {
     completed: 0,
@@ -10334,6 +10343,22 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
                 }`}
             >
               환불
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                if (preorderFilter === 'all') {
+                  setPreorderFilter('preorder');
+                } else {
+                  setPreorderFilter('all');
+                }
+              }}
+              className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${preorderFilter === 'preorder'
+                ? 'border-purple-500 text-purple-600 bg-purple-50'
+                : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
+                }`}
+            >
+              선주문
             </button>
           </div>
 

@@ -447,20 +447,20 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
                   {sheet.sales_type === 'PREORDER' ? (
                     /* 선주문 상품: 플레이스홀더 디자인 */
                     <div className="aspect-square lg:aspect-[3/4] bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50 rounded-lg overflow-hidden relative flex items-center justify-center border-2 border-purple-200">
-                      <div className="text-center px-6 py-8">
-                        <div className="mb-6 flex justify-center">
-                          <div className="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center">
-                            <i className="ri-time-line text-4xl text-purple-600"></i>
+                      <div className="text-center px-4 sm:px-6 py-6 sm:py-8">
+                        <div className="mb-4 sm:mb-6 flex justify-center">
+                          <div className="w-16 h-16 sm:w-20 sm:h-20 bg-purple-100 rounded-full flex items-center justify-center">
+                            <i className="ri-time-line text-3xl sm:text-4xl text-purple-600"></i>
                           </div>
                         </div>
-                        <h3 className="text-xl font-bold text-gray-900 mb-3">
+                        <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 sm:mb-3 px-2">
                           {t('sheetDetail.preorderPlaceholder.title', '현재 제작 대기 중인 악보입니다')}
                         </h3>
-                        <p className="text-base text-gray-700 leading-relaxed">
+                        <p className="text-sm sm:text-base text-gray-700 leading-relaxed px-2">
                           {t('sheetDetail.preorderPlaceholder.description', '주문 시 우선적으로 제작됩니다.')}
                         </p>
-                        <div className="mt-6 flex items-center justify-center gap-2 text-sm text-purple-600">
-                          <i className="ri-music-2-line text-lg"></i>
+                        <div className="mt-4 sm:mt-6 flex items-center justify-center gap-2 text-xs sm:text-sm text-purple-600">
+                          <i className="ri-music-2-line text-base sm:text-lg"></i>
                           <span className="font-medium">{t('sheetDetail.preorderPlaceholder.subtitle', '선주문 상품')}</span>
                         </div>
                       </div>
@@ -498,6 +498,27 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
                   )}
                 </div>
               </div>
+
+              {/* 모바일 전용: 선주문 안내 문구 */}
+              {sheet.sales_type === 'PREORDER' && (
+                <div className="lg:hidden bg-gradient-to-r from-yellow-50 to-amber-50 border-2 border-yellow-400 rounded-xl p-5 shadow-md">
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0">
+                      <div className="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center">
+                        <i className="ri-time-line text-2xl text-yellow-900"></i>
+                      </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-base font-bold text-gray-900 mb-2">
+                        {t('sheetDetail.preorderNotice.title', '📦 선주문 상품 안내')}
+                      </h4>
+                      <p className="text-sm text-gray-800 leading-relaxed">
+                        {t('sheetDetail.preorderNotice.description', '본 악보는 선주문 상품입니다. 결제 완료 즉시 채보 작업이 시작되며, 최대한 빠르게 완성해 드립니다. 작업이 완료되면 마이페이지(구매내역)에서 바로 다운로드하실 수 있으며, 실시간 진행 상황도 확인 가능합니다.')}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* 유튜브 링크 버튼 */}
               {sheet.youtube_url && (
@@ -539,32 +560,34 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
                 </div>
               )}
 
-              {/* 모바일 전용: 구매 전 확인사항 */}
-              <div className="lg:hidden bg-gray-50 rounded-lg p-6 mt-6">
-                <h3 className="font-semibold text-gray-900 mb-4">{t('sheetDetail.includes')}</h3>
-                <ul className="space-y-2 text-sm text-gray-600">
-                  <li className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                    <span>{t('sheetDetail.highQualityPdf')}</span>
-                  </li>
-                  <li className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                    <span>{t('sheetDetail.printableFormat')}</span>
-                  </li>
-                  <li className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                    <span>{t('sheetDetail.instantDownloadFeature')}</span>
-                  </li>
-                  <li className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                    <span>{t('sheetDetail.lifetimeAccess')}</span>
-                  </li>
-                  <li className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                    <span>{t('sheetDetail.noLyrics')}</span>
-                  </li>
-                </ul>
-              </div>
+              {/* 모바일 전용: 구매 전 확인사항 (선주문 상품 제외) */}
+              {sheet.sales_type !== 'PREORDER' && (
+                <div className="lg:hidden bg-gray-50 rounded-lg p-6 mt-6">
+                  <h3 className="font-semibold text-gray-900 mb-4">{t('sheetDetail.includes')}</h3>
+                  <ul className="space-y-2 text-sm text-gray-600">
+                    <li className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                      <span>{t('sheetDetail.highQualityPdf')}</span>
+                    </li>
+                    <li className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                      <span>{t('sheetDetail.printableFormat')}</span>
+                    </li>
+                    <li className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                      <span>{t('sheetDetail.instantDownloadFeature')}</span>
+                    </li>
+                    <li className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                      <span>{t('sheetDetail.lifetimeAccess')}</span>
+                    </li>
+                    <li className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                      <span>{t('sheetDetail.noLyrics')}</span>
+                    </li>
+                  </ul>
+                </div>
+              )}
 
               {/* 모바일 전용: 환불 규정 */}
               <div className="lg:hidden bg-gray-50 rounded-lg p-6 mt-6">
@@ -931,26 +954,6 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
                         : t('categoriesPage.buyNow')}
                     </span>
                   </button>
-                  {/* 선주문 안내 문구 (모바일) - 버튼 하단으로 이동 */}
-                  {sheet.sales_type === 'PREORDER' && (
-                    <div className="bg-gradient-to-r from-yellow-50 to-amber-50 border-2 border-yellow-400 rounded-xl p-4 shadow-md mt-3">
-                      <div className="flex items-start gap-3">
-                        <div className="flex-shrink-0">
-                          <div className="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center">
-                            <i className="ri-time-line text-xl text-yellow-900"></i>
-                          </div>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h4 className="text-base font-bold text-gray-900 mb-1.5">
-                            {t('sheetDetail.preorderNotice.title', '📦 선주문 상품 안내')}
-                          </h4>
-                          <p className="text-sm text-gray-800 leading-relaxed">
-                            {t('sheetDetail.preorderNotice.description', '본 악보는 선주문 상품입니다. 결제 완료 즉시 채보 작업이 시작되며, 최대한 빠르게 완성해 드립니다. 작업이 완료되면 마이페이지(구매내역)에서 바로 다운로드하실 수 있으며, 실시간 진행 상황도 확인 가능합니다.')}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
                 </>
               )}
             </div>
