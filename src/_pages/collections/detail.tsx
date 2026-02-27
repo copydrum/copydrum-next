@@ -184,7 +184,8 @@ export default function CollectionDetailClient({ slug }: CollectionDetailClientP
             thumbnail_url,
             preview_image_url,
             difficulty,
-            slug
+            slug,
+            sales_type
           )
         `)
         .eq('collection_id', collectionData.id);

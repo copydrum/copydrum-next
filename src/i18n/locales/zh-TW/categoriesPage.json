@@ -90,5 +90,6 @@
   "sheetNotFound": "找不到樂譜。",
   "loginRequired": "請登入以繼續。",
   "favoriteError": "處理我的最愛時發生錯誤。請再試一次。",
-  "addedToCart": "已成功加入購物車！"
+  "addedToCart": "已成功加入購物車！",
+  "viewDetails": "查看詳情"
 }

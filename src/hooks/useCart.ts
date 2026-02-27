@@ -13,6 +13,7 @@ export interface CartItem {
   price: number;
   image?: string;
   category: string;
+  sales_type?: 'INSTANT' | 'PREORDER';
 }
 
 export const useCart = () => {
@@ -41,6 +42,7 @@ export const useCart = () => {
             price,
             thumbnail_url,
             category_id,
+            sales_type,
             categories (
               name
             )
@@ -57,7 +59,8 @@ export const useCart = () => {
         artist: item.drum_sheets.artist,
         price: item.drum_sheets.price,
         image: item.drum_sheets.thumbnail_url,
-        category: item.drum_sheets.categories?.name || '기타'
+        category: item.drum_sheets.categories?.name || '기타',
+        sales_type: item.drum_sheets.sales_type || 'INSTANT'
       })) || [];
 
       setCartItems(items);

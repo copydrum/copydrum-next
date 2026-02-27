@@ -90,5 +90,6 @@
   "sheetNotFound": "Notenblatt nicht gefunden.",
   "loginRequired": "Bitte melden Sie sich an, um fortzufahren.",
   "favoriteError": "Beim Verarbeiten der Favoriten ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
-  "addedToCart": "Erfolgreich in den Warenkorb hinzugefügt!"
+  "addedToCart": "Erfolgreich in den Warenkorb hinzugefügt!",
+  "viewDetails": "Details anzeigen"
 }

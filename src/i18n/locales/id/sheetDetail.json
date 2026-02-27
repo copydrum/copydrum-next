@@ -69,5 +69,18 @@
   "refundPolicyDescription": "Produk ini adalah file partitur drum PDF digital. Setelah file diunduh atau diakses, tidak dapat dikembalikan.",
   "refundPolicyLink": "Kebijakan Pengembalian & Pengiriman",
   "refundPolicyLinkText": "Untuk detail, silakan periksa",
-  "refundPolicyLinkSuffix": ""
+  "refundPolicyLinkSuffix": "",
+  "description": "Deskripsi",
+  "preorderAddToCart": "Tambahkan Pre-order ke Keranjang",
+  "preorderBuyNow": "Minta Produksi Prioritas",
+  "preorderPlaceholder": {
+    "title": "Partitur saat ini dalam antrian produksi",
+    "description": "Akan diproduksi dengan prioritas saat memesan.",
+    "subtitle": "Produk Pre-order"
+  },
+  "preorderNotice": {
+    "title": "📦 Pemberitahuan Produk Pre-order",
+    "description": "Partitur ini adalah produk pre-order. Pekerjaan transkripsi dimulai segera setelah pembayaran selesai, dan kami akan menyelesaikannya secepat mungkin. Setelah pekerjaan selesai, Anda dapat mengunduhnya segera dari Halaman Saya (Riwayat Pembelian), dan Anda juga dapat memeriksa status kemajuan secara real-time."
+  }
+}
 }

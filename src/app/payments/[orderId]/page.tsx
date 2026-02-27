@@ -86,7 +86,8 @@ export default function PaymentPage() {
             drum_sheets:drum_sheet_id (
               title,
               artist,
-              thumbnail_url
+              thumbnail_url,
+              sales_type
             )
           `)
           .eq('order_id', orderId);
@@ -100,6 +101,7 @@ export default function PaymentPage() {
             price: item.price,
             thumbnail_url: item.drum_sheets?.thumbnail_url || null,
             quantity: 1,
+            sales_type: item.drum_sheets?.sales_type || 'INSTANT',
           }));
           setCheckoutItems(formattedItems);
         }

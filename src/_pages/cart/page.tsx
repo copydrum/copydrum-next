@@ -79,6 +79,7 @@ export default function CartPageWithCheckout() {
           price: item.price,
           thumbnail_url: item.image,
           quantity: 1,
+          sales_type: item.sales_type || 'INSTANT',
         }));
 
         const newOrderId = crypto.randomUUID();
@@ -190,6 +191,7 @@ export default function CartPageWithCheckout() {
           price: item.price,
           thumbnail_url: item.image,
           quantity: 1,
+          sales_type: item.sales_type || 'INSTANT',
         }));
 
         setCheckoutItems(checkoutData);
@@ -203,6 +205,7 @@ export default function CartPageWithCheckout() {
           price: item.price,
           thumbnail_url: item.image,
           quantity: 1,
+          sales_type: item.sales_type || 'INSTANT',
         }));
 
         setCheckoutItems(checkoutData);

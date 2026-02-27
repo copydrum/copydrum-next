@@ -69,5 +69,18 @@
   "refundPolicyDescription": "Bu ürün dijital bir PDF davul notası dosyasıdır. Dosya indirildikten veya erişildikten sonra iade edilemez.",
   "refundPolicyLink": "İade ve Teslimat Politikası",
   "refundPolicyLinkText": "Detaylar için lütfen",
-  "refundPolicyLinkSuffix": "kontrol edin"
+  "refundPolicyLinkSuffix": "kontrol edin",
+  "description": "Açıklama",
+  "preorderAddToCart": "Ön Siparişi Sepete Ekle",
+  "preorderBuyNow": "Öncelikli Üretim Talep Et",
+  "preorderPlaceholder": {
+    "title": "Şu anda üretim kuyruğunda olan nota",
+    "description": "Sipariş verildiğinde öncelikli olarak üretilecektir.",
+    "subtitle": "Ön Sipariş Ürünü"
+  },
+  "preorderNotice": {
+    "title": "📦 Ön Sipariş Ürünü Bildirimi",
+    "description": "Bu nota bir ön sipariş ürünüdür. Ödeme tamamlandıktan hemen sonra transkripsiyon çalışması başlar ve mümkün olan en kısa sürede tamamlarız. Çalışma tamamlandığında, Sayfam (Satın Alma Geçmişi) üzerinden hemen indirebilir ve gerçek zamanlı ilerleme durumunu da kontrol edebilirsiniz."
+  }
+}
 }

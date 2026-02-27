@@ -203,7 +203,7 @@ export default function SheetDetailPage() {
     try {
       const { data, error } = await supabase
         .from('drum_sheets')
-        .select('id, title, artist, difficulty, price, category_id, pdf_url, preview_image_url, thumbnail_url, youtube_url, album_name, page_count, tempo, is_featured, created_at, categories (name)')
+        .select('id, title, artist, difficulty, price, category_id, pdf_url, preview_image_url, thumbnail_url, youtube_url, album_name, page_count, tempo, is_featured, created_at, sales_type, categories (name)')
         .eq('id', sheetId)
         .single();
 

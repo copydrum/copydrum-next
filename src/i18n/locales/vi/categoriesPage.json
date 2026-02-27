@@ -90,5 +90,6 @@
   "sheetNotFound": "Không tìm thấy bản nhạc.",
   "loginRequired": "Vui lòng đăng nhập để tiếp tục.",
   "favoriteError": "Đã xảy ra lỗi khi xử lý yêu thích. Vui lòng thử lại.",
-  "addedToCart": "Đã thêm vào giỏ hàng thành công!"
+  "addedToCart": "Đã thêm vào giỏ hàng thành công!",
+  "viewDetails": "Xem Chi Tiết"
 }

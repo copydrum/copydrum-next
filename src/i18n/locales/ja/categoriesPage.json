@@ -90,5 +90,6 @@
   "sheetNotFound": "楽譜が見つかりません。",
   "loginRequired": "続けるにはログインしてください。",
   "favoriteError": "お気に入り処理中にエラーが発生しました。もう一度お試しください。",
-  "addedToCart": "カートに正常に追加しました！"
+  "addedToCart": "カートに正常に追加しました！",
+  "viewDetails": "詳細を見る"
 }

@@ -42,7 +42,7 @@ const localeToPath: Record<string, string> = {
 const getSheetBySlugOrId = cache(async (slugOrId: string) => {
   const supabase = await createClient();
 
-  let query = supabase.from('drum_sheets').select('*, categories(name)').single();
+  let query = supabase.from('drum_sheets').select('*, categories(name), sales_type, description').single();
 
   if (isUUID(slugOrId)) {
     query = query.eq('id', slugOrId);

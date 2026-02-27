@@ -90,5 +90,6 @@
   "sheetNotFound": "Nota bulunamadı.",
   "loginRequired": "Devam etmek için lütfen giriş yapın.",
   "favoriteError": "Favoriler işlenirken bir hata oluştu. Lütfen tekrar deneyin.",
-  "addedToCart": "Sepete başarıyla eklendi!"
+  "addedToCart": "Sepete başarıyla eklendi!",
+  "viewDetails": "Detayları Gör"
 }

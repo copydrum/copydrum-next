@@ -182,6 +182,52 @@ export const completeOrderAfterPayment = async (
         });
       }
     }
+
+    // 2-1. 선주문 상품의 preorder_deadline 자동 세팅
+    // 상품 단위로 처음 결제될 때만 deadline을 설정 (이미 설정된 경우는 업데이트하지 않음)
+    const uniqueSheetIds = [...new Set(order.order_items.map((item: any) => item.drum_sheet_id).filter(Boolean))];
+    
+    if (uniqueSheetIds.length > 0) {
+      // 각 상품의 sales_type과 preorder_deadline 조회
+      const { data: sheets, error: sheetsError } = await supabase
+        .from('drum_sheets')
+        .select('id, sales_type, preorder_deadline')
+        .in('id', uniqueSheetIds);
+
+      if (!sheetsError && sheets) {
+        // PREORDER 상품 중 preorder_deadline이 비어있는 것만 업데이트
+        const preorderSheetsWithoutDeadline = sheets.filter(
+          (sheet) => sheet.sales_type === 'PREORDER' && !sheet.preorder_deadline
+        );
+
+        if (preorderSheetsWithoutDeadline.length > 0) {
+          // 현재 시간 + 3일 계산
+          const deadlineDate = new Date();
+          deadlineDate.setDate(deadlineDate.getDate() + 3);
+          const deadlineISO = deadlineDate.toISOString();
+
+          const sheetIdsToUpdate = preorderSheetsWithoutDeadline.map((sheet) => sheet.id);
+
+          const { error: updateDeadlineError } = await supabase
+            .from('drum_sheets')
+            .update({ preorder_deadline: deadlineISO })
+            .in('id', sheetIdsToUpdate);
+
+          if (updateDeadlineError) {
+            console.error('[completeOrderAfterPayment] 선주문 완성 예정일 설정 실패', updateDeadlineError);
+            // 실패해도 치명적이지 않으므로 경고만 출력
+          } else {
+            console.log('[completeOrderAfterPayment] 선주문 완성 예정일 설정 완료', {
+              orderId,
+              updatedSheets: sheetIdsToUpdate.length,
+              deadline: deadlineISO,
+            });
+          }
+        }
+      } else if (sheetsError) {
+        console.warn('[completeOrderAfterPayment] 상품 정보 조회 실패 (preorder_deadline 설정 건너뜀)', sheetsError);
+      }
+    }
   }
 
   // 3. 주문 상태 업데이트

@@ -69,5 +69,18 @@
   "refundPolicyDescription": "Sản phẩm này là file PDF sheet music drum kỹ thuật số. Sau khi file đã được tải xuống hoặc truy cập, không thể hoàn tiền.",
   "refundPolicyLink": "Chính sách Hoàn tiền & Giao hàng",
   "refundPolicyLinkText": "Để biết chi tiết, vui lòng kiểm tra",
-  "refundPolicyLinkSuffix": ""
+  "refundPolicyLinkSuffix": "",
+  "description": "Mô tả",
+  "preorderAddToCart": "Thêm Đặt Trước vào Giỏ Hàng",
+  "preorderBuyNow": "Yêu Cầu Sản Xuất Ưu Tiên",
+  "preorderPlaceholder": {
+    "title": "Bản nhạc hiện đang trong hàng đợi sản xuất",
+    "description": "Sẽ được sản xuất ưu tiên khi đặt hàng.",
+    "subtitle": "Sản Phẩm Đặt Trước"
+  },
+  "preorderNotice": {
+    "title": "📦 Thông Báo Sản Phẩm Đặt Trước",
+    "description": "Bản nhạc này là sản phẩm đặt trước. Công việc phiên âm sẽ bắt đầu ngay sau khi thanh toán, và chúng tôi sẽ hoàn thành nhanh nhất có thể. Khi công việc hoàn tất, bạn có thể tải xuống ngay từ Trang Của Tôi (Lịch Sử Mua Hàng), và bạn cũng có thể kiểm tra trạng thái tiến độ theo thời gian thực."
+  }
+}
 }

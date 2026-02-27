@@ -90,5 +90,6 @@
   "sheetNotFound": "Lembaran musik tidak ditemukan.",
   "loginRequired": "Silakan masuk untuk melanjutkan.",
   "favoriteError": "Terjadi kesalahan saat memproses favorit. Silakan coba lagi.",
-  "addedToCart": "Berhasil ditambahkan ke keranjang!"
+  "addedToCart": "Berhasil ditambahkan ke keranjang!",
+  "viewDetails": "Lihat Detail"
 }

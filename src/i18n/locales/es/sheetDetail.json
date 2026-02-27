@@ -69,5 +69,17 @@
   "refundPolicyDescription": "Este producto es un archivo de partitura de batería digital en PDF. Una vez que el archivo ha sido descargado o accedido, no se puede reembolsar.",
   "refundPolicyLink": "Política de Reembolso y Entrega",
   "refundPolicyLinkText": "Para más detalles, por favor consulta nuestra",
-  "refundPolicyLinkSuffix": ""
+  "refundPolicyLinkSuffix": "",
+  "description": "Descripción",
+  "preorderAddToCart": "Añadir Pre-pedido al Carrito",
+  "preorderBuyNow": "Solicitar Producción Prioritaria",
+  "preorderPlaceholder": {
+    "title": "Partitura actualmente en cola de producción",
+    "description": "Se producirá con prioridad al realizar el pedido.",
+    "subtitle": "Producto de Pre-pedido"
+  },
+  "preorderNotice": {
+    "title": "📦 Aviso de Producto de Pre-pedido",
+    "description": "Esta partitura es un producto de pre-pedido. El trabajo de transcripción comienza inmediatamente después de completar el pago, y lo completaremos lo más rápido posible. Una vez completado el trabajo, puedes descargarlo inmediatamente desde Mi Página (Historial de Compras), y también puedes verificar el estado de progreso en tiempo real."
+  }
 }

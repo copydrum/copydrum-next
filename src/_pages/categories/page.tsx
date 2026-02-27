@@ -50,6 +50,7 @@ interface DrumSheet {
   thumbnail_url?: string;
   album_name?: string;
   page_count?: number;
+  sales_type?: 'INSTANT' | 'PREORDER';
   youtube_url?: string | null;
   category_ids?: string[]; // drum_sheet_categories에서 가져온 추가 카테고리 ID 목록
   slug: string;
@@ -77,6 +78,7 @@ const CategoriesPage: React.FC = () => {
   }));
   const [selectedArtist, setSelectedArtist] = useState<string>(() => searchParams.get('artist') || '');
   const [selectedAlbum, setSelectedAlbum] = useState<string>(() => searchParams.get('album') || '');
+  const [showInstantOnly, setShowInstantOnly] = useState<boolean>(false); // 즉시 다운로드 필터
   const [currentPage, setCurrentPage] = useState<number>(() => {
     const pageParam = parseInt(searchParams.get('page') || '1', 10);
     return Number.isNaN(pageParam) || pageParam < 1 ? 1 : pageParam;
@@ -397,7 +399,7 @@ const CategoriesPage: React.FC = () => {
     setLoading(true);
 
     const baseSelect =
-      'id, title, artist, difficulty, price, category_id, tempo, pdf_url, preview_image_url, youtube_url, is_featured, created_at, thumbnail_url, album_name, page_count, slug, categories (name), drum_sheet_categories (category_id)';
+      'id, title, artist, difficulty, price, category_id, tempo, pdf_url, preview_image_url, youtube_url, is_featured, created_at, thumbnail_url, album_name, page_count, slug, sales_type, categories (name), drum_sheet_categories (category_id)';
 
     try {
       if (trimmedSearch) {
@@ -763,6 +765,11 @@ const CategoriesPage: React.FC = () => {
       }
     }
 
+    // 즉시 다운로드 필터 (Pre-order 제외)
+    if (showInstantOnly) {
+      filtered = filtered.filter(sheet => sheet.sales_type !== 'PREORDER');
+    }
+
     // Sort
     let sorted = [...filtered];
     switch (sortBy) {
@@ -786,7 +793,7 @@ const CategoriesPage: React.FC = () => {
     }
 
     return sorted;
-  }, [drumSheets, searchTerm, selectedCategory, selectedDifficulty, priceRange, sortBy, selectedArtist, selectedAlbum]);
+  }, [drumSheets, searchTerm, selectedCategory, selectedDifficulty, priceRange, sortBy, selectedArtist, selectedAlbum, showInstantOnly]);
 
   const rawTotalPages = Math.ceil(filteredSheets.length / itemsPerPage);
   const totalPages = isSearchMode ? rawTotalPages : Math.min(MAX_CATEGORY_PAGES, rawTotalPages);
@@ -1001,7 +1008,15 @@ const CategoriesPage: React.FC = () => {
                       />
                     </div>
                     <div className="min-w-0 flex-1 space-y-1">
-                      <p className="truncate text-sm font-bold text-gray-900">{sheet.title}</p>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="truncate text-sm font-bold text-gray-900">{sheet.title}</p>
+                        {/* Pre-order 뱃지 (제목 옆) */}
+                        {sheet.sales_type === 'PREORDER' && (
+                          <span className="inline-flex items-center px-2 py-0.5 text-xs font-bold bg-purple-100 text-purple-700 rounded-full border border-purple-200 whitespace-nowrap flex-shrink-0">
+                            {t('common.badge_preorder', 'Pre-order')}
+                          </span>
+                        )}
+                      </div>
                       <p className="truncate text-xs text-gray-500">{sheet.artist}</p>
                       <p className="truncate text-xs text-gray-400">{sheet.album_name || t('categoriesPage.albumInfoNotFound')}</p>
                       <div className="pt-1 text-sm font-semibold text-blue-600">
@@ -1130,32 +1145,49 @@ const CategoriesPage: React.FC = () => {
                   </div>
                 ) : null}
                 <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      handleAddToCart(selectedSheet.id);
-                      closeMobileDetail();
-                    }}
-                    disabled={selectedSheet && isInCart(selectedSheet.id)}
-                    className={`flex-1 sheet-action-btn btn-cart ${selectedSheet && isInCart(selectedSheet.id) ? 'opacity-60' : ''}`}
-                  >
-                    {t('categoriesPage.addToCart')}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (selectedSheet) {
-                        handleBuyNow(selectedSheet);
-                      }
-                      closeMobileDetail();
-                    }}
-                    disabled={selectedSheet && buyingNowSheetId === selectedSheet.id}
-                    className="flex-1 sheet-action-btn btn-buy"
-                  >
-                    {selectedSheet && buyingNowSheetId === selectedSheet.id
-                      ? t('sheet.buyNowProcessing') || '처리 중...'
-                      : t('sheet.buyNow')}
-                  </button>
+                  {selectedSheet?.sales_type === 'PREORDER' ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (selectedSheet) {
+                          router.push(`/drum-sheet/${selectedSheet.slug}`);
+                        }
+                        closeMobileDetail();
+                      }}
+                      className="flex-1 sheet-action-btn btn-buy"
+                    >
+                      {t('categoriesPage.viewDetails', '상세보기')}
+                    </button>
+                  ) : (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          handleAddToCart(selectedSheet.id);
+                          closeMobileDetail();
+                        }}
+                        disabled={selectedSheet && isInCart(selectedSheet.id)}
+                        className={`flex-1 sheet-action-btn btn-cart ${selectedSheet && isInCart(selectedSheet.id) ? 'opacity-60' : ''}`}
+                      >
+                        {t('categoriesPage.addToCart')}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (selectedSheet) {
+                            handleBuyNow(selectedSheet);
+                          }
+                          closeMobileDetail();
+                        }}
+                        disabled={selectedSheet && buyingNowSheetId === selectedSheet.id}
+                        className="flex-1 sheet-action-btn btn-buy"
+                      >
+                        {selectedSheet && buyingNowSheetId === selectedSheet.id
+                          ? t('sheet.buyNowProcessing') || '처리 중...'
+                          : t('sheet.buyNow')}
+                      </button>
+                    </>
+                  )}
                 </div>
                 <button
                   type="button"
@@ -1364,6 +1396,27 @@ const CategoriesPage: React.FC = () => {
                       </select>
                     </div>
 
+                    {/* 즉시 다운로드 필터 */}
+                    <div>
+                      <label className="flex items-center space-x-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={showInstantOnly}
+                          onChange={(e) => {
+                            setShowInstantOnly(e.target.checked);
+                            setCurrentPage(1);
+                          }}
+                          className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        />
+                        <span className="text-sm font-medium text-gray-700">
+                          즉시 다운로드 가능한 악보만 보기
+                        </span>
+                      </label>
+                      <p className="text-xs text-gray-500 mt-1 ml-6">
+                        선주문 상품은 제외됩니다
+                      </p>
+                    </div>
+
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">{t('categoriesPage.priceRange')}</label>
                       <div className="flex items-center space-x-2">
@@ -1459,14 +1512,16 @@ const CategoriesPage: React.FC = () => {
                         <tr key={sheet.id} className="hover:bg-gray-50 transition-colors">
                           <td className="px-6 py-4 align-top">
                             <div className="flex items-center space-x-3 overflow-hidden">
-                              <img
-                                src={getThumbnailUrl(sheet)}
-                                alt={sheet.title}
-                                className="w-12 h-12 object-cover rounded border border-gray-200 cursor-pointer flex-shrink-0"
-                                onClick={() => router.push(`/drum-sheet/${sheet.slug}`)}
-                              />
+                              <div className="flex-shrink-0">
+                                <img
+                                  src={getThumbnailUrl(sheet)}
+                                  alt={sheet.title}
+                                  className="w-12 h-12 object-cover rounded border border-gray-200 cursor-pointer"
+                                  onClick={() => router.push(`/drum-sheet/${sheet.slug}`)}
+                                />
+                              </div>
                               <div className="flex flex-col space-y-1 min-w-0 flex-1">
-                                <div className="flex items-center space-x-2 min-w-0">
+                                <div className="flex items-center gap-2 min-w-0">
                                   <i className="ri-file-music-line text-gray-400 flex-shrink-0"></i>
                                   <span
                                     className="block truncate text-sm font-bold text-gray-900 cursor-pointer hover:text-blue-600"
@@ -1475,6 +1530,12 @@ const CategoriesPage: React.FC = () => {
                                   >
                                     {sheet.title}
                                   </span>
+                                  {/* Pre-order 뱃지 (제목 옆) */}
+                                  {sheet.sales_type === 'PREORDER' && (
+                                    <span className="inline-flex items-center px-2 py-0.5 text-xs font-bold bg-purple-100 text-purple-700 rounded-full border border-purple-200 whitespace-nowrap flex-shrink-0">
+                                      {t('common.badge_preorder', 'Pre-order')}
+                                    </span>
+                                  )}
                                 </div>
                                 <div className="flex items-center space-x-2 text-xs flex-shrink-0">
                                   <span className="font-semibold text-gray-700">
@@ -1538,26 +1599,40 @@ const CategoriesPage: React.FC = () => {
                               >
                                 <i className={`ri-heart-${isFavorite ? 'fill' : 'line'} text-lg`} />
                               </button>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleAddToCart(sheet.id);
-                                }}
-                                disabled={isInCart(sheet.id)}
-                                className={`sheet-action-btn btn-cart ${isInCart(sheet.id) ? 'opacity-60' : ''}`}
-                              >
-                                {t('categoriesPage.addToCart')}
-                              </button>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleBuyNow(sheet);
-                                }}
-                                disabled={buyingNowSheetId === sheet.id}
-                                className="sheet-action-btn btn-buy"
-                              >
-                                {buyingNowSheetId === sheet.id ? t('sheet.buyNowProcessing') || '처리 중...' : t('sheet.buyNow')}
-                              </button>
+                              {sheet.sales_type === 'PREORDER' ? (
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    router.push(`/drum-sheet/${sheet.slug}`);
+                                  }}
+                                  className="sheet-action-btn btn-buy"
+                                >
+                                  {t('categoriesPage.viewDetails', '상세보기')}
+                                </button>
+                              ) : (
+                                <>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleAddToCart(sheet.id);
+                                    }}
+                                    disabled={isInCart(sheet.id)}
+                                    className={`sheet-action-btn btn-cart ${isInCart(sheet.id) ? 'opacity-60' : ''}`}
+                                  >
+                                    {t('categoriesPage.addToCart')}
+                                  </button>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleBuyNow(sheet);
+                                    }}
+                                    disabled={buyingNowSheetId === sheet.id}
+                                    className="sheet-action-btn btn-buy"
+                                  >
+                                    {buyingNowSheetId === sheet.id ? t('sheet.buyNowProcessing') || '처리 중...' : t('sheet.buyNow')}
+                                  </button>
+                                </>
+                              )}
                             </div>
                           </td>
                         </tr>

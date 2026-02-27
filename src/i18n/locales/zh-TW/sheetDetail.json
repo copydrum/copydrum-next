@@ -69,5 +69,17 @@
   "refundPolicyDescription": "此產品是數位 PDF 鼓譜檔案。一旦檔案已被下載或存取，將無法退款。",
   "refundPolicyLink": "退款與交付政策",
   "refundPolicyLinkText": "詳情請查看我們的",
-  "refundPolicyLinkSuffix": ""
+  "refundPolicyLinkSuffix": "",
+  "description": "詳細說明",
+  "preorderAddToCart": "加入預購購物車",
+  "preorderBuyNow": "申請優先製作",
+  "preorderPlaceholder": {
+    "title": "目前正在製作佇列中的樂譜",
+    "description": "下單時將優先製作。",
+    "subtitle": "預購商品"
+  },
+  "preorderNotice": {
+    "title": "📦 預購商品通知",
+    "description": "本樂譜為預購商品。付款完成後將立即開始製作，我們會盡快完成。製作完成後，您可以在我的頁面（購買記錄）中立即下載，也可以查看即時進度狀態。"
+  }
 }

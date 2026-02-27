@@ -43,6 +43,7 @@ import {
   Cell,
 } from 'recharts';
 import { languages } from '../../i18n/languages';
+import * as XLSX from 'xlsx';
 
 const PURCHASE_LOG_ENABLED = process.env.NEXT_PUBLIC_ENABLE_PURCHASE_LOGS === 'true';
 
@@ -73,6 +74,7 @@ interface DrumSheet {
   is_active: boolean;
   category_ids?: string[]; // drum_sheet_categories 관계에서 가져온 추가 카테고리
   thumbnail_url?: string | null; // 인기곡 순위 관리에서 사용
+  sales_type?: 'INSTANT' | 'PREORDER'; // 판매 유형
 }
 
 interface Category {
@@ -1105,6 +1107,13 @@ const AdminPage: React.FC = () => {
   const [sheetCsvData, setSheetCsvData] = useState<any[]>([]);
   const [isSheetCsvProcessing, setIsSheetCsvProcessing] = useState(false);
   const [bulkPdfFiles, setBulkPdfFiles] = useState<File[]>([]); // 대량 PDF 파일 상태
+  
+  // 선주문 대량 등록 관련 상태
+  const [showPreorderBulkModal, setShowPreorderBulkModal] = useState(false);
+  const [preorderExcelFile, setPreorderExcelFile] = useState<File | null>(null);
+  const [preorderParsedData, setPreorderParsedData] = useState<any[]>([]);
+  const [isPreorderProcessing, setIsPreorderProcessing] = useState(false);
+  const [preorderResult, setPreorderResult] = useState<{ total: number; success: number; skipped: number } | null>(null);
   const [newSheet, setNewSheet] = useState({
     title: '',
     artist: '',
@@ -1138,7 +1147,10 @@ const AdminPage: React.FC = () => {
     page_count: 0,
     tempo: 0,
     youtube_url: '',
-    is_active: true
+    is_active: true,
+    preorder_deadline: null as string | null,
+    pdf_url: '',
+    preview_image_url: ''
   });
   const [selectedSheetIds, setSelectedSheetIds] = useState<string[]>([]);
   const [showBulkEditModal, setShowBulkEditModal] = useState(false);
@@ -2003,13 +2015,19 @@ const AdminPage: React.FC = () => {
 
         const { data, error } = await supabase
           .from('drum_sheets')
-          .select('id, title, artist, difficulty, price, category_id, created_at, is_active, thumbnail_url, album_name, page_count, tempo, youtube_url, categories (id, name)')
+          .select('id, title, artist, difficulty, price, category_id, created_at, is_active, thumbnail_url, album_name, page_count, tempo, youtube_url, sales_type, preorder_deadline, categories (id, name)')
           .order('created_at', { ascending: false })
           .range(from, to)
           .limit(pageSize);
 
         if (error) {
-          console.error(`[${page + 1}/${totalPages}] 악보 데이터 로드 오류:`, error);
+          console.error(`[${page + 1}/${totalPages}] 악보 데이터 로드 오류:`, {
+            message: error.message,
+            code: error.code,
+            details: error.details,
+            hint: error.hint,
+            error: error
+          });
           throw error;
         }
 
@@ -2059,7 +2077,13 @@ const AdminPage: React.FC = () => {
             .in('sheet_id', batch);
 
           if (relationError) {
-            console.error('카테고리 관계 조회 오류:', relationError);
+            console.error('카테고리 관계 조회 오류:', {
+              message: relationError.message,
+              code: relationError.code,
+              details: relationError.details,
+              hint: relationError.hint,
+              error: relationError
+            });
           } else if (categoryRelations) {
             categoryRelations.forEach((relation: any) => {
               if (relation.sheet_id && relation.category_id) {
@@ -2086,7 +2110,11 @@ const AdminPage: React.FC = () => {
         console.warn(`⚠️ 경고: 로드된 악보 수(${allSheets.length})와 총 개수(${totalCount})가 일치하지 않습니다.`);
       }
     } catch (error) {
-      console.error('악보 목록 로드 오류:', error);
+      console.error('악보 목록 로드 오류:', {
+        message: error instanceof Error ? error.message : String(error),
+        error: error,
+        stack: error instanceof Error ? error.stack : undefined
+      });
     }
   };
 
@@ -4658,6 +4686,154 @@ const AdminPage: React.FC = () => {
     setShowSheetBulkModal(true);
   };
 
+  // 선주문 대량 등록 시작
+  const startPreorderBulkAdd = () => {
+    setShowPreorderBulkModal(true);
+    setPreorderExcelFile(null);
+    setPreorderParsedData([]);
+    setPreorderResult(null);
+  };
+
+  // 선주문 엑셀 파일 파싱
+  const handlePreorderExcelUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setPreorderExcelFile(file);
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = new Uint8Array(e.target?.result as ArrayBuffer);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
+        const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+        // 필수 컬럼 검증 및 데이터 정리
+        const parsedData = jsonData.map((row: any, index: number) => {
+          return {
+            artist: row.아티스트 || row.artist || row.Artist || '',
+            title: row.곡명 || row.title || row.Title || '',
+            price: parseFloat(row.가격 || row.price || row.Price || 0),
+            category: row.장르 || row.category || row.Category || '',
+            album_image_url: row.앨범이미지URL || row.album_image_url || row.albumImageUrl || null,
+            album_name: row.앨범명 || row.album_name || row.albumName || null,
+            youtube_url: row.유튜브링크 || row.유튜브 || row.youtube_url || row.youtubeUrl || row.youtube || row.YouTube || null,
+            description: row.상세설명 || row.설명 || row.description || row.Description || row.content || row.Content || null,
+          };
+        }).filter((item: any) => {
+          // artist와 title이 존재하고, 빈 문자열이 아니며, 공백만 있는 경우도 제외
+          const hasValidArtist = item.artist && typeof item.artist === 'string' && item.artist.trim().length > 0;
+          const hasValidTitle = item.title && typeof item.title === 'string' && item.title.trim().length > 0;
+          const hasValidPrice = item.price > 0;
+          
+          return hasValidArtist && hasValidTitle && hasValidPrice;
+        });
+
+        setPreorderParsedData(parsedData);
+        console.log(`[선주문 등록] 엑셀 파싱 완료: ${parsedData.length}개 항목`);
+      } catch (error) {
+        console.error('엑셀 파싱 오류:', error);
+        alert('엑셀 파일을 읽는 중 오류가 발생했습니다.');
+        setPreorderExcelFile(null);
+        setPreorderParsedData([]);
+      }
+    };
+
+    reader.onerror = () => {
+      alert('파일을 읽는 중 오류가 발생했습니다.');
+      setPreorderExcelFile(null);
+    };
+
+    reader.readAsArrayBuffer(file);
+  };
+
+  // 선주문 대량 등록 API 호출
+  const processPreorderBulkUpload = async () => {
+    if (preorderParsedData.length === 0) {
+      alert('등록할 데이터가 없습니다.');
+      return;
+    }
+
+    setIsPreorderProcessing(true);
+    setPreorderResult(null);
+
+    try {
+      const response = await fetch('/api/admin/products/bulk-preorder', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          items: preorderParsedData,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || '대량 등록에 실패했습니다.');
+      }
+
+      // skipped 값이 없으면 계산 (폴백 로직)
+      const skippedCount = result.skipped !== undefined 
+        ? result.skipped 
+        : Math.max(0, (result.total || 0) - (result.success || 0));
+
+      setPreorderResult({
+        total: result.total || 0,
+        success: result.success || 0,
+        skipped: skippedCount,
+      });
+
+      // 성공 메시지 표시
+      alert(`총 ${result.total || 0}건 중 ${result.success || 0}건 성공, ${skippedCount}건 중복 건너뜀`);
+
+      // 악보 목록 새로고침
+      await loadSheets();
+
+      // 모달 닫기 (선택사항)
+      // setShowPreorderBulkModal(false);
+    } catch (error) {
+      console.error('선주문 대량 등록 오류:', error);
+      alert(`대량 등록 중 오류가 발생했습니다: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
+    } finally {
+      setIsPreorderProcessing(false);
+    }
+  };
+
+  // 선주문 엑셀 샘플 다운로드
+  const downloadPreorderExcelSample = () => {
+    const sampleData = [
+      {
+        아티스트: 'BTS',
+        곡명: 'Butter',
+        가격: 3000,
+        장르: 'POP',
+        앨범이미지URL: 'https://i.scdn.co/image/...',
+        앨범명: 'Butter',
+        유튜브링크: 'https://www.youtube.com/watch?v=...',
+        상세설명: '', // 선택사항: 비어있으면 자동 생성됨
+      },
+      {
+        아티스트: 'NewJeans',
+        곡명: 'OMG',
+        가격: 3500,
+        장르: 'K-POP',
+        앨범이미지URL: '',
+        앨범명: 'OMG',
+        유튜브링크: '',
+        상세설명: '', // 선택사항: 비어있으면 자동 생성됨
+      },
+    ];
+
+    const ws = XLSX.utils.json_to_sheet(sampleData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+    XLSX.writeFile(wb, '선주문_대량등록_샘플.xlsx');
+  };
+
   const downloadSheetCsvSample = () => {
     const csvContent = `곡명,아티스트,파일명,유튜브링크,장르,가격,템포,앨범명,페이지수,난이도
 ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.youtube.com/watch?v=영상ID,POP,3000,120,,,중급
@@ -6941,6 +7117,13 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
             <i className="ri-file-upload-line w-4 h-4"></i>
             <span>CSV 대량 등록</span>
           </button>
+          <button
+            onClick={startPreorderBulkAdd}
+            className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center space-x-2"
+          >
+            <i className="ri-file-excel-2-line w-4 h-4"></i>
+            <span>선주문 대량 등록 (Excel)</span>
+          </button>
         </div>
       </div>
 
@@ -7124,7 +7307,10 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
                                 page_count: (sheet as any).page_count || 0,
                                 tempo: (sheet as any).tempo || 0,
                                 youtube_url: (sheet as any).youtube_url || '',
-                                is_active: sheet.is_active
+                                is_active: sheet.is_active,
+                                preorder_deadline: (sheet as any).preorder_deadline || null,
+                                pdf_url: (sheet as any).pdf_url || '',
+                                preview_image_url: (sheet as any).preview_image_url || ''
                               });
                             }}
                             className="text-blue-600 hover:text-blue-900 transition-colors"
@@ -7342,6 +7528,137 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
                   )}
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 선주문 대량 등록 모달 */}
+      {showPreorderBulkModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-lg font-semibold text-gray-900">선주문 대량 등록 (Excel)</h3>
+              <button
+                onClick={() => {
+                  setShowPreorderBulkModal(false);
+                  setPreorderExcelFile(null);
+                  setPreorderParsedData([]);
+                  setPreorderResult(null);
+                }}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <i className="ri-close-line w-6 h-6"></i>
+              </button>
+            </div>
+            <div className="space-y-6">
+              {/* 1단계: Excel 파일 선택 */}
+              <div className="bg-purple-50 border border-purple-100 rounded-lg p-4">
+                <h4 className="font-semibold text-purple-900 mb-2">Step 1. Excel 파일 업로드</h4>
+                <div className="flex gap-3 items-center">
+                  <label className="flex-1 cursor-pointer">
+                    <span className="block w-full px-4 py-2 bg-white border border-purple-300 rounded-lg text-purple-700 text-center hover:bg-purple-50 transition-colors">
+                      {preorderExcelFile ? preorderExcelFile.name : 'Excel 파일 선택 (.xlsx, .xls)'}
+                    </span>
+                    <input
+                      type="file"
+                      accept=".xlsx,.xls"
+                      onChange={handlePreorderExcelUpload}
+                      className="hidden"
+                    />
+                  </label>
+                  <button
+                    onClick={downloadPreorderExcelSample}
+                    className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors flex items-center gap-2"
+                  >
+                    <i className="ri-download-line"></i>
+                    <span className="text-sm">샘플</span>
+                  </button>
+                </div>
+                <p className="text-xs text-purple-600 mt-2">
+                  * 필수 컬럼: 아티스트, 곡명, 가격, 장르<br/>
+                  * 선택 컬럼: 앨범이미지URL, 앨범명<br/>
+                  * 중복된 항목(artist + title 조합)은 자동으로 건너뜁니다.
+                </p>
+              </div>
+
+              {/* 데이터 미리보기 및 결과 */}
+              {preorderParsedData.length > 0 && (
+                <div className="border-t border-gray-200 pt-6">
+                  <div className="flex justify-between items-center mb-4">
+                    <div className="text-sm font-medium text-gray-700">
+                      <span className="text-purple-600">총 {preorderParsedData.length}개 데이터 준비됨</span>
+                    </div>
+                  </div>
+
+                  {/* 결과 표시 */}
+                  {preorderResult && (
+                    <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                      <h5 className="font-semibold text-blue-900 mb-2">등록 결과</h5>
+                      <div className="space-y-1 text-sm">
+                        <p className="text-gray-700">총 <span className="font-bold">{preorderResult.total}</span>건</p>
+                        <p className="text-green-700">성공: <span className="font-bold">{preorderResult.success}</span>건</p>
+                        <p className="text-orange-700">건너뜀 (중복): <span className="font-bold">{preorderResult.skipped}</span>건</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 데이터 미리보기 (최대 5개) */}
+                  <div className="mb-4 max-h-48 overflow-y-auto border border-gray-200 rounded-lg">
+                    <table className="w-full text-sm">
+                      <thead className="bg-gray-50 sticky top-0">
+                        <tr>
+                          <th className="px-3 py-2 text-left text-gray-700 font-semibold">아티스트</th>
+                          <th className="px-3 py-2 text-left text-gray-700 font-semibold">곡명</th>
+                          <th className="px-3 py-2 text-left text-gray-700 font-semibold">가격</th>
+                          <th className="px-3 py-2 text-left text-gray-700 font-semibold">장르</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {preorderParsedData.slice(0, 5).map((item, index) => (
+                          <tr key={index} className="border-t border-gray-100">
+                            <td className="px-3 py-2 text-gray-900">{item.artist}</td>
+                            <td className="px-3 py-2 text-gray-900">{item.title}</td>
+                            <td className="px-3 py-2 text-gray-900">{item.price.toLocaleString()}원</td>
+                            <td className="px-3 py-2 text-gray-600">{item.category || '-'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                    {preorderParsedData.length > 5 && (
+                      <p className="text-xs text-gray-500 p-2 text-center">
+                        ... 외 {preorderParsedData.length - 5}개 항목
+                      </p>
+                    )}
+                  </div>
+
+                  <button
+                    onClick={processPreorderBulkUpload}
+                    disabled={isPreorderProcessing}
+                    className={`w-full py-3 rounded-lg font-bold text-white shadow-sm transition-all flex items-center justify-center gap-2 ${
+                      isPreorderProcessing
+                        ? 'bg-gray-400 cursor-not-allowed' 
+                        : 'bg-purple-600 hover:bg-purple-700'
+                    }`}
+                  >
+                    {isPreorderProcessing ? (
+                      <>
+                        <i className="ri-loader-4-line animate-spin text-xl"></i>
+                        <span>처리 중... (잠시만 기다려주세요)</span>
+                      </>
+                    ) : (
+                      <>
+                        <i className="ri-check-double-line text-xl"></i>
+                        <span>
+                          {preorderParsedData.length > 0 
+                            ? `${preorderParsedData.length}개 선주문 상품 일괄 등록 시작하기` 
+                            : 'Excel 파일을 먼저 선택해주세요'}
+                        </span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -7736,12 +8053,16 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
                     difficulty: '초급',
                     price: 0,
                     category_id: '',
+                    category_ids: [],
                     thumbnail_url: '',
                     album_name: '',
                     page_count: 0,
                     tempo: 0,
                     youtube_url: '',
-                    is_active: true
+                    is_active: true,
+                    preorder_deadline: null as string | null,
+                    pdf_url: '',
+                    preview_image_url: ''
                   });
                 }}
                 className="text-gray-400 hover:text-gray-600"
@@ -7877,6 +8198,132 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
               </div>
 
               <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">PDF 파일 업로드</label>
+                <input
+                  type="file"
+                  accept=".pdf"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      try {
+                        setIsUploadingPdf(true);
+                        // 페이지수 추출
+                        const pageCount = await extractPdfPageCount(file);
+                        
+                        // PDF 파일을 Supabase Storage에 업로드
+                        const fileExt = file.name.split('.').pop() || 'pdf';
+                        const sanitizedName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '');
+                        const safeName = sanitizedName.length > 2 
+                          ? sanitizedName 
+                          : `sheet_${Math.random().toString(36).substring(2, 10)}.${fileExt}`;
+                        const fileName = `${Date.now()}_${safeName}`;
+                        const filePath = `pdfs/${fileName}`;
+
+                        const { error: uploadError } = await supabase.storage
+                          .from('drum-sheets')
+                          .upload(filePath, file, {
+                            contentType: 'application/pdf',
+                            upsert: false
+                          });
+
+                        if (uploadError) throw uploadError;
+
+                        const { data: urlData } = await supabase.storage
+                          .from('drum-sheets')
+                          .getPublicUrl(filePath);
+
+                        const pdfUrl = urlData.publicUrl;
+
+                        // 미리보기 이미지 생성 (선택사항)
+                        let previewImageUrl = '';
+                        try {
+                          const arrayBuffer = await file.arrayBuffer();
+                          const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+                          const pdf = await loadingTask.promise;
+                          if (pdf.numPages > 0) {
+                            const page = await pdf.getPage(1);
+                            const viewport = page.getViewport({ scale: 2.0 });
+                            const canvas = document.createElement('canvas');
+                            const context = canvas.getContext('2d');
+                            if (context) {
+                              canvas.width = viewport.width;
+                              canvas.height = viewport.height;
+                              await page.render({
+                                canvasContext: context,
+                                viewport: viewport
+                              }).promise;
+                              const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                              const mosaicImageData = applyMosaicToImageData(imageData, 15);
+                              context.putImageData(mosaicImageData, 0, 0);
+                              const blob = await new Promise<Blob>((resolve, reject) => {
+                                canvas.toBlob((blob) => {
+                                  if (blob) resolve(blob);
+                                  else reject(new Error('Canvas를 Blob으로 변환 실패'));
+                                }, 'image/jpeg', 0.85);
+                              });
+
+                              const imageFileName = `preview_${Date.now()}_${Math.random().toString(36).substring(7)}.jpg`;
+                              const imageFilePath = `previews/${imageFileName}`;
+
+                              const { error: imageUploadError } = await supabase.storage
+                                .from('drum-sheets')
+                                .upload(imageFilePath, blob, {
+                                  contentType: 'image/jpeg',
+                                  upsert: true
+                                });
+
+                              if (!imageUploadError) {
+                                const { data: imageUrlData } = await supabase.storage
+                                  .from('drum-sheets')
+                                  .getPublicUrl(imageFilePath);
+                                previewImageUrl = imageUrlData.publicUrl;
+                              }
+                            }
+                          }
+                        } catch (previewError) {
+                          console.warn('미리보기 이미지 생성 실패:', previewError);
+                        }
+
+                        setEditingSheetData(prev => ({
+                          ...prev,
+                          pdf_url: pdfUrl,
+                          preview_image_url: previewImageUrl || prev.preview_image_url,
+                          page_count: pageCount || prev.page_count
+                        }));
+
+                        alert(`PDF 업로드 완료! 페이지수: ${pageCount}페이지`);
+                      } catch (error: any) {
+                        console.error('PDF 업로드 오류:', error);
+                        alert(`PDF 업로드 중 오류가 발생했습니다: ${error.message || '알 수 없는 오류'}`);
+                      } finally {
+                        setIsUploadingPdf(false);
+                      }
+                    }
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                />
+                {isUploadingPdf && (
+                  <p className="mt-1 text-sm text-blue-600">PDF 업로드 및 처리 중...</p>
+                )}
+                {editingSheetData.pdf_url && (
+                  <p className="mt-1 text-sm text-gray-600">
+                    현재 PDF: <a href={editingSheetData.pdf_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{editingSheetData.pdf_url}</a>
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">PDF URL (직접 입력)</label>
+                <input
+                  type="text"
+                  value={editingSheetData.pdf_url}
+                  onChange={(e) => setEditingSheetData({ ...editingSheetData, pdf_url: e.target.value })}
+                  placeholder="PDF URL을 직접 입력하거나 위에서 파일을 업로드하세요"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                />
+              </div>
+
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">유튜브 URL</label>
                 <input
                   type="text"
@@ -7918,6 +8365,32 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
                 )}
               </div>
 
+              {/* 선주문 완성 예정일 (PREORDER 상품인 경우에만 표시) */}
+              {editingSheet?.sales_type === 'PREORDER' && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    제작 완료 예정일
+                  </label>
+                  <input
+                    type="datetime-local"
+                    value={editingSheetData.preorder_deadline 
+                      ? new Date(editingSheetData.preorder_deadline).toISOString().slice(0, 16)
+                      : ''}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setEditingSheetData({
+                        ...editingSheetData,
+                        preorder_deadline: value ? new Date(value).toISOString() : null
+                      });
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  />
+                  <p className="mt-1 text-xs text-gray-500">
+                    선주문 상품의 완성 예정일을 설정합니다. 고객에게 표시됩니다.
+                  </p>
+                </div>
+              )}
+
               <div>
                 <label className="flex items-center space-x-2">
                   <input
@@ -7947,7 +8420,10 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
                     page_count: 0,
                     tempo: 0,
                     youtube_url: '',
-                    is_active: true
+                    is_active: true,
+                    preorder_deadline: null as string | null,
+                    pdf_url: '',
+                    preview_image_url: ''
                   });
                 }}
                 className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
@@ -7998,12 +8474,35 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
                       updateData.youtube_url = editingSheetData.youtube_url;
                     }
 
-                    const { error } = await supabase
-                      .from('drum_sheets')
-                      .update(updateData)
-                      .eq('id', editingSheet.id);
+                    // 선주문 완성 예정일 업데이트 (PREORDER 상품인 경우)
+                    if (editingSheet.sales_type === 'PREORDER') {
+                      updateData.preorder_deadline = editingSheetData.preorder_deadline;
+                    }
 
-                    if (error) throw error;
+                    // PDF URL 업데이트 감지 (선주문 완료 처리용)
+                    const existingPdfUrl = (editingSheet as any).pdf_url;
+                    const newPdfUrl = updateData.pdf_url;
+                    const isPdfNewlyAdded = editingSheet.sales_type === 'PREORDER' && 
+                                           !existingPdfUrl && 
+                                           newPdfUrl && 
+                                           newPdfUrl.trim();
+
+                    // API를 통해 업데이트 (선주문 완료 처리 포함)
+                    const response = await fetch(`/api/admin/products/${editingSheet.id}`, {
+                      method: 'PATCH',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify(updateData),
+                    });
+
+                    const result = await response.json();
+
+                    if (!response.ok) {
+                      throw new Error(result.error || '상품 업데이트에 실패했습니다.');
+                    }
+
+                    // API 업데이트 성공 후 카테고리 관계 업데이트는 계속 진행
 
                     // drum_sheet_categories 테이블 업데이트
                     // 기존 관계 삭제
@@ -8043,7 +8542,13 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
                       console.warn('category_ids가 비어있습니다.');
                     }
 
-                    alert('악보가 수정되었습니다.');
+                    // 선주문 완료 처리 메시지 표시
+                    if (isPdfNewlyAdded && result.message) {
+                      alert(result.message);
+                    } else {
+                      alert('악보가 수정되었습니다.');
+                    }
+                    
                     setEditingSheet(null);
                     setEditingSheetData({
                       title: '',
@@ -8057,7 +8562,10 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
                       page_count: 0,
                       tempo: 0,
                       youtube_url: '',
-                      is_active: true
+                      is_active: true,
+                      preorder_deadline: null as string | null,
+                      pdf_url: '',
+                      preview_image_url: ''
                     });
                     loadSheets();
                   } catch (error) {

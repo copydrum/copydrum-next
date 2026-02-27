@@ -69,5 +69,17 @@
   "refundPolicyDescription": "Dieses Produkt ist eine digitale PDF Schlagzeug-Notenblatt-Datei. Sobald die Datei heruntergeladen oder aufgerufen wurde, kann sie nicht zurückerstattet werden.",
   "refundPolicyLink": "Rückerstattungs- & Lieferrichtlinie",
   "refundPolicyLinkText": "Für Details überprüfen Sie bitte unsere",
-  "refundPolicyLinkSuffix": ""
+  "refundPolicyLinkSuffix": "",
+  "description": "Beschreibung",
+  "preorderAddToCart": "Vorbestellung zum Warenkorb hinzufügen",
+  "preorderBuyNow": "Prioritätsproduktion anfordern",
+  "preorderPlaceholder": {
+    "title": "Notenblatt befindet sich derzeit in der Produktionswarteschlange",
+    "description": "Wird bei Bestellung vorrangig produziert.",
+    "subtitle": "Vorbestellungsprodukt"
+  },
+  "preorderNotice": {
+    "title": "📦 Hinweis zu Vorbestellungsprodukt",
+    "description": "Dieses Notenblatt ist ein Vorbestellungsprodukt. Die Transkriptionsarbeit beginnt sofort nach Zahlung, und wir werden sie so schnell wie möglich abschließen. Sobald die Arbeit abgeschlossen ist, können Sie sie sofort von Meiner Seite (Kaufhistorie) herunterladen, und Sie können auch den Fortschrittsstatus in Echtzeit überprüfen."
+  }
 }

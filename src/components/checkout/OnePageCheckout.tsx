@@ -16,6 +16,7 @@ export interface CheckoutItem {
   price: number;
   thumbnail_url?: string | null;
   quantity?: number;
+  sales_type?: 'INSTANT' | 'PREORDER';
 }
 
 export interface OnePageCheckoutProps {
@@ -44,6 +45,10 @@ export default function OnePageCheckout({
   const { t, i18n } = useTranslation();
   const [processing, setProcessing] = useState(false);
   const [showPointsForm, setShowPointsForm] = useState(false);
+  const [preorderRefundAgreement, setPreorderRefundAgreement] = useState(false);
+
+  // 선주문 상품이 포함되어 있는지 확인
+  const hasPreorderItems = items.some(item => item.sales_type === 'PREORDER');
 
   // 통화 계산
   const hostname = typeof window !== 'undefined' ? window.location.hostname : 'copydrum.com';
@@ -164,6 +169,35 @@ export default function OnePageCheckout({
               <div className="p-6 space-y-5">
 
                 {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+                {/* ⚠️ 선주문 환불 불가 동의 체크박스 */}
+                {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+                {hasPreorderItems && (
+                  <div className="bg-red-50 border-2 border-red-200 rounded-xl p-4 space-y-3">
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="preorder-refund-agreement"
+                        checked={preorderRefundAgreement}
+                        onChange={(e) => setPreorderRefundAgreement(e.target.checked)}
+                        className="mt-1 w-5 h-5 text-red-600 border-red-300 rounded focus:ring-red-500 focus:ring-2 cursor-pointer"
+                      />
+                      <label
+                        htmlFor="preorder-refund-agreement"
+                        className="flex-1 text-sm leading-relaxed cursor-pointer"
+                      >
+                        <span className="font-bold text-red-700">
+                          장바구니에 선주문 상품이 포함되어 있습니다.
+                        </span>
+                        <br />
+                        <span className="text-red-600">
+                          선주문 상품은 결제 즉시 1:1 맞춤 채보가 시작되므로 단순 변심에 의한 주문 취소 및 환불이 불가능합니다. 이에 동의하십니까?
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+                )}
+
+                {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
                 {/* 🔵 섹션 1: 카드 & 월렛 결제 (메인 결제 수단)  */}
                 {/* ⚠️ 도도페이먼트(해외카드) 숨김, KG이니시스(한국카드)는 표시 */}
                 {/* 한국어: KG이니시스 표시 / 해외: 도도페이먼트 숨김 */}
@@ -179,19 +213,21 @@ export default function OnePageCheckout({
                   </div>
 
                   {/* 카드 결제 버튼 */}
-                  <DodoPaymentForm
-                    orderId={orderId}
-                    amount={totalAmount}
-                    orderName={items.length === 1 ? items[0].title : `${items.length} items`}
-                    items={items}
-                    userId={userId}
-                    customerEmail={userEmail}
-                    customerName={userName}
-                    onSuccess={(paymentId, dbOrderId) => handlePaymentComplete('card', paymentId, dbOrderId)}
-                    onError={handlePaymentFailed}
-                    onProcessing={handlePaymentStart}
-                    compact
-                  />
+                  <div className={hasPreorderItems && !preorderRefundAgreement ? 'opacity-50 pointer-events-none' : ''}>
+                    <DodoPaymentForm
+                      orderId={orderId}
+                      amount={totalAmount}
+                      orderName={items.length === 1 ? items[0].title : `${items.length} items`}
+                      items={items}
+                      userId={userId}
+                      customerEmail={userEmail}
+                      customerName={userName}
+                      onSuccess={(paymentId, dbOrderId) => handlePaymentComplete('card', paymentId, dbOrderId)}
+                      onError={handlePaymentFailed}
+                      onProcessing={handlePaymentStart}
+                      compact
+                    />
+                  </div>
                 </div>
                 )}
 
@@ -223,35 +259,39 @@ export default function OnePageCheckout({
                   </div>
 
                   {/* PayPal SPB 버튼 */}
-                  <PayPalPaymentButton
-                    orderId={orderId}
-                    amount={totalAmount}
-                    items={items}
-                    onSuccess={(paymentId, dbOrderId) => handlePaymentComplete('paypal', paymentId, dbOrderId)}
-                    onError={handlePaymentFailed}
-                    onProcessing={handlePaymentStart}
-                    compact
-                  />
+                  <div className={hasPreorderItems && !preorderRefundAgreement ? 'opacity-50 pointer-events-none' : ''}>
+                    <PayPalPaymentButton
+                      orderId={orderId}
+                      amount={totalAmount}
+                      items={items}
+                      onSuccess={(paymentId, dbOrderId) => handlePaymentComplete('paypal', paymentId, dbOrderId)}
+                      onError={handlePaymentFailed}
+                      onProcessing={handlePaymentStart}
+                      compact
+                    />
+                  </div>
                 </div>
                 )}
 
                 {/* ━━━ 카카오페이 버튼 (한국어 페이지에서만 표시) ━━━ */}
                 {i18n.language === 'ko' && (
-                <KakaoPayButton
-                  orderId={orderId}
-                  amount={totalAmount}
-                  orderName={items.length === 1 ? items[0].title : `${items.length} items`}
-                  items={items.map((item) => ({
-                    sheet_id: item.sheet_id,
-                    title: item.title,
-                    price: item.price,
-                  }))}
-                  userEmail={userEmail}
-                  onSuccess={(paymentId, dbOrderId) => handlePaymentComplete('kakaopay', paymentId, dbOrderId)}
-                  onError={handlePaymentFailed}
-                  onProcessing={handlePaymentStart}
-                  compact
-                />
+                <div className={hasPreorderItems && !preorderRefundAgreement ? 'opacity-50 pointer-events-none' : ''}>
+                  <KakaoPayButton
+                    orderId={orderId}
+                    amount={totalAmount}
+                    orderName={items.length === 1 ? items[0].title : `${items.length} items`}
+                    items={items.map((item) => ({
+                      sheet_id: item.sheet_id,
+                      title: item.title,
+                      price: item.price,
+                    }))}
+                    userEmail={userEmail}
+                    onSuccess={(paymentId, dbOrderId) => handlePaymentComplete('kakaopay', paymentId, dbOrderId)}
+                    onError={handlePaymentFailed}
+                    onProcessing={handlePaymentStart}
+                    compact
+                  />
+                </div>
                 )}
 
                 {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
@@ -279,7 +319,7 @@ export default function OnePageCheckout({
                     </button>
 
                     {showPointsForm && (
-                      <div className="mt-3">
+                      <div className={`mt-3 ${hasPreorderItems && !preorderRefundAgreement ? 'opacity-50 pointer-events-none' : ''}`}>
                         <PointsPaymentForm
                           orderId={orderId}
                           amount={totalAmount}

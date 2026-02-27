@@ -90,5 +90,6 @@
   "sheetNotFound": "Partitura não encontrada.",
   "loginRequired": "Por favor, faça login para continuar.",
   "favoriteError": "Ocorreu um erro ao processar os favoritos. Por favor, tente novamente.",
-  "addedToCart": "Adicionado ao carrinho com sucesso!"
+  "addedToCart": "Adicionado ao carrinho com sucesso!",
+  "viewDetails": "Ver Detalhes"
 }

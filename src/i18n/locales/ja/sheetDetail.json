@@ -69,5 +69,17 @@
   "refundPolicyDescription": "本商品はデジタルPDFドラム楽譜ファイルであり、ファイルのダウンロードまたは閲覧が行われた場合、返金はできません。",
   "refundPolicyLink": "返金および提供（配送）ポリシー",
   "refundPolicyLinkText": "詳細は",
-  "refundPolicyLinkSuffix": "をご確認ください。"
+  "refundPolicyLinkSuffix": "をご確認ください。",
+  "description": "詳細説明",
+  "preorderAddToCart": "予約注文をカートに追加",
+  "preorderBuyNow": "優先制作を申請",
+  "preorderPlaceholder": {
+    "title": "現在制作待ちの楽譜です",
+    "description": "ご注文時に優先的に制作されます。",
+    "subtitle": "予約注文商品"
+  },
+  "preorderNotice": {
+    "title": "📦 予約注文商品のご案内",
+    "description": "本楽譜は予約注文商品です。お支払い完了即座に楽譜作成作業が開始され、できる限り迅速に完成させていただきます。作業が完了次第、マイページ（購入履歴）からすぐにダウンロードでき、リアルタイムの進行状況も確認可能です。"
+  }
 }

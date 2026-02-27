@@ -90,5 +90,6 @@
   "sheetNotFound": "Partition introuvable.",
   "loginRequired": "Veuillez vous connecter pour continuer.",
   "favoriteError": "Une erreur s'est produite lors du traitement des favoris. Veuillez réessayer.",
-  "addedToCart": "Ajouté au panier avec succès !"
+  "addedToCart": "Ajouté au panier avec succès !",
+  "viewDetails": "Voir les Détails"
 }

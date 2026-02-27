@@ -91,6 +91,7 @@
   "favoriteError": "An error occurred while processing favorites. Please try again.",
   "addedToCart": "Added to cart successfully!",
   "paginationLimitTitle": "Latest sheets per genre are shown up to page 10.",
-  "paginationLimitDescription": "Use search to see more sheet music."
+  "paginationLimitDescription": "Use search to see more sheet music.",
+  "viewDetails": "View Details"
 }
 

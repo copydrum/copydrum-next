@@ -69,5 +69,17 @@
   "refundPolicyDescription": "Ce produit est un fichier de partition de batterie numérique en PDF. Une fois que le fichier a été téléchargé ou consulté, il ne peut pas être remboursé.",
   "refundPolicyLink": "Politique de Remboursement et de Livraison",
   "refundPolicyLinkText": "Pour plus de détails, veuillez consulter notre",
-  "refundPolicyLinkSuffix": ""
+  "refundPolicyLinkSuffix": "",
+  "description": "Description",
+  "preorderAddToCart": "Ajouter la Précommande au Panier",
+  "preorderBuyNow": "Demander une Production Prioritaire",
+  "preorderPlaceholder": {
+    "title": "Partition actuellement en file d'attente de production",
+    "description": "Sera produite en priorité lors de la commande.",
+    "subtitle": "Produit en Précommande"
+  },
+  "preorderNotice": {
+    "title": "📦 Avis sur le Produit en Précommande",
+    "description": "Cette partition est un produit en précommande. Le travail de transcription commence immédiatement après le paiement, et nous le terminerons le plus rapidement possible. Une fois le travail terminé, vous pouvez le télécharger immédiatement depuis Ma Page (Historique des Achats), et vous pouvez également vérifier le statut de progression en temps réel."
+  }
 }

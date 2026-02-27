@@ -60,6 +60,8 @@ interface SheetInfo {
   pdf_url: string | null;
   preview_image_url: string | null;
   slug: string | null;
+  sales_type?: 'INSTANT' | 'PREORDER' | null;
+  preorder_deadline?: string | null;
   categories?: CategoryInfo | null;
 }
 
@@ -395,6 +397,8 @@ export default function MyPage() {
               pdf_url,
               preview_image_url,
               slug,
+              sales_type,
+              preorder_deadline,
               categories (
                 name
               )
@@ -444,6 +448,8 @@ export default function MyPage() {
                 pdf_url: item.drum_sheets.pdf_url,
                 preview_image_url: item.drum_sheets.preview_image_url,
                 slug: item.drum_sheets.slug,
+                sales_type: item.drum_sheets.sales_type ?? null,
+                preorder_deadline: item.drum_sheets.preorder_deadline ?? null,
                 categories: item.drum_sheets.categories,
               }
               : null,
@@ -1472,16 +1478,44 @@ export default function MyPage() {
                                               ? `${(item.price ?? 0).toLocaleString('en-US')} P`
                                               : formatCurrency(item.price ?? 0)}
                                           </span>
-                                          <button
-                                            onClick={() => handleDownload(downloadItem)}
-                                            disabled={isDownloading}
-                                            className={`px-3 py-2 rounded-lg text-sm font-semibold text-white transition ${isDownloading
-                                              ? 'bg-blue-300 cursor-not-allowed'
-                                              : 'bg-blue-600 hover:bg-blue-700'
-                                              }`}
-                                          >
-                                            {isDownloading ? t('mypage.purchases.downloading') : t('mypage.purchases.download')}
-                                          </button>
+                                          {(() => {
+                                            const isPreorder = item.drum_sheets?.sales_type === 'PREORDER';
+                                            const deadline = item.drum_sheets?.preorder_deadline;
+                                            
+                                            if (isPreorder) {
+                                              // 선주문 상품: 비활성화된 버튼 + 완성 예정일 표시
+                                              let buttonText = '⏳ 채보 진행 중';
+                                              if (deadline) {
+                                                const deadlineDate = new Date(deadline);
+                                                const month = (deadlineDate.getMonth() + 1).toString().padStart(2, '0');
+                                                const day = deadlineDate.getDate().toString().padStart(2, '0');
+                                                buttonText = `⏳ 채보 진행 중 (~${month}/${day} 완성 예정)`;
+                                              }
+                                              
+                                              return (
+                                                <button
+                                                  disabled={true}
+                                                  className="px-3 py-2 rounded-lg text-sm font-semibold text-white bg-gray-400 cursor-not-allowed"
+                                                >
+                                                  {buttonText}
+                                                </button>
+                                              );
+                                            } else {
+                                              // 일반 상품: 기존 다운로드 버튼
+                                              return (
+                                                <button
+                                                  onClick={() => handleDownload(downloadItem)}
+                                                  disabled={isDownloading}
+                                                  className={`px-3 py-2 rounded-lg text-sm font-semibold text-white transition ${isDownloading
+                                                    ? 'bg-blue-300 cursor-not-allowed'
+                                                    : 'bg-blue-600 hover:bg-blue-700'
+                                                    }`}
+                                                >
+                                                  {isDownloading ? t('mypage.purchases.downloading') : t('mypage.purchases.download')}
+                                                </button>
+                                              );
+                                            }
+                                          })()}
                                           <button
                                             onClick={() => handleGoToSheet(item.drum_sheets?.slug || '', item.sheet_id)}
                                             className="px-3 py-2 rounded-lg border border-gray-300 text-sm font-semibold text-gray-700 hover:bg-gray-50"

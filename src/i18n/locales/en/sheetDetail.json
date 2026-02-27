@@ -69,7 +69,19 @@
   "refundPolicyDescription": "This product is a digital PDF drum sheet music file. Once the file has been downloaded or accessed, it cannot be refunded.",
   "refundPolicyLink": "Refund & Delivery Policy",
   "refundPolicyLinkText": "For details, please check our",
-  "refundPolicyLinkSuffix": ""
+  "refundPolicyLinkSuffix": "",
+  "description": "Description",
+  "preorderAddToCart": "Add Pre-order to Cart",
+  "preorderBuyNow": "Request Priority Production",
+  "preorderPlaceholder": {
+    "title": "Sheet music currently in production queue",
+    "description": "Will be produced with priority upon order.",
+    "subtitle": "Pre-order Product"
+  },
+  "preorderNotice": {
+    "title": "📦 Pre-order Product Notice",
+    "description": "This sheet music is a pre-order product. Transcription work begins immediately upon payment completion, and we will complete it as quickly as possible. Once the work is completed, you can download it immediately from My Page (Purchase History), and you can also check the real-time progress status."
+  }
 }
 
 

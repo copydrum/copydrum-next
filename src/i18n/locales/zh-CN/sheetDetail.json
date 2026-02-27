@@ -69,5 +69,17 @@
   "refundPolicyDescription": "此产品是数字PDF鼓谱乐谱文件。一旦文件已被下载或访问，则无法退款。",
   "refundPolicyLink": "退款与交付政策",
   "refundPolicyLinkText": "详情请查看我们的",
-  "refundPolicyLinkSuffix": ""
+  "refundPolicyLinkSuffix": "",
+  "description": "详细说明",
+  "preorderAddToCart": "加入预购购物车",
+  "preorderBuyNow": "申请优先制作",
+  "preorderPlaceholder": {
+    "title": "当前正在制作队列中的乐谱",
+    "description": "下单时将优先制作。",
+    "subtitle": "预购商品"
+  },
+  "preorderNotice": {
+    "title": "📦 预购商品通知",
+    "description": "本乐谱为预购商品。付款完成后将立即开始制作，我们会尽快完成。制作完成后，您可以在我的页面（购买历史）中立即下载，也可以查看实时进度状态。"
+  }
 }

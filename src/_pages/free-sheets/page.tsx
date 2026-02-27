@@ -76,6 +76,7 @@ const SHEET_SELECT_FIELDS = `
   pdf_url,
   page_count,
   slug,
+  sales_type,
   categories (
     name
   )

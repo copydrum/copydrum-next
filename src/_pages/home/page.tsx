@@ -25,6 +25,7 @@ interface DrumSheet {
   is_featured?: boolean;
   category_id?: string;
   slug: string;
+  sales_type?: 'INSTANT' | 'PREORDER';
 }
 
 interface Category {
@@ -91,7 +92,7 @@ export default function Home() {
       
       let query = supabase
         .from('drum_sheets')
-        .select('id, title, artist, price, thumbnail_url, youtube_url, category_id, slug')
+        .select('id, title, artist, price, thumbnail_url, youtube_url, category_id, slug, sales_type')
         .eq('is_active', true);
 
       // 카테고리를 찾았으면 해당 장르로 필터링
@@ -796,7 +797,15 @@ export default function Home() {
                           <i className={`ri-heart-${isFavorite ? 'fill' : 'line'} text-base`} />
                         </button>
                         <div className="absolute bottom-0 left-0 right-0 px-2 pb-2 text-center text-white">
-                          <h4 className="text-sm font-bold line-clamp-2 leading-tight">{sheet.title}</h4>
+                          <div className="flex items-center justify-center gap-2 flex-wrap">
+                            <h4 className="text-sm font-bold line-clamp-2 leading-tight">{sheet.title}</h4>
+                            {/* Pre-order 뱃지 (제목 옆) */}
+                            {sheet.sales_type === 'PREORDER' && (
+                              <span className="inline-flex items-center px-2 py-0.5 text-xs font-bold bg-purple-100 text-purple-700 rounded-full border border-purple-200 whitespace-nowrap">
+                                {t('common.badge_preorder', 'Pre-order')}
+                              </span>
+                            )}
+                          </div>
                           <p className="text-xs text-white/80 line-clamp-1 mt-0.5">{sheet.artist}</p>
                         </div>
                       </div>

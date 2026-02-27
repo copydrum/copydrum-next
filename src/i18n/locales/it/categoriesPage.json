@@ -90,5 +90,6 @@
   "sheetNotFound": "Spartito non trovato.",
   "loginRequired": "Accedi per continuare.",
   "favoriteError": "Si è verificato un errore durante l'elaborazione dei preferiti. Riprova.",
-  "addedToCart": "Aggiunto al carrello con successo!"
+  "addedToCart": "Aggiunto al carrello con successo!",
+  "viewDetails": "Visualizza Dettagli"
 }
