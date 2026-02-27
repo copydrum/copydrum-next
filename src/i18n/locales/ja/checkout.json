@@ -37,5 +37,7 @@
   "securePayment": "SSL暗号化による安全な決済",
   "poweredBy": "{{provider}}による提供",
   "creditDebitWallets": "クレジット/デビットカード & ウォレット",
-  "localCardsSupported": "+ ローカルカード対応"
+  "localCardsSupported": "+ ローカルカード対応",
+  "preorderConsentTitle": "カートに予約注文商品が含まれています。",
+  "preorderConsentDescription": "予約注文商品は支払い完了後、即座に1対1のカスタム採譜作業が開始されるため、単純な気持ちの変更による注文キャンセルおよび返金はできません。これに同意されますか？"
 }

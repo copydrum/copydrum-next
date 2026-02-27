@@ -37,5 +37,7 @@
   "securePayment": "Bezpieczna płatność z szyfrowaniem SSL",
   "poweredBy": "Obsługiwane przez {{provider}}",
   "creditDebitWallets": "Karta Kredytowa/Debetowa & Portfele",
-  "localCardsSupported": "+ Obsługa kart lokalnych"
+  "localCardsSupported": "+ Obsługa kart lokalnych",
+  "preorderConsentTitle": "Twój koszyk zawiera produkty przedpłaty.",
+  "preorderConsentDescription": "Produkty przedpłaty rozpoczynają spersonalizowaną transkrypcję 1:1 natychmiast po płatności, dlatego anulowanie zamówienia i zwroty z powodu prostej zmiany zdania nie są możliwe. Czy się z tym zgadzasz?"
 }

@@ -37,5 +37,7 @@
   "securePayment": "Pago seguro con cifrado SSL",
   "poweredBy": "Desarrollado por {{provider}}",
   "creditDebitWallets": "Tarjeta de Crédito/Débito & Billeteras",
-  "localCardsSupported": "+ Tarjetas locales aceptadas"
+  "localCardsSupported": "+ Tarjetas locales aceptadas",
+  "preorderConsentTitle": "Su carrito contiene artículos de pre-pedido.",
+  "preorderConsentDescription": "Los artículos de pre-pedido comienzan la transcripción personalizada 1:1 inmediatamente después del pago, por lo que la cancelación de pedidos y reembolsos por simple cambio de opinión no son posibles. ¿Está de acuerdo con esto?"
 }

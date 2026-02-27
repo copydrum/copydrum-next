@@ -37,5 +37,7 @@
   "securePayment": "دفع آمن مع تشفير SSL",
   "poweredBy": "مدعوم من {{provider}}",
   "creditDebitWallets": "بطاقة ائتمان/خصم & محافظ إلكترونية",
-  "localCardsSupported": "+ دعم البطاقات المحلية"
+  "localCardsSupported": "+ دعم البطاقات المحلية",
+  "preorderConsentTitle": "سلة التسوق الخاصة بك تحتوي على منتجات الطلب المسبق.",
+  "preorderConsentDescription": "منتجات الطلب المسبق تبدأ عمل النسخ المخصص 1:1 فورًا بعد الدفع، لذلك إلغاء الطلب والاسترداد بسبب تغيير بسيط في الرأي غير ممكن. هل توافق على ذلك؟"
 }

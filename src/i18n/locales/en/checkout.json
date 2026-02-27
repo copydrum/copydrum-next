@@ -38,5 +38,7 @@
   "poweredBy": "Powered by {{provider}}",
   "removeItem": "Remove",
   "creditDebitWallets": "Credit/Debit Card & Wallets",
-  "localCardsSupported": "+ Local Cards Supported"
+  "localCardsSupported": "+ Local Cards Supported",
+  "preorderConsentTitle": "Your cart contains pre-order items.",
+  "preorderConsentDescription": "Pre-order items begin 1:1 custom transcription immediately upon payment, so order cancellation and refunds due to simple change of mind are not possible. Do you agree to this?"
 }

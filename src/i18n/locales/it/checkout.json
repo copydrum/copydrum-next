@@ -37,5 +37,7 @@
   "securePayment": "Pagamento sicuro con crittografia SSL",
   "poweredBy": "Fornito da {{provider}}",
   "creditDebitWallets": "Carta di Credito/Debito & Portafogli",
-  "localCardsSupported": "+ Carte locali supportate"
+  "localCardsSupported": "+ Carte locali supportate",
+  "preorderConsentTitle": "Il tuo carrello contiene articoli in pre-ordine.",
+  "preorderConsentDescription": "Gli articoli in pre-ordine iniziano la trascrizione personalizzata 1:1 immediatamente dopo il pagamento, quindi la cancellazione dell'ordine e i rimborsi dovuti a un semplice cambio di idea non sono possibili. Sei d'accordo con questo?"
 }

@@ -37,5 +37,7 @@
   "securePayment": "SSL加密安全付款",
   "poweredBy": "由{{provider}}提供支援",
   "creditDebitWallets": "信用卡/金融卡 & 電子錢包",
-  "localCardsSupported": "+ 支援當地銀行卡"
+  "localCardsSupported": "+ 支援當地銀行卡",
+  "preorderConsentTitle": "購物車中包含預購商品。",
+  "preorderConsentDescription": "預購商品在付款完成後立即開始1對1定制製譜工作，因此因單純改變主意而導致的訂單取消和退款是不可能的。您同意這一點嗎？"
 }

@@ -37,5 +37,7 @@
   "securePayment": "Sichere SSL-verschlüsselte Zahlung",
   "poweredBy": "Bereitgestellt von {{provider}}",
   "creditDebitWallets": "Kredit-/Debitkarte & Wallets",
-  "localCardsSupported": "+ Lokale Karten unterstützt"
+  "localCardsSupported": "+ Lokale Karten unterstützt",
+  "preorderConsentTitle": "Ihr Warenkorb enthält Vorbestellungsartikel.",
+  "preorderConsentDescription": "Vorbestellungsartikel beginnen die 1:1 maßgeschneiderte Transkription sofort nach Zahlung, daher sind Bestellstornierungen und Rückerstattungen aufgrund einfacher Meinungsänderung nicht möglich. Stimmen Sie dem zu?"
 }

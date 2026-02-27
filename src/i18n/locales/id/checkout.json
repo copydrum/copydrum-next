@@ -37,5 +37,7 @@
   "securePayment": "Pembayaran aman dengan enkripsi SSL",
   "poweredBy": "Didukung oleh {{provider}}",
   "creditDebitWallets": "Kartu Kredit/Debit & Dompet Digital",
-  "localCardsSupported": "+ Kartu lokal didukung"
+  "localCardsSupported": "+ Kartu lokal didukung",
+  "preorderConsentTitle": "Keranjang Anda berisi item pra-pesanan.",
+  "preorderConsentDescription": "Item pra-pesanan memulai pekerjaan transkripsi kustom 1:1 segera setelah pembayaran, sehingga pembatalan pesanan dan pengembalian dana karena perubahan pikiran sederhana tidak mungkin dilakukan. Apakah Anda setuju dengan ini?"
 }

@@ -37,5 +37,7 @@
   "securePayment": "SSL şifreli güvenli ödeme",
   "poweredBy": "{{provider}} tarafından desteklenmektedir",
   "creditDebitWallets": "Kredi/Banka Kartı & Cüzdanlar",
-  "localCardsSupported": "+ Yerel kartlar desteklenir"
+  "localCardsSupported": "+ Yerel kartlar desteklenir",
+  "preorderConsentTitle": "Sepetinizde ön sipariş ürünleri bulunmaktadır.",
+  "preorderConsentDescription": "Ön sipariş ürünleri ödeme sonrası hemen 1:1 özel transkripsiyon çalışmasına başlar, bu nedenle basit fikir değişikliği nedeniyle sipariş iptali ve iade mümkün değildir. Buna katılıyor musunuz?"
 }

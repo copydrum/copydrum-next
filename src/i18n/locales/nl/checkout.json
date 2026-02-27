@@ -37,5 +37,7 @@
   "securePayment": "Veilige betaling met SSL-versleuteling",
   "poweredBy": "Mogelijk gemaakt door {{provider}}",
   "creditDebitWallets": "Creditcard/Debetkaart & Wallets",
-  "localCardsSupported": "+ Lokale kaarten ondersteund"
+  "localCardsSupported": "+ Lokale kaarten ondersteund",
+  "preorderConsentTitle": "Uw winkelwagen bevat pre-order artikelen.",
+  "preorderConsentDescription": "Pre-order artikelen beginnen onmiddellijk na betaling met 1:1 aangepaste transcriptie, daarom zijn orderannulering en terugbetalingen vanwege eenvoudige verandering van gedachten niet mogelijk. Gaat u hiermee akkoord?"
 }

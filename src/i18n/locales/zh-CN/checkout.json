@@ -37,5 +37,7 @@
   "securePayment": "SSL加密安全支付",
   "poweredBy": "由{{provider}}提供支持",
   "creditDebitWallets": "信用卡/借记卡 & 电子钱包",
-  "localCardsSupported": "+ 支持本地银行卡"
+  "localCardsSupported": "+ 支持本地银行卡",
+  "preorderConsentTitle": "购物车中包含预购商品。",
+  "preorderConsentDescription": "预购商品在付款完成后立即开始1对1定制制谱工作，因此因单纯改变主意而导致的订单取消和退款是不可能的。您同意这一点吗？"
 }

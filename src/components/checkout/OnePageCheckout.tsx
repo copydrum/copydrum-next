@@ -186,11 +186,11 @@ export default function OnePageCheckout({
                         className="flex-1 text-sm leading-relaxed cursor-pointer"
                       >
                         <span className="font-bold text-red-700">
-                          장바구니에 선주문 상품이 포함되어 있습니다.
+                          {t('checkout.preorderConsentTitle')}
                         </span>
                         <br />
                         <span className="text-red-600">
-                          선주문 상품은 결제 즉시 1:1 맞춤 채보가 시작되므로 단순 변심에 의한 주문 취소 및 환불이 불가능합니다. 이에 동의하십니까?
+                          {t('checkout.preorderConsentDescription')}
                         </span>
                       </label>
                     </div>

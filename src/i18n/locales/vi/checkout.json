@@ -37,5 +37,7 @@
   "securePayment": "Thanh toán an toàn với mã hóa SSL",
   "poweredBy": "Được cung cấp bởi {{provider}}",
   "creditDebitWallets": "Thẻ Tín dụng/Ghi nợ & Ví điện tử",
-  "localCardsSupported": "+ Hỗ trợ thẻ nội địa"
+  "localCardsSupported": "+ Hỗ trợ thẻ nội địa",
+  "preorderConsentTitle": "Giỏ hàng của bạn chứa các sản phẩm đặt trước.",
+  "preorderConsentDescription": "Các sản phẩm đặt trước bắt đầu công việc phiên âm tùy chỉnh 1:1 ngay sau khi thanh toán, do đó việc hủy đơn hàng và hoàn tiền do đơn giản thay đổi ý định là không thể. Bạn có đồng ý với điều này không?"
 }

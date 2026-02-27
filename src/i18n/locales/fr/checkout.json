@@ -37,5 +37,7 @@
   "securePayment": "Paiement sécurisé avec cryptage SSL",
   "poweredBy": "Propulsé par {{provider}}",
   "creditDebitWallets": "Carte de Crédit/Débit & Portefeuilles",
-  "localCardsSupported": "+ Cartes locales acceptées"
+  "localCardsSupported": "+ Cartes locales acceptées",
+  "preorderConsentTitle": "Votre panier contient des articles en précommande.",
+  "preorderConsentDescription": "Les articles en précommande commencent la transcription personnalisée 1:1 immédiatement après le paiement, donc l'annulation de commande et les remboursements dus à un simple changement d'avis ne sont pas possibles. Êtes-vous d'accord avec cela ?"
 }
