@@ -312,7 +312,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 4. 이미 완료된 주문인지 확인
-    if (order.status === 'completed') {
+    if (order.status === 'completed' && order.payment_status === 'paid') {
       console.log('[verify] ✅ 이미 완료된 주문:', order.id);
       return NextResponse.json({
         success: true,
@@ -321,49 +321,69 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // 5. 주문 상태 업데이트 (payment_method 포함)
+    // 5. completeOrderAfterPayment 호출 (예상 완료일 계산 및 저장 포함, 주문 상태 업데이트도 처리)
     const resolvedPaymentMethod = paymentMethod || order.payment_method || 'paypal';
-    const { data: updatedOrder, error: updateError } = await supabase
-      .from('orders')
-      .update({
-        status: 'completed',
-        payment_status: 'paid',
-        payment_method: resolvedPaymentMethod, // ✅ 결제수단 명시적 업데이트
-        transaction_id: paymentId,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', order.id)
-      .select()
-      .single();
-
-    if (updateError) {
-      console.error('[verify] ❌ 주문 업데이트 실패:', {
-        error: updateError,
-        code: updateError.code,
-        message: updateError.message,
-        details: updateError.details,
-        hint: updateError.hint,
-        orderId: order.id,
-        paymentId,
+    try {
+      const { completeOrderAfterPayment } = await import('@/lib/payments/completeOrderAfterPayment');
+      await completeOrderAfterPayment(order.id, resolvedPaymentMethod as any, {
+        transactionId: paymentId,
+        paymentConfirmedAt: new Date().toISOString(),
+        paymentProvider: 'portone',
       });
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: '주문 업데이트에 실패했습니다.',
-          details: updateError.message,
+      console.log('[verify] ✅ completeOrderAfterPayment 처리 완료');
+    } catch (completeError) {
+      console.error('[verify] ⚠️ completeOrderAfterPayment 처리 실패, 직접 업데이트 시도:', completeError);
+      
+      // Fallback: completeOrderAfterPayment 실패 시 직접 업데이트
+      const { data: updatedOrder, error: updateError } = await supabase
+        .from('orders')
+        .update({
+          status: 'completed',
+          payment_status: 'paid',
+          payment_method: resolvedPaymentMethod,
+          transaction_id: paymentId,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', order.id)
+        .select()
+        .single();
+
+      if (updateError) {
+        console.error('[verify] ❌ 주문 업데이트 실패:', {
+          error: updateError,
           code: updateError.code,
-        },
-        { status: 500 }
-      );
+          message: updateError.message,
+          details: updateError.details,
+          hint: updateError.hint,
+          orderId: order.id,
+          paymentId,
+        });
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: '주문 업데이트에 실패했습니다.',
+            details: updateError.message,
+            code: updateError.code,
+          },
+          { status: 500 }
+        );
+      }
     }
 
+    // 주문 정보 다시 조회 (completeOrderAfterPayment가 업데이트했을 수 있음)
+    const { data: updatedOrder } = await supabase
+      .from('orders')
+      .select()
+      .eq('id', order.id)
+      .single();
+
     console.log('[verify] ✅ 결제 검증 완료:', {
-      orderId: updatedOrder.id,
+      orderId: updatedOrder?.id || order.id,
       paymentId,
       paymentMethod: resolvedPaymentMethod,
     });
 
-    // 6. purchases 테이블에 구매 기록 삽입
+    // 7. purchases 테이블에 구매 기록 삽입 (중복 방지를 위해 completeOrderAfterPayment 이후에)
     try {
       const { data: orderItems, error: itemsError } = await supabase
         .from('order_items')

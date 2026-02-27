@@ -19,18 +19,38 @@ function createAdminClient() {
  */
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { orderId: string } }
+  { params }: { params: Promise<{ orderId: string }> | { orderId: string } }
 ) {
   try {
-    const { orderId } = params;
+    // Next.js App Router에서 params가 Promise일 수 있으므로 처리
+    const resolvedParams = params instanceof Promise ? await params : params;
+    const orderId = resolvedParams.orderId;
+    
+    // URL에서 직접 파싱하는 fallback 방법
+    let finalOrderId = orderId;
+    if (!finalOrderId) {
+      const url = request.nextUrl.pathname;
+      const match = url.match(/\/api\/orders\/([^\/]+)\/expected-completion-date/);
+      if (match && match[1]) {
+        finalOrderId = match[1];
+        console.log('[update-expected-completion-date] URL에서 orderId 추출:', finalOrderId);
+      }
+    }
+    
     const { expected_completion_date } = await request.json();
 
-    if (!orderId) {
+    if (!finalOrderId) {
+      console.error('[update-expected-completion-date] orderId 추출 실패:', {
+        params: resolvedParams,
+        url: request.nextUrl.pathname,
+      });
       return NextResponse.json(
         { success: false, error: '주문 ID가 필요합니다.' },
         { status: 400 }
       );
     }
+    
+    const orderId = finalOrderId;
 
     if (!expected_completion_date) {
       return NextResponse.json(

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { completeOrderAfterPayment } from '@/lib/payments/completeOrderAfterPayment';
 
 export async function POST(request: NextRequest) {
   try {
@@ -60,24 +61,36 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Update order status in database
-    const { error: updateError } = await supabase
-      .from('orders')
-      .update({
-        status: 'completed',
-        payment_status: 'paid',
-        payment_method: 'paypal',
-        payment_id: orderID,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', orderId);
+    // completeOrderAfterPayment 사용 (예상 완료일 계산 및 저장 포함)
+    try {
+      await completeOrderAfterPayment(orderId, 'paypal' as any, {
+        transactionId: orderID,
+        paymentConfirmedAt: new Date().toISOString(),
+        paymentProvider: 'paypal',
+      });
+      console.log('[PayPal Capture] ✅ completeOrderAfterPayment 처리 완료');
+    } catch (completeError) {
+      console.error('[PayPal Capture] ⚠️ completeOrderAfterPayment 실패, 직접 업데이트 시도:', completeError);
+      
+      // Fallback: completeOrderAfterPayment 실패 시 직접 업데이트
+      const { error: updateError } = await supabase
+        .from('orders')
+        .update({
+          status: 'completed',
+          payment_status: 'paid',
+          payment_method: 'paypal',
+          payment_id: orderID,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', orderId);
 
-    if (updateError) {
-      console.error('[PayPal] Database update error:', updateError);
-      return NextResponse.json(
-        { success: false, error: 'Failed to update order status' },
-        { status: 500 }
-      );
+      if (updateError) {
+        console.error('[PayPal] Database update error:', updateError);
+        return NextResponse.json(
+          { success: false, error: 'Failed to update order status' },
+          { status: 500 }
+        );
+      }
     }
 
     return NextResponse.json({

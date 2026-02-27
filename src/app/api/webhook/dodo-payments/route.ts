@@ -169,36 +169,49 @@ async function completeOrder(
   // 이미 completed인지 확인 (중복 방지)
   const { data: existingOrder } = await supabase
     .from("orders")
-    .select("status")
+    .select("status, payment_status")
     .eq("id", orderId)
     .single();
 
-  if (existingOrder?.status === "completed") {
+  if (existingOrder?.status === "completed" && existingOrder?.payment_status === "paid") {
     console.log("[dodo-webhook] Order already completed, skipping:", orderId);
     return;
   }
 
-  // 1. 주문 상태 업데이트
-  const { error: updateError } = await supabase
-    .from("orders")
-    .update({
-      status: "completed",
-      payment_status: "paid",
-      payment_method: "dodo",
-      transaction_id: dodoPaymentId,
-      payment_confirmed_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    })
-    .eq("id", orderId);
+  // completeOrderAfterPayment 사용 (예상 완료일 계산 및 저장 포함)
+  try {
+    const { completeOrderAfterPayment } = await import('@/lib/payments/completeOrderAfterPayment');
+    await completeOrderAfterPayment(orderId, 'dodo' as any, {
+      transactionId: dodoPaymentId,
+      paymentConfirmedAt: new Date().toISOString(),
+      paymentProvider: 'dodo',
+    });
+    console.log("[dodo-webhook] ✅ completeOrderAfterPayment 처리 완료");
+  } catch (completeError) {
+    console.error("[dodo-webhook] ⚠️ completeOrderAfterPayment 실패, 직접 업데이트 시도:", completeError);
+    
+    // Fallback: completeOrderAfterPayment 실패 시 직접 업데이트
+    const { error: updateError } = await supabase
+      .from("orders")
+      .update({
+        status: "completed",
+        payment_status: "paid",
+        payment_method: "dodo",
+        transaction_id: dodoPaymentId,
+        payment_confirmed_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", orderId);
 
-  if (updateError) {
-    console.error("[dodo-webhook] Failed to complete order:", orderId, updateError);
-    return;
+    if (updateError) {
+      console.error("[dodo-webhook] Failed to complete order:", orderId, updateError);
+      return;
+    }
   }
 
   console.log("[dodo-webhook] ✅ Order completed:", orderId);
 
-  // 2. purchases 테이블에 구매 기록 삽입
+  // purchases 테이블에 구매 기록 삽입 (중복 방지를 위해 completeOrderAfterPayment 이후에)
   try {
     const { data: orderItems } = await supabase
       .from("order_items")
