@@ -11,7 +11,6 @@
 import { supabase } from '../supabase';
 import type { PaymentMethod } from './types';
 import { calculateExpectedCompletionDate, formatDateToYMD } from '@/utils/businessDays';
-import { sendPreorderNotification } from '@/lib/email/sendPreorderNotification';
 
 interface CompleteOrderAfterPaymentOptions {
   /** 트랜잭션 ID (PG사 거래 ID 또는 수동 확인 ID) */
@@ -496,18 +495,23 @@ export const completeOrderAfterPayment = async (
       // 이메일 조회 실패는 무시
     }
 
-    sendPreorderNotification({
-      orderId,
-      orderNumber: (order as any).order_number || undefined,
-      userId: order.user_id,
-      userEmail,
-      totalAmount: order.total_amount ?? 0,
-      paymentMethod: paymentMethod as string,
-      items: preorderSheetItems,
-      expectedCompletionDate: expectedCompletionDateStr,
-      paymentConfirmedAt,
+    // 서버 사이드 API route로 알림 전송 (nodemailer는 서버에서만 실행 가능)
+    fetch('/api/notifications/preorder', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        orderId,
+        orderNumber: (order as any).order_number || undefined,
+        userId: order.user_id,
+        userEmail,
+        totalAmount: order.total_amount ?? 0,
+        paymentMethod: paymentMethod as string,
+        items: preorderSheetItems,
+        expectedCompletionDate: expectedCompletionDateStr,
+        paymentConfirmedAt,
+      }),
     }).catch((err) => {
-      console.error('[completeOrderAfterPayment] 선주문 알림 이메일 전송 중 예외:', err);
+      console.error('[completeOrderAfterPayment] 선주문 알림 API 호출 중 예외:', err);
     });
   }
 };

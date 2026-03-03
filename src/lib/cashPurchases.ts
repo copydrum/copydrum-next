@@ -1,7 +1,6 @@
 import { supabase } from './supabase';
 import { generateOrderNumber } from './payments/orderUtils';
 import { calculateExpectedCompletionDate, formatDateToYMD } from '@/utils/businessDays';
-import { sendPreorderNotification } from '@/lib/email/sendPreorderNotification';
 
 export type CashPurchaseItem = {
   sheetId: string;
@@ -135,18 +134,23 @@ export const processCashPurchase = async ({
                 // 무시
               }
 
-              sendPreorderNotification({
-                orderId: orderId || 'unknown',
-                orderNumber,
-                userId,
-                userEmail,
-                totalAmount: normalizedTotal,
-                paymentMethod,
-                items: preorderItems,
-                expectedCompletionDate: expectedCompletionDateStr,
-                paymentConfirmedAt,
+              // 서버 사이드 API route로 알림 전송 (nodemailer는 서버에서만 실행 가능)
+              fetch('/api/notifications/preorder', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  orderId: orderId || 'unknown',
+                  orderNumber,
+                  userId,
+                  userEmail,
+                  totalAmount: normalizedTotal,
+                  paymentMethod,
+                  items: preorderItems,
+                  expectedCompletionDate: expectedCompletionDateStr,
+                  paymentConfirmedAt,
+                }),
               }).catch((err) => {
-                console.error('[processCashPurchase] 선주문 알림 이메일 전송 중 예외:', err);
+                console.error('[processCashPurchase] 선주문 알림 API 호출 중 예외:', err);
               });
             }
           }
