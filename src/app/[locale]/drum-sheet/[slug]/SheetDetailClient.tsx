@@ -529,7 +529,17 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
                 </ul>
               </div>
 
-              {/* 5. 모바일: 환불 규정 */}
+              {/* 5. 모바일: 상세 설명 */}
+              {displayDescription && (
+                <div className="lg:hidden bg-white border border-gray-200 rounded-lg p-6">
+                  <h3 className="font-semibold text-gray-900 mb-3">{t('sheetDetail.description', '상세 설명')}</h3>
+                  <div className="prose prose-sm max-w-none text-gray-700 leading-relaxed whitespace-pre-line">
+                    {displayDescription}
+                  </div>
+                </div>
+              )}
+
+              {/* 6. 모바일: 환불 규정 */}
               <div className="lg:hidden bg-gray-50 rounded-lg p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-3">{t('sheetDetail.refundPolicy')}</h3>
                 <p className="text-sm text-gray-700 mb-2">
@@ -543,16 +553,6 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
                   {t('sheetDetail.refundPolicyLinkSuffix')}
                 </p>
               </div>
-
-              {/* 모바일: 상세 설명 */}
-              {displayDescription && (
-                <div className="lg:hidden bg-white border border-gray-200 rounded-lg p-6">
-                  <h3 className="font-semibold text-gray-900 mb-3">{t('sheetDetail.description', '상세 설명')}</h3>
-                  <div className="prose prose-sm max-w-none text-gray-700 leading-relaxed whitespace-pre-line">
-                    {displayDescription}
-                  </div>
-                </div>
-              )}
 
               {/* 유튜브 링크 버튼 */}
               {sheet.youtube_url && (
