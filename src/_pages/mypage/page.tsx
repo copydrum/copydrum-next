@@ -508,7 +508,7 @@ export default function MyPage() {
     try {
       const { data, error } = await supabase
         .from('custom_orders')
-        .select('id, song_title, artist, status, estimated_price, locale, created_at, updated_at')
+        .select('*')
         .eq('user_id', currentUser.id)
         .order('created_at', { ascending: false });
 

@@ -99,22 +99,7 @@ export default function CustomOrderDetail({ orderId, onClose, onUpdated }: Custo
         .from('custom_orders')
         .select(
           `
-            id,
-            user_id,
-            song_title,
-            artist,
-            song_url,
-            requirements,
-            status,
-            estimated_price,
-            completed_pdf_url,
-            completed_pdf_filename,
-            download_count,
-            max_download_count,
-            download_expires_at,
-            locale,
-            created_at,
-            updated_at,
+            *,
             profiles (
               id,
               email,
