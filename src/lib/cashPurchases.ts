@@ -1,6 +1,7 @@
 import { supabase } from './supabase';
 import { generateOrderNumber } from './payments/orderUtils';
 import { calculateExpectedCompletionDate, formatDateToYMD } from '@/utils/businessDays';
+import { sendPreorderNotification } from '@/lib/email/sendPreorderNotification';
 
 export type CashPurchaseItem = {
   sheetId: string;
@@ -107,6 +108,47 @@ export const processCashPurchase = async ({
               paymentDate: paymentConfirmedAt,
               preorderSheetCount: sheets.filter((s) => s.sales_type === 'PREORDER').length,
             });
+
+            // 선주문 알림 이메일 전송 (비동기, 실패해도 결제 처리에 영향 없음)
+            const preorderSheetIds = new Set(
+              sheets.filter((s) => s.sales_type === 'PREORDER').map((s) => s.id)
+            );
+            const preorderItems = items
+              .filter((item) => preorderSheetIds.has(item.sheetId))
+              .map((item) => ({
+                sheetId: item.sheetId,
+                sheetTitle: item.sheetTitle || undefined,
+                price: normalizeAmount(item.price),
+              }));
+
+            if (preorderItems.length > 0) {
+              // 사용자 이메일 조회
+              let userEmail: string | undefined;
+              try {
+                const { data: userProfile } = await supabase
+                  .from('profiles')
+                  .select('email')
+                  .eq('id', userId)
+                  .single();
+                userEmail = userProfile?.email || undefined;
+              } catch {
+                // 무시
+              }
+
+              sendPreorderNotification({
+                orderId: orderId || 'unknown',
+                orderNumber,
+                userId,
+                userEmail,
+                totalAmount: normalizedTotal,
+                paymentMethod,
+                items: preorderItems,
+                expectedCompletionDate: expectedCompletionDateStr,
+                paymentConfirmedAt,
+              }).catch((err) => {
+                console.error('[processCashPurchase] 선주문 알림 이메일 전송 중 예외:', err);
+              });
+            }
           }
         } else if (sheetsError) {
           console.warn('[processCashPurchase] 상품 정보 조회 실패 (예상 완료일 계산 건너뜀):', sheetsError);

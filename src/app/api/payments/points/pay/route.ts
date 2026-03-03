@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { calculateExpectedCompletionDate, formatDateToYMD } from '@/utils/businessDays';
+import { sendPreorderNotification } from '@/lib/email/sendPreorderNotification';
 
 // ✅ Service Role Key가 있으면 Admin 권한으로 RLS 우회
 function createAdminClient() {
@@ -103,6 +104,53 @@ export async function POST(request: NextRequest) {
               expectedCompletionDate: expectedCompletionDateStr,
               paymentDate: paymentConfirmedAt,
             });
+
+            // 선주문 알림 이메일 전송
+            const preorderSheetIds = new Set(
+              sheets.filter((s) => s.sales_type === 'PREORDER').map((s) => s.id)
+            );
+
+            // 주문 아이템에서 선주문 악보 정보 + 제목 조회
+            const { data: preorderOrderItems } = await supabase
+              .from('order_items')
+              .select('drum_sheet_id, sheet_title, price')
+              .eq('order_id', orderId);
+
+            const preorderItems = (preorderOrderItems || [])
+              .filter((item: any) => preorderSheetIds.has(item.drum_sheet_id))
+              .map((item: any) => ({
+                sheetId: item.drum_sheet_id,
+                sheetTitle: item.sheet_title || undefined,
+                price: item.price ?? 0,
+              }));
+
+            if (preorderItems.length > 0) {
+              // 사용자 이메일 조회
+              let userEmail: string | undefined;
+              try {
+                const { data: userProfile } = await supabase
+                  .from('profiles')
+                  .select('email')
+                  .eq('id', userId)
+                  .single();
+                userEmail = userProfile?.email || undefined;
+              } catch {
+                // 무시
+              }
+
+              sendPreorderNotification({
+                orderId,
+                userId,
+                userEmail,
+                totalAmount: amount,
+                paymentMethod: 'points',
+                items: preorderItems,
+                expectedCompletionDate: expectedCompletionDateStr,
+                paymentConfirmedAt,
+              }).catch((err) => {
+                console.error('[Points Payment] 선주문 알림 이메일 전송 중 예외:', err);
+              });
+            }
           }
         } else if (sheetsError) {
           console.warn('[Points Payment] 상품 정보 조회 실패 (예상 완료일 계산 건너뜀):', sheetsError);

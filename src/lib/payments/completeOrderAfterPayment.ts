@@ -11,6 +11,7 @@
 import { supabase } from '../supabase';
 import type { PaymentMethod } from './types';
 import { calculateExpectedCompletionDate, formatDateToYMD } from '@/utils/businessDays';
+import { sendPreorderNotification } from '@/lib/email/sendPreorderNotification';
 
 interface CompleteOrderAfterPaymentOptions {
   /** 트랜잭션 ID (PG사 거래 ID 또는 수동 확인 ID) */
@@ -59,10 +60,12 @@ export const completeOrderAfterPayment = async (
       payment_status,
       payment_confirmed_at,
       expected_completion_date,
+      order_number,
       metadata,
       order_items (
         id,
         drum_sheet_id,
+        sheet_title,
         price
       )
     `,
@@ -89,7 +92,7 @@ export const completeOrderAfterPayment = async (
     
     const { data: itemsData, error: itemsError } = await supabase
       .from('order_items')
-      .select('id, drum_sheet_id, price')
+      .select('id, drum_sheet_id, sheet_title, price')
       .eq('order_id', orderId);
 
     if (itemsError) {
@@ -223,6 +226,8 @@ export const completeOrderAfterPayment = async (
   // 2. 악보 구매 처리 (purchases 테이블에 기록)
   // 선주문 상품의 예상 완료일 계산을 위한 변수
   let expectedCompletionDateStr: string | null = null;
+  // 선주문 알림 이메일을 위한 변수
+  let preorderSheetItems: Array<{ sheetId: string; sheetTitle?: string; price?: number }> = [];
 
   if (isSheetPurchase && orderItems) {
     // 디버깅: order_items 확인
@@ -354,6 +359,18 @@ export const completeOrderAfterPayment = async (
             sheetCount: sheets.length,
             preorderSheetCount: sheets.filter((s) => s.sales_type === 'PREORDER').length,
           });
+
+          // 선주문 악보 정보 수집 (이메일 알림용)
+          const preorderSheetIds = new Set(
+            sheets.filter((s) => s.sales_type === 'PREORDER').map((s) => s.id)
+          );
+          preorderSheetItems = orderItems
+            .filter((item: any) => preorderSheetIds.has(item.drum_sheet_id))
+            .map((item: any) => ({
+              sheetId: item.drum_sheet_id,
+              sheetTitle: item.sheet_title || undefined,
+              price: item.price ?? 0,
+            }));
         } else {
           console.log('[completeOrderAfterPayment] ℹ️ 선주문 상품 없음 (예상 완료일 계산 건너뜀)', {
             orderId,
@@ -463,6 +480,36 @@ export const completeOrderAfterPayment = async (
     isCashCharge,
     isSheetPurchase,
   });
+
+  // 5. 선주문 상품이 포함된 경우 관리자에게 이메일 알림 전송
+  if (preorderSheetItems.length > 0) {
+    // 사용자 이메일 조회 (알림에 포함)
+    let userEmail: string | undefined;
+    try {
+      const { data: userProfile } = await supabase
+        .from('profiles')
+        .select('email')
+        .eq('id', order.user_id)
+        .single();
+      userEmail = userProfile?.email || undefined;
+    } catch {
+      // 이메일 조회 실패는 무시
+    }
+
+    sendPreorderNotification({
+      orderId,
+      orderNumber: (order as any).order_number || undefined,
+      userId: order.user_id,
+      userEmail,
+      totalAmount: order.total_amount ?? 0,
+      paymentMethod: paymentMethod as string,
+      items: preorderSheetItems,
+      expectedCompletionDate: expectedCompletionDateStr,
+      paymentConfirmedAt,
+    }).catch((err) => {
+      console.error('[completeOrderAfterPayment] 선주문 알림 이메일 전송 중 예외:', err);
+    });
+  }
 };
 
 
