@@ -7282,14 +7282,33 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
         return;
       }
 
-      const { error } = await supabase
-        .from('drum_sheets')
-        .update(updateData)
-        .in('id', selectedSheetIds);
+      // Supabase .in() URL 길이 제한으로 인해 100개씩 배치 처리
+      const BATCH_SIZE = 100;
+      const totalBatches = Math.ceil(selectedSheetIds.length / BATCH_SIZE);
+      let successCount = 0;
+      let failCount = 0;
 
-      if (error) throw error;
+      for (let i = 0; i < totalBatches; i++) {
+        const batchIds = selectedSheetIds.slice(i * BATCH_SIZE, (i + 1) * BATCH_SIZE);
+        const { error } = await supabase
+          .from('drum_sheets')
+          .update(updateData)
+          .in('id', batchIds);
 
-      alert(`${selectedSheetIds.length}개의 악보가 수정되었습니다.`);
+        if (error) {
+          console.error(`배치 ${i + 1}/${totalBatches} 오류:`, error);
+          failCount += batchIds.length;
+        } else {
+          successCount += batchIds.length;
+        }
+      }
+
+      if (failCount > 0) {
+        alert(`${successCount}개 수정 완료, ${failCount}개 실패`);
+      } else {
+        alert(`${successCount}개의 악보가 수정되었습니다.`);
+      }
+
       setShowBulkEditModal(false);
       setSelectedSheetIds([]);
       setBulkEditData({
@@ -7301,7 +7320,7 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
       loadSheets();
     } catch (error) {
       console.error('일괄 수정 오류:', error);
-      alert('일괄 수정 중 오류가 발생했습니다.');
+      alert(`일괄 수정 중 오류가 발생했습니다: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
     }
   };
   const renderSheetManagement = () => (
