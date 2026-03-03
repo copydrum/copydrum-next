@@ -1104,7 +1104,7 @@ const AdminPage: React.FC = () => {
   const [sheetCategoryFilter, setSheetCategoryFilter] = useState<string>('all');
   const [isAddingSheet, setIsAddingSheet] = useState(false);
   const [sheetCurrentPage, setSheetCurrentPage] = useState(1);
-  const [sheetItemsPerPage] = useState(20);
+  const [sheetItemsPerPage, setSheetItemsPerPage] = useState(20);
   const [showSheetBulkModal, setShowSheetBulkModal] = useState(false);
   const [sheetCsvFile, setSheetCsvFile] = useState<File | null>(null);
   const [sheetCsvData, setSheetCsvData] = useState<any[]>([]);
@@ -5943,10 +5943,10 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
   const sheetEndIndex = sheetStartIndex + sheetItemsPerPage;
   const paginatedSheets = filteredSheets.slice(sheetStartIndex, sheetEndIndex);
 
-  // 검색어 또는 카테고리 변경 시 첫 페이지로 리셋
+  // 검색어, 카테고리, 페이지 크기 변경 시 첫 페이지로 리셋
   useEffect(() => {
     setSheetCurrentPage(1);
-  }, [sheetSearchTerm, sheetCategoryFilter]);
+  }, [sheetSearchTerm, sheetCategoryFilter, sheetItemsPerPage]);
 
   const orderPaymentOptions = React.useMemo(() => {
     const unique = new Set<string>();
@@ -7559,11 +7559,26 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
         </div>
 
         {/* 페이지네이션 */}
-        {sheetTotalPages > 1 && (
-          <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
+        <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
+          <div className="flex items-center gap-4">
             <div className="text-sm text-gray-700">
-              전체 {filteredSheets.length}개 중 {sheetStartIndex + 1}-{Math.min(sheetEndIndex, filteredSheets.length)}개 표시
+              전체 {filteredSheets.length}개 중 {filteredSheets.length > 0 ? sheetStartIndex + 1 : 0}-{Math.min(sheetEndIndex, filteredSheets.length)}개 표시
             </div>
+            <div className="flex items-center gap-2">
+              <label htmlFor="sheetItemsPerPage" className="text-sm text-gray-500">페이지당</label>
+              <select
+                id="sheetItemsPerPage"
+                value={sheetItemsPerPage}
+                onChange={(e) => setSheetItemsPerPage(Number(e.target.value))}
+                className="px-2 py-1 rounded-lg text-sm border border-gray-300 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                {[20, 50, 100, 500, 1000].map((size) => (
+                  <option key={size} value={size}>{size}개</option>
+                ))}
+              </select>
+            </div>
+          </div>
+          {sheetTotalPages > 1 && (
             <div className="flex items-center space-x-2">
               <button
                 onClick={() => setSheetCurrentPage(prev => Math.max(1, prev - 1))}
@@ -7619,8 +7634,8 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
                 <i className="ri-arrow-right-s-line"></i>
               </button>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {/* CSV 대량 등록 모달 */}
