@@ -241,7 +241,7 @@ const CustomOrdersPage = () => {
                         </p>
                         {typeof order.estimated_price === 'number' && order.estimated_price > 0 && (
                           <p className="mt-1 text-xs text-blue-600">
-                            {t('customOrders.order.estimatedPrice')}: ₩{order.estimated_price.toLocaleString('ko-KR')}
+                            {t('customOrders.order.estimatedPrice')}: {order.locale && order.locale !== 'ko' ? `$${order.estimated_price}` : `₩${order.estimated_price.toLocaleString('ko-KR')}`}
                           </p>
                         )}
                       </div>
@@ -254,7 +254,7 @@ const CustomOrdersPage = () => {
                         {order.status === 'quoted' && (
                           <p className="text-xs font-semibold text-gray-700">
                             {order.estimated_price && typeof order.estimated_price === 'number' && order.estimated_price > 0
-                              ? `${t('customOrders.order.quote')}: ₩${order.estimated_price.toLocaleString('ko-KR')}`
+                              ? `${t('customOrders.order.quote')}: ${order.locale && order.locale !== 'ko' ? `$${order.estimated_price}` : `₩${order.estimated_price.toLocaleString('ko-KR')}`}`
                               : t('customOrders.order.checkQuote')}
                           </p>
                         )}

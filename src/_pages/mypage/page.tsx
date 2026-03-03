@@ -101,6 +101,7 @@ interface CustomOrderSummary {
   artist: string;
   status: string;
   estimated_price: number | null;
+  locale: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -507,7 +508,7 @@ export default function MyPage() {
     try {
       const { data, error } = await supabase
         .from('custom_orders')
-        .select('id, song_title, artist, status, estimated_price, created_at, updated_at')
+        .select('id, song_title, artist, status, estimated_price, locale, created_at, updated_at')
         .eq('user_id', currentUser.id)
         .order('created_at', { ascending: false });
 
@@ -1854,13 +1855,13 @@ export default function MyPage() {
                                   {renderCustomOrderStatusBadge(order.status)}
                                   <p className="text-sm font-semibold text-gray-900">
                                     {order.status === 'quoted' && order.estimated_price
-                                      ? formatCurrency(order.estimated_price)
+                                      ? (order.locale && order.locale !== 'ko' ? `$${order.estimated_price}` : formatCurrency(order.estimated_price))
                                       : order.status === 'quoted' && !order.estimated_price
                                         ? t('mypage.customOrders.quoteConfirm')
                                         : order.status === 'completed' && !order.estimated_price
                                           ? t('mypage.customOrders.workCompleted')
                                           : order.estimated_price
-                                            ? formatCurrency(order.estimated_price)
+                                            ? (order.locale && order.locale !== 'ko' ? `$${order.estimated_price}` : formatCurrency(order.estimated_price))
                                             : t('mypage.customOrders.quotePending')}
                                   </p>
                                 </div>

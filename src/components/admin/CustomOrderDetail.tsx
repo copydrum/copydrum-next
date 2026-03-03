@@ -30,6 +30,7 @@ interface OrderDetail {
   download_count: number | null;
   max_download_count: number | null;
   download_expires_at: string | null;
+  locale: string | null;
   created_at: string;
   updated_at: string;
   profiles: OrderProfile | null;
@@ -111,6 +112,7 @@ export default function CustomOrderDetail({ orderId, onClose, onUpdated }: Custo
             download_count,
             max_download_count,
             download_expires_at,
+            locale,
             created_at,
             updated_at,
             profiles (
@@ -233,8 +235,11 @@ export default function CustomOrderDetail({ orderId, onClose, onUpdated }: Custo
   const handlePriceChange = async () => {
     if (!order) return;
 
-    const priceNum = parseInt(estimatedPrice.replace(/,/g, ''), 10);
-    if (Number.isNaN(priceNum)) {
+    const isUsd = order.locale && order.locale !== 'ko';
+    const cleanedPrice = estimatedPrice.replace(/,/g, '');
+    const priceNum = isUsd ? parseFloat(cleanedPrice) : parseInt(cleanedPrice, 10);
+
+    if (Number.isNaN(priceNum) || priceNum < 0) {
       alert('유효한 금액을 입력해주세요.');
       return;
     }
@@ -251,7 +256,7 @@ export default function CustomOrderDetail({ orderId, onClose, onUpdated }: Custo
       }
 
       setOrder((prev) => (prev ? { ...prev, estimated_price: priceNum } : prev));
-      alert('견적 금액이 저장되었습니다.');
+      alert(`견적 금액이 저장되었습니다. (${isUsd ? `$${priceNum}` : `₩${priceNum.toLocaleString()}`})`);
       onUpdated?.();
     } catch (err: any) {
       console.error('금액 저장 실패:', err);
@@ -415,6 +420,14 @@ export default function CustomOrderDetail({ orderId, onClose, onUpdated }: Custo
                   <dt className="text-gray-500">신청일시</dt>
                   <dd className="text-gray-700">{formatDateTime(order.created_at)}</dd>
                 </div>
+                {order.locale && (
+                  <div className="flex justify-between">
+                    <dt className="text-gray-500">고객 언어</dt>
+                    <dd className="font-medium text-gray-900">
+                      {order.locale === 'ko' ? '🇰🇷 한국어 (₩ 원화)' : `🌐 ${order.locale.toUpperCase()} ($ 달러)`}
+                    </dd>
+                  </div>
+                )}
                 <div className="flex justify-between">
                   <dt className="text-gray-500">참고 링크</dt>
                   <dd>
@@ -473,19 +486,36 @@ export default function CustomOrderDetail({ orderId, onClose, onUpdated }: Custo
 
                 <div>
                   <label className="mb-1 block text-sm font-medium text-gray-700">
-                    견적 금액 (원)
+                    견적 금액 {order.locale && order.locale !== 'ko' ? '($)' : '(원)'}
                   </label>
+                  {order.locale && order.locale !== 'ko' && (
+                    <p className="mb-2 text-xs text-blue-600">
+                      🌐 고객 언어: {order.locale.toUpperCase()} → 달러(USD)로 견적
+                    </p>
+                  )}
                   <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={estimatedPrice}
-                      onChange={(e) => {
-                        const val = e.target.value.replace(/[^0-9]/g, '');
-                        setEstimatedPrice(Number(val).toLocaleString());
-                      }}
-                      placeholder="0"
-                      className="flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
-                    />
+                    <div className="relative flex-1">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-400">
+                        {order.locale && order.locale !== 'ko' ? '$' : '₩'}
+                      </span>
+                      <input
+                        type="text"
+                        value={estimatedPrice}
+                        onChange={(e) => {
+                          if (order.locale && order.locale !== 'ko') {
+                            // USD: 숫자와 소수점 허용
+                            const val = e.target.value.replace(/[^0-9.]/g, '');
+                            setEstimatedPrice(val);
+                          } else {
+                            // KRW: 숫자만 허용, 콤마 포맷
+                            const val = e.target.value.replace(/[^0-9]/g, '');
+                            setEstimatedPrice(Number(val).toLocaleString());
+                          }
+                        }}
+                        placeholder={order.locale && order.locale !== 'ko' ? '0.00' : '0'}
+                        className="w-full rounded-md border border-gray-300 pl-7 pr-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                      />
+                    </div>
                     <button
                       onClick={handlePriceChange}
                       disabled={isSavingPrice}

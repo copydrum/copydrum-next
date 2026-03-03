@@ -4,10 +4,13 @@ import { useTranslation } from 'react-i18next';
 import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../stores/authStore';
 import MainHeader from '../../components/common/MainHeader';
+import { useParams } from 'next/navigation';
 
 const CustomOrderPage = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user } = useAuthStore();
+  const params = useParams();
+  const currentLocale = (params?.locale as string) || i18n.language || 'ko';
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     userId: '',
@@ -55,7 +58,8 @@ const CustomOrderPage = () => {
           song_url: formData.songUrl,
           requirements: formData.memo,
           status: 'pending',
-          max_download_count: 20 // 기본 다운로드 횟수 20회로 설정
+          max_download_count: 20, // 기본 다운로드 횟수 20회로 설정
+          locale: currentLocale, // 고객의 언어 설정 저장 (견적 통화 결정용)
         });
 
       if (error) throw error;

@@ -399,6 +399,7 @@ interface CustomOrder {
   download_count: number | null;
   max_download_count: number | null;
   download_expires_at: string | null;
+  locale: string | null;
   created_at: string;
   updated_at: string;
   profiles?: Profile;
@@ -11058,7 +11059,9 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">
                         {typeof order.estimated_price === 'number'
-                          ? `₩${order.estimated_price.toLocaleString('ko-KR')}`
+                          ? order.locale && order.locale !== 'ko'
+                            ? `$${order.estimated_price}`
+                            : `₩${order.estimated_price.toLocaleString('ko-KR')}`
                           : '견적 미정'}
                       </td>
                       <td className="px-6 py-4">

@@ -26,6 +26,7 @@ interface OrderDetail {
   download_count: number | null;
   max_download_count: number | null;
   download_expires_at: string | null;
+  locale: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -125,6 +126,7 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
             download_count,
             max_download_count,
             download_expires_at,
+            locale,
             created_at,
             updated_at
           `
@@ -440,9 +442,11 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
           <div className="mt-4 flex items-center gap-2 rounded-lg bg-blue-50 px-4 py-3 text-sm text-blue-700">
             <i className="ri-price-tag-3-line text-lg" />
             <div>
-              <p className="font-semibold">제안된 견적 금액</p>
+              <p className="font-semibold">{t('customOrders.order.proposedQuote', '제안된 견적 금액')}</p>
               <p className="text-xs">
-                {formatCurrency(order.estimated_price)} (부가세 포함)
+                {order.locale && order.locale !== 'ko'
+                  ? `$${order.estimated_price} (Tax included)`
+                  : `${formatCurrency(order.estimated_price)} (부가세 포함)`}
               </p>
             </div>
           </div>
