@@ -8697,6 +8697,16 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
                       updateData.youtube_url = editingSheetData.youtube_url;
                     }
 
+                    // PDF URL 업데이트
+                    if (editingSheetData.pdf_url) {
+                      updateData.pdf_url = editingSheetData.pdf_url.trim();
+                    }
+
+                    // 미리보기 이미지 URL 업데이트
+                    if (editingSheetData.preview_image_url) {
+                      updateData.preview_image_url = editingSheetData.preview_image_url.trim();
+                    }
+
                     // 선주문 완성 예정일 업데이트 (PREORDER 상품인 경우)
                     if (editingSheet.sales_type === 'PREORDER') {
                       updateData.preorder_deadline = editingSheetData.preorder_deadline;

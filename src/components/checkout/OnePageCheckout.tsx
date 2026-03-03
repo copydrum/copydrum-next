@@ -45,11 +45,6 @@ export default function OnePageCheckout({
   const { t, i18n } = useTranslation();
   const [processing, setProcessing] = useState(false);
   const [showPointsForm, setShowPointsForm] = useState(false);
-  const [preorderRefundAgreement, setPreorderRefundAgreement] = useState(false);
-
-  // 선주문 상품이 포함되어 있는지 확인
-  const hasPreorderItems = items.some(item => item.sales_type === 'PREORDER');
-
   // 통화 계산
   const hostname = typeof window !== 'undefined' ? window.location.hostname : 'copydrum.com';
   const currency = getSiteCurrency(hostname, i18n.language);
@@ -169,35 +164,6 @@ export default function OnePageCheckout({
               <div className="p-6 space-y-5">
 
                 {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-                {/* ⚠️ 선주문 환불 불가 동의 체크박스 */}
-                {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-                {hasPreorderItems && (
-                  <div className="bg-red-50 border-2 border-red-200 rounded-xl p-4 space-y-3">
-                    <div className="flex items-start gap-3">
-                      <input
-                        type="checkbox"
-                        id="preorder-refund-agreement"
-                        checked={preorderRefundAgreement}
-                        onChange={(e) => setPreorderRefundAgreement(e.target.checked)}
-                        className="mt-1 w-5 h-5 text-red-600 border-red-300 rounded focus:ring-red-500 focus:ring-2 cursor-pointer"
-                      />
-                      <label
-                        htmlFor="preorder-refund-agreement"
-                        className="flex-1 text-sm leading-relaxed cursor-pointer"
-                      >
-                        <span className="font-bold text-red-700">
-                          {t('checkout.preorderConsentTitle')}
-                        </span>
-                        <br />
-                        <span className="text-red-600">
-                          {t('checkout.preorderConsentDescription')}
-                        </span>
-                      </label>
-                    </div>
-                  </div>
-                )}
-
-                {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
                 {/* 🔵 섹션 1: 카드 & 월렛 결제 (메인 결제 수단)  */}
                 {/* ⚠️ 도도페이먼트(해외카드) 숨김, KG이니시스(한국카드)는 표시 */}
                 {/* 한국어: KG이니시스 표시 / 해외: 도도페이먼트 숨김 */}
@@ -213,7 +179,7 @@ export default function OnePageCheckout({
                   </div>
 
                   {/* 카드 결제 버튼 */}
-                  <div className={hasPreorderItems && !preorderRefundAgreement ? 'opacity-50 pointer-events-none' : ''}>
+                  <div className={''}>
                     <DodoPaymentForm
                       orderId={orderId}
                       amount={totalAmount}
@@ -259,7 +225,7 @@ export default function OnePageCheckout({
                   </div>
 
                   {/* PayPal SPB 버튼 */}
-                  <div className={hasPreorderItems && !preorderRefundAgreement ? 'opacity-50 pointer-events-none' : ''}>
+                  <div className={''}>
                     <PayPalPaymentButton
                       orderId={orderId}
                       amount={totalAmount}
@@ -275,7 +241,7 @@ export default function OnePageCheckout({
 
                 {/* ━━━ 카카오페이 버튼 (한국어 페이지에서만 표시) ━━━ */}
                 {i18n.language === 'ko' && (
-                <div className={hasPreorderItems && !preorderRefundAgreement ? 'opacity-50 pointer-events-none' : ''}>
+                <div className={''}>
                   <KakaoPayButton
                     orderId={orderId}
                     amount={totalAmount}
@@ -319,7 +285,7 @@ export default function OnePageCheckout({
                     </button>
 
                     {showPointsForm && (
-                      <div className={`mt-3 ${hasPreorderItems && !preorderRefundAgreement ? 'opacity-50 pointer-events-none' : ''}`}>
+                      <div className={`mt-3 ${''}`}>
                         <PointsPaymentForm
                           orderId={orderId}
                           amount={totalAmount}

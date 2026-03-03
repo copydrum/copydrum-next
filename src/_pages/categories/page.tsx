@@ -1010,12 +1010,6 @@ const CategoriesPage: React.FC = () => {
                     <div className="min-w-0 flex-1 space-y-1">
                       <div className="flex items-center gap-2 flex-wrap">
                         <p className="truncate text-sm font-bold text-gray-900">{sheet.title}</p>
-                        {/* Pre-order 뱃지 (제목 옆) */}
-                        {sheet.sales_type === 'PREORDER' && (
-                          <span className="inline-flex items-center px-2 py-0.5 text-xs font-bold bg-purple-100 text-purple-700 rounded-full border border-purple-200 whitespace-nowrap flex-shrink-0">
-                            {t('common.badge_preorder', 'Pre-order')}
-                          </span>
-                        )}
                       </div>
                       <p className="truncate text-xs text-gray-500">{sheet.artist}</p>
                       <p className="truncate text-xs text-gray-400">{sheet.album_name || t('categoriesPage.albumInfoNotFound')}</p>
@@ -1145,49 +1139,32 @@ const CategoriesPage: React.FC = () => {
                   </div>
                 ) : null}
                 <div className="flex gap-2">
-                  {selectedSheet?.sales_type === 'PREORDER' ? (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (selectedSheet) {
-                          router.push(`/drum-sheet/${selectedSheet.slug}`);
-                        }
-                        closeMobileDetail();
-                      }}
-                      className="flex-1 sheet-action-btn btn-buy"
-                    >
-                      {t('categoriesPage.viewDetails', '상세보기')}
-                    </button>
-                  ) : (
-                    <>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          handleAddToCart(selectedSheet.id);
-                          closeMobileDetail();
-                        }}
-                        disabled={selectedSheet && isInCart(selectedSheet.id)}
-                        className={`flex-1 sheet-action-btn btn-cart ${selectedSheet && isInCart(selectedSheet.id) ? 'opacity-60' : ''}`}
-                      >
-                        {t('categoriesPage.addToCart')}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (selectedSheet) {
-                            handleBuyNow(selectedSheet);
-                          }
-                          closeMobileDetail();
-                        }}
-                        disabled={selectedSheet && buyingNowSheetId === selectedSheet.id}
-                        className="flex-1 sheet-action-btn btn-buy"
-                      >
-                        {selectedSheet && buyingNowSheetId === selectedSheet.id
-                          ? t('sheet.buyNowProcessing') || '처리 중...'
-                          : t('sheet.buyNow')}
-                      </button>
-                    </>
-                  )}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleAddToCart(selectedSheet.id);
+                      closeMobileDetail();
+                    }}
+                    disabled={selectedSheet && isInCart(selectedSheet.id)}
+                    className={`flex-1 sheet-action-btn btn-cart ${selectedSheet && isInCart(selectedSheet.id) ? 'opacity-60' : ''}`}
+                  >
+                    {t('categoriesPage.addToCart')}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (selectedSheet) {
+                        handleBuyNow(selectedSheet);
+                      }
+                      closeMobileDetail();
+                    }}
+                    disabled={selectedSheet && buyingNowSheetId === selectedSheet.id}
+                    className="flex-1 sheet-action-btn btn-buy"
+                  >
+                    {selectedSheet && buyingNowSheetId === selectedSheet.id
+                      ? t('sheet.buyNowProcessing') || '처리 중...'
+                      : t('sheet.buyNow')}
+                  </button>
                 </div>
                 <button
                   type="button"
@@ -1530,12 +1507,6 @@ const CategoriesPage: React.FC = () => {
                                   >
                                     {sheet.title}
                                   </span>
-                                  {/* Pre-order 뱃지 (제목 옆) */}
-                                  {sheet.sales_type === 'PREORDER' && (
-                                    <span className="inline-flex items-center px-2 py-0.5 text-xs font-bold bg-purple-100 text-purple-700 rounded-full border border-purple-200 whitespace-nowrap flex-shrink-0">
-                                      {t('common.badge_preorder', 'Pre-order')}
-                                    </span>
-                                  )}
                                 </div>
                                 <div className="flex items-center space-x-2 text-xs flex-shrink-0">
                                   <span className="font-semibold text-gray-700">
@@ -1599,40 +1570,26 @@ const CategoriesPage: React.FC = () => {
                               >
                                 <i className={`ri-heart-${isFavorite ? 'fill' : 'line'} text-lg`} />
                               </button>
-                              {sheet.sales_type === 'PREORDER' ? (
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    router.push(`/drum-sheet/${sheet.slug}`);
-                                  }}
-                                  className="sheet-action-btn btn-buy"
-                                >
-                                  {t('categoriesPage.viewDetails', '상세보기')}
-                                </button>
-                              ) : (
-                                <>
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleAddToCart(sheet.id);
-                                    }}
-                                    disabled={isInCart(sheet.id)}
-                                    className={`sheet-action-btn btn-cart ${isInCart(sheet.id) ? 'opacity-60' : ''}`}
-                                  >
-                                    {t('categoriesPage.addToCart')}
-                                  </button>
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleBuyNow(sheet);
-                                    }}
-                                    disabled={buyingNowSheetId === sheet.id}
-                                    className="sheet-action-btn btn-buy"
-                                  >
-                                    {buyingNowSheetId === sheet.id ? t('sheet.buyNowProcessing') || '처리 중...' : t('sheet.buyNow')}
-                                  </button>
-                                </>
-                              )}
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleAddToCart(sheet.id);
+                                }}
+                                disabled={isInCart(sheet.id)}
+                                className={`sheet-action-btn btn-cart ${isInCart(sheet.id) ? 'opacity-60' : ''}`}
+                              >
+                                {t('categoriesPage.addToCart')}
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleBuyNow(sheet);
+                                }}
+                                disabled={buyingNowSheetId === sheet.id}
+                                className="sheet-action-btn btn-buy"
+                              >
+                                {buyingNowSheetId === sheet.id ? t('sheet.buyNowProcessing') || '처리 중...' : t('sheet.buyNow')}
+                              </button>
                             </div>
                           </td>
                         </tr>
