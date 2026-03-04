@@ -403,40 +403,84 @@ const CategoriesPage: React.FC = () => {
 
     try {
       if (trimmedSearch) {
-        // ━━━ 공백 무시 유연 검색 (Space-agnostic flexible search) ━━━
-        // 1단계: 검색어 분석
+        // ━━━ 개선된 검색 로직: AND/OR 조건 명확히 구분 ━━━
         const escapePattern = (s: string) => s.replace(/[%_]/g, (m) => `\\${m}`);
-        const searchNoSpaces = trimmedSearch.replace(/\s+/g, '');
-        const searchWords = trimmedSearch.split(/\s+/).filter((w) => w.length > 0);
+        
+        // 검색어 특수문자 전처리: 괄호 등 특수문자를 공백으로 치환하여 Supabase 쿼리 문법 오류 방지
+        const cleanQuery = trimmedSearch.replace(/[()[\]{},.!?;:'"]/g, ' ');
+        const searchWords = cleanQuery.split(/\s+/).filter((w) => w.length > 0);
 
-        // 2단계: 넓은 범위 DB 검색을 위한 키워드 추출
-        // - 각 단어 전체 + 첫 2글자(한글 2음절)로 넓게 후보를 가져옴
-        const broadKeywords = new Set<string>();
-        searchWords.forEach((word) => {
-          broadKeywords.add(word);
-          if (word.length >= 2) {
-            broadKeywords.add(word.substring(0, 2));
-          }
-        });
-        // 공백 제거 검색어의 첫 2글자도 추가 (예: "그대발길이" → "그대")
-        if (searchNoSpaces.length >= 2) {
-          broadKeywords.add(searchNoSpaces.substring(0, 2));
+        // 1단계: 정규화된 검색어 생성 (공백, 특수문자 제거)
+        // normalized_key 컬럼과 동일한 방식으로 정규화
+        const normalizedSearchQuery = trimmedSearch
+          .toLowerCase()
+          .replace(/\([^)]*\)/g, '') // 괄호와 그 내용 제거
+          .replace(/\[[^\]]*\]/g, '') // 대괄호와 그 내용 제거
+          .replace(/\s+/g, '') // 모든 공백 제거
+          .replace(/[^a-z0-9가-힣ㄱ-ㅎㅏ-ㅣ]/g, ''); // 한글, 영문, 숫자만 유지
+
+        // 2단계: Supabase 쿼리 구성
+        // 조건 A: 모든 단어가 포함된 경우 (AND 조건)
+        // - title에 모든 단어 포함 OR artist에 모든 단어 포함 OR album_name에 모든 단어 포함
+        // 조건 B: 원본 검색어 전체 일치 (OR 조건)
+        // - title에 원본 검색어 포함 OR artist에 원본 검색어 포함 OR album_name에 원본 검색어 포함
+        // 조건 C: 정규화 키 일치 (OR 조건)
+        // - normalized_key에 정규화 검색어 포함
+        
+        // 최종: (조건 A) OR (조건 B) OR (조건 C)
+
+        const orConditions: string[] = [];
+
+        // 조건 A: 모든 단어가 포함된 경우 (AND 조건)
+        // PostgREST 문법: .or() 안에서 AND를 표현하려면 and(cond1,cond2) 를 사용해야 함
+        // 주의: 단순 괄호 (cond1,cond2)는 AND가 아니라 OR로 해석됨!
+        if (searchWords.length > 1) {
+          // title에 모든 단어 포함
+          const titleAndCondition = searchWords
+            .map((word) => `title.ilike.%${escapePattern(word)}%`)
+            .join(',');
+          orConditions.push(`and(${titleAndCondition})`);
+
+          // artist에 모든 단어 포함
+          const artistAndCondition = searchWords
+            .map((word) => `artist.ilike.%${escapePattern(word)}%`)
+            .join(',');
+          orConditions.push(`and(${artistAndCondition})`);
+
+          // album_name에 모든 단어 포함
+          const albumAndCondition = searchWords
+            .map((word) => `album_name.ilike.%${escapePattern(word)}%`)
+            .join(',');
+          orConditions.push(`and(${albumAndCondition})`);
+        } else if (searchWords.length === 1) {
+          // 단어가 하나인 경우 — 어차피 단어가 1개이므로 AND/OR 구분 불필요
+          const wordPattern = `%${escapePattern(searchWords[0])}%`;
+          orConditions.push(`title.ilike.${wordPattern}`);
+          orConditions.push(`artist.ilike.${wordPattern}`);
+          orConditions.push(`album_name.ilike.${wordPattern}`);
         }
 
-        // 3단계: 넓은 OR 패턴으로 DB 검색 (후보군 확보)
-        const orParts: string[] = [];
-        broadKeywords.forEach((keyword) => {
-          const pattern = `%${escapePattern(keyword)}%`;
-          orParts.push(`title.ilike.${pattern}`);
-          orParts.push(`artist.ilike.${pattern}`);
-          orParts.push(`album_name.ilike.${pattern}`);
-        });
+        // 조건 B: 원본 검색어 전체 일치 (특수문자 제거된 버전 사용)
+        // cleanQuery를 사용하여 괄호 등 특수문자로 인한 쿼리 문법 오류 방지
+        const cleanExactPattern = cleanQuery.trim();
+        if (cleanExactPattern.length > 0) {
+          const exactPattern = `%${escapePattern(cleanExactPattern)}%`;
+          orConditions.push(`title.ilike.${exactPattern}`);
+          orConditions.push(`artist.ilike.${exactPattern}`);
+          orConditions.push(`album_name.ilike.${exactPattern}`);
+        }
+
+        // 조건 C: 정규화 키 일치
+        if (normalizedSearchQuery.length > 0) {
+          const normalizedPattern = `%${escapePattern(normalizedSearchQuery)}%`;
+          orConditions.push(`normalized_key.ilike.${normalizedPattern}`);
+        }
 
         const { data, error } = await supabase
           .from('drum_sheets')
           .select(baseSelect)
           .eq('is_active', true)
-          .or(orParts.join(','))
+          .or(orConditions.join(','))
           .order('created_at', { ascending: false });
 
         if (error) {
@@ -445,82 +489,9 @@ const CategoriesPage: React.FC = () => {
 
         if (fetchId !== fetchIdRef.current) return;
 
-        // 4단계: 클라이언트 측 공백 무시 정밀 필터링 + 관련도 점수 계산
-        const searchLower = searchNoSpaces.toLowerCase();
-        const exactPattern = trimmedSearch.toLowerCase();
-
-        // 괄호와 그 내용을 제거하는 헬퍼 (예: "헤이즈 (Heize)" → "헤이즈")
-        // 아티스트명에 한글명(영문명) 또는 영문명(한글명) 형태가 흔함
-        const stripParens = (s: string) => s.replace(/\([^)]*\)/g, '').replace(/\s+/g, '');
-
-        const scored = (data || [])
-          .map((sheet) => {
-            const title = sheet.title || '';
-            const artist = sheet.artist || '';
-            const album = sheet.album_name || '';
-            const titleLower = title.toLowerCase();
-            const artistLower = artist.toLowerCase();
-            const albumLower = album.toLowerCase();
-
-            // 공백만 제거한 버전
-            const titleNoSpaces = titleLower.replace(/\s+/g, '');
-            const artistNoSpaces = artistLower.replace(/\s+/g, '');
-            const albumNoSpaces = albumLower.replace(/\s+/g, '');
-
-            // 괄호 내용 + 공백 모두 제거한 버전 (핵심 개선)
-            // "헤이즈 (Heize)" → "헤이즈", "BTS (방탄소년단)" → "bts"
-            const titleClean = stripParens(titleLower);
-            const artistClean = stripParens(artistLower);
-            const albumClean = stripParens(albumLower);
-
-            // 결합 매칭용 (아티스트+제목, 제목+아티스트)
-            const combinedNoSpaces = artistNoSpaces + titleNoSpaces;
-            const combinedClean = artistClean + titleClean;
-            const reverseCombinedClean = titleClean + artistClean;
-
-            let score = 0;
-
-            // (가) 정확 매칭 (공백 포함 원본 그대로 일치) → 최고 점수
-            if (titleLower.includes(exactPattern)) score = 100;
-            else if (artistLower.includes(exactPattern)) score = 95;
-            else if (albumLower.includes(exactPattern)) score = 90;
-            // (나) 공백 제거 후 전체 검색어 매칭
-            else if (titleNoSpaces.includes(searchLower)) score = 80;
-            else if (artistNoSpaces.includes(searchLower)) score = 75;
-            else if (albumNoSpaces.includes(searchLower)) score = 70;
-            // (나-2) 괄호 제거 후 매칭 (예: "헤이즈" in "헤이즈(Heize)" → 괄호 제거 시 "헤이즈")
-            else if (titleClean.includes(searchLower)) score = 78;
-            else if (artistClean.includes(searchLower)) score = 73;
-            else if (albumClean.includes(searchLower)) score = 68;
-            // (다) 아티스트+제목 결합 매칭 (괄호 제거 버전 포함)
-            // "헤이즈evenif" in "헤이즈(heize)evenif" → 실패
-            // "헤이즈evenif" in "헤이즈evenif" (괄호 제거) → 성공!
-            else if (combinedNoSpaces.includes(searchLower)) score = 65;
-            else if (combinedClean.includes(searchLower)) score = 63;
-            else if (reverseCombinedClean.includes(searchLower)) score = 60;
-            // (라) 다중 단어 AND 매칭 (모든 단어가 각각 포함)
-            // "헤이즈 Even if" → ["헤이즈", "Even", "if"] 각각 매칭
-            else if (searchWords.length > 1) {
-              const allWordsMatch = searchWords.every((word) => {
-                const wordLower = word.toLowerCase().replace(/\s+/g, '');
-                return (
-                  titleNoSpaces.includes(wordLower) ||
-                  artistNoSpaces.includes(wordLower) ||
-                  albumNoSpaces.includes(wordLower) ||
-                  artistClean.includes(wordLower) ||
-                  titleClean.includes(wordLower)
-                );
-              });
-              if (allWordsMatch) score = 50;
-            }
-
-            return { sheet, score };
-          })
-          .filter((item) => item.score > 0)
-          .sort((a, b) => b.score - a.score || new Date(b.sheet.created_at).getTime() - new Date(a.sheet.created_at).getTime())
-          .map((item) => item.sheet);
-
-        setDrumSheets(normalizeSheets(scored));
+        // 클라이언트 측 점수 계산 로직 완전 삭제
+        // DB에서 가져온 데이터를 그대로 사용
+        setDrumSheets(normalizeSheets(data || []));
       } else if (selectedArtist || selectedAlbum) {
         // 아티스트나 앨범 필터가 있을 때는 카테고리 제한 없이 모든 곡을 가져옴
         let query = supabase
