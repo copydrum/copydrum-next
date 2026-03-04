@@ -367,7 +367,7 @@ export default {
   'sheetDetail.difficulty.intermediate': '中級',
   'sheetDetail.difficulty.advanced': '上級',
   'sheetDetail.difficulty.notSet': '未設定',
-  'sheetDetail.instrumentPart': '楽器パート: ドラム',
+  'sheetDetail.instrumentPart': 'パート : ドラム楽譜',
   'sheetDetail.includes': '含まれる内容',
   'sheetDetail.noLyrics': '歌詞なし',
   'sheetDetail.performanceVideo': '演奏動画',

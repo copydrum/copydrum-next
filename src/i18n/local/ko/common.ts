@@ -355,7 +355,7 @@ export default {
   'sheetDetail.difficulty.intermediate': '중급',
   'sheetDetail.difficulty.advanced': '고급',
   'sheetDetail.difficulty.notSet': '미설정',
-  'sheetDetail.instrumentPart': '악기파트 : 드럼',
+  'sheetDetail.instrumentPart': '파트 : 드럼악보',
   'sheetDetail.includes': '구매 전 확인사항',
   'sheetDetail.noLyrics': '가사없음',
   'sheetDetail.performanceVideo': '연주 영상',

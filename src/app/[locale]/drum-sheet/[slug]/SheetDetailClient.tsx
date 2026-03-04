@@ -431,6 +431,7 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
                     {sheet.album_name && (
                       <p className="text-sm text-gray-500 mb-2">{t('sheetDetail.album')}: {sheet.album_name}</p>
                     )}
+                    <p className="text-sm text-gray-500 mb-2">{t('sheetDetail.instrumentPart')}</p>
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getDifficultyBadgeColor(sheet.difficulty)}`}>
                         {getDifficultyDisplayText(sheet.difficulty)}
@@ -598,13 +599,11 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
                 {sheet.album_name && (
                   <p className="text-lg text-gray-500 mb-2">{t('sheetDetail.album')}: {sheet.album_name}</p>
                 )}
+                <p className="text-lg text-gray-500 mb-2">{t('sheetDetail.instrumentPart')}</p>
                 <div className="flex items-center space-x-4 text-sm text-gray-500">
                   <span className="flex items-center space-x-1">
                     <Music className="w-4 h-4" />
                     <span>{getCategoryName(sheet.categories?.name)}</span>
-                  </span>
-                  <span className="flex items-center space-x-1">
-                    <span>{t('sheetDetail.instrumentPart')}</span>
                   </span>
                 </div>
               </div>

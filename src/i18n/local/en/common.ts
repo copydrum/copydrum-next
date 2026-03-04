@@ -369,7 +369,7 @@ export default {
   'sheetDetail.difficulty.intermediate': 'Intermediate',
   'sheetDetail.difficulty.advanced': 'Advanced',
   'sheetDetail.difficulty.notSet': 'Not Set',
-  'sheetDetail.instrumentPart': 'Instrument Part: Drums',
+  'sheetDetail.instrumentPart': 'Part : Drum Sheet Music',
   'sheetDetail.includes': 'Includes',
   'sheetDetail.noLyrics': 'No lyrics',
   'sheetDetail.performanceVideo': 'Performance Video',

@@ -962,13 +962,11 @@ export default function SheetDetailPage() {
                 {sheet.album_name && (
                   <p className="text-lg text-gray-500 mb-2">{t('sheetDetail.album')}: {sheet.album_name}</p>
                 )}
+                <p className="text-lg text-gray-500 mb-2">{t('sheetDetail.instrumentPart')}</p>
                 <div className="flex items-center space-x-4 text-sm text-gray-500">
                   <span className="flex items-center space-x-1">
                     <Music className="w-4 h-4" />
                     <span>{getCategoryName(sheet.categories?.name)}</span>
-                  </span>
-                  <span className="flex items-center space-x-1">
-                    <span>{t('sheetDetail.instrumentPart')}</span>
                   </span>
                 </div>
               </div>
@@ -977,6 +975,7 @@ export default function SheetDetailPage() {
               {sheet.album_name && (
                 <p className="text-sm text-gray-500 lg:hidden">{t('sheetDetail.album')}: {sheet.album_name}</p>
               )}
+              <p className="text-sm text-gray-500 lg:hidden">{t('sheetDetail.instrumentPart')}</p>
 
               {/* Difficulty Badge & Additional Info - 데스크톱만 */}
               <div className="hidden lg:flex items-center space-x-4 mb-4">
