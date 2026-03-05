@@ -90,13 +90,24 @@ export default function CollectionsPageClient() {
 
       if (error) throw error;
       
-      // 특정 카테고리 제외: 기초/입문, 드럼테크닉, 루디먼트, 리듬패턴, 필인
-      const excludedCategories = ['기초/입문', '드럼테크닉', '루디먼트', '리듬패턴', '필인'];
+      // 특정 카테고리 제외: 기초/입문, 드럼테크닉, 루디먼트, 리듬패턴, 필인, CCM
+      const excludedCategories = ['기초/입문', '드럼테크닉', '루디먼트', '리듬패턴', '필인', 'CCM'];
       const filteredCategories = (data || []).filter(
         (category) => !excludedCategories.includes(category.name)
       );
       
-      setCategories(filteredCategories);
+      // 모음집 카테고리 순서 정의
+      const collectionCategoryOrder = ['팝', '가요', '락', 'J-POP', '재즈', '드럼솔로', '드럼커버', 'OST', '트로트/성인가요'];
+      const sortedCategories = [...filteredCategories].sort((a, b) => {
+        const indexA = collectionCategoryOrder.indexOf(a.name);
+        const indexB = collectionCategoryOrder.indexOf(b.name);
+        if (indexA === -1 && indexB === -1) return 0;
+        if (indexA === -1) return 1;
+        if (indexB === -1) return -1;
+        return indexA - indexB;
+      });
+      
+      setCategories(sortedCategories);
     } catch (error) {
       console.error('Error fetching categories:', error);
     }
@@ -219,7 +230,6 @@ export default function CollectionsPageClient() {
       '가요': t('categoriesPage.categories.kpop') || 'K-POP',
       '팝': t('categoriesPage.categories.pop') || 'Pop',
       '락': t('categoriesPage.categories.rock') || 'Rock',
-      'CCM': t('categoriesPage.categories.ccm') || 'CCM',
       '트로트/성인가요': t('categoriesPage.categories.trot') || 'Trot/Adult Contemporary',
       '재즈': t('categoriesPage.categories.jazz') || 'Jazz',
       'J-POP': t('categoriesPage.categories.jpop') || 'J-POP',
