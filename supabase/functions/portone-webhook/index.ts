@@ -305,25 +305,46 @@ serve(async (req) => {
       );
     }
 
-    // 결제 상태 로그만 남기고, 어떤 상태든 portone-payment-confirm에서 최종 검증하도록 한다.
     // PortOne V2 문서 권장사항: 웹훅 메시지를 그대로 신뢰하지 말고, API로 상태를 재조회해서 그 결과만 신뢰
-    // 따라서 웹훅의 status가 PAID가 아니더라도, 결제 관련 webhook이면 항상 portone-payment-confirm을 호출
     // 실제 결제 상태 검증은 portone-payment-confirm에서 PortOne REST API를 통해 수행됨
-    if (status !== "PAID") {
-      console.log("[portone-webhook] 결제 상태가 PAID가 아님 (웹훅 기준)", {
+    //
+    // 단, 웹훅의 status가 명백한 실패(FAILED, CANCELLED)인 경우에도
+    // portone-payment-confirm을 호출하여 PortOne API에서 최종 상태를 재확인하도록 함.
+    // portone-payment-confirm에서 FAILED/PENDING 등의 상태를 적절히 처리하므로
+    // 여기서는 로그만 남기고 모든 결제 관련 webhook은 portone-payment-confirm으로 전달.
+    const FAILED_STATUSES = ["FAILED", "CANCELLED", "PARTIAL_CANCELLED"];
+    const PENDING_STATUSES = ["PENDING", "READY", "PAY_PENDING"];
+
+    if (FAILED_STATUSES.includes(status)) {
+      console.warn("[portone-webhook] ⚠️ 결제 실패/취소 상태 감지 (웹훅 기준):", {
         paymentId,
         orderId,
         status,
         eventType,
-        note: "웹훅 status는 참고용이며, 실제 검증은 portone-payment-confirm에서 PortOne API로 수행",
+        note: "portone-payment-confirm에서 PortOne API로 최종 재확인 후 주문을 FAILED로 처리",
       });
-      // 여기서 조기 return 하지 말고, 그대로 아래 로직(portone-payment-confirm 호출)으로 진행
-    } else {
-      console.log("[portone-webhook] 결제 상태가 PAID (웹훅 기준)", {
+    } else if (PENDING_STATUSES.includes(status)) {
+      console.log("[portone-webhook] ⏳ 결제 처리 대기 중 (웹훅 기준):", {
         paymentId,
         orderId,
         status,
         eventType,
+        note: "portone-payment-confirm에서 PortOne API로 최종 재확인 후 적절히 처리",
+      });
+    } else if (status === "PAID") {
+      console.log("[portone-webhook] ✅ 결제 상태가 PAID (웹훅 기준):", {
+        paymentId,
+        orderId,
+        status,
+        eventType,
+      });
+    } else {
+      console.warn("[portone-webhook] ❓ 알 수 없는 결제 상태 (웹훅 기준):", {
+        paymentId,
+        orderId,
+        status,
+        eventType,
+        note: "portone-payment-confirm에서 PortOne API로 최종 재확인",
       });
     }
 

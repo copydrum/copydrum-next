@@ -1,3 +1,9 @@
 {
-  "badge_preorder": "Pre-order"
+  "badge_preorder": "Pre-order",
+  "payment": {
+    "failed": "Payment failed. Please check your card balance or status and try again.",
+    "pending": "Payment approval is pending. It will be automatically updated when processing is complete.",
+    "unknownStatus": "Unable to verify payment status. Please contact customer support.",
+    "verificationFailed": "Unable to verify payment information. Please try again later."
+  }
 }

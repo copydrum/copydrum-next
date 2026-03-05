@@ -370,10 +370,127 @@ serve(async (req) => {
     const isVirtualAccountIssued = paymentStatus === "VIRTUAL_ACCOUNT_ISSUED";
     const isPaid = paymentStatus === "PAID";
 
-    if (!isPaid && !isVirtualAccountIssued) {
-       console.warn("결제 상태가 PAID/VIRTUAL_ACCOUNT_ISSUED가 아님", paymentStatus);
-       return buildResponse({ success: false, error: { message: `Payment status is ${paymentStatus}` } }, 400, origin);
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // [PAYMENT STATUS VALIDATION] 결제 상태 3단계 분기 처리
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    const FAILED_STATUSES = ["FAILED", "CANCELLED", "PARTIAL_CANCELLED"];
+    const PENDING_STATUSES = ["PENDING", "READY", "PAY_PENDING"];
+
+    // [Case 2] 명백한 실패 (FAILED, CANCELLED 등)
+    if (FAILED_STATUSES.includes(paymentStatus)) {
+      console.error("[portone-payment-confirm] ❌ 결제 실패/취소 상태 감지 — 주문 승인 거부:", {
+        paymentId,
+        paymentStatus,
+        orderId: order.id,
+      });
+
+      // 주문 상태를 FAILED로 업데이트
+      const { error: failUpdateError } = await supabase
+        .from("orders")
+        .update({
+          status: "failed",
+          payment_status: "failed",
+          updated_at: new Date().toISOString(),
+          metadata: {
+            ...(order.metadata || {}),
+            portone_status: paymentStatus,
+            portone_payment_id: paymentId,
+            failed_at: new Date().toISOString(),
+          },
+        })
+        .eq("id", order.id);
+
+      if (failUpdateError) {
+        console.error("[portone-payment-confirm] 주문 FAILED 업데이트 실패:", failUpdateError);
+      }
+
+      return buildResponse(
+        {
+          success: false,
+          error: {
+            message: "결제에 실패했습니다. 카드 잔고나 상태를 확인 후 다시 시도해 주세요.",
+            errorCode: "PAYMENT_FAILED",
+            paymentStatus,
+          },
+        },
+        400,
+        origin
+      );
     }
+
+    // [Case 3] 처리 중 (PENDING, READY 등) — 해외 결제 지연 등
+    if (PENDING_STATUSES.includes(paymentStatus)) {
+      console.log("[portone-payment-confirm] ⏳ 결제 처리 대기 중:", {
+        paymentId,
+        paymentStatus,
+        orderId: order.id,
+      });
+
+      // 주문 상태를 pending으로 유지
+      const { error: pendingUpdateError } = await supabase
+        .from("orders")
+        .update({
+          transaction_id: paymentId,
+          payment_provider: "portone",
+          updated_at: new Date().toISOString(),
+          metadata: {
+            ...(order.metadata || {}),
+            portone_status: paymentStatus,
+            portone_payment_id: paymentId,
+          },
+        })
+        .eq("id", order.id);
+
+      if (pendingUpdateError) {
+        console.error("[portone-payment-confirm] 주문 PENDING 업데이트 실패:", pendingUpdateError);
+      }
+
+      return buildResponse(
+        {
+          success: false,
+          pending: true,
+          message: "결제 승인 대기 중입니다. 처리가 완료되면 자동으로 업데이트됩니다.",
+          errorCode: "PAYMENT_PENDING",
+          data: {
+            order,
+            status: paymentStatus,
+            paymentId,
+          },
+        },
+        200,
+        origin
+      );
+    }
+
+    // [Unknown] PAID도, VIRTUAL_ACCOUNT_ISSUED도, FAILED도, PENDING도 아닌 상태 → 안전을 위해 거부
+    if (!isPaid && !isVirtualAccountIssued) {
+      console.error("[portone-payment-confirm] ❌ 알 수 없는 결제 상태 — 주문 승인 거부:", {
+        paymentId,
+        paymentStatus,
+      });
+      return buildResponse(
+        {
+          success: false,
+          error: {
+            message: `결제 상태를 확인할 수 없습니다 (${paymentStatus}). 고객센터에 문의해 주세요.`,
+            errorCode: "PAYMENT_UNKNOWN_STATUS",
+            paymentStatus,
+          },
+        },
+        400,
+        origin
+      );
+    }
+
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // [Case 1] ✅ 결제 완료 확인 (PAID 또는 VIRTUAL_ACCOUNT_ISSUED)
+    // 여기서부터는 결제가 확실히 완료/가상계좌 발급된 경우만 처리
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    console.log("[portone-payment-confirm] ✅ 결제 상태 확인 완료:", {
+      paymentId,
+      paymentStatus,
+      orderId: order.id,
+    });
 
     // 가상계좌 정보 추출 및 매핑
     const va = portonePayment.virtualAccount;

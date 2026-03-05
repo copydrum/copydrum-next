@@ -76,6 +76,70 @@ async function getPortOnePayment(paymentId: string, apiSecret: string): Promise<
   throw new Error("Invalid payment data structure from PortOne");
 }
 
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 포트원 V2 결제 상태값 분류 (엄격한 화이트리스트 방식)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const PAID_STATUSES = ['PAID'] as const;
+const FAILED_STATUSES = ['FAILED', 'CANCELLED', 'PARTIAL_CANCELLED'] as const;
+const PENDING_STATUSES = ['PENDING', 'READY', 'PAY_PENDING', 'VIRTUAL_ACCOUNT_ISSUED'] as const;
+
+function classifyPaymentStatus(status: string): 'PAID' | 'FAILED' | 'PENDING' | 'UNKNOWN' {
+  if ((PAID_STATUSES as readonly string[]).includes(status)) return 'PAID';
+  if ((FAILED_STATUSES as readonly string[]).includes(status)) return 'FAILED';
+  if ((PENDING_STATUSES as readonly string[]).includes(status)) return 'PENDING';
+  return 'UNKNOWN';
+}
+
+// 기존 주문이 있으면 상태를 업데이트하는 헬퍼 함수
+async function updateOrderStatusIfExists(
+  supabase: ReturnType<typeof createClient>,
+  orderId: string | undefined,
+  paymentId: string,
+  status: string,
+  paymentStatus: string,
+): Promise<void> {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+  let order: any = null;
+
+  // orderId로 조회
+  if (orderId && uuidRegex.test(orderId)) {
+    const { data } = await supabase
+      .from('orders')
+      .select('id')
+      .eq('id', orderId)
+      .maybeSingle();
+    order = data;
+  }
+
+  // transaction_id로 조회
+  if (!order) {
+    const { data } = await supabase
+      .from('orders')
+      .select('id')
+      .eq('transaction_id', paymentId)
+      .maybeSingle();
+    order = data;
+  }
+
+  if (order) {
+    const { error } = await supabase
+      .from('orders')
+      .update({
+        status,
+        payment_status: paymentStatus,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', order.id);
+
+    if (error) {
+      console.error(`[verify] 주문 상태(${status}) 업데이트 실패:`, { orderId: order.id, error });
+    } else {
+      console.log(`[verify] 주문 상태 → ${status} 업데이트 완료:`, { orderId: order.id });
+    }
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -90,6 +154,129 @@ export async function POST(request: NextRequest) {
     }
 
     const supabase = createAdminClient();
+
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // [CRITICAL STEP] 포트원 API로 결제 상태를 무조건 먼저 검증
+    // 결제가 실제로 PAID 상태인지 확인하지 않으면 절대 주문을 완료하지 않음
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    const portoneApiKey = process.env.PORTONE_API_KEY;
+    if (!portoneApiKey) {
+      console.error('[verify] ❌ PORTONE_API_KEY 환경변수 없음');
+      return NextResponse.json(
+        { success: false, error: '서버 설정 오류: 결제 검증을 수행할 수 없습니다.' },
+        { status: 500 }
+      );
+    }
+
+    let portonePayment: any;
+    try {
+      portonePayment = await getPortOnePayment(paymentId, portoneApiKey);
+      console.log('[verify] 🔍 포트원 결제 단건 조회 결과:', {
+        paymentId: portonePayment.id,
+        status: portonePayment.status,
+        amount: portonePayment.amount,
+      });
+    } catch (portoneError) {
+      console.error('[verify] ❌ 포트원 API 결제 조회 실패 — 결제 검증 불가, 주문 승인 거부:', {
+        error: portoneError instanceof Error ? portoneError.message : String(portoneError),
+        paymentId,
+      });
+      // 포트원 API 조회 자체가 실패하면 결제 상태를 확인할 수 없으므로 절대 승인하지 않음
+      return NextResponse.json(
+        {
+          success: false,
+          error: '결제 정보를 확인할 수 없습니다. 잠시 후 다시 시도해 주세요.',
+          errorCode: 'PAYMENT_VERIFICATION_FAILED',
+        },
+        { status: 502 }
+      );
+    }
+
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // [PAYMENT STATUS VALIDATION] 결제 상태 3단계 분기 처리
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    const portoneStatus = portonePayment.status;
+    const statusCategory = classifyPaymentStatus(portoneStatus);
+
+    // ────────────────────────────────────────────────────────────────
+    // [Case 2] 명백한 실패 (FAILED, CANCELLED 등) 또는 PG사 에러
+    // → 주문을 절대 승인하지 않음. 주문 상태를 'FAILED'로 처리.
+    // ────────────────────────────────────────────────────────────────
+    if (statusCategory === 'FAILED') {
+      console.error('[verify] ❌ 결제 실패/취소 상태 감지 — 주문 승인 거부:', {
+        paymentId,
+        portoneStatus,
+      });
+
+      // 기존 주문이 있으면 FAILED로 업데이트
+      await updateOrderStatusIfExists(supabase, orderId, paymentId, 'failed', 'failed');
+
+      return NextResponse.json(
+        {
+          success: false,
+          error: '결제에 실패했습니다. 카드 잔고나 상태를 확인 후 다시 시도해 주세요.',
+          errorCode: 'PAYMENT_FAILED',
+          paymentStatus: portoneStatus,
+        },
+        { status: 400 }
+      );
+    }
+
+    // ────────────────────────────────────────────────────────────────
+    // [Case 3] 처리 중 (PENDING, READY, PAY_PENDING, VIRTUAL_ACCOUNT_ISSUED)
+    // → 해외 결제 지연 등으로 아직 처리 중일 수 있음.
+    //   무작정 에러를 던지지 않고, 주문 상태를 PENDING으로 유지.
+    //   이후 Webhook을 통해 최종 성공/실패 여부를 업데이트.
+    // ────────────────────────────────────────────────────────────────
+    if (statusCategory === 'PENDING') {
+      console.log('[verify] ⏳ 결제 처리 대기 중 — 주문 승인 보류:', {
+        paymentId,
+        portoneStatus,
+      });
+
+      // 기존 주문이 있으면 pending 상태 유지 확인
+      await updateOrderStatusIfExists(supabase, orderId, paymentId, 'pending', 'pending');
+
+      return NextResponse.json({
+        success: false,
+        pending: true,
+        message: '결제 승인 대기 중입니다. 처리가 완료되면 자동으로 업데이트됩니다.',
+        errorCode: 'PAYMENT_PENDING',
+        paymentStatus: portoneStatus,
+      });
+    }
+
+    // ────────────────────────────────────────────────────────────────
+    // [Unknown] 알 수 없는 상태 → 안전을 위해 거부 (화이트리스트 방식)
+    // ────────────────────────────────────────────────────────────────
+    if (statusCategory === 'UNKNOWN') {
+      console.error('[verify] ❌ 알 수 없는 결제 상태 — 안전을 위해 주문 승인 거부:', {
+        paymentId,
+        portoneStatus,
+      });
+
+      return NextResponse.json(
+        {
+          success: false,
+          error: '결제 상태를 확인할 수 없습니다. 고객센터에 문의해 주세요.',
+          errorCode: 'PAYMENT_UNKNOWN_STATUS',
+          paymentStatus: portoneStatus,
+        },
+        { status: 400 }
+      );
+    }
+
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // [Case 1] ✅ 결제 완료 확인 (PAID)
+    // 여기서부터는 결제가 확실히 PAID인 경우만 주문 완료 처리 진행
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    console.log('[verify] ✅ 포트원 결제 PAID 확인 완료 — 주문 완료 처리 진행:', {
+      paymentId,
+      portoneStatus,
+      amount: portonePayment.amount,
+    });
+
+    // ─── 주문 조회 시작 ───
     let order: any = null;
 
     // 1. 주문 정보 조회 (orderId가 있으면 먼저 조회)
@@ -141,31 +328,15 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 3. 주문이 여전히 없으면 포트원 API를 조회해서 주문 생성 시도
+    // 3. 주문이 여전히 없으면 포트원 결제 정보로 주문 생성 시도 (Lazy Creation)
+    //    (포트원 결제 정보는 이미 위에서 조회 완료 & PAID 확인됨)
     if (!order) {
-      console.error('[verify] ⚠️ 주문이 DB에 없음. 포트원 API 조회하여 주문 생성 시도:', {
+      console.error('[verify] ⚠️ 주문이 DB에 없음. 포트원 결제 정보로 주문 생성 시도:', {
         paymentId,
         orderId: orderId || '없음',
       });
 
       try {
-        const portoneApiKey = process.env.PORTONE_API_KEY;
-        if (!portoneApiKey) {
-          console.error('[verify] ❌ PORTONE_API_KEY 환경변수 없음');
-          return NextResponse.json(
-            { success: false, error: '포트원 API 키가 설정되지 않았습니다.' },
-            { status: 500 }
-          );
-        }
-
-        const portonePayment = await getPortOnePayment(paymentId, portoneApiKey);
-        console.log('[verify] 포트원 API 조회 결과:', {
-          paymentId: portonePayment.id,
-          status: portonePayment.status,
-          amount: portonePayment.amount,
-          metadata: portonePayment.metadata,
-        });
-
         // metadata에서 clientOrderId 또는 supabaseOrderId 추출
         const metadata = portonePayment.metadata || {};
         const clientOrderId = metadata.clientOrderId || metadata.supabaseOrderId || orderId;
@@ -195,14 +366,14 @@ export async function POST(request: NextRequest) {
         }
 
         // UUID 형식 검증 (RFC 4122 표준: 8-4-4-4-12 형식)
-        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-        const isValidUUID = uuidRegex.test(clientOrderId);
+        const lazyUuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        const isLazyValidUUID = lazyUuidRegex.test(clientOrderId);
         
         // UUID가 아닌 경우 새로운 UUID 생성 (과거 코드에서 넘어온 요청 대비)
         let finalOrderId: string;
         let originalClientOrderId: string | undefined;
         
-        if (isValidUUID) {
+        if (isLazyValidUUID) {
           finalOrderId = clientOrderId;
           console.log('[verify] ✅ clientOrderId가 유효한 UUID 형식:', finalOrderId);
         } else {
@@ -294,7 +465,7 @@ export async function POST(request: NextRequest) {
           paymentId,
         });
       } catch (portoneError) {
-        console.error('[verify] ❌ 포트원 API 조회 또는 주문 생성 실패:', {
+        console.error('[verify] ❌ 주문 생성 실패:', {
           error: portoneError,
           message: portoneError instanceof Error ? portoneError.message : String(portoneError),
           paymentId,
@@ -303,7 +474,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
           { 
             success: false, 
-            error: '포트원 API 조회 또는 주문 생성에 실패했습니다.',
+            error: '주문 생성에 실패했습니다.',
             details: portoneError instanceof Error ? portoneError.message : String(portoneError),
           },
           { status: 500 }
@@ -322,6 +493,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 5. completeOrderAfterPayment 호출 (예상 완료일 계산 및 저장 포함, 주문 상태 업데이트도 처리)
+    //    ※ 여기에 도달했다는 것은 포트원 결제 상태가 확실히 PAID임을 의미함
     const resolvedPaymentMethod = paymentMethod || order.payment_method || 'paypal';
     try {
       const { completeOrderAfterPayment } = await import('@/lib/payments/completeOrderAfterPayment');
@@ -381,6 +553,7 @@ export async function POST(request: NextRequest) {
       orderId: updatedOrder?.id || order.id,
       paymentId,
       paymentMethod: resolvedPaymentMethod,
+      portoneStatus,
     });
 
     // 7. purchases 테이블에 구매 기록 삽입 (중복 방지를 위해 completeOrderAfterPayment 이후에)
