@@ -1217,6 +1217,9 @@ const AdminPage: React.FC = () => {
   const [inquiryReplySubmitting, setInquiryReplySubmitting] = useState<string | null>(null);
 
   const [collections, setCollections] = useState<Collection[]>([]);
+  const [collectionSearchTerm, setCollectionSearchTerm] = useState('');
+  const [collectionCurrentPage, setCollectionCurrentPage] = useState(1);
+  const [collectionItemsPerPage, setCollectionItemsPerPage] = useState(20);
   const [isAddingCollection, setIsAddingCollection] = useState(false);
   const [editingCollection, setEditingCollection] = useState<Collection | null>(null);
   const [newCollection, setNewCollection] = useState<CollectionFormState>(createEmptyCollectionFormState());
@@ -5948,6 +5951,25 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
     setSheetCurrentPage(1);
   }, [sheetSearchTerm, sheetCategoryFilter, sheetItemsPerPage]);
 
+  // 컬렉션 필터링 및 페이지네이션
+  const filteredCollections = collections.filter(collection => {
+    // 제목 검색 필터
+    const matchesSearch = !collectionSearchTerm || 
+      collection.title.toLowerCase().includes(collectionSearchTerm.toLowerCase());
+    return matchesSearch;
+  });
+
+  // 페이지네이션 계산
+  const collectionTotalPages = Math.ceil(filteredCollections.length / collectionItemsPerPage);
+  const collectionStartIndex = (collectionCurrentPage - 1) * collectionItemsPerPage;
+  const collectionEndIndex = collectionStartIndex + collectionItemsPerPage;
+  const paginatedCollections = filteredCollections.slice(collectionStartIndex, collectionEndIndex);
+
+  // 검색어, 페이지 크기 변경 시 첫 페이지로 리셋
+  useEffect(() => {
+    setCollectionCurrentPage(1);
+  }, [collectionSearchTerm, collectionItemsPerPage]);
+
   const orderPaymentOptions = React.useMemo(() => {
     const unique = new Set<string>();
     orders.forEach((order) => {
@@ -9131,6 +9153,21 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+        <div className="p-6 border-b border-gray-100">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="relative flex-1">
+              <i className="ri-search-line absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"></i>
+              <input
+                type="text"
+                placeholder="제목 검색..."
+                value={collectionSearchTerm}
+                onChange={(e) => setCollectionSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+          </div>
+        </div>
+
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50">
@@ -9144,8 +9181,15 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {collections.map((collection) => (
-                <tr key={collection.id} className="hover:bg-gray-50">
+              {paginatedCollections.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
+                    {collectionSearchTerm ? '검색 결과가 없습니다.' : '악보모음집이 없습니다.'}
+                  </td>
+                </tr>
+              ) : (
+                paginatedCollections.map((collection) => (
+                  <tr key={collection.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     {collection.title}
                   </td>
@@ -9230,9 +9274,89 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
                     </div>
                   </td>
                 </tr>
-              ))}
+                ))
+              )}
             </tbody>
           </table>
+        </div>
+
+        {/* 페이지네이션 */}
+        <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="text-sm text-gray-700">
+              전체 {filteredCollections.length}개 중 {filteredCollections.length > 0 ? collectionStartIndex + 1 : 0}-{Math.min(collectionEndIndex, filteredCollections.length)}개 표시
+            </div>
+            <div className="flex items-center gap-2">
+              <label htmlFor="collectionItemsPerPage" className="text-sm text-gray-500">페이지당</label>
+              <select
+                id="collectionItemsPerPage"
+                value={collectionItemsPerPage}
+                onChange={(e) => setCollectionItemsPerPage(Number(e.target.value))}
+                className="px-2 py-1 rounded-lg text-sm border border-gray-300 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                {[20, 50, 100, 500, 1000].map((size) => (
+                  <option key={size} value={size}>{size}개</option>
+                ))}
+              </select>
+            </div>
+          </div>
+          {collectionTotalPages > 1 && (
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => setCollectionCurrentPage(prev => Math.max(1, prev - 1))}
+                disabled={collectionCurrentPage === 1}
+                className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${collectionCurrentPage === 1
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                  }`}
+              >
+                <i className="ri-arrow-left-s-line"></i>
+              </button>
+
+              {Array.from({ length: collectionTotalPages }, (_, i) => i + 1).map((page) => {
+                // 현재 페이지 주변 2페이지씩만 표시
+                if (
+                  page === 1 ||
+                  page === collectionTotalPages ||
+                  (page >= collectionCurrentPage - 2 && page <= collectionCurrentPage + 2)
+                ) {
+                  return (
+                    <button
+                      key={page}
+                      onClick={() => setCollectionCurrentPage(page)}
+                      className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${collectionCurrentPage === page
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                        }`}
+                    >
+                      {page}
+                    </button>
+                  );
+                } else if (
+                  page === collectionCurrentPage - 3 ||
+                  page === collectionCurrentPage + 3
+                ) {
+                  return (
+                    <span key={page} className="px-2 text-gray-400">
+                      ...
+                    </span>
+                  );
+                }
+                return null;
+              })}
+
+              <button
+                onClick={() => setCollectionCurrentPage(prev => Math.min(collectionTotalPages, prev + 1))}
+                disabled={collectionCurrentPage === collectionTotalPages}
+                className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${collectionCurrentPage === collectionTotalPages
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                  }`}
+              >
+                <i className="ri-arrow-right-s-line"></i>
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
