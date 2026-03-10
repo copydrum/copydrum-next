@@ -441,8 +441,8 @@ export default function CollectionDetailClient({ slug }: CollectionDetailClientP
 
               {/* Mobile Purchase Card - shown above sheets on mobile only */}
               <div className="lg:hidden bg-white rounded-lg shadow-sm overflow-hidden">
-                {/* Thumbnail - 배너형 이미지 */}
-                <div className="w-full aspect-[2/1] bg-gray-200 overflow-hidden">
+                {/* Thumbnail - 정사각형 이미지 */}
+                <div className="w-full aspect-square bg-gray-200 overflow-hidden">
                   {collection.thumbnail_url ? (
                     <img
                       src={collection.thumbnail_url}
