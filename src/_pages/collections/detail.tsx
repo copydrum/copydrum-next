@@ -569,13 +569,8 @@ export default function CollectionDetailClient({ slug }: CollectionDetailClientP
                             </div>
                           </div>
 
-                          {/* Price and Action - separate row */}
-                          <div className="flex items-center justify-between mt-2.5 pt-2.5 border-t border-gray-100">
-                            <span className="text-sm font-semibold text-gray-900">
-                              {sheet.price > 0
-                                ? formatCurrency(convertFromKrw(sheet.price, currency, locale), currency)
-                                : t('collectionsDetail.sheet.free')}
-                            </span>
+                          {/* Action - separate row */}
+                          <div className="flex items-center justify-end mt-2.5 pt-2.5 border-t border-gray-100">
                             <button
                               onClick={(e) => { e.stopPropagation(); handleSheetClick(sheet.slug); }}
                               className="px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded hover:bg-blue-700 transition-colors"
@@ -617,15 +612,8 @@ export default function CollectionDetailClient({ slug }: CollectionDetailClientP
                             )}
                           </div>
 
-                          {/* Price and Action */}
-                          <div className="flex-shrink-0 flex items-center gap-4">
-                            <div className="text-right">
-                              <div className="text-lg font-semibold text-gray-900">
-                                {sheet.price > 0
-                                  ? formatCurrency(convertFromKrw(sheet.price, currency, locale), currency)
-                                  : t('collectionsDetail.sheet.free')}
-                              </div>
-                            </div>
+                          {/* Action */}
+                          <div className="flex-shrink-0 flex items-center">
                             <button
                               onClick={(e) => { e.stopPropagation(); handleSheetClick(sheet.slug); }}
                               className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded hover:bg-blue-700 transition-colors whitespace-nowrap"
