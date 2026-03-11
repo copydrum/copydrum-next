@@ -1235,6 +1235,13 @@ const AdminPage: React.FC = () => {
   const [collectionArtistSearchTerm, setCollectionArtistSearchTerm] = useState('');
   const [isAddingCollectionLoading, setIsAddingCollectionLoading] = useState(false);
 
+  // 모음집 악보관리 모달 - 검색 및 가격 편집 상태
+  const [collectionModalSearchTerm, setCollectionModalSearchTerm] = useState('');
+  const [collectionModalArtistSearchTerm, setCollectionModalArtistSearchTerm] = useState('');
+  const [collectionModalSalePrice, setCollectionModalSalePrice] = useState<number>(0);
+  const [collectionModalOriginalPrice, setCollectionModalOriginalPrice] = useState<number>(0);
+  const [collectionModalDiscountPercentage, setCollectionModalDiscountPercentage] = useState<number>(0);
+
   const [copyrightStartDate, setCopyrightStartDate] = useState<string>(
     () => getRangeForQuickKey('this-month').start,
   );
@@ -3776,13 +3783,26 @@ const AdminPage: React.FC = () => {
             id,
             title,
             artist,
+            price,
             thumbnail_url
           )
         `)
         .eq('collection_id', collectionId);
 
       if (error) throw error;
-      setCollectionSheets(data || []);
+      const sheetsData = data || [];
+      setCollectionSheets(sheetsData);
+
+      // 모음집 가격 정보 초기화
+      const totalOriginalPrice = sheetsData.reduce((total: number, cs: any) => total + (cs.drum_sheets?.price || 0), 0);
+      setCollectionModalOriginalPrice(totalOriginalPrice);
+
+      // 현재 모음집의 할인가/할인율 가져오기
+      const currentCollection = collections.find(c => c.id === collectionId);
+      if (currentCollection) {
+        setCollectionModalSalePrice(currentCollection.sale_price || 0);
+        setCollectionModalDiscountPercentage(currentCollection.discount_percentage || 0);
+      }
     } catch (error) {
       console.error('모음집 악보 목록 로드 오류:', error);
     }
@@ -3823,6 +3843,36 @@ const AdminPage: React.FC = () => {
     acc[artist].push(sheet);
     return acc;
   }, {} as Record<string, DrumSheet[]>);
+
+  // 모음집 악보관리 모달 - 악보 검색 필터링
+  const filteredSheetsForCollectionModal = React.useMemo(() => {
+    // 검색어가 없으면 빈 배열 반환 (초기에 리스트 미표시)
+    if (!collectionModalSearchTerm && !collectionModalArtistSearchTerm) return [];
+
+    const searchLower = collectionModalSearchTerm.toLowerCase();
+    const artistLower = collectionModalArtistSearchTerm.toLowerCase();
+    const includedIds = new Set(collectionSheets.map(cs => cs.drum_sheet_id));
+
+    return sheets.filter(sheet => {
+      const matchesSearch = !collectionModalSearchTerm ||
+        sheet.title.toLowerCase().includes(searchLower) ||
+        sheet.artist.toLowerCase().includes(searchLower);
+      const matchesArtist = !collectionModalArtistSearchTerm ||
+        sheet.artist.toLowerCase().includes(artistLower);
+      const notIncluded = !includedIds.has(sheet.id);
+      return matchesSearch && matchesArtist && notIncluded;
+    });
+  }, [sheets, collectionModalSearchTerm, collectionModalArtistSearchTerm, collectionSheets]);
+
+  // 모음집 악보관리 모달 - 아티스트별 악보 그룹화
+  const sheetsByArtistForModal = React.useMemo(() => {
+    return filteredSheetsForCollectionModal.reduce((acc, sheet) => {
+      const artist = sheet.artist || '알 수 없음';
+      if (!acc[artist]) acc[artist] = [];
+      acc[artist].push(sheet);
+      return acc;
+    }, {} as Record<string, DrumSheet[]>);
+  }, [filteredSheetsForCollectionModal]);
 
   const handleAddSheetToNewCollection = (sheet: DrumSheet) => {
     if (!selectedSheetsForNewCollection.some(s => s.id === sheet.id)) {
@@ -4041,9 +4091,9 @@ const AdminPage: React.FC = () => {
 
       if (error) throw error;
 
-      alert('악보가 모음집에 추가되었습니다.');
+      // 악보 추가 후 목록 다시 로드 및 가격 재계산
       if (selectedCollectionId) {
-        loadCollectionSheets(selectedCollectionId);
+        await loadCollectionSheets(selectedCollectionId);
       }
     } catch (error: any) {
       if (error.code === '23505') {
@@ -4052,6 +4102,62 @@ const AdminPage: React.FC = () => {
         console.error('악보 추가 오류:', error);
         alert('악보 추가에 실패했습니다.');
       }
+    }
+  };
+
+  // 모음집 악보관리 모달 - 아티스트별 일괄 추가
+  const handleSelectArtistSheetsForModal = async (artist: string) => {
+    if (!selectedCollectionId) return;
+    const artistSheets = sheetsByArtistForModal[artist] || [];
+    if (artistSheets.length === 0) return;
+
+    try {
+      const inserts = artistSheets.map(sheet => ({
+        collection_id: selectedCollectionId,
+        drum_sheet_id: sheet.id
+      }));
+
+      const { error } = await supabase
+        .from('collection_sheets')
+        .insert(inserts);
+
+      if (error) throw error;
+
+      await loadCollectionSheets(selectedCollectionId);
+    } catch (error: any) {
+      if (error.code === '23505') {
+        alert('일부 악보가 이미 모음집에 포함되어 있습니다.');
+      } else {
+        console.error('악보 일괄 추가 오류:', error);
+        alert('악보 일괄 추가에 실패했습니다.');
+      }
+    }
+  };
+
+  // 모음집 악보관리 모달 - 가격 저장
+  const handleSaveCollectionPrice = async () => {
+    if (!selectedCollectionId) return;
+
+    try {
+      const discount = calculateDiscountPercentage(collectionModalOriginalPrice, collectionModalSalePrice);
+
+      const { error } = await supabase
+        .from('collections')
+        .update({
+          original_price: collectionModalOriginalPrice,
+          sale_price: collectionModalSalePrice,
+          discount_percentage: discount,
+        })
+        .eq('id', selectedCollectionId);
+
+      if (error) throw error;
+
+      setCollectionModalDiscountPercentage(discount);
+      alert('가격이 업데이트되었습니다.');
+      loadCollections();
+    } catch (error: any) {
+      console.error('가격 업데이트 오류:', error);
+      alert('가격 업데이트에 실패했습니다.');
     }
   };
 
@@ -4066,9 +4172,9 @@ const AdminPage: React.FC = () => {
 
       if (error) throw error;
 
-      alert('악보가 모음집에서 제거되었습니다.');
+      // 악보 제거 후 목록 다시 로드 및 가격 재계산
       if (selectedCollectionId) {
-        loadCollectionSheets(selectedCollectionId);
+        await loadCollectionSheets(selectedCollectionId);
       }
     } catch (error) {
       console.error('악보 제거 오류:', error);
@@ -9758,7 +9864,7 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
       {/* 모음집 악보 관리 모달 */}
       {showCollectionSheetsModal && selectedCollectionId && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-xl p-6 w-full max-w-5xl max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold text-gray-900">모음집 악보 관리</h3>
               <button
@@ -9766,6 +9872,8 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
                   setShowCollectionSheetsModal(false);
                   setSelectedCollectionId(null);
                   setCollectionSheets([]);
+                  setCollectionModalSearchTerm('');
+                  setCollectionModalArtistSearchTerm('');
                 }}
                 className="text-gray-500 hover:text-gray-700"
               >
@@ -9791,13 +9899,18 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
                             {cs.drum_sheets?.artist || ''}
                           </p>
                         </div>
-                        <button
-                          onClick={() => handleRemoveSheetFromCollection(cs.id)}
-                          className="text-red-600 hover:text-red-900 ml-2"
-                          title="제거"
-                        >
-                          <i className="ri-delete-bin-line w-4 h-4"></i>
-                        </button>
+                        <div className="flex items-center gap-2 ml-2">
+                          <span className="text-xs text-gray-500 whitespace-nowrap">
+                            {new Intl.NumberFormat('ko-KR').format(cs.drum_sheets?.price || 0)}원
+                          </span>
+                          <button
+                            onClick={() => handleRemoveSheetFromCollection(cs.id)}
+                            className="text-red-600 hover:text-red-900"
+                            title="제거"
+                          >
+                            <i className="ri-delete-bin-line w-4 h-4"></i>
+                          </button>
+                        </div>
                       </div>
                     ))
                   )}
@@ -9807,23 +9920,136 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
               {/* 악보 추가 */}
               <div>
                 <h4 className="font-semibold text-gray-900 mb-3">악보 추가</h4>
-                <div className="space-y-2 max-h-96 overflow-y-auto">
-                  {sheets.filter(sheet => !collectionSheets.some(cs => cs.drum_sheet_id === sheet.id)).map((sheet) => (
-                    <div key={sheet.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">{sheet.title}</p>
-                        <p className="text-xs text-gray-500 truncate">{sheet.artist}</p>
-                      </div>
-                      <button
-                        onClick={() => handleAddSheetToCollection(sheet.id)}
-                        className="text-blue-600 hover:text-blue-900 ml-2"
-                        title="추가"
-                      >
-                        <i className="ri-add-line w-4 h-4"></i>
-                      </button>
-                    </div>
-                  ))}
+
+                {/* 검색 필터 */}
+                <div className="space-y-3 mb-3">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">곡명/아티스트 검색</label>
+                    <input
+                      type="text"
+                      value={collectionModalSearchTerm}
+                      onChange={(e) => setCollectionModalSearchTerm(e.target.value)}
+                      placeholder="곡명 또는 아티스트로 검색..."
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">아티스트로 일괄 선택</label>
+                    <input
+                      type="text"
+                      value={collectionModalArtistSearchTerm}
+                      onChange={(e) => setCollectionModalArtistSearchTerm(e.target.value)}
+                      placeholder="아티스트명 입력 후 일괄 선택..."
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                    />
+                  </div>
                 </div>
+
+                {/* 아티스트별 일괄 선택 버튼 */}
+                {collectionModalArtistSearchTerm && Object.keys(sheetsByArtistForModal).length > 0 && (
+                  <div className="mb-3">
+                    <p className="text-xs text-gray-600 mb-2">일괄 선택 가능한 아티스트:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {Object.keys(sheetsByArtistForModal).map((artist) => (
+                        <button
+                          key={artist}
+                          onClick={() => handleSelectArtistSheetsForModal(artist)}
+                          className="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 text-sm transition-colors"
+                        >
+                          {artist} ({sheetsByArtistForModal[artist].length}개) 모두 선택
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* 검색 결과 목록 */}
+                <div className="max-h-64 overflow-y-auto border border-gray-200 rounded-lg">
+                  {!collectionModalSearchTerm && !collectionModalArtistSearchTerm ? (
+                    <div className="p-4 text-center text-gray-400 text-sm">
+                      검색어를 입력하면 악보 목록이 표시됩니다.
+                    </div>
+                  ) : filteredSheetsForCollectionModal.length === 0 ? (
+                    <div className="p-4 text-center text-gray-500 text-sm">
+                      검색 결과가 없습니다.
+                    </div>
+                  ) : (
+                    <div className="divide-y divide-gray-200">
+                      {filteredSheetsForCollectionModal.map((sheet) => (
+                        <div
+                          key={sheet.id}
+                          className="flex items-center justify-between p-2 hover:bg-gray-50"
+                        >
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-gray-900 truncate">{sheet.title}</p>
+                            <p className="text-xs text-gray-500 truncate">{sheet.artist}</p>
+                          </div>
+                          <div className="flex items-center space-x-2 ml-2">
+                            <span className="text-xs text-gray-500 whitespace-nowrap">
+                              {new Intl.NumberFormat('ko-KR').format(sheet.price || 0)}원
+                            </span>
+                            <button
+                              onClick={() => handleAddSheetToCollection(sheet.id)}
+                              className="px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-xs transition-colors"
+                            >
+                              추가
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* 가격 관리 섹션 */}
+            <div className="mt-6 border-t pt-4">
+              <h4 className="font-semibold text-gray-900 mb-3">가격 관리</h4>
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">정가 (원)</label>
+                  <input
+                    type="number"
+                    value={collectionModalOriginalPrice}
+                    readOnly
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700 text-sm"
+                  />
+                  <p className="text-xs text-gray-400 mt-1">포함된 악보 가격 합산 (자동 계산)</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">할인가 (원)</label>
+                  <input
+                    type="number"
+                    value={collectionModalSalePrice}
+                    onChange={(e) => {
+                      const newSalePrice = Number(e.target.value);
+                      setCollectionModalSalePrice(newSalePrice);
+                      const discount = calculateDiscountPercentage(collectionModalOriginalPrice, newSalePrice);
+                      setCollectionModalDiscountPercentage(discount);
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                    min={0}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">할인율 (%)</label>
+                  <input
+                    type="number"
+                    value={collectionModalDiscountPercentage}
+                    readOnly
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700 text-sm"
+                  />
+                  <p className="text-xs text-gray-400 mt-1">할인가 입력 시 자동 계산</p>
+                </div>
+              </div>
+              <div className="flex justify-end mt-4">
+                <button
+                  onClick={handleSaveCollectionPrice}
+                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
+                >
+                  가격 저장
+                </button>
               </div>
             </div>
           </div>
