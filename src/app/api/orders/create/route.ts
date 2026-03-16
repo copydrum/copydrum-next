@@ -34,7 +34,72 @@ export async function POST(request: NextRequest) {
     const supabase = createAdminClient();
 
     // ============================================================
-    // 1단계: 주문(orders) 생성
+    // Upsert 로직: 동일 유저 + 동일 장바구니 + 동일 금액의 pending 주문 재활용
+    // → PayPal 등에서 체크아웃 페이지 재진입 시 결제대기 주문이 중복 생성되는 것 방지
+    // ============================================================
+
+    // 요청된 아이템의 sheetId 목록을 정렬하여 비교용 키 생성
+    const requestedSheetIds = items
+      .map((item: any) => item.sheetId)
+      .filter(Boolean)
+      .sort();
+
+    // 동일 유저의 pending 상태 주문 중 동일 금액인 것 조회
+    const { data: existingPendingOrders } = await supabase
+      .from('orders')
+      .select(`
+        id,
+        order_number,
+        total_amount,
+        order_items (
+          drum_sheet_id
+        )
+      `)
+      .eq('user_id', userId)
+      .eq('status', 'pending')
+      .eq('total_amount', amount)
+      .order('created_at', { ascending: false });
+
+    if (existingPendingOrders && existingPendingOrders.length > 0) {
+      // 아이템 구성까지 동일한 기존 주문 찾기
+      for (const existingOrder of existingPendingOrders) {
+        const existingSheetIds = (existingOrder.order_items || [])
+          .map((item: any) => item.drum_sheet_id)
+          .filter(Boolean)
+          .sort();
+
+        // 아이템 개수 및 구성이 완전히 동일한지 비교
+        const isSameItems =
+          existingSheetIds.length === requestedSheetIds.length &&
+          existingSheetIds.every((id: string, idx: number) => id === requestedSheetIds[idx]);
+
+        if (isSameItems) {
+          // ✅ 기존 pending 주문 재활용: updated_at만 갱신
+          await supabase
+            .from('orders')
+            .update({
+              updated_at: new Date().toISOString(),
+              payment_method: paymentMethod || null, // 결제수단이 바뀔 수 있으므로 갱신
+            })
+            .eq('id', existingOrder.id);
+
+          console.log('[create-order] ♻️ 기존 pending 주문 재활용:', {
+            orderId: existingOrder.id,
+            orderNumber: existingOrder.order_number,
+          });
+
+          return NextResponse.json({
+            success: true,
+            orderId: existingOrder.id,
+            orderNumber: existingOrder.order_number,
+            reused: true, // 기존 주문 재활용 여부
+          });
+        }
+      }
+    }
+
+    // ============================================================
+    // 기존 pending 주문 없음 → 새 주문 생성
     // ============================================================
     const now = new Date();
     const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '');
@@ -72,7 +137,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('[create-order] ✅ 주문 생성 성공:', {
+    console.log('[create-order] ✅ 새 주문 생성 성공:', {
       orderId: order.id,
       orderNumber: order.order_number,
     });
@@ -126,6 +191,7 @@ export async function POST(request: NextRequest) {
       success: true,
       orderId: order.id,
       orderNumber: order.order_number,
+      reused: false,
     });
   } catch (error) {
     console.error('[create-order] 🔥 예외 발생:', error);

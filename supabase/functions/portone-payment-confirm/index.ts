@@ -556,7 +556,62 @@ serve(async (req) => {
     }
 
     const responseOrder = updatedOrder || order;
-    
+
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // [추가] PAID 상태일 때 purchases 테이블에 구매 기록 삽입
+    // → 웹훅으로만 주문이 완료되는 경우 (PayPal PAY_PENDING → PAID 전환 시)
+    //   purchases 레코드가 없으면 사용자가 구매한 악보를 볼 수 없으므로
+    //   여기서도 purchases를 생성해야 함
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    if (isPaid) {
+      try {
+        const { data: orderItems, error: itemsError } = await supabase
+          .from("order_items")
+          .select("id, drum_sheet_id, price")
+          .eq("order_id", order.id);
+
+        if (itemsError) {
+          console.error("[portone-payment-confirm] ❌ order_items 조회 실패:", {
+            error: itemsError,
+            orderId: order.id,
+          });
+        } else if (orderItems && orderItems.length > 0) {
+          const purchaseRecords = orderItems.map((item: any) => ({
+            user_id: order.user_id,
+            drum_sheet_id: item.drum_sheet_id,
+            order_id: order.id,
+            price_paid: item.price ?? 0,
+          }));
+
+          const { error: purchasesError } = await supabase
+            .from("purchases")
+            .insert(purchaseRecords);
+
+          if (purchasesError && purchasesError.code !== "23505") {
+            // 23505 = unique_violation (이미 purchases에 기록 존재 → 중복 무시)
+            console.error("[portone-payment-confirm] ❌ purchases 기록 실패:", {
+              error: purchasesError,
+              code: purchasesError.code,
+              message: purchasesError.message,
+              orderId: order.id,
+            });
+          } else {
+            console.log("[portone-payment-confirm] ✅ purchases 기록 완료:", orderItems.length, "건");
+          }
+        } else {
+          console.warn("[portone-payment-confirm] ⚠️ order_items가 없음 (Lazy Creation 주문일 수 있음):", {
+            orderId: order.id,
+          });
+        }
+      } catch (purchaseErr) {
+        console.error("[portone-payment-confirm] ❌ purchases 기록 중 예외:", {
+          error: purchaseErr,
+          message: purchaseErr instanceof Error ? purchaseErr.message : String(purchaseErr),
+          orderId: order.id,
+        });
+      }
+    }
+
     // 최종 결과 반환
     return buildResponse({
       success: true,

@@ -1174,7 +1174,7 @@ const AdminPage: React.FC = () => {
 
   const [orders, setOrders] = useState<Order[]>([]);
   const [orderSearchTerm, setOrderSearchTerm] = useState('');
-  const [orderStatusFilter, setOrderStatusFilter] = useState<'all' | OrderStatus>('all');
+  const [orderStatusFilter, setOrderStatusFilter] = useState<'all' | OrderStatus>('completed');
   const [orderPaymentFilter, setOrderPaymentFilter] = useState<'all' | string>('all');
   const [preorderFilter, setPreorderFilter] = useState<'all' | 'preorder'>('all');
   const [orderStartDate, setOrderStartDate] = useState('');
@@ -2646,7 +2646,7 @@ const AdminPage: React.FC = () => {
   };
 
   const clearOrderFilters = () => {
-    setOrderStatusFilter('all');
+    setOrderStatusFilter('completed');
     setOrderPaymentFilter('all');
     setPreorderFilter('all');
     setOrderStartDate('');
@@ -10722,8 +10722,18 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
             </div>
           </div>
 
-          {/* 상태별 필터 탭 */}
+          {/* 상태별 필터 탭 (기본: 완료) */}
           <div className="flex flex-wrap gap-2 border-b border-gray-200">
+            <button
+              type="button"
+              onClick={() => setOrderStatusFilter('completed')}
+              className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${orderStatusFilter === 'completed'
+                ? 'border-blue-500 text-blue-600 bg-blue-50'
+                : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
+                }`}
+            >
+              주문 완료
+            </button>
             <button
               type="button"
               onClick={() => setOrderStatusFilter('all')}
@@ -10733,16 +10743,6 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
                 }`}
             >
               전체
-            </button>
-            <button
-              type="button"
-              onClick={() => setOrderStatusFilter('pending')}
-              className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${orderStatusFilter === 'pending'
-                ? 'border-yellow-500 text-yellow-600 bg-yellow-50'
-                : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
-                }`}
-            >
-              결제 대기
             </button>
             <button
               type="button"
@@ -10756,13 +10756,18 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
             </button>
             <button
               type="button"
-              onClick={() => setOrderStatusFilter('completed')}
-              className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${orderStatusFilter === 'completed'
-                ? 'border-blue-500 text-blue-600 bg-blue-50'
+              onClick={() => setOrderStatusFilter('pending')}
+              className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${orderStatusFilter === 'pending'
+                ? 'border-yellow-500 text-yellow-600 bg-yellow-50'
                 : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
                 }`}
             >
-              완료
+              결제 대기
+              {orders.filter(o => o.status === 'pending').length > 0 && (
+                <span className="ml-1.5 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-semibold leading-none text-yellow-800 bg-yellow-200 rounded-full">
+                  {orders.filter(o => o.status === 'pending').length}
+                </span>
+              )}
             </button>
             <button
               type="button"

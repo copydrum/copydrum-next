@@ -91,6 +91,9 @@ function classifyPaymentStatus(status: string): 'PAID' | 'FAILED' | 'PENDING' | 
 }
 
 // 기존 주문이 있으면 상태를 업데이트하는 헬퍼 함수
+// ⚠️ [핵심 수정] transaction_id도 함께 저장하여 웹훅이 나중에 주문을 찾을 수 있도록 함
+//    (PayPal은 결제 완료 직후 PAY_PENDING → 나중에 PAID로 변경 시 웹훅 발생
+//     → 웹훅이 transaction_id로 주문을 찾아 completed로 업데이트)
 async function updateOrderStatusIfExists(
   supabase: ReturnType<typeof createClient>,
   orderId: string | undefined,
@@ -128,6 +131,7 @@ async function updateOrderStatusIfExists(
       .update({
         status,
         payment_status: paymentStatus,
+        transaction_id: paymentId, // ✅ 웹훅이 나중에 이 주문을 찾을 수 있도록 transaction_id 저장
         updated_at: new Date().toISOString(),
       })
       .eq('id', order.id);
@@ -135,7 +139,7 @@ async function updateOrderStatusIfExists(
     if (error) {
       console.error(`[verify] 주문 상태(${status}) 업데이트 실패:`, { orderId: order.id, error });
     } else {
-      console.log(`[verify] 주문 상태 → ${status} 업데이트 완료:`, { orderId: order.id });
+      console.log(`[verify] 주문 상태 → ${status}, transaction_id → ${paymentId} 업데이트 완료:`, { orderId: order.id });
     }
   }
 }
