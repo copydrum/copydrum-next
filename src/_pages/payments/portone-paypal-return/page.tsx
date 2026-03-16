@@ -72,6 +72,19 @@ export default function PortOnePayPalReturnPage() {
           const orderId = orderData?.id || merchant_uid;
 
           if (orderId) {
+            // ─── DB에서 결제수단 조회 (verify에 전달하기 위함) ───
+            let dbPaymentMethod: string | null = null;
+            try {
+              const { data: orderDetail } = await supabase
+                .from('orders')
+                .select('payment_method')
+                .eq('id', orderId)
+                .maybeSingle();
+              dbPaymentMethod = orderDetail?.payment_method || null;
+            } catch {
+              // 무시 — fallback으로 처리
+            }
+
             // ─── 서버 측 결제 검증 호출 ───
             try {
               const verifyResponse = await fetch('/api/payments/portone/verify', {
@@ -80,6 +93,7 @@ export default function PortOnePayPalReturnPage() {
                 body: JSON.stringify({
                   paymentId: effectivePaymentId,
                   orderId,
+                  paymentMethod: dbPaymentMethod || 'kakaopay', // 이 return 페이지는 주로 카카오페이 모바일 리다이렉트용
                 }),
               });
 

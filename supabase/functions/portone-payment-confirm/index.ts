@@ -38,6 +38,10 @@ interface PortOnePaymentResponse {
     fullName?: string;
   };
   virtualAccount?: any;
+  /** PortOne 채널/PG 제공자 정보 (결제수단 추론용) */
+  pgProvider?: string;
+  payMethod?: string;
+  channelKey?: string;
 }
 
 async function getPortOneAccessToken(apiSecret: string): Promise<string> {
@@ -105,6 +109,18 @@ async function getPortOnePayment(
       console.log("[DEBUG] 가상계좌 정보 발견 실패 via path:", JSON.stringify(tx));
     }
 
+    // PG 제공자 및 결제수단 정보 추출 (결제수단 추론용)
+    const channel = rawResult.payment.channel || tx.channel || {};
+    const pgProvider = (channel.pg_provider || channel.pgProvider || channel.type || '').toLowerCase();
+    const payMethod = (tx.pay_method || tx.payMethod || rawResult.payment.pay_method || '').toUpperCase();
+    const channelKey = channel.key || channel.channel_key || '';
+
+    console.log("[portone-payment-confirm] PG/결제수단 정보:", {
+      pgProvider,
+      payMethod,
+      channelKey: channelKey ? channelKey.substring(0, 20) + '...' : 'N/A',
+    });
+
     return {
       id: rawResult.payment.id,
       transactionId: tx.id,
@@ -113,7 +129,10 @@ async function getPortOnePayment(
       orderId: rawResult.payment.order_name,
       metadata: tx.metadata || rawResult.payment.metadata || {},
       customer: rawResult.payment.customer || {},
-      virtualAccount: foundVirtualAccount
+      virtualAccount: foundVirtualAccount,
+      pgProvider,
+      payMethod,
+      channelKey,
     };
   }
 
@@ -515,12 +534,33 @@ serve(async (req) => {
       },
     };
 
-    // payment_method가 비어있으면 결제 상태에 따라 추론하여 설정
+    // payment_method가 비어있으면 PortOne 응답 정보로 추론하여 설정
     if (!order.payment_method) {
       if (isVirtualAccountIssued || virtualAccountInfo) {
         updatePayload.payment_method = "virtual_account";
       } else if (isPaid) {
-        updatePayload.payment_method = "card";
+        // PortOne PG 제공자 / 결제수단 정보로 정확한 결제수단 판별
+        const pg = portonePayment.pgProvider || '';
+        const method = portonePayment.payMethod || '';
+        
+        if (pg.includes('kakaopay') || pg.includes('kakao')) {
+          updatePayload.payment_method = "kakaopay";
+        } else if (method === 'EASY_PAY' && pg.includes('kakao')) {
+          updatePayload.payment_method = "kakaopay";
+        } else if (pg.includes('paypal')) {
+          updatePayload.payment_method = "paypal";
+        } else if (method === 'TRANSFER') {
+          updatePayload.payment_method = "transfer";
+        } else {
+          // 기본값: 카드 결제
+          updatePayload.payment_method = "card";
+        }
+        
+        console.log("[portone-payment-confirm] 결제수단 추론:", {
+          pgProvider: pg,
+          payMethod: method,
+          resolved: updatePayload.payment_method,
+        });
       }
     }
 

@@ -370,9 +370,9 @@ export const requestKakaoPayPayment = async (
 
     const { data: updateData, error: updateError } = await supabase
       .from('orders')
-      .update({ transaction_id: newPaymentId })
+      .update({ transaction_id: newPaymentId, payment_method: 'kakaopay' })
       .eq('id', params.orderId)
-      .select('id, transaction_id')
+      .select('id, transaction_id, payment_method')
       .single();
 
     if (updateError) {

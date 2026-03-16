@@ -98,6 +98,17 @@ export default function KakaoPayButton({
       } else {
         dbOrderIdRef.current = dbOrderId;
         console.log('[KakaoPay] 기존 주문 확인 완료:', dbOrderId);
+
+        // 기존 주문의 payment_method가 kakaopay가 아닐 수 있으므로 명시적으로 업데이트
+        try {
+          await supabase
+            .from('orders')
+            .update({ payment_method: 'kakaopay' })
+            .eq('id', dbOrderId);
+          console.log('[KakaoPay] payment_method → kakaopay 업데이트 완료');
+        } catch (e) {
+          console.warn('[KakaoPay] payment_method 업데이트 실패 (결제는 계속 진행):', e);
+        }
       }
 
       // ─── 2단계: PortOne 카카오페이 결제 요청 ───

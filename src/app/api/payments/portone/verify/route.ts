@@ -410,7 +410,7 @@ export async function POST(request: NextRequest) {
         // metadata에 원본 clientOrderId 보존 (UUID가 아닌 경우)
         const orderMetadata: any = {
           type: 'sheet_purchase',
-          description: portonePayment.orderName || 'PayPal 결제',
+          description: portonePayment.orderName || '포트원 결제',
           created_from: 'verify_api_lazy_creation',
           portone_payment_id: paymentId,
           portone_metadata: metadata,
@@ -431,7 +431,7 @@ export async function POST(request: NextRequest) {
             total_amount: amountKRW,
             status: 'pending',
             payment_status: 'pending',
-            payment_method: paymentMethod || 'paypal',
+            payment_method: paymentMethod || 'card',
             order_type: 'product',
             transaction_id: paymentId,
             metadata: orderMetadata,
@@ -498,7 +498,9 @@ export async function POST(request: NextRequest) {
 
     // 5. completeOrderAfterPayment 호출 (예상 완료일 계산 및 저장 포함, 주문 상태 업데이트도 처리)
     //    ※ 여기에 도달했다는 것은 포트원 결제 상태가 확실히 PAID임을 의미함
-    const resolvedPaymentMethod = paymentMethod || order.payment_method || 'paypal';
+    // ⚠️ 결제수단 결정: body > DB 기존값 > 포트원 결제수단 추론 > 기본값 'card'
+    //    'paypal'을 기본값으로 사용하면 카카오페이 등 다른 결제수단이 paypal로 잘못 기록됨
+    const resolvedPaymentMethod = paymentMethod || order.payment_method || 'card';
     try {
       const { completeOrderAfterPayment } = await import('@/lib/payments/completeOrderAfterPayment');
       await completeOrderAfterPayment(order.id, resolvedPaymentMethod as any, {
