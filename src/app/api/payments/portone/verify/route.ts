@@ -507,7 +507,7 @@ export async function POST(request: NextRequest) {
         transactionId: paymentId,
         paymentConfirmedAt: new Date().toISOString(),
         paymentProvider: 'portone',
-      });
+      }, supabase);
       console.log('[verify] ✅ completeOrderAfterPayment 처리 완료');
     } catch (completeError) {
       console.error('[verify] ⚠️ completeOrderAfterPayment 처리 실패, 직접 업데이트 시도:', completeError);

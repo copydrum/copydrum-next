@@ -1,6 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 import { completeOrderAfterPayment } from '@/lib/payments/completeOrderAfterPayment';
+
+function createAdminClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+
+  if (serviceRoleKey) {
+    return createClient(url, serviceRoleKey, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    });
+  }
+
+  console.warn('[PayPal Capture] Service Role Key 없음 → Anon Key 사용 (RLS 적용됨)');
+  return createClient(url, anonKey);
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -61,13 +76,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const supabase = createAdminClient();
+
     // completeOrderAfterPayment 사용 (예상 완료일 계산 및 저장 포함)
     try {
       await completeOrderAfterPayment(orderId, 'paypal' as any, {
         transactionId: orderID,
         paymentConfirmedAt: new Date().toISOString(),
         paymentProvider: 'paypal',
-      });
+      }, supabase);
       console.log('[PayPal Capture] ✅ completeOrderAfterPayment 처리 완료');
     } catch (completeError) {
       console.error('[PayPal Capture] ⚠️ completeOrderAfterPayment 실패, 직접 업데이트 시도:', completeError);

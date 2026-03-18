@@ -185,7 +185,7 @@ async function completeOrder(
       transactionId: dodoPaymentId,
       paymentConfirmedAt: new Date().toISOString(),
       paymentProvider: 'dodo',
-    });
+    }, supabase);
     console.log("[dodo-webhook] ✅ completeOrderAfterPayment 처리 완료");
   } catch (completeError) {
     console.error("[dodo-webhook] ⚠️ completeOrderAfterPayment 실패, 직접 업데이트 시도:", completeError);

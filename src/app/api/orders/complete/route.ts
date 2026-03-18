@@ -56,14 +56,14 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // completeOrderAfterPayment 호출
+    // completeOrderAfterPayment 호출 (RLS 우회를 위해 admin client 전달)
     await completeOrderAfterPayment(orderId, paymentMethod, {
       transactionId,
       paymentConfirmedAt: paymentConfirmedAt || new Date().toISOString(),
       paymentProvider,
       depositorName,
       metadata,
-    });
+    }, supabase);
 
     return NextResponse.json({
       success: true,

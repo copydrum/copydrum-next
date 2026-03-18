@@ -1,4 +1,5 @@
-import { supabase } from '../supabase';
+import { supabase as defaultSupabase } from '../supabase';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import {
   approveInicisPayment,
   cancelInicisPayment,
@@ -85,7 +86,8 @@ export const cancelPayment = async (payload: PaymentCancelPayload) => {
   }
 };
 
-export const logPaymentTransaction = async (log: PaymentTransactionLog) => {
+export const logPaymentTransaction = async (log: PaymentTransactionLog, supabaseClient?: SupabaseClient) => {
+  const supabase = supabaseClient || defaultSupabase;
   const { error } = await supabase.from('payment_transactions').insert({
     order_id: log.orderId,
     user_id: log.userId,
@@ -108,7 +110,9 @@ export const updateOrderPaymentStatus = async (
   orderId: string,
   paymentStatus: PaymentStatus,
   options: OrderPaymentUpdateOptions = {},
+  supabaseClient?: SupabaseClient,
 ) => {
+  const supabase = supabaseClient || defaultSupabase;
   const payload: Record<string, unknown> = {
     payment_status: paymentStatus,
   };

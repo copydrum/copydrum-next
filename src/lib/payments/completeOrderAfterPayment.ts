@@ -8,7 +8,8 @@
  * @param paymentMethod - 결제수단 ('bank_transfer', 'paypal', 'card', 'kakaopay' 등)
  * @param options - 추가 옵션
  */
-import { supabase } from '../supabase';
+import { supabase as defaultSupabase } from '../supabase';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import type { PaymentMethod } from './types';
 import { calculateExpectedCompletionDate, formatDateToYMD } from '@/utils/businessDays';
 
@@ -37,7 +38,9 @@ export const completeOrderAfterPayment = async (
   orderId: string,
   paymentMethod: PaymentMethod,
   options: CompleteOrderAfterPaymentOptions = {},
+  supabaseClient?: SupabaseClient,
 ): Promise<void> => {
+  const supabase = supabaseClient || defaultSupabase;
   const {
     transactionId,
     paymentConfirmedAt = new Date().toISOString(),
