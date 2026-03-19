@@ -1137,15 +1137,6 @@ const AdminPage: React.FC = () => {
   const [isLoadingSpotify, setIsLoadingSpotify] = useState(false);
   const [isUploadingPdf, setIsUploadingPdf] = useState(false);
   const [isUploadingThumbnail, setIsUploadingThumbnail] = useState(false);
-  const [isMigratingThumbnails, setIsMigratingThumbnails] = useState(false);
-  const [migrationProgress, setMigrationProgress] = useState<{
-    total: number;
-    completed: number;
-    failed: number;
-    percent: number;
-    status: string;
-    startedAt: number;
-  } | null>(null);
   const [editingSheet, setEditingSheet] = useState<DrumSheet | null>(null);
   const [editingSheetData, setEditingSheetData] = useState({
     title: '',
@@ -7553,177 +7544,6 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
               <span>선주문 대량 등록 (Excel)</span>
             </button>
           </div>
-        </div>
-        {/* 썸네일 마이그레이션: 청크 단위 백그라운드 처리 */}
-        <div className="border border-orange-200 bg-orange-50/50 rounded-lg px-4 py-3 space-y-3">
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="text-sm text-gray-700 font-medium">썸네일 도구:</span>
-            <button
-              disabled={isMigratingThumbnails}
-              onClick={async () => {
-                if (!confirm('외부 URL 썸네일들을 Supabase Storage로 일괄 변환합니다.\n50개씩 나누어 안전하게 처리합니다. 진행하시겠습니까?')) return;
-
-                setIsMigratingThumbnails(true);
-                const CHUNK_SIZE = 50;
-                const DELAY_BETWEEN_CHUNKS = 1000;
-                const RETRY_DELAY = 3000;
-                const MAX_RETRIES = 5;
-
-                let totalTarget = 0;
-                let totalMigrated = 0;
-                let totalFailed = 0;
-                let retryCount = 0;
-                const startedAt = Date.now();
-
-                try {
-                  const scanRes = await fetch('/api/admin/migrate-thumbnails');
-                  const scanData = await scanRes.json();
-                  if (scanData.success) {
-                    totalTarget = scanData.stats.external || 0;
-                  }
-                } catch {
-                  /* 스캔 실패해도 루프에서 totalExternal을 갱신 */
-                }
-
-                if (totalTarget === 0) {
-                  alert('마이그레이션할 외부 썸네일이 없습니다.');
-                  setIsMigratingThumbnails(false);
-                  return;
-                }
-
-                setMigrationProgress({
-                  total: totalTarget,
-                  completed: 0,
-                  failed: 0,
-                  percent: 0,
-                  status: `시작 중... (총 ${totalTarget.toLocaleString()}개 대상)`,
-                  startedAt,
-                });
-
-                let done = false;
-
-                while (!done) {
-                  try {
-                    const res = await fetch('/api/admin/migrate-thumbnails', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ limit: CHUNK_SIZE }),
-                    });
-
-                    if (!res.ok) {
-                      throw new Error(`HTTP ${res.status}`);
-                    }
-
-                    const result = await res.json();
-
-                    if (!result.success) {
-                      throw new Error(result.error || 'API 응답 실패');
-                    }
-
-                    retryCount = 0;
-                    totalMigrated += result.stats.migrated || 0;
-                    totalFailed += result.stats.failed || 0;
-                    const remaining = result.stats.remaining || 0;
-
-                    if (totalTarget < totalMigrated + totalFailed + remaining) {
-                      totalTarget = totalMigrated + totalFailed + remaining;
-                    }
-
-                    const percent = totalTarget > 0
-                      ? Math.min(100, Math.round(((totalMigrated + totalFailed) / totalTarget) * 100))
-                      : 0;
-                    const elapsed = ((Date.now() - startedAt) / 1000).toFixed(0);
-
-                    setMigrationProgress({
-                      total: totalTarget,
-                      completed: totalMigrated,
-                      failed: totalFailed,
-                      percent,
-                      status: remaining > 0
-                        ? `진행 중: ${(totalMigrated + totalFailed).toLocaleString()} / ${totalTarget.toLocaleString()} 처리 (${percent}%) · ${elapsed}초 경과`
-                        : `완료! ${totalMigrated.toLocaleString()}개 성공 · ${totalFailed.toLocaleString()}개 실패 · ${elapsed}초 소요`,
-                      startedAt,
-                    });
-
-                    if (result.done || remaining <= 0) {
-                      done = true;
-                    } else {
-                      await new Promise((resolve) => setTimeout(resolve, DELAY_BETWEEN_CHUNKS));
-                    }
-                  } catch (err: any) {
-                    retryCount++;
-                    const elapsed = ((Date.now() - startedAt) / 1000).toFixed(0);
-
-                    if (retryCount > MAX_RETRIES) {
-                      setMigrationProgress((prev) => prev ? {
-                        ...prev,
-                        status: `중단됨: 연속 ${MAX_RETRIES}회 실패 (${err.message}). ${totalMigrated.toLocaleString()}개 완료 · ${elapsed}초 경과`,
-                      } : null);
-                      break;
-                    }
-
-                    setMigrationProgress((prev) => prev ? {
-                      ...prev,
-                      status: `에러 발생 (${err.message}), ${RETRY_DELAY / 1000}초 후 재시도... (${retryCount}/${MAX_RETRIES}) · ${elapsed}초 경과`,
-                    } : null);
-
-                    await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY));
-                  }
-                }
-
-                const finalElapsed = ((Date.now() - startedAt) / 1000).toFixed(1);
-                alert(
-                  `마이그레이션 ${done ? '완료' : '중단'}!\n` +
-                  `✅ 성공: ${totalMigrated.toLocaleString()}개\n` +
-                  `❌ 실패: ${totalFailed.toLocaleString()}개\n` +
-                  `⏱ 소요: ${finalElapsed}초`
-                );
-                loadSheets();
-                setIsMigratingThumbnails(false);
-              }}
-              className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-2"
-            >
-              <i className="ri-download-cloud-line w-4 h-4"></i>
-              <span>{isMigratingThumbnails ? '변환 중...' : '과거 썸네일 일괄 변환(Migration)'}</span>
-            </button>
-            {isMigratingThumbnails && (
-              <button
-                onClick={() => {
-                  if (confirm('마이그레이션을 중지하시겠습니까?\n(이미 처리된 항목은 유지됩니다)')) {
-                    setIsMigratingThumbnails(false);
-                  }
-                }}
-                className="bg-red-500 text-white px-3 py-2 rounded-lg hover:bg-red-600 transition-colors text-sm"
-              >
-                중지
-              </button>
-            )}
-          </div>
-
-          {/* 프로그레스 바 + 실시간 상태 */}
-          {migrationProgress && isMigratingThumbnails && (
-            <div className="space-y-2">
-              <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
-                <div
-                  className="bg-gradient-to-r from-orange-500 to-orange-600 h-4 rounded-full transition-all duration-500 ease-out flex items-center justify-center"
-                  style={{ width: `${Math.max(2, migrationProgress.percent)}%` }}
-                >
-                  {migrationProgress.percent >= 10 && (
-                    <span className="text-white text-xs font-bold">{migrationProgress.percent}%</span>
-                  )}
-                </div>
-              </div>
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-gray-700">{migrationProgress.status}</span>
-                <div className="flex gap-3 text-xs">
-                  <span className="text-green-600 font-semibold">✅ {migrationProgress.completed.toLocaleString()}</span>
-                  {migrationProgress.failed > 0 && (
-                    <span className="text-red-500 font-semibold">❌ {migrationProgress.failed.toLocaleString()}</span>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       </div>
 
@@ -14615,7 +14435,7 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
         <div
           className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm md:hidden"
           onClick={() => setIsMobileMenuOpen(false)}
-          aria-hidden="true"
+          aria-hidden="trdue"
         />
       )}
 
