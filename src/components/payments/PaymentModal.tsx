@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useState } from 'react';
 import { requestKakaoPayPayment } from '@/lib/payments/portone';
 
 interface PaymentModalProps {
@@ -16,12 +16,7 @@ interface PaymentModalProps {
   onSuccess: (method: string) => void;
 }
 
-// DODO SDK 타입 정의
-declare global {
-  interface Window {
-    Dodo?: any;
-  }
-}
+// Dodo Payments 비활성화 (저작권 이슈) - SDK 제거됨
 
 export default function PaymentModal({
   isOpen,
@@ -35,120 +30,8 @@ export default function PaymentModal({
   userCredits,
   onSuccess,
 }: PaymentModalProps) {
-  const [selectedMethod, setSelectedMethod] = useState<'dodo' | 'kakaopay' | 'point' | null>(null);
+  const [selectedMethod, setSelectedMethod] = useState<'kakaopay' | 'point' | null>(null);
   const [loading, setLoading] = useState(false);
-  const [sdkLoading, setSdkLoading] = useState(false);
-  const [sdkReady, setSdkReady] = useState(false);
-  const dodoContainerRef = useRef<HTMLDivElement>(null);
-
-  // DODO SDK 로드
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const loadDodoSDK = async () => {
-      // 이미 로드되어 있으면 스킵
-      if (window.Dodo) {
-        setSdkReady(true);
-        return;
-      }
-
-      setSdkLoading(true);
-
-      try {
-        // DODO SDK 스크립트 로드
-        const script = document.createElement('script');
-        script.src = 'https://js.dodopayments.com/v1';
-        script.async = true;
-
-        script.onload = () => {
-          console.log('[DODO] SDK 로드 완료');
-          setSdkReady(true);
-          setSdkLoading(false);
-        };
-
-        script.onerror = () => {
-          console.error('[DODO] SDK 로드 실패');
-          setSdkLoading(false);
-        };
-
-        document.head.appendChild(script);
-      } catch (error) {
-        console.error('[DODO] SDK 로드 오류:', error);
-        setSdkLoading(false);
-      }
-    };
-
-    loadDodoSDK();
-  }, [isOpen]);
-
-  // DODO Payments 결제 처리
-  const handleDodoPayment = async () => {
-    if (!sdkReady || !window.Dodo) {
-      alert('결제 시스템을 불러오는 중입니다. 잠시 후 다시 시도해주세요.');
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      // 1. 서버에 결제 세션 생성 요청
-      const response = await fetch('/api/payments/dodo/create', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          orderId,
-          amount,
-          orderName,
-          customerEmail: userEmail,
-          customerName: userName,
-        }),
-      });
-
-      const result = await response.json();
-
-      if (!result.success) {
-        throw new Error(result.error || 'DODO Payments 결제 생성 실패');
-      }
-
-      // 2. DODO SDK로 결제 진행
-      const publishableKey = process.env.NEXT_PUBLIC_DODO_PAYMENTS_PUBLISHABLE_KEY;
-
-      if (!publishableKey) {
-        // Publishable Key가 없으면 리다이렉트 방식 사용
-        if (result.payment_url) {
-          window.location.href = result.payment_url;
-          return;
-        }
-        throw new Error('결제 URL을 받지 못했습니다.');
-      }
-
-      // Embedded 방식으로 모달 내에서 결제
-      const dodo = window.Dodo(publishableKey);
-
-      await dodo.checkout({
-        sessionId: result.payment_id,
-        elementId: '#dodo-checkout-container',
-        onSuccess: () => {
-          console.log('[DODO] 결제 성공');
-          onSuccess('dodo');
-          onClose();
-        },
-        onCancel: () => {
-          console.log('[DODO] 결제 취소');
-          setLoading(false);
-        },
-        onError: (error: any) => {
-          console.error('[DODO] 결제 오류:', error);
-          alert('결제 중 오류가 발생했습니다.');
-          setLoading(false);
-        },
-      });
-    } catch (error) {
-      console.error('[DODO] 결제 처리 오류:', error);
-      alert(error instanceof Error ? error.message : 'DODO Payments 결제 중 오류가 발생했습니다.');
-      setLoading(false);
-    }
-  };
 
   // 카카오페이 결제 처리
   const handleKakaoPayPayment = async () => {
@@ -241,9 +124,6 @@ export default function PaymentModal({
     }
 
     switch (selectedMethod) {
-      case 'dodo':
-        handleDodoPayment();
-        break;
       case 'kakaopay':
         handleKakaoPayPayment();
         break;
@@ -272,19 +152,8 @@ export default function PaymentModal({
           </button>
         </div>
 
-        {/* SDK 로딩 중 */}
-        {sdkLoading && (
-          <div className="px-6 py-8">
-            <div className="flex flex-col items-center justify-center gap-4">
-              <div className="h-12 w-12 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600"></div>
-              <p className="text-gray-600 font-medium">결제 시스템을 불러오는 중...</p>
-              <p className="text-sm text-gray-500">잠시만 기다려주세요.</p>
-            </div>
-          </div>
-        )}
-
         {/* 본문 */}
-        {!sdkLoading && (
+        {
           <div className="px-6 py-6">
             {/* 주문 정보 */}
             <div className="bg-gray-50 rounded-lg p-4 mb-6">
@@ -298,49 +167,11 @@ export default function PaymentModal({
               </div>
             </div>
 
-            {/* DODO Payments가 선택된 경우 Checkout Container */}
-            {selectedMethod === 'dodo' && (
-              <div className="mb-6">
-                <div
-                  id="dodo-checkout-container"
-                  ref={dodoContainerRef}
-                  className="min-h-[300px] border border-gray-200 rounded-lg p-4"
-                ></div>
-              </div>
-            )}
+            {/* 결제 수단 선택 (Dodo 비활성화) */}
+            <div className="space-y-3 mb-6">
+              <h3 className="font-semibold text-gray-900 mb-3">결제 수단을 선택하세요</h3>
 
-            {/* 결제 수단 선택 (DODO가 선택되지 않았을 때만 표시) */}
-            {selectedMethod !== 'dodo' && (
-              <div className="space-y-3 mb-6">
-                <h3 className="font-semibold text-gray-900 mb-3">결제 수단을 선택하세요</h3>
-
-                {/* DODO Payments - 글로벌 결제 */}
-                <label
-                  className={`flex items-center gap-4 p-4 border-2 rounded-xl cursor-pointer transition-all ${
-                    selectedMethod === 'dodo'
-                      ? 'border-blue-600 bg-blue-50'
-                      : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="paymentMethod"
-                    value="dodo"
-                    checked={selectedMethod === 'dodo'}
-                    onChange={() => setSelectedMethod('dodo')}
-                    className="w-5 h-5 text-blue-600"
-                  />
-                  <div className="flex-1">
-                    <p className="font-semibold text-gray-900">신용/체크카드, 계좌이체</p>
-                    <p className="text-sm text-gray-600">글로벌 결제 수단 (카드, 계좌이체 등)</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <i className="ri-bank-card-line text-2xl text-blue-600"></i>
-                    <i className="ri-wallet-3-line text-2xl text-green-600"></i>
-                  </div>
-                </label>
-
-                {/* 카카오페이 - 한국 전용 */}
+              {/* 카카오페이 - 한국 전용 */}
                 <label
                   className={`flex items-center gap-4 p-4 border-2 rounded-xl cursor-pointer transition-all ${
                     selectedMethod === 'kakaopay'
@@ -413,8 +244,7 @@ export default function PaymentModal({
             </div>
 
             {/* 결제 버튼 */}
-            {selectedMethod !== 'dodo' && (
-              <button
+            <button
                 onClick={handlePayment}
                 disabled={!selectedMethod || loading || (selectedMethod === 'point' && !canUsePoints)}
                 className="w-full bg-blue-600 text-white py-4 px-6 rounded-xl font-semibold text-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
@@ -431,7 +261,6 @@ export default function PaymentModal({
                   </>
                 )}
               </button>
-            )}
           </div>
         )}
       </div>

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatCurrency, getSiteCurrency, convertFromKrw } from '@/lib/currency';
-import DodoPaymentForm from './DodoPaymentForm';
+// Dodo Payments 비활성화 (저작권 이슈)
 import PayPalPaymentButton from './PayPalPaymentButton';
 import KakaoPayButton from './KakaoPayButton';
 import PointsPaymentForm from './PointsPaymentForm';
@@ -163,50 +163,7 @@ export default function OnePageCheckout({
 
               <div className="p-6 space-y-5">
 
-                {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-                {/* 🔵 섹션 1: 카드 & 월렛 결제 (메인 결제 수단)  */}
-                {/* ⚠️ 도도페이먼트(해외카드) 숨김, KG이니시스(한국카드)는 표시 */}
-                {/* 한국어: KG이니시스 표시 / 해외: 도도페이먼트 숨김 */}
-                {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-                {i18n.language === 'ko' && (
-                <div className="space-y-3">
-                  {/* 섹션 라벨 */}
-                  <div className="flex items-center gap-2">
-                    <i className="ri-bank-card-line text-lg text-gray-700"></i>
-                    <span className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
-                      {t('checkout.creditDebitWallets', 'Credit/Debit Card & Wallets')}
-                    </span>
-                  </div>
-
-                  {/* 카드 결제 버튼 */}
-                  <div className={''}>
-                    <DodoPaymentForm
-                      orderId={orderId}
-                      amount={totalAmount}
-                      orderName={items.length === 1 ? items[0].title : `${items.length} items`}
-                      items={items}
-                      userId={userId}
-                      customerEmail={userEmail}
-                      customerName={userName}
-                      onSuccess={(paymentId, dbOrderId) => handlePaymentComplete('card', paymentId, dbOrderId)}
-                      onError={handlePaymentFailed}
-                      onProcessing={handlePaymentStart}
-                      compact
-                    />
-                  </div>
-                </div>
-                )}
-
-                {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-                {/* ── OR 구분선 (한국어: KG이니시스↔카카오페이 사이, 해외: 숨김) ── */}
-                {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-                {i18n.language === 'ko' && (
-                <div className="flex items-center gap-3 my-1">
-                  <div className="flex-1 h-px bg-gray-300"></div>
-                  <span className="text-xs font-semibold text-gray-400 uppercase tracking-widest select-none">OR</span>
-                  <div className="flex-1 h-px bg-gray-300"></div>
-                </div>
-                )}
+                {/* Dodo Payments(카드 결제) 비활성화됨 - 저작권 이슈 */}
 
                 {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
                 {/* 🟡 섹션 2: PayPal 결제 (한국어 페이지에서는 숨김) */}

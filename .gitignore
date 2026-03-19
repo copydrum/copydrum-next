@@ -71,3 +71,5 @@ supabase/.temp/
 
 # Test page
 src/app/test/
+
+.vercel

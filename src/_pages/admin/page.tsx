@@ -1137,6 +1137,7 @@ const AdminPage: React.FC = () => {
   const [isLoadingSpotify, setIsLoadingSpotify] = useState(false);
   const [isUploadingPdf, setIsUploadingPdf] = useState(false);
   const [isUploadingThumbnail, setIsUploadingThumbnail] = useState(false);
+  const [isMigratingThumbnails, setIsMigratingThumbnails] = useState(false);
   const [editingSheet, setEditingSheet] = useState<DrumSheet | null>(null);
   const [editingSheetData, setEditingSheetData] = useState({
     title: '',
@@ -7500,47 +7501,82 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
   };
   const renderSheetManagement = () => (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-900">악보 관리</h2>
-        <div className="flex space-x-2">
-          {selectedSheetIds.length > 0 && (
-            <>
-              <button
-                onClick={() => setShowBulkEditModal(true)}
-                className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center space-x-2"
-              >
-                <i className="ri-edit-box-line w-4 h-4"></i>
-                <span>일괄 수정 ({selectedSheetIds.length}개)</span>
-              </button>
-              <button
-                onClick={() => void handleBulkDeleteSheets()}
-                className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center space-x-2"
-              >
-                <i className="ri-delete-bin-line w-4 h-4"></i>
-                <span>일괄 삭제 ({selectedSheetIds.length}개)</span>
-              </button>
-            </>
-          )}
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-wrap justify-between items-center gap-3">
+          <h2 className="text-2xl font-bold text-gray-900">악보 관리</h2>
+          <div className="flex flex-wrap gap-2">
+            {selectedSheetIds.length > 0 && (
+              <>
+                <button
+                  onClick={() => setShowBulkEditModal(true)}
+                  className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center space-x-2"
+                >
+                  <i className="ri-edit-box-line w-4 h-4"></i>
+                  <span>일괄 수정 ({selectedSheetIds.length}개)</span>
+                </button>
+                <button
+                  onClick={() => void handleBulkDeleteSheets()}
+                  className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center space-x-2"
+                >
+                  <i className="ri-delete-bin-line w-4 h-4"></i>
+                  <span>일괄 삭제 ({selectedSheetIds.length}개)</span>
+                </button>
+              </>
+            )}
+            <button
+              onClick={() => setIsAddingSheet(true)}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+            >
+              <i className="ri-add-line w-4 h-4"></i>
+              <span>새 악보 추가</span>
+            </button>
+            <button
+              onClick={startBulkAddSheets}
+              className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
+            >
+              <i className="ri-file-upload-line w-4 h-4"></i>
+              <span>CSV 대량 등록</span>
+            </button>
+            <button
+              onClick={startPreorderBulkAdd}
+              className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center space-x-2"
+            >
+              <i className="ri-file-excel-2-line w-4 h-4"></i>
+              <span>선주문 대량 등록 (Excel)</span>
+            </button>
+          </div>
+        </div>
+        {/* 썸네일 마이그레이션: 별도 줄에 배치해 항상 보이도록 */}
+        <div className="flex flex-wrap items-center gap-2 border border-orange-200 bg-orange-50/50 rounded-lg px-4 py-3">
+          <span className="text-sm text-gray-700 font-medium">썸네일 도구:</span>
           <button
-            onClick={() => setIsAddingSheet(true)}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+            disabled={isMigratingThumbnails}
+            onClick={async () => {
+              if (!confirm('정말 외부 URL 썸네일들을 Supabase Storage로 일괄 다운로드하시겠습니까?')) return;
+              setIsMigratingThumbnails(true);
+              try {
+                const res = await fetch('/api/admin/migrate-thumbnails', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ dryRun: false }),
+                });
+                const result = await res.json();
+                if (result.success) {
+                  alert(`마이그레이션 완료!\n✅ 성공: ${result.stats.migrated}개\n❌ 실패: ${result.stats.failed}개\n⏱ 소요: ${result.stats.elapsed}`);
+                  loadSheets();
+                } else {
+                  alert(`마이그레이션 실패: ${result.error}`);
+                }
+              } catch (err: any) {
+                alert(`마이그레이션 오류: ${err.message}`);
+              } finally {
+                setIsMigratingThumbnails(false);
+              }
+            }}
+            className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-2"
           >
-            <i className="ri-add-line w-4 h-4"></i>
-            <span>새 악보 추가</span>
-          </button>
-          <button
-            onClick={startBulkAddSheets}
-            className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
-          >
-            <i className="ri-file-upload-line w-4 h-4"></i>
-            <span>CSV 대량 등록</span>
-          </button>
-          <button
-            onClick={startPreorderBulkAdd}
-            className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center space-x-2"
-          >
-            <i className="ri-file-excel-2-line w-4 h-4"></i>
-            <span>선주문 대량 등록 (Excel)</span>
+            <i className="ri-download-cloud-line w-4 h-4"></i>
+            <span>{isMigratingThumbnails ? '변환 중...' : '과거 썸네일 일괄 변환(Migration)'}</span>
           </button>
         </div>
       </div>
