@@ -101,6 +101,59 @@ function generateSlug(artist: string, title: string): string {
   return baseSlug || `sheet-${Date.now()}`;
 }
 
+const THUMBNAIL_DOWNLOAD_TIMEOUT_MS = 10000;
+const THUMBNAIL_MAX_FILE_SIZE = 10 * 1024 * 1024;
+
+function isExternalUrl(url: string): boolean {
+  if (!url || !url.startsWith('http')) return false;
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+  const supabaseDomain = supabaseUrl.replace('https://', '').replace('http://', '');
+  return !url.includes(supabaseDomain);
+}
+
+function getThumbnailContentType(
+  contentType: string | null,
+  url: string
+): { mime: string; ext: string } {
+  if (contentType?.includes('image/png')) return { mime: 'image/png', ext: 'png' };
+  if (contentType?.includes('image/webp')) return { mime: 'image/webp', ext: 'webp' };
+  const urlLower = url.toLowerCase();
+  if (urlLower.includes('.png')) return { mime: 'image/png', ext: 'png' };
+  if (urlLower.includes('.webp')) return { mime: 'image/webp', ext: 'webp' };
+  return { mime: 'image/jpeg', ext: 'jpg' };
+}
+
+async function downloadAndUploadThumbnail(
+  supabase: ReturnType<typeof createClient>,
+  imageUrl: string,
+  identifier: string
+): Promise<string | null> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), THUMBNAIL_DOWNLOAD_TIMEOUT_MS);
+  try {
+    const resp = await fetch(imageUrl, {
+      signal: controller.signal,
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; CopyDrumBot/1.0)', 'Accept': 'image/*' },
+    });
+    if (!resp.ok) return null;
+    const ct = resp.headers.get('content-type');
+    if (ct && !ct.startsWith('image/')) return null;
+    const buf = await resp.arrayBuffer();
+    if (buf.byteLength === 0 || buf.byteLength > THUMBNAIL_MAX_FILE_SIZE) return null;
+    const { mime, ext } = getThumbnailContentType(ct, imageUrl);
+    const filePath = `thumbnails/thumb_${identifier}_${Date.now()}.${ext}`;
+    const { error } = await supabase.storage.from('drum-sheets').upload(filePath, buf, { contentType: mime, upsert: true });
+    if (error) { console.error('[bulk-preorder] thumbnail upload error:', error.message); return null; }
+    const { data } = supabase.storage.from('drum-sheets').getPublicUrl(filePath);
+    return data.publicUrl;
+  } catch (e: any) {
+    console.warn('[bulk-preorder] thumbnail download failed:', e.message);
+    return null;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 // ✅ Service Role Key가 있으면 Admin 권한으로 RLS 우회
 function createAdminClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -663,6 +716,18 @@ export async function POST(request: NextRequest) {
         // Spotify API 호출 후 Rate Limit 방지를 위한 딜레이 (300-500ms)
         if (usedSpotifyApi) {
           await new Promise(resolve => setTimeout(resolve, 400)); // 400ms 딜레이
+        }
+      }
+
+      // 외부 썸네일 URL → Supabase Storage 업로드
+      if (thumbnailUrl && isExternalUrl(thumbnailUrl)) {
+        const slugId = slug || `bulk_${Date.now()}_${i}`;
+        const storageUrl = await downloadAndUploadThumbnail(supabase, thumbnailUrl, slugId);
+        if (storageUrl) {
+          console.log(`[bulk-preorder] ✅ [${i + 1}/${newItems.length}] 썸네일 Storage 업로드 완료: ${item.artist} - ${item.title}`);
+          thumbnailUrl = storageUrl;
+        } else {
+          console.warn(`[bulk-preorder] ⚠️ [${i + 1}/${newItems.length}] 썸네일 Storage 업로드 실패, 원본 URL 유지: ${item.artist} - ${item.title}`);
         }
       }
 

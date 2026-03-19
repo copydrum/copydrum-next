@@ -4410,6 +4410,32 @@ const AdminPage: React.FC = () => {
     reader.readAsText(file, 'UTF-8');
   };
 
+  const isExternalThumbnailUrl = (url: string): boolean => {
+    if (!url || !url.startsWith('http')) return false;
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+    const supabaseDomain = supabaseUrl.replace('https://', '').replace('http://', '');
+    return !url.includes(supabaseDomain);
+  };
+
+  const uploadThumbnailFromUrl = async (imageUrl: string, sheetId?: string): Promise<string | null> => {
+    try {
+      const response = await fetch('/api/admin/upload-thumbnail-from-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageUrl, sheetId }),
+      });
+      const result = await response.json();
+      if (result.success) {
+        return result.storageUrl;
+      }
+      console.error('[thumbnail-upload] 실패:', result.error);
+      return null;
+    } catch (error) {
+      console.error('[thumbnail-upload] 네트워크 오류:', error);
+      return null;
+    }
+  };
+
   const fetchSpotifyInfo = async (title: string, artist: string) => {
     if (!title || !artist) return;
 
@@ -4784,9 +4810,20 @@ const AdminPage: React.FC = () => {
         is_active: true
       };
 
-      // 선택적 필드 추가
+      // 선택적 필드 추가 (썸네일: 외부 URL이면 Supabase Storage에 업로드)
       if (newSheet.thumbnail_url) {
-        insertData.thumbnail_url = newSheet.thumbnail_url.trim();
+        let finalThumbnailUrl = newSheet.thumbnail_url.trim();
+        if (isExternalThumbnailUrl(finalThumbnailUrl)) {
+          console.log('[add-sheet] 외부 썸네일 URL 감지, Supabase Storage로 업로드 중...');
+          const storageUrl = await uploadThumbnailFromUrl(finalThumbnailUrl);
+          if (storageUrl) {
+            finalThumbnailUrl = storageUrl;
+            console.log('[add-sheet] ✅ 썸네일 Storage 업로드 완료:', storageUrl);
+          } else {
+            console.warn('[add-sheet] ⚠️ 썸네일 Storage 업로드 실패, 원본 URL 사용');
+          }
+        }
+        insertData.thumbnail_url = finalThumbnailUrl;
       }
       if (newSheet.album_name) {
         insertData.album_name = newSheet.album_name.trim();
@@ -5460,6 +5497,16 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
             insertData.category_id = categoryId;
           }
           if (thumbnailUrl) {
+            if (isExternalThumbnailUrl(thumbnailUrl)) {
+              console.log(`행 ${rowNum}: 외부 썸네일 URL 감지, Storage 업로드 중...`);
+              const storageUrl = await uploadThumbnailFromUrl(thumbnailUrl);
+              if (storageUrl) {
+                thumbnailUrl = storageUrl;
+                console.log(`행 ${rowNum}: ✅ 썸네일 Storage 업로드 완료`);
+              } else {
+                console.warn(`행 ${rowNum}: ⚠️ 썸네일 Storage 업로드 실패, 원본 URL 사용`);
+              }
+            }
             insertData.thumbnail_url = thumbnailUrl;
           }
           if (albumName) {
@@ -8839,7 +8886,18 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
                     };
 
                     if (editingSheetData.thumbnail_url) {
-                      updateData.thumbnail_url = editingSheetData.thumbnail_url;
+                      let finalThumbUrl = editingSheetData.thumbnail_url.trim();
+                      if (isExternalThumbnailUrl(finalThumbUrl)) {
+                        console.log('[edit-sheet] 외부 썸네일 URL 감지, Supabase Storage로 업로드 중...');
+                        const storageUrl = await uploadThumbnailFromUrl(finalThumbUrl, editingSheet.id);
+                        if (storageUrl) {
+                          finalThumbUrl = storageUrl;
+                          console.log('[edit-sheet] ✅ 썸네일 Storage 업로드 완료:', storageUrl);
+                        } else {
+                          console.warn('[edit-sheet] ⚠️ 썸네일 Storage 업로드 실패, 원본 URL 사용');
+                        }
+                      }
+                      updateData.thumbnail_url = finalThumbUrl;
                     } else {
                       updateData.thumbnail_url = null;
                     }
