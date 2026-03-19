@@ -16,9 +16,9 @@ function createAdminClient() {
 
 const SUPABASE_STORAGE_BUCKET = 'drum-sheets';
 const THUMBNAIL_FOLDER = 'thumbnails';
-const DOWNLOAD_TIMEOUT_MS = 15000;
+const DOWNLOAD_TIMEOUT_MS = 12000;
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
-const BATCH_DELAY_MS = 500;
+const BATCH_DELAY_MS = 200;
 
 function isExternalUrl(url: string): boolean {
   if (!url || !url.startsWith('http')) return false;
@@ -110,33 +110,28 @@ async function downloadAndUploadImage(
 /**
  * POST /api/admin/migrate-thumbnails
  *
- * 기존 DB에 외부 URL로 저장된 모든 썸네일을 Supabase Storage로 마이그레이션합니다.
+ * 청크 단위로 외부 URL 썸네일을 Supabase Storage로 마이그레이션합니다.
+ * 프론트엔드에서 limit=50 으로 반복 호출하여 대량 처리에 사용합니다.
  *
- * Body (optional): { dryRun?: boolean, limit?: number }
- *   - dryRun: true이면 실제 작업 없이 대상 목록만 반환
- *   - limit: 한 번에 처리할 최대 개수 (기본: 전체)
+ * Body: { limit?: number }
+ *   - limit: 이번 배치에서 처리할 최대 개수 (기본: 50)
+ *
+ * Response: { success, stats: { migrated, failed, remaining, totalExternal } }
  */
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
 
   try {
     const body = await request.json().catch(() => ({}));
-    const dryRun = body.dryRun === true;
-    const limit = typeof body.limit === 'number' ? body.limit : 0;
+    const limit = typeof body.limit === 'number' && body.limit > 0 ? body.limit : 50;
 
     const supabase = createAdminClient();
 
-    let query = supabase
+    const { data: allSheets, error: fetchError } = await supabase
       .from('drum_sheets')
       .select('id, title, artist, thumbnail_url')
       .not('thumbnail_url', 'is', null)
       .neq('thumbnail_url', '');
-
-    if (limit > 0) {
-      query = query.limit(limit);
-    }
-
-    const { data: sheets, error: fetchError } = await query;
 
     if (fetchError) {
       console.error('[migrate-thumbnails] ❌ DB 조회 실패:', fetchError);
@@ -146,50 +141,31 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!sheets || sheets.length === 0) {
-      return NextResponse.json({
-        success: true,
-        message: '마이그레이션할 썸네일이 없습니다.',
-        stats: { total: 0, external: 0, migrated: 0, failed: 0, skipped: 0 },
-      });
-    }
-
-    const externalSheets = sheets.filter(
+    const externalSheets = (allSheets || []).filter(
       (s) => s.thumbnail_url && isExternalUrl(s.thumbnail_url)
     );
 
-    if (dryRun) {
+    const totalExternal = externalSheets.length;
+
+    if (totalExternal === 0) {
       return NextResponse.json({
         success: true,
-        message: `Dry Run: ${externalSheets.length}개의 외부 썸네일을 마이그레이션해야 합니다.`,
-        dryRun: true,
-        stats: {
-          total: sheets.length,
-          external: externalSheets.length,
-          internal: sheets.length - externalSheets.length,
-        },
-        targets: externalSheets.map((s) => ({
-          id: s.id,
-          title: s.title,
-          artist: s.artist,
-          thumbnail_url: s.thumbnail_url,
-        })),
+        message: '마이그레이션할 외부 썸네일이 없습니다.',
+        stats: { migrated: 0, failed: 0, remaining: 0, totalExternal: 0 },
+        done: true,
       });
     }
 
-    console.log(`[migrate-thumbnails] 🚀 마이그레이션 시작: ${externalSheets.length}개 대상`);
+    const batch = externalSheets.slice(0, limit);
 
-    const results: {
-      migrated: Array<{ id: string; title: string; artist: string; oldUrl: string; newUrl: string }>;
-      failed: Array<{ id: string; title: string; artist: string; url: string; error: string }>;
-      skipped: number;
-    } = { migrated: [], failed: [], skipped: 0 };
+    console.log(`[migrate-thumbnails] 🚀 배치 시작: ${batch.length}개 처리 (전체 남은 외부: ${totalExternal}개)`);
 
-    for (let i = 0; i < externalSheets.length; i++) {
-      const sheet = externalSheets[i];
-      const logPrefix = `[${i + 1}/${externalSheets.length}]`;
+    let migrated = 0;
+    let failed = 0;
+    const failedItems: Array<{ id: string; title: string; error: string }> = [];
 
-      console.log(`[migrate-thumbnails] ${logPrefix} 처리 중: ${sheet.artist} - ${sheet.title}`);
+    for (let i = 0; i < batch.length; i++) {
+      const sheet = batch[i];
 
       const uploadResult = await downloadAndUploadImage(
         supabase,
@@ -198,16 +174,13 @@ export async function POST(request: NextRequest) {
       );
 
       if (!uploadResult.success || !uploadResult.storageUrl) {
-        console.error(`[migrate-thumbnails] ${logPrefix} ❌ 실패: ${uploadResult.error}`);
-        results.failed.push({
+        failed++;
+        failedItems.push({
           id: sheet.id,
-          title: sheet.title,
-          artist: sheet.artist,
-          url: sheet.thumbnail_url!,
+          title: `${sheet.artist} - ${sheet.title}`,
           error: uploadResult.error || '알 수 없는 오류',
         });
-
-        if (i < externalSheets.length - 1) {
+        if (i < batch.length - 1) {
           await new Promise((resolve) => setTimeout(resolve, BATCH_DELAY_MS));
         }
         continue;
@@ -219,48 +192,38 @@ export async function POST(request: NextRequest) {
         .eq('id', sheet.id);
 
       if (updateError) {
-        console.error(`[migrate-thumbnails] ${logPrefix} ❌ DB 업데이트 실패: ${updateError.message}`);
-        results.failed.push({
+        failed++;
+        failedItems.push({
           id: sheet.id,
-          title: sheet.title,
-          artist: sheet.artist,
-          url: sheet.thumbnail_url!,
+          title: `${sheet.artist} - ${sheet.title}`,
           error: `DB 업데이트 실패: ${updateError.message}`,
         });
       } else {
-        console.log(`[migrate-thumbnails] ${logPrefix} ✅ 완료: ${sheet.thumbnail_url} → ${uploadResult.storageUrl}`);
-        results.migrated.push({
-          id: sheet.id,
-          title: sheet.title,
-          artist: sheet.artist,
-          oldUrl: sheet.thumbnail_url!,
-          newUrl: uploadResult.storageUrl,
-        });
+        migrated++;
       }
 
-      if (i < externalSheets.length - 1) {
+      if (i < batch.length - 1) {
         await new Promise((resolve) => setTimeout(resolve, BATCH_DELAY_MS));
       }
     }
 
+    const remaining = totalExternal - migrated;
     const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
 
-    console.log(`[migrate-thumbnails] 🏁 마이그레이션 완료 (${elapsed}초)`);
-    console.log(`  ✅ 성공: ${results.migrated.length}개`);
-    console.log(`  ❌ 실패: ${results.failed.length}개`);
+    console.log(`[migrate-thumbnails] 🏁 배치 완료 (${elapsed}초): ✅${migrated} ❌${failed} 남은: ${remaining}`);
 
     return NextResponse.json({
       success: true,
-      message: `마이그레이션 완료: ${results.migrated.length}개 성공, ${results.failed.length}개 실패 (${elapsed}초 소요)`,
       stats: {
-        total: sheets.length,
-        external: externalSheets.length,
-        migrated: results.migrated.length,
-        failed: results.failed.length,
+        migrated,
+        failed,
+        remaining,
+        totalExternal,
+        batchSize: batch.length,
         elapsed: `${elapsed}s`,
       },
-      migrated: results.migrated,
-      failed: results.failed,
+      failedItems: failedItems.length > 0 ? failedItems : undefined,
+      done: remaining <= 0,
     });
   } catch (error) {
     console.error('[migrate-thumbnails] 🔥 예외 발생:', error);
@@ -277,7 +240,7 @@ export async function POST(request: NextRequest) {
 /**
  * GET /api/admin/migrate-thumbnails
  *
- * 마이그레이션 대상 현황을 조회합니다 (dry run과 동일).
+ * 마이그레이션 대상 현황을 조회합니다.
  */
 export async function GET() {
   try {
@@ -309,15 +272,7 @@ export async function GET() {
         total: sheets?.length || 0,
         external: external.length,
         internal: internal.length,
-        noThumbnail:
-          (sheets?.length || 0) - external.length - internal.length,
       },
-      externalUrls: external.map((s) => ({
-        id: s.id,
-        title: s.title,
-        artist: s.artist,
-        thumbnail_url: s.thumbnail_url,
-      })),
     });
   } catch (error) {
     return NextResponse.json(
