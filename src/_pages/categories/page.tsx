@@ -530,11 +530,32 @@ const CategoriesPage: React.FC = () => {
         }
 
         console.log('✅ Querying sheets with category_id:', categoryId);
+
+        // drum_sheet_categories 테이블에서 해당 카테고리에 속한 모든 sheet_id 조회 (다중 카테고리 지원)
+        const { data: relData, error: relError } = await supabase
+          .from('drum_sheet_categories')
+          .select('sheet_id')
+          .eq('category_id', categoryId);
+
+        if (relError) {
+          console.error('❌ Category relations query error:', relError);
+        }
+
+        const junctionSheetIds = (relData || [])
+          .map((r: any) => r.sheet_id)
+          .filter(Boolean);
+
+        // primary category_id 또는 junction table에 등록된 악보 모두 조회
+        let orFilter = `category_id.eq.${categoryId}`;
+        if (junctionSheetIds.length > 0) {
+          orFilter = `category_id.eq.${categoryId},id.in.(${junctionSheetIds.join(',')})`;
+        }
+
         const { data, error } = await supabase
           .from('drum_sheets')
           .select(baseSelect)
           .eq('is_active', true)
-          .eq('category_id', categoryId)
+          .or(orFilter)
           .order('created_at', { ascending: false })
           .limit(CATEGORY_FETCH_LIMIT);
 

@@ -90,19 +90,46 @@ export default function Home() {
       // 카테고리에서 해당 장르 ID 찾기
       const targetCategory = categories.find(cat => cat.name === targetGenreName);
       
-      let query = supabase
-        .from('drum_sheets')
-        .select('id, title, artist, price, thumbnail_url, youtube_url, category_id, slug, sales_type')
-        .eq('is_active', true);
+      const selectFields = 'id, title, artist, price, thumbnail_url, youtube_url, category_id, slug, sales_type';
 
-      // 카테고리를 찾았으면 해당 장르로 필터링
+      let data: any[] | null = null;
+      let error: any = null;
+
       if (targetCategory) {
-        query = query.eq('category_id', targetCategory.id);
+        // drum_sheet_categories에서 해당 카테고리의 모든 sheet_id 조회 (다중 카테고리 지원)
+        const { data: relData } = await supabase
+          .from('drum_sheet_categories')
+          .select('sheet_id')
+          .eq('category_id', targetCategory.id);
+
+        const junctionSheetIds = (relData || [])
+          .map((r: any) => r.sheet_id)
+          .filter(Boolean);
+
+        let orFilter = `category_id.eq.${targetCategory.id}`;
+        if (junctionSheetIds.length > 0) {
+          orFilter = `category_id.eq.${targetCategory.id},id.in.(${junctionSheetIds.join(',')})`;
+        }
+
+        const result = await supabase
+          .from('drum_sheets')
+          .select(selectFields)
+          .eq('is_active', true)
+          .or(orFilter)
+          .order('created_at', { ascending: false })
+          .limit(12);
+        data = result.data;
+        error = result.error;
+      } else {
+        const result = await supabase
+          .from('drum_sheets')
+          .select(selectFields)
+          .eq('is_active', true)
+          .order('created_at', { ascending: false })
+          .limit(12);
+        data = result.data;
+        error = result.error;
       }
-
-      query = query.order('created_at', { ascending: false }).limit(12);
-
-      const { data, error } = await query;
 
       if (error) throw error;
       setLatestSheets(data || []);
