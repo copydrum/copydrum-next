@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../lib/supabase';
+import * as XLSX from 'xlsx';
 
 interface MarketingPost {
     id: string;
@@ -48,6 +49,13 @@ export default function MarketingStatus() {
     // const [searchResults, setSearchResults] = useState<DrumSheet[]>([]); // Removed
     // const [isSearching, setIsSearching] = useState(false); // Removed
 
+    // Bulk selection state
+    const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+    const [bulkProcessing, setBulkProcessing] = useState(false);
+
+    // Excel download state
+    const [excelDownloading, setExcelDownloading] = useState(false);
+
     // Pagination state
     const [page, setPage] = useState(1);
     const [totalCount, setTotalCount] = useState(0);
@@ -58,8 +66,8 @@ export default function MarketingStatus() {
     }, []);
 
     useEffect(() => {
-        // Reset page to 1 when tab changes
         setPage(1);
+        setSelectedIds(new Set());
     }, [activeTab]);
 
     useEffect(() => {
@@ -465,8 +473,143 @@ ${sheet.youtube_url ? `<p>Related Video: <a href="${sheet.youtube_url}">${sheet.
         }
     };
 
-    // Removed handleSearch and handleAddToQueue
+    const toggleSelect = useCallback((id: string) => {
+        setSelectedIds(prev => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
+        });
+    }, []);
 
+    const toggleSelectAll = useCallback(() => {
+        if (selectedIds.size === queue.length) {
+            setSelectedIds(new Set());
+        } else {
+            setSelectedIds(new Set(queue.map(s => s.id)));
+        }
+    }, [queue, selectedIds.size]);
+
+    const handleBulkMarkAsPosted = async () => {
+        if (selectedIds.size === 0) return;
+        if (!confirm(`선택한 ${selectedIds.size}개 악보를 ${activeTab}에 일괄 완료 처리하시겠습니까?`)) return;
+
+        setBulkProcessing(true);
+        try {
+            const rows = Array.from(selectedIds).map(sheetId => ({
+                platform: activeTab,
+                sheet_id: sheetId,
+                status: 'manual_copy' as const,
+                posted_at: new Date().toISOString()
+            }));
+
+            const { error } = await supabase
+                .from('marketing_posts')
+                .insert(rows);
+
+            if (error) throw error;
+
+            const completedSheets = queue.filter(s => selectedIds.has(s.id));
+            setQueue(prev => prev.filter(s => !selectedIds.has(s.id)));
+            setPosts(prev => [
+                ...completedSheets.map(sheet => ({
+                    id: 'temp-bulk-' + sheet.id,
+                    sheet_id: sheet.id,
+                    platform: activeTab,
+                    status: 'manual_copy' as const,
+                    post_url: null,
+                    error_message: null,
+                    posted_at: new Date().toISOString(),
+                    drum_sheets: { title: sheet.title, artist: sheet.artist }
+                })),
+                ...prev
+            ]);
+            setSelectedIds(new Set());
+            alert(`${completedSheets.length}개 악보가 완료 처리되었습니다.`);
+        } catch (error) {
+            console.error('Bulk mark error:', error);
+            alert('일괄 처리 중 오류가 발생했습니다.');
+        } finally {
+            setBulkProcessing(false);
+        }
+    };
+
+    const generateBody = (sheet: DrumSheet): string => {
+        const isNaver = activeTab === 'naver';
+        const isPinterest = activeTab === 'pinterest';
+        const isTistory = activeTab === 'tistory';
+
+        const sheetUrl = isNaver
+            ? `https://copydrum.com/drum-sheet/${sheet.slug}`
+            : `https://en.copydrum.com/drum-sheet/${sheet.slug}`;
+
+        if (isPinterest) {
+            return `🥁 ${sheet.artist} - ${sheet.title} | Drum Sheet Music\nGet this drum sheet music at CopyDrum!\n👉 ${sheetUrl}${sheet.youtube_url ? `\n🎬 Watch: ${sheet.youtube_url}` : ''}`;
+        }
+
+        const imageHtml = sheet.preview_image_url
+            ? `<img src="${sheet.preview_image_url}" alt="${sheet.title} ${isNaver ? '드럼 악보 미리보기' : 'Drum Sheet Music Preview'}" style="max-width:100%;height:auto;display:block;margin:10px auto;" />`
+            : '';
+
+        const tableButton = (label: string) =>
+            `<div style="text-align:center;margin:25px 0;"><table border="0" cellspacing="0" cellpadding="0" align="center" style="border-collapse:separate;"><tr><td align="center" bgcolor="#2563eb" style="border-radius:10px;padding:18px 40px;"><a href="${sheetUrl}" target="_blank" style="text-decoration:none;color:#ffffff;font-size:20px;font-weight:bold;">🥁 ${label}</a></td></tr></table></div>`;
+
+        const inlineButton = (label: string) =>
+            `<p style="text-align:center;margin:30px 0;"><a href="${sheetUrl}" target="_blank" style="background-color:#2563eb;color:#ffffff;padding:20px 40px;text-decoration:none;border-radius:8px;font-size:20px;font-weight:bold;display:inline-block;box-shadow:0 4px 6px rgba(0,0,0,0.1);">🥁 ${label}</a></p>`;
+
+        if (isNaver) {
+            return `<p>안녕하세요! CopyDrum입니다.</p><p>오늘 소개해드릴 드럼 악보는 <strong>${sheet.artist}</strong>의 <strong>${sheet.title}</strong>입니다.</p><br/>${imageHtml}<br/><p>이 악보는 CopyDrum에서 구매하실 수 있습니다.</p>${tableButton('악보 보러가기')}<br/>${sheet.youtube_url ? `<p>관련 영상: <a href="${sheet.youtube_url}">${sheet.youtube_url}</a></p>` : ''}`;
+        } else if (isTistory) {
+            return `<p>Hello! This is CopyDrum.</p><p>Today we are introducing drum sheet music for <strong>${sheet.artist}</strong> - <strong>${sheet.title}</strong>.</p><br/>${imageHtml}<br/><p>You can purchase this sheet music at CopyDrum.</p>${tableButton('Get Sheet Music')}<br/>${sheet.youtube_url ? `<p>Related Video: <a href="${sheet.youtube_url}">${sheet.youtube_url}</a></p>` : ''}`;
+        } else {
+            return `<p>Hello! This is CopyDrum.</p><p>Today we are introducing drum sheet music for <strong>${sheet.artist}</strong> - <strong>${sheet.title}</strong>.</p><br/>${imageHtml}<br/><p>You can purchase this sheet music at CopyDrum.</p>${inlineButton('Get Sheet Music')}<br/>${sheet.youtube_url ? `<p>Related Video: <a href="${sheet.youtube_url}">${sheet.youtube_url}</a></p>` : ''}`;
+        }
+    };
+
+    const generateTitle = (sheet: DrumSheet): string => {
+        const isNaver = activeTab === 'naver';
+        const suffix = isNaver ? '드럼악보' : 'DRUM SHEET MUSIC';
+        return `${sheet.artist} - ${sheet.title} - ${suffix}`;
+    };
+
+    const generateProductUrl = (sheet: DrumSheet): string => {
+        return activeTab === 'naver'
+            ? `https://copydrum.com/drum-sheet/${sheet.slug}`
+            : `https://en.copydrum.com/drum-sheet/${sheet.slug}`;
+    };
+
+    const handleExcelDownload = () => {
+        if (queue.length === 0) {
+            alert('다운로드할 악보가 없습니다. 대기열이 비어있습니다.');
+            return;
+        }
+
+        setExcelDownloading(true);
+        try {
+            const rows = queue.map((sheet: DrumSheet) => ({
+                '제목': generateTitle(sheet),
+                '본문내용': generateBody(sheet),
+                '미리보기 이미지 URL': sheet.preview_image_url || '',
+                '상품 URL': generateProductUrl(sheet),
+            }));
+
+            const ws = XLSX.utils.json_to_sheet(rows);
+            ws['!cols'] = [{ wch: 50 }, { wch: 80 }, { wch: 60 }, { wch: 60 }];
+
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, activePlatform?.name || activeTab);
+
+            const today = new Date().toISOString().slice(0, 10);
+            XLSX.writeFile(wb, `마케팅_${activePlatform?.name || activeTab}_${today}.xlsx`);
+
+            alert(`${queue.length}개 악보 데이터가 엑셀로 다운로드되었습니다.`);
+        } catch (error) {
+            console.error('Excel download error:', error);
+            alert('엑셀 다운로드 중 오류가 발생했습니다.');
+        } finally {
+            setExcelDownloading(false);
+        }
+    };
 
     const activePlatform = PLATFORMS.find(p => p.id === activeTab);
     const totalPages = Math.ceil(totalCount / pageSize);
@@ -506,7 +649,7 @@ ${sheet.youtube_url ? `<p>Related Video: <a href="${sheet.youtube_url}">${sheet.
                             일일 목표({dailyLimit}개)에 따라 아직 포스팅되지 않은 악보를 보여줍니다.
                         </p>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                         <div className="relative">
                             <input
                                 type="text"
@@ -520,7 +663,7 @@ ${sheet.youtube_url ? `<p>Related Video: <a href="${sheet.youtube_url}">${sheet.
                         <select
                             value={selectedCategory}
                             onChange={(e) => setSelectedCategory(e.target.value)}
-                            disabled={!!searchQuery} // Disable category filter when searching
+                            disabled={!!searchQuery}
                             className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:text-gray-400"
                         >
                             <option value="">모든 장르</option>
@@ -531,6 +674,15 @@ ${sheet.youtube_url ? `<p>Related Video: <a href="${sheet.youtube_url}">${sheet.
                             ))}
                         </select>
                         <button
+                            onClick={handleExcelDownload}
+                            disabled={excelDownloading}
+                            className="flex items-center gap-1 px-3 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 shadow-sm transition-colors disabled:opacity-50"
+                            title="미포스팅 악보 전체를 엑셀로 다운로드"
+                        >
+                            <i className={excelDownloading ? "ri-loader-4-line animate-spin" : "ri-file-excel-2-line"}></i>
+                            엑셀 다운로드
+                        </button>
+                        <button
                             onClick={fetchData}
                             className="text-gray-500 hover:text-gray-700 p-2"
                             title="새로고침"
@@ -539,6 +691,33 @@ ${sheet.youtube_url ? `<p>Related Video: <a href="${sheet.youtube_url}">${sheet.
                         </button>
                     </div>
                 </div>
+
+                {/* Bulk action bar */}
+                {queue.length > 0 && (
+                    <div className="flex items-center gap-3 mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                        <label className="flex items-center gap-2 cursor-pointer select-none">
+                            <input
+                                type="checkbox"
+                                checked={queue.length > 0 && selectedIds.size === queue.length}
+                                onChange={toggleSelectAll}
+                                className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                            />
+                            <span className="text-sm font-medium text-gray-700">
+                                전체 선택 ({selectedIds.size}/{queue.length})
+                            </span>
+                        </label>
+                        {selectedIds.size > 0 && (
+                            <button
+                                onClick={handleBulkMarkAsPosted}
+                                disabled={bulkProcessing}
+                                className="flex items-center gap-1 px-3 py-1.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 shadow-sm transition-colors disabled:opacity-50"
+                            >
+                                <i className={bulkProcessing ? "ri-loader-4-line animate-spin" : "ri-check-double-line"}></i>
+                                {bulkProcessing ? '처리 중...' : `${selectedIds.size}개 일괄 완료 처리`}
+                            </button>
+                        )}
+                    </div>
+                )}
 
                 {queueLoading ? (
                     <div className="text-center py-8 text-gray-500">대기열을 불러오는 중...</div>
@@ -551,9 +730,15 @@ ${sheet.youtube_url ? `<p>Related Video: <a href="${sheet.youtube_url}">${sheet.
                 ) : (
                     <div className="space-y-4">
                         {queue.map(sheet => (
-                            <div key={sheet.id} className="border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition-colors bg-blue-50/30">
+                            <div key={sheet.id} className={`border rounded-lg p-4 transition-colors ${selectedIds.has(sheet.id) ? 'border-blue-400 bg-blue-50/60 ring-1 ring-blue-200' : 'border-gray-200 hover:border-blue-300 bg-blue-50/30'}`}>
                                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                                     <div className="flex items-start gap-4">
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedIds.has(sheet.id)}
+                                            onChange={() => toggleSelect(sheet.id)}
+                                            className="w-4 h-4 mt-2 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer flex-shrink-0"
+                                        />
                                         {sheet.preview_image_url ? (
                                             <img src={sheet.preview_image_url} alt={sheet.title} className="w-16 h-20 object-cover rounded shadow-sm bg-white" />
                                         ) : (
