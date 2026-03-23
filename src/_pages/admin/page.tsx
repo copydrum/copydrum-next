@@ -3825,6 +3825,8 @@ const AdminPage: React.FC = () => {
 
   // 악보 검색 필터링 (성능 최적화: useMemo 사용)
   const filteredSheetsForCollection = React.useMemo(() => {
+    if (!collectionSheetSearchTerm && !collectionArtistSearchTerm) return [];
+
     const searchLower = collectionSheetSearchTerm.toLowerCase();
     const artistLower = collectionArtistSearchTerm.toLowerCase();
     const selectedIds = new Set(selectedSheetsForNewCollection.map(s => s.id));
@@ -9900,7 +9902,9 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
                 <div className="max-h-64 overflow-y-auto border border-gray-200 rounded-lg">
                   {filteredSheetsForCollection.length === 0 ? (
                     <div className="p-4 text-center text-gray-500 text-sm">
-                      검색 결과가 없습니다.
+                      {!collectionSheetSearchTerm && !collectionArtistSearchTerm
+                        ? '곡명/아티스트를 검색하여 악보를 추가하세요.'
+                        : '검색 결과가 없습니다.'}
                     </div>
                   ) : (
                     <div className="divide-y divide-gray-200">
