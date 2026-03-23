@@ -20,6 +20,9 @@ export const metadata: Metadata = {
   },
   verification: {
     google: 'google-site-verification=-rcYbyDQYm1eyHBKXEXCjdyrVhmzA3fnVzorZTx1CUg',
+    other: {
+      'p:domain_verify': '9e40cd0675293ed6bb3bc9006a2a9a46',
+    },
   },
   alternates: {
     canonical: 'https://copydrum.com',
