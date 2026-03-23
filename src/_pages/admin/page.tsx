@@ -1234,6 +1234,10 @@ const AdminPage: React.FC = () => {
   const [collectionSheetSearchTerm, setCollectionSheetSearchTerm] = useState('');
   const [collectionArtistSearchTerm, setCollectionArtistSearchTerm] = useState('');
   const [isAddingCollectionLoading, setIsAddingCollectionLoading] = useState(false);
+  const [seriesKeyword, setSeriesKeyword] = useState('');
+  const [selectedSeriesCollectionIds, setSelectedSeriesCollectionIds] = useState<string[]>([]);
+  const [seriesSheetMap, setSeriesSheetMap] = useState<Record<string, string[]>>({});
+  const [isLoadingSeriesSheets, setIsLoadingSeriesSheets] = useState(false);
 
   // 모음집 악보관리 모달 - 검색 및 가격 편집 상태
   const [collectionModalSearchTerm, setCollectionModalSearchTerm] = useState('');
@@ -3874,6 +3878,63 @@ const AdminPage: React.FC = () => {
     }, {} as Record<string, DrumSheet[]>);
   }, [filteredSheetsForCollectionModal]);
 
+  const filteredSeriesCollections = React.useMemo(() => {
+    if (!seriesKeyword.trim()) return [];
+    const keyword = seriesKeyword.toLowerCase();
+    return collections.filter(c => c.title.toLowerCase().includes(keyword));
+  }, [collections, seriesKeyword]);
+
+  const seriesSheetIdSet = React.useMemo(() => new Set(Object.keys(seriesSheetMap)), [seriesSheetMap]);
+
+  const loadSeriesSheets = async (collectionIds: string[]) => {
+    if (collectionIds.length === 0) {
+      setSeriesSheetMap({});
+      return;
+    }
+    setIsLoadingSeriesSheets(true);
+    try {
+      const { data, error } = await supabase
+        .from('collection_sheets')
+        .select('drum_sheet_id, collection_id')
+        .in('collection_id', collectionIds);
+
+      if (error) throw error;
+
+      const map: Record<string, string[]> = {};
+      for (const row of data || []) {
+        const collectionTitle = collections.find(c => c.id === row.collection_id)?.title || '';
+        if (!map[row.drum_sheet_id]) map[row.drum_sheet_id] = [];
+        if (!map[row.drum_sheet_id].includes(collectionTitle)) {
+          map[row.drum_sheet_id].push(collectionTitle);
+        }
+      }
+      setSeriesSheetMap(map);
+    } catch (error) {
+      console.error('시리즈 악보 로드 오류:', error);
+    } finally {
+      setIsLoadingSeriesSheets(false);
+    }
+  };
+
+  const handleToggleSeriesCollection = async (collectionId: string) => {
+    const updated = selectedSeriesCollectionIds.includes(collectionId)
+      ? selectedSeriesCollectionIds.filter(id => id !== collectionId)
+      : [...selectedSeriesCollectionIds, collectionId];
+    setSelectedSeriesCollectionIds(updated);
+    await loadSeriesSheets(updated);
+  };
+
+  const handleSelectAllSeriesCollections = async () => {
+    const allIds = filteredSeriesCollections.map(c => c.id);
+    setSelectedSeriesCollectionIds(allIds);
+    await loadSeriesSheets(allIds);
+  };
+
+  const handleDeselectAllSeriesCollections = async () => {
+    setSelectedSeriesCollectionIds([]);
+    setSeriesSheetMap({});
+  };
+
   const handleAddSheetToNewCollection = (sheet: DrumSheet) => {
     if (!selectedSheetsForNewCollection.some(s => s.id === sheet.id)) {
       const updated = [...selectedSheetsForNewCollection, sheet];
@@ -3984,6 +4045,9 @@ const AdminPage: React.FC = () => {
       setSelectedSheetsForNewCollection([]);
       setCollectionSheetSearchTerm('');
       setCollectionArtistSearchTerm('');
+      setSeriesKeyword('');
+      setSelectedSeriesCollectionIds([]);
+      setSeriesSheetMap({});
       loadCollections();
     } catch (error) {
       console.error('모음집 추가 오류:', error);
@@ -9309,6 +9373,9 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
             setSelectedSheetsForNewCollection([]);
             setCollectionSheetSearchTerm('');
             setCollectionArtistSearchTerm('');
+            setSeriesKeyword('');
+            setSelectedSeriesCollectionIds([]);
+            setSeriesSheetMap({});
             setIsAddingCollection(true);
           }}
           className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
@@ -9657,29 +9724,131 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     선택된 악보 ({selectedSheetsForNewCollection.length}개)
+                    {selectedSeriesCollectionIds.length > 0 && (() => {
+                      const dupCount = selectedSheetsForNewCollection.filter(s => seriesSheetIdSet.has(s.id)).length;
+                      return dupCount > 0 ? (
+                        <span className="ml-2 text-orange-600 text-xs font-medium">
+                          <i className="ri-error-warning-line"></i> 시리즈 중복 {dupCount}개
+                        </span>
+                      ) : (
+                        <span className="ml-2 text-green-600 text-xs font-medium">
+                          <i className="ri-checkbox-circle-line"></i> 시리즈 중복 없음
+                        </span>
+                      );
+                    })()}
                   </label>
                   <div className="max-h-32 overflow-y-auto border border-gray-200 rounded-lg p-2 bg-gray-50">
                     <div className="flex flex-wrap gap-2">
-                      {selectedSheetsForNewCollection.map((sheet) => (
-                        <div
-                          key={sheet.id}
-                          className="flex items-center space-x-2 bg-white px-3 py-1 rounded-full border border-gray-300"
-                        >
-                          <span className="text-sm text-gray-900">{sheet.title} - {sheet.artist}</span>
-                          <span className="text-xs text-gray-500">({new Intl.NumberFormat('ko-KR').format(sheet.price || 0)}원)</span>
-                          <button
-                            onClick={() => handleRemoveSheetFromNewCollection(sheet.id)}
-                            className="text-red-600 hover:text-red-800"
-                            title="제거"
+                      {selectedSheetsForNewCollection.map((sheet) => {
+                        const isDup = seriesSheetIdSet.has(sheet.id);
+                        return (
+                          <div
+                            key={sheet.id}
+                            className={`flex items-center space-x-2 px-3 py-1 rounded-full border ${isDup ? 'bg-orange-50 border-orange-400' : 'bg-white border-gray-300'}`}
                           >
-                            <i className="ri-close-line w-4 h-4"></i>
-                          </button>
-                        </div>
-                      ))}
+                            {isDup && <i className="ri-error-warning-line text-orange-500 text-xs"></i>}
+                            <span className={`text-sm ${isDup ? 'text-orange-800' : 'text-gray-900'}`}>{sheet.title} - {sheet.artist}</span>
+                            <span className="text-xs text-gray-500">({new Intl.NumberFormat('ko-KR').format(sheet.price || 0)}원)</span>
+                            <button
+                              onClick={() => handleRemoveSheetFromNewCollection(sheet.id)}
+                              className="text-red-600 hover:text-red-800"
+                              title="제거"
+                            >
+                              <i className="ri-close-line w-4 h-4"></i>
+                            </button>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
               )}
+
+              {/* 시리즈 중복 체크 */}
+              <div className="border-t pt-4">
+                <h4 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                  <i className="ri-stack-line text-purple-600"></i>
+                  시리즈 중복 체크
+                  <span className="text-xs font-normal text-gray-500">(시리즈 모음집을 만들 때, 기존 볼륨과 곡 중복을 확인합니다)</span>
+                </h4>
+
+                <div className="mb-3">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">시리즈 키워드 검색</label>
+                  <input
+                    type="text"
+                    value={seriesKeyword}
+                    onChange={(e) => setSeriesKeyword(e.target.value)}
+                    placeholder="예: 인기팝송 드럼악보, K-POP 시리즈..."
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  />
+                </div>
+
+                {seriesKeyword.trim() && (
+                  <div className="bg-purple-50 border border-purple-200 rounded-lg p-3 mb-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-xs font-medium text-purple-700">
+                        검색 결과: {filteredSeriesCollections.length}개 모음집
+                      </p>
+                      {filteredSeriesCollections.length > 0 && (
+                        <div className="flex gap-2">
+                          <button
+                            onClick={handleSelectAllSeriesCollections}
+                            className="text-xs px-2 py-1 bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors"
+                          >
+                            전체 선택
+                          </button>
+                          {selectedSeriesCollectionIds.length > 0 && (
+                            <button
+                              onClick={handleDeselectAllSeriesCollections}
+                              className="text-xs px-2 py-1 bg-gray-400 text-white rounded hover:bg-gray-500 transition-colors"
+                            >
+                              전체 해제
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    {filteredSeriesCollections.length === 0 ? (
+                      <p className="text-sm text-gray-500">해당 키워드로 검색된 모음집이 없습니다.</p>
+                    ) : (
+                      <div className="max-h-32 overflow-y-auto space-y-1">
+                        {filteredSeriesCollections.map((collection) => (
+                          <label key={collection.id} className="flex items-center space-x-2 cursor-pointer hover:bg-purple-100 p-1.5 rounded transition-colors">
+                            <input
+                              type="checkbox"
+                              checked={selectedSeriesCollectionIds.includes(collection.id)}
+                              onChange={() => handleToggleSeriesCollection(collection.id)}
+                              className="rounded border-purple-300 text-purple-600 focus:ring-purple-500"
+                            />
+                            <span className="text-sm text-gray-800">{collection.title}</span>
+                            <span className={`text-xs px-1.5 py-0.5 rounded-full ${collection.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                              {collection.is_active ? '활성' : '비활성'}
+                            </span>
+                          </label>
+                        ))}
+                      </div>
+                    )}
+
+                    {isLoadingSeriesSheets && (
+                      <div className="flex items-center gap-2 mt-2 text-sm text-purple-600">
+                        <i className="ri-loader-4-line animate-spin"></i>
+                        시리즈 악보 정보 로딩 중...
+                      </div>
+                    )}
+
+                    {selectedSeriesCollectionIds.length > 0 && !isLoadingSeriesSheets && (
+                      <div className="mt-2 p-2 bg-white rounded border border-purple-100">
+                        <p className="text-xs font-medium text-purple-800 mb-1">
+                          선택된 시리즈: {selectedSeriesCollectionIds.length}개 모음집 / 총 {Object.keys(seriesSheetMap).length}곡 포함
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          아래 악보 목록에서 <span className="text-orange-600 font-medium">주황색</span>으로 표시된 곡은 이미 시리즈에 포함된 곡입니다.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
 
               {/* 악보 검색 및 선택 */}
               <div className="border-t pt-4">
@@ -9735,28 +9904,45 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
                     </div>
                   ) : (
                     <div className="divide-y divide-gray-200">
-                      {filteredSheetsForCollection.map((sheet) => (
-                        <div
-                          key={sheet.id}
-                          className="flex items-center justify-between p-3 hover:bg-gray-50"
-                        >
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-900 truncate">{sheet.title}</p>
-                            <p className="text-xs text-gray-500 truncate">{sheet.artist}</p>
+                      {filteredSheetsForCollection.map((sheet) => {
+                        const isDuplicateInSeries = seriesSheetIdSet.has(sheet.id);
+                        const duplicateCollections = seriesSheetMap[sheet.id] || [];
+                        return (
+                          <div
+                            key={sheet.id}
+                            className={`flex items-center justify-between p-3 ${isDuplicateInSeries ? 'bg-orange-50 hover:bg-orange-100 border-l-4 border-orange-400' : 'hover:bg-gray-50'}`}
+                          >
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2">
+                                <p className={`text-sm font-medium truncate ${isDuplicateInSeries ? 'text-orange-800' : 'text-gray-900'}`}>{sheet.title}</p>
+                                {isDuplicateInSeries && (
+                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-orange-200 text-orange-800 text-xs rounded-full whitespace-nowrap flex-shrink-0">
+                                    <i className="ri-error-warning-line"></i>
+                                    중복
+                                  </span>
+                                )}
+                              </div>
+                              <p className={`text-xs truncate ${isDuplicateInSeries ? 'text-orange-600' : 'text-gray-500'}`}>{sheet.artist}</p>
+                              {isDuplicateInSeries && (
+                                <p className="text-xs text-orange-600 mt-0.5 truncate" title={duplicateCollections.join(', ')}>
+                                  포함: {duplicateCollections.join(', ')}
+                                </p>
+                              )}
+                            </div>
+                            <div className="flex items-center space-x-3 ml-4">
+                              <span className="text-sm text-gray-600 whitespace-nowrap">
+                                {new Intl.NumberFormat('ko-KR').format(sheet.price || 0)}원
+                              </span>
+                              <button
+                                onClick={() => handleAddSheetToNewCollection(sheet)}
+                                className={`px-3 py-1 text-white rounded text-sm transition-colors ${isDuplicateInSeries ? 'bg-orange-500 hover:bg-orange-600' : 'bg-blue-600 hover:bg-blue-700'}`}
+                              >
+                                추가
+                              </button>
+                            </div>
                           </div>
-                          <div className="flex items-center space-x-3 ml-4">
-                            <span className="text-sm text-gray-600 whitespace-nowrap">
-                              {new Intl.NumberFormat('ko-KR').format(sheet.price || 0)}원
-                            </span>
-                            <button
-                              onClick={() => handleAddSheetToNewCollection(sheet)}
-                              className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm transition-colors"
-                            >
-                              추가
-                            </button>
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </div>
@@ -9784,6 +9970,9 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
                   setSelectedSheetsForNewCollection([]);
                   setCollectionSheetSearchTerm('');
                   setCollectionArtistSearchTerm('');
+                  setSeriesKeyword('');
+                  setSelectedSeriesCollectionIds([]);
+                  setSeriesSheetMap({});
                 }}
                 className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
               >
