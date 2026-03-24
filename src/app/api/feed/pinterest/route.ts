@@ -23,7 +23,11 @@ const CSV_COLUMNS = [
   'price',
   'availability',
   'condition',
+  'google_product_category',
 ] as const;
+
+/** Google Product Taxonomy — Sheet Music (핀터레스트/구글 카탈로그 표준 ID) */
+const GOOGLE_PRODUCT_CATEGORY_SHEET_MUSIC = '6083';
 
 type SheetFeedRow = {
   id: string;
@@ -98,13 +102,30 @@ function escapeCSV(text: string | number | null | undefined): string {
   return `"${escaped}"`;
 }
 
-function buildCsvRow(fields: string[]): string {
-  if (fields.length !== CSV_COLUMNS.length) {
-    throw new Error(
-      `CSV row must have exactly ${CSV_COLUMNS.length} columns, got ${fields.length}`
-    );
-  }
-  return fields.map(escapeCSV).join(',') + '\r\n';
+function buildCsvRow(
+  colId: string,
+  title: string,
+  description: string,
+  link: string,
+  imageLink: string,
+  price: string,
+  availability: string,
+  condition: string,
+  googleProductCategory: string
+): string {
+  return [
+    colId,
+    title,
+    description,
+    link,
+    imageLink,
+    price,
+    availability,
+    condition,
+    googleProductCategory,
+  ]
+    .map(escapeCSV)
+    .join(',') + '\r\n';
 }
 
 function resolveFeedTitle(row: SheetFeedRow): string {
@@ -144,7 +165,7 @@ function rowToCsvLine(row: SheetFeedRow): string | null {
   const imageLink = resolveImageLink(row.preview_image_url, row.thumbnail_url);
   const price = formatUsdPrice(row.price);
 
-  return buildCsvRow([
+  return buildCsvRow(
     row.id,
     title,
     description,
@@ -153,7 +174,8 @@ function rowToCsvLine(row: SheetFeedRow): string | null {
     price,
     'in stock',
     'new',
-  ]);
+    GOOGLE_PRODUCT_CATEGORY_SHEET_MUSIC
+  );
 }
 
 export async function GET() {
@@ -182,7 +204,7 @@ export async function GET() {
   }
 
   const encoder = new TextEncoder();
-  const headerLine = buildCsvRow([...CSV_COLUMNS]);
+  const headerLine = buildCsvRow(...CSV_COLUMNS);
 
   const stream = new ReadableStream({
     async start(controller) {
