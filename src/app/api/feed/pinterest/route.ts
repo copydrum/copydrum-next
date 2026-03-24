@@ -84,13 +84,27 @@ function formatUsdPrice(krw: number | null | undefined): string {
   return `${usd.toFixed(2)} USD`;
 }
 
-/** RFC 4180 스타일: 쉼표·따옴표·개행이 있으면 따옴표로 감싸고 내부 " 는 이스케이프 */
-function escapeCsvField(raw: string): string {
+const UTF8_BOM = '\uFEFF';
+
+/**
+ * 엑셀/핀터레스트 호환: 모든 셀을 RFC 4180 방식으로 항상 큰따옴표로 감쌈.
+ * - 내부 " → ""
+ * - CR/LF 정규화(필드 내 줄바꿈도 한 필드로 유지)
+ */
+function escapeCSV(text: string | number | null | undefined): string {
+  const raw = text == null ? '' : String(text);
   const normalized = raw.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-  if (/[",\n]/.test(normalized)) {
-    return `"${normalized.replace(/"/g, '""')}"`;
+  const escaped = normalized.replace(/"/g, '""');
+  return `"${escaped}"`;
+}
+
+function buildCsvRow(fields: string[]): string {
+  if (fields.length !== CSV_COLUMNS.length) {
+    throw new Error(
+      `CSV row must have exactly ${CSV_COLUMNS.length} columns, got ${fields.length}`
+    );
   }
-  return normalized;
+  return fields.map(escapeCSV).join(',') + '\r\n';
 }
 
 function resolveFeedTitle(row: SheetFeedRow): string {
@@ -130,7 +144,7 @@ function rowToCsvLine(row: SheetFeedRow): string | null {
   const imageLink = resolveImageLink(row.preview_image_url, row.thumbnail_url);
   const price = formatUsdPrice(row.price);
 
-  const fields = [
+  return buildCsvRow([
     row.id,
     title,
     description,
@@ -139,9 +153,7 @@ function rowToCsvLine(row: SheetFeedRow): string | null {
     price,
     'in stock',
     'new',
-  ];
-
-  return fields.map(escapeCsvField).join(',') + '\r\n';
+  ]);
 }
 
 export async function GET() {
@@ -170,12 +182,12 @@ export async function GET() {
   }
 
   const encoder = new TextEncoder();
-  const headerLine = CSV_COLUMNS.join(',') + '\r\n';
+  const headerLine = buildCsvRow([...CSV_COLUMNS]);
 
   const stream = new ReadableStream({
     async start(controller) {
       try {
-        controller.enqueue(encoder.encode(headerLine));
+        controller.enqueue(encoder.encode(UTF8_BOM + headerLine));
 
         let offset = 0;
         let hasMore = true;
