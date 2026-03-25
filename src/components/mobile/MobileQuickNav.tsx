@@ -15,8 +15,8 @@ interface QuickNavItem {
 const quickNavItems: QuickNavItem[] = [
   { key: 'home', labelKey: 'nav.home', href: '/', icon: 'ri-home-4-line' },
   { key: 'categories', labelKey: 'nav.categories', href: '/categories', icon: 'ri-apps-line' },
-  { key: 'lesson', labelKey: 'nav.drumLesson', href: '/free-sheets', icon: 'ri-graduation-cap-line' },
   { key: 'collections', labelKey: 'nav.collections', href: '/collections', icon: 'ri-stack-line' },
+  { key: 'lesson', labelKey: 'nav.drumLesson', href: '/free-sheets', icon: 'ri-graduation-cap-line' },
   { key: 'customOrder', labelKey: 'nav.customOrder', href: '/custom-order', icon: 'ri-edit-line' },
 ];
 
