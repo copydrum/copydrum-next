@@ -207,20 +207,6 @@ export default function CollectionsPageClient() {
     }
   };
 
-  const getLocalizedDescription = (collection: Collection) => {
-    if (locale === 'ko') {
-      // Korean: use Korean description
-      return collection.description;
-    } else {
-      // All other languages: use English translation
-      if (collection.description_translations && collection.description_translations['en']) {
-        return collection.description_translations['en'];
-      }
-      // Fallback to default description
-      return collection.description;
-    }
-  };
-
   // 카테고리 이름을 번역하는 함수
   const getCategoryName = (categoryName: string | null | undefined): string => {
     if (!categoryName) return t('categoriesPage.categories.other') || '기타';
@@ -357,15 +343,9 @@ export default function CollectionsPageClient() {
 
                   {/* Content */}
                   <div className="p-4">
-                    <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
+                    <h3 className="font-semibold text-gray-900 mb-2 line-clamp-3 leading-snug">
                       {getLocalizedTitle(collection)}
                     </h3>
-
-                    {getLocalizedDescription(collection) && (
-                      <p className="text-sm text-gray-600 mb-3 line-clamp-2 whitespace-pre-line">
-                        {getLocalizedDescription(collection)}
-                      </p>
-                    )}
 
                     {/* Sheet Count */}
                     <div className="text-sm text-gray-500 mb-3">

@@ -555,7 +555,7 @@ export default function CollectionDetailClient({ slug }: CollectionDetailClientP
 
                             {/* Info - full width */}
                             <div className="flex-1 min-w-0">
-                              <h3 className="font-semibold text-gray-900 text-sm leading-snug line-clamp-2">
+                              <h3 className="font-semibold text-gray-900 text-sm leading-snug line-clamp-3">
                                 {sheet.title}
                               </h3>
                               <p className="text-xs text-gray-500 mt-0.5 truncate">
@@ -599,7 +599,7 @@ export default function CollectionDetailClient({ slug }: CollectionDetailClientP
 
                           {/* Info */}
                           <div className="flex-1 min-w-0">
-                            <h3 className="font-semibold text-gray-900 truncate">
+                            <h3 className="font-semibold text-gray-900 line-clamp-3 leading-snug">
                               {sheet.title}
                             </h3>
                             <p className="text-sm text-gray-500 truncate">

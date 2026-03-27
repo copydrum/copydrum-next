@@ -1560,14 +1560,9 @@ export default function Home() {
                         </div>
                         {/* Content */}
                         <div className="p-4">
-                          <h4 className="font-bold text-gray-900 text-base line-clamp-2 mb-1">
+                          <h4 className="font-bold text-gray-900 text-base line-clamp-3 leading-snug mb-1">
                             {getCollectionLocalizedTitle(collection)}
                           </h4>
-                          {getCollectionLocalizedDescription(collection) && (
-                            <p className="text-sm text-gray-500 line-clamp-1 mb-2">
-                              {getCollectionLocalizedDescription(collection)}
-                            </p>
-                          )}
                           <div className="text-xs text-gray-400 mb-2">
                             {t('home.songsIncluded', { count: collection.sheet_count || 0 })}
                           </div>
@@ -1646,7 +1641,7 @@ export default function Home() {
                               </div>
                               {/* Content */}
                               <div className="p-5">
-                                <h4 className="font-bold text-gray-900 text-lg line-clamp-2 mb-1">
+                                <h4 className="font-bold text-gray-900 text-lg line-clamp-3 leading-snug mb-1">
                                   {getCollectionLocalizedTitle(collection)}
                                 </h4>
                                 {getCollectionLocalizedDescription(collection) && (
