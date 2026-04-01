@@ -229,42 +229,28 @@ const FreeSheetsPage = () => {
       const primaryList = primarySheets ?? [];
       const primaryIdSet = new Set(primaryList.map((s) => s.id));
 
-      const { data: lessonRelations, error: relationsError } = await supabase
+      // junction table 조인으로 다중 카테고리 악보 조회 (id.in 패턴 대신 Supabase 조인)
+      const { data: junctionRows, error: relationsError } = await supabase
         .from('drum_sheet_categories')
-        .select('sheet_id')
-        .eq('category_id', lessonCategoryId);
+        .select(`
+          drum_sheets!inner (
+            id, title, artist, difficulty, created_at, thumbnail_url,
+            youtube_url, pdf_url, page_count, slug, sales_type,
+            categories (name)
+          )
+        `)
+        .eq('category_id', lessonCategoryId)
+        .eq('drum_sheets.is_active', true);
 
       if (relationsError) {
         console.error(t('freeSheets.console.relationsError'), relationsError);
       }
 
-      const relationIdSet = new Set<string>();
-      (lessonRelations ?? []).forEach((rel) => {
-        const sheetId = (rel as DrumLessonRelationRow | null)?.sheet_id;
-        if (sheetId) relationIdSet.add(sheetId);
-      });
+      const additionalList = (junctionRows ?? [])
+        .map((row: any) => row.drum_sheets as SupabaseDrumSheetRow)
+        .filter((s): s is SupabaseDrumSheetRow => Boolean(s) && !primaryIdSet.has(s.id));
 
-      const additionalIds = Array.from(relationIdSet).filter((id) => !primaryIdSet.has(id));
-      let additionalList: SupabaseDrumSheetRow[] = [];
-
-      if (additionalIds.length > 0) {
-        const { data: additionalSheets, error: additionalError } = await supabase
-          .from('drum_sheets')
-          .select(SHEET_SELECT_FIELDS)
-          .in('id', additionalIds)
-          .eq('is_active', true);
-
-        if (additionalError) {
-          console.error(t('freeSheets.console.additionalSheetsError'), additionalError);
-        } else {
-          additionalList = additionalSheets ?? [];
-        }
-      }
-
-      const sheetList = [...primaryList];
-      additionalList.forEach((s) => {
-        if (!primaryIdSet.has(s.id)) sheetList.push(s);
-      });
+      const sheetList = [...primaryList, ...additionalList];
       sheetList.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
       const sheetIds = sheetList.map((s) => s.id);

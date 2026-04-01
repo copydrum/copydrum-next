@@ -531,42 +531,62 @@ const CategoriesPage: React.FC = () => {
 
         console.log('✅ Querying sheets with category_id:', categoryId);
 
-        // drum_sheet_categories 테이블에서 해당 카테고리에 속한 모든 sheet_id 조회 (다중 카테고리 지원)
-        const { data: relData, error: relError } = await supabase
-          .from('drum_sheet_categories')
-          .select('sheet_id')
-          .eq('category_id', categoryId);
+        // 두 개의 쿼리를 병렬 실행하여 URL 길이 초과 문제 방지
+        // (기존: id.in.(수백 개 UUID) → URL Too Long 400 에러 발생)
+        const [primaryResult, junctionResult] = await Promise.all([
+          // 1) drum_sheets.category_id가 직접 일치하는 악보
+          supabase
+            .from('drum_sheets')
+            .select(baseSelect)
+            .eq('is_active', true)
+            .eq('category_id', categoryId)
+            .order('created_at', { ascending: false })
+            .limit(CATEGORY_FETCH_LIMIT),
+          // 2) drum_sheet_categories 조인을 통해 연결된 악보 (다중 카테고리 지원)
+          supabase
+            .from('drum_sheet_categories')
+            .select(`
+              drum_sheets!inner (
+                id, title, artist, difficulty, price, category_id, tempo, pdf_url,
+                preview_image_url, youtube_url, is_featured, created_at, thumbnail_url,
+                album_name, page_count, slug, sales_type,
+                categories (name)
+              )
+            `)
+            .eq('category_id', categoryId)
+            .eq('drum_sheets.is_active', true)
+        ]);
 
-        if (relError) {
-          console.error('❌ Category relations query error:', relError);
+        if (primaryResult.error) {
+          console.error('❌ Primary query error:', primaryResult.error);
+        }
+        if (junctionResult.error) {
+          console.error('❌ Junction query error:', junctionResult.error);
+        }
+        if (primaryResult.error && junctionResult.error) {
+          throw primaryResult.error;
         }
 
-        const junctionSheetIds = (relData || [])
-          .map((r: any) => r.sheet_id)
+        // junction 결과에서 drum_sheets 데이터 추출
+        const junctionSheets = (junctionResult.data || [])
+          .map((row: any) => row.drum_sheets)
           .filter(Boolean);
 
-        // primary category_id 또는 junction table에 등록된 악보 모두 조회
-        let orFilter = `category_id.eq.${categoryId}`;
-        if (junctionSheetIds.length > 0) {
-          orFilter = `category_id.eq.${categoryId},id.in.(${junctionSheetIds.join(',')})`;
+        // ID 기준 중복 제거 후 병합 (primary 결과 우선)
+        const sheetMap = new Map<string, any>();
+        for (const sheet of [...(primaryResult.data || []), ...junctionSheets]) {
+          if (sheet?.id && !sheetMap.has(sheet.id)) {
+            sheetMap.set(sheet.id, sheet);
+          }
         }
 
-        const { data, error } = await supabase
-          .from('drum_sheets')
-          .select(baseSelect)
-          .eq('is_active', true)
-          .or(orFilter)
-          .order('created_at', { ascending: false })
-          .limit(CATEGORY_FETCH_LIMIT);
+        const mergedData = Array.from(sheetMap.values())
+          .sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+          .slice(0, CATEGORY_FETCH_LIMIT);
 
-        if (error) {
-          console.error('❌ Query error:', error);
-          throw error;
-        }
-
-        console.log('📊 Fetched sheets:', data?.length || 0);
+        console.log('📊 Fetched sheets:', mergedData.length);
         if (fetchId !== fetchIdRef.current) return;
-        const normalized = normalizeSheets(data || []);
+        const normalized = normalizeSheets(mergedData);
         setDrumSheets(normalized.slice(0, itemsPerPage * MAX_CATEGORY_PAGES));
       }
     } catch (err) {

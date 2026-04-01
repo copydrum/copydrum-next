@@ -96,30 +96,41 @@ export default function Home() {
       let error: any = null;
 
       if (targetCategory) {
-        // drum_sheet_categories에서 해당 카테고리의 모든 sheet_id 조회 (다중 카테고리 지원)
-        const { data: relData } = await supabase
-          .from('drum_sheet_categories')
-          .select('sheet_id')
-          .eq('category_id', targetCategory.id);
+        // 두 개의 쿼리를 병렬 실행하여 URL 길이 초과 문제 방지
+        const [primaryResult, junctionResult] = await Promise.all([
+          supabase
+            .from('drum_sheets')
+            .select(selectFields)
+            .eq('is_active', true)
+            .eq('category_id', targetCategory.id)
+            .order('created_at', { ascending: false })
+            .limit(12),
+          supabase
+            .from('drum_sheet_categories')
+            .select(`
+              drum_sheets!inner (
+                id, title, artist, price, thumbnail_url, youtube_url, category_id, slug, sales_type
+              )
+            `)
+            .eq('category_id', targetCategory.id)
+            .eq('drum_sheets.is_active', true)
+        ]);
 
-        const junctionSheetIds = (relData || [])
-          .map((r: any) => r.sheet_id)
+        const junctionSheets = (junctionResult.data || [])
+          .map((row: any) => row.drum_sheets)
           .filter(Boolean);
 
-        let orFilter = `category_id.eq.${targetCategory.id}`;
-        if (junctionSheetIds.length > 0) {
-          orFilter = `category_id.eq.${targetCategory.id},id.in.(${junctionSheetIds.join(',')})`;
+        const sheetMap = new Map<string, any>();
+        for (const sheet of [...(primaryResult.data || []), ...junctionSheets]) {
+          if (sheet?.id && !sheetMap.has(sheet.id)) {
+            sheetMap.set(sheet.id, sheet);
+          }
         }
 
-        const result = await supabase
-          .from('drum_sheets')
-          .select(selectFields)
-          .eq('is_active', true)
-          .or(orFilter)
-          .order('created_at', { ascending: false })
-          .limit(12);
-        data = result.data;
-        error = result.error;
+        data = Array.from(sheetMap.values())
+          .sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+          .slice(0, 12);
+        error = primaryResult.error || junctionResult.error;
       } else {
         const result = await supabase
           .from('drum_sheets')
