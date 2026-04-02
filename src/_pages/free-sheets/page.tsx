@@ -747,10 +747,11 @@ const FreeSheetsPage = () => {
                     {/* Card Content */}
                     <div className="flex flex-1 flex-col gap-3 p-4">
                       {/* Info Row */}
-                      <div className="flex items-center justify-between text-xs text-gray-400">
-                        <span>{formatDate(sheet.createdAt)}</span>
-                        {sheet.pageCount ? <span>{sheet.pageCount}p</span> : null}
-                      </div>
+                      {sheet.pageCount ? (
+                        <div className="flex items-center justify-end text-xs text-gray-400">
+                          <span>{sheet.pageCount}p</span>
+                        </div>
+                      ) : null}
 
                       {/* Title & Artist */}
                       <div>
