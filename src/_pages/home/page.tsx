@@ -94,8 +94,8 @@ export default function Home() {
       let error: any = null;
 
       const targetCategoryId = genreId || null;
-      const excludedCatIds = categories
-        .filter(c => c.name === '드럼솔로' || c.name === '드럼커버' || c.name === '드럼레슨')
+      const allowedCatIds = categories
+        .filter(c => latestGenreList.includes(c.name))
         .map(c => c.id);
 
       if (targetCategoryId) {
@@ -124,7 +124,7 @@ export default function Home() {
 
         const sheetMap = new Map<string, any>();
         for (const sheet of [...(primaryResult.data || []), ...junctionSheets]) {
-          if (sheet?.id && !sheetMap.has(sheet.id) && !excludedCatIds.includes(sheet.category_id)) {
+          if (sheet?.id && !sheetMap.has(sheet.id) && allowedCatIds.includes(sheet.category_id)) {
             sheetMap.set(sheet.id, sheet);
           }
         }
@@ -134,18 +134,14 @@ export default function Home() {
           .slice(0, 12);
         error = primaryResult.error || junctionResult.error;
       } else {
-        let query = supabase
+        const result = await supabase
           .from('drum_sheets')
           .select(selectFields)
           .eq('is_active', true)
+          .in('category_id', allowedCatIds)
           .order('created_at', { ascending: false })
           .limit(12);
 
-        for (const exId of excludedCatIds) {
-          query = query.neq('category_id', exId);
-        }
-
-        const result = await query;
         data = result.data;
         error = result.error;
       }
