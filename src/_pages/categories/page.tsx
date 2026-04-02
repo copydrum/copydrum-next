@@ -84,9 +84,9 @@ const CategoriesPage: React.FC = () => {
     return Number.isNaN(pageParam) || pageParam < 1 ? 1 : pageParam;
   });
   const ITEMS_PER_PAGE = 20;
+  const ITEMS_PER_PAGE_YOUTUBE = 21;
   const MAX_CATEGORY_PAGES = 10;
-  const CATEGORY_FETCH_LIMIT = ITEMS_PER_PAGE * MAX_CATEGORY_PAGES * 2;
-  const itemsPerPage = ITEMS_PER_PAGE;
+  const CATEGORY_FETCH_LIMIT = ITEMS_PER_PAGE_YOUTUBE * MAX_CATEGORY_PAGES * 2;
   const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
   const [favoriteLoadingIds, setFavoriteLoadingIds] = useState<Set<string>>(new Set());
   const [buyingSheetId, setBuyingSheetId] = useState<string | null>(null);
@@ -587,7 +587,7 @@ const CategoriesPage: React.FC = () => {
         console.log('📊 Fetched sheets:', mergedData.length);
         if (fetchId !== fetchIdRef.current) return;
         const normalized = normalizeSheets(mergedData);
-        setDrumSheets(normalized.slice(0, itemsPerPage * MAX_CATEGORY_PAGES));
+        setDrumSheets(normalized.slice(0, ITEMS_PER_PAGE_YOUTUBE * MAX_CATEGORY_PAGES));
       }
     } catch (err) {
       console.error('Drum sheets loading error:', err);
@@ -605,6 +605,29 @@ const CategoriesPage: React.FC = () => {
     }
     // Spotify에서 썸네일을 가져오지 못한 경우 기본 썸네일 생성
     return generateDefaultThumbnail(400, 400);
+  };
+
+  const extractYouTubeVideoId = (url: string | null | undefined): string | null => {
+    if (!url) return null;
+    try {
+      const parsed = new URL(url);
+      if (parsed.hostname.includes('youtu.be')) return parsed.pathname.replace('/', '');
+      if (parsed.searchParams.has('v')) return parsed.searchParams.get('v');
+      const pathMatch = parsed.pathname.match(/\/embed\/([^/?]+)/);
+      if (pathMatch && pathMatch[1]) return pathMatch[1];
+      const shortsMatch = parsed.pathname.match(/\/shorts\/([^/?]+)/);
+      if (shortsMatch && shortsMatch[1]) return shortsMatch[1];
+    } catch {
+      // ignore
+    }
+    return null;
+  };
+
+  const getYouTubeThumbnailUrl = (sheet: DrumSheet): string => {
+    if (sheet.thumbnail_url) return sheet.thumbnail_url;
+    const videoId = extractYouTubeVideoId(sheet.youtube_url);
+    if (videoId) return `https://i.ytimg.com/vi/${videoId}/hq720.jpg`;
+    return generateDefaultThumbnail(1280, 720);
   };
 
   const handleCategorySelect = (categoryId: string) => {
@@ -807,6 +830,13 @@ const CategoriesPage: React.FC = () => {
     return sorted;
   }, [drumSheets, searchTerm, selectedCategory, selectedDifficulty, priceRange, sortBy, selectedArtist, selectedAlbum, showInstantOnly]);
 
+  const isYouTubeCategoryForLayout = (() => {
+    if (!selectedCategory) return false;
+    const cat = categories.find(c => c.id === selectedCategory || c.slug === selectedCategory);
+    return cat?.name === '드럼솔로' || cat?.name === '드럼커버';
+  })();
+  const itemsPerPage = isYouTubeCategoryForLayout ? ITEMS_PER_PAGE_YOUTUBE : ITEMS_PER_PAGE;
+
   const rawTotalPages = Math.ceil(filteredSheets.length / itemsPerPage);
   const totalPages = isSearchMode ? rawTotalPages : Math.min(MAX_CATEGORY_PAGES, rawTotalPages);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -870,8 +900,9 @@ const CategoriesPage: React.FC = () => {
   };
 
   // Build SEO strings
-  const selectedCategoryObj = categories.find(cat => cat.id === selectedCategory);
+  const selectedCategoryObj = categories.find(cat => cat.id === selectedCategory || cat.slug === selectedCategory);
   const categoryName = selectedCategoryObj ? getCategoryName(selectedCategoryObj.name) : '';
+  const isYouTubeCategory = selectedCategoryObj?.name === '드럼솔로' || selectedCategoryObj?.name === '드럼커버';
   const categorySeo = categoryName ? buildCategorySeoStrings(categoryName, t) : {
     title: t('categoriesPage.title') || 'Categories | COPYDRUM',
     description: t('categoriesPage.description') || 'Browse all drum sheet music categories',
@@ -983,7 +1014,7 @@ const CategoriesPage: React.FC = () => {
           )}
 
           {/* Mobile Sheets List */}
-          <div className="space-y-4">
+          <div className={isYouTubeCategory ? '' : 'space-y-4'}>
             {loading && (
               <div className="py-16 text-center text-gray-500" suppressHydrationWarning>
                 <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-b-2 border-blue-500" />
@@ -998,7 +1029,96 @@ const CategoriesPage: React.FC = () => {
               </div>
             )}
 
-            {!loading &&
+            {!loading && isYouTubeCategory ? (
+              /* ====== 드럼솔로/드럼커버 모바일: YouTube 카드 그리드 ====== */
+              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
+                {paginatedSheets.map((sheet) => {
+                  const displayPrice = getDisplayPrice(sheet);
+                  const isFavorite = favoriteIds.has(sheet.id);
+                  const isFavoriteLoading = favoriteLoadingIds.has(sheet.id);
+                  const videoId = extractYouTubeVideoId(sheet.youtube_url);
+                  return (
+                    <div
+                      key={sheet.id}
+                      className="group relative flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all hover:shadow-lg"
+                    >
+                      {/* Thumbnail */}
+                      <div className="relative cursor-pointer" onClick={() => handleMobileSheetSelect(sheet)}>
+                        <div
+                          className="aspect-video w-full bg-gray-200 transition duration-300 group-hover:brightness-95"
+                          style={{
+                            backgroundImage: `url(${getYouTubeThumbnailUrl(sheet)})`,
+                            backgroundPosition: 'center',
+                            backgroundSize: 'cover',
+                          }}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+
+                        {videoId && (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/95 text-red-600 shadow-lg">
+                              <svg className="w-6 h-6 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z" />
+                              </svg>
+                            </div>
+                          </div>
+                        )}
+
+                        {!videoId && (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/90 text-gray-400">
+                              <i className="ri-music-2-line text-xl"></i>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Favorite Button */}
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleToggleFavorite(sheet.id);
+                          }}
+                          disabled={isFavoriteLoading}
+                          className={`absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full shadow transition-colors ${
+                            isFavorite
+                              ? 'bg-red-50 text-red-500 border border-red-200'
+                              : 'bg-white/90 text-gray-500 hover:text-red-500'
+                          } ${isFavoriteLoading ? 'opacity-60 cursor-not-allowed' : ''}`}
+                        >
+                          <i className={`ri-heart-${isFavorite ? 'fill' : 'line'} text-base`} />
+                        </button>
+                      </div>
+
+                      {/* Card Content */}
+                      <div className="flex flex-1 flex-col gap-2 p-3">
+                        <div>
+                          <h3 className="text-sm font-bold text-gray-900 leading-tight line-clamp-2">{sheet.title}</h3>
+                          <p className="text-xs font-medium text-blue-600 mt-0.5">{sheet.artist}</p>
+                        </div>
+                        <div className="mt-auto flex items-center justify-between">
+                          <span className="text-sm font-semibold text-gray-700">
+                            {formatCurrency(displayPrice)}
+                          </span>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleAddToCart(sheet.id);
+                            }}
+                            disabled={isInCart(sheet.id)}
+                            className={`sheet-action-btn btn-cart text-xs px-2.5 py-1 ${isInCart(sheet.id) ? 'opacity-60' : ''}`}
+                          >
+                            {t('categoriesPage.addToCart')}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              /* ====== 일반 카테고리 모바일: 기존 리스트 ====== */
+              !loading &&
               paginatedSheets.map((sheet) => {
                 const displayPrice = getDisplayPrice(sheet);
                 return (
@@ -1031,7 +1151,8 @@ const CategoriesPage: React.FC = () => {
                     </div>
                   </button>
                 );
-              })}
+              })
+            )}
           </div>
 
           {/* Mobile Pagination */}
@@ -1473,122 +1594,99 @@ const CategoriesPage: React.FC = () => {
             </div>
           )}
 
-          {/* 악보 목록 - 리스트 형식 */}
+          {/* 악보 목록 */}
           {!loading && (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-              <table className="w-full table-fixed">
-                <thead className="bg-gray-50 border-b border-gray-200">
-                  <tr>
-                    <th className="w-[34%] px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('categoriesPage.tableTitle')}</th>
-                    <th className="w-[18%] px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('categoriesPage.tableArtist')}</th>
-                    <th className="w-[24%] px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('categoriesPage.tableAlbum')}</th>
-                    <th className="w-[24%] px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('categoriesPage.tablePurchase')}</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {paginatedSheets.length === 0 ? (
-                    <tr>
-                      <td colSpan={4} className="px-6 py-8 text-center text-gray-500">
-                        {t('categoriesPage.noSheets')}
-                      </td>
-                    </tr>
-                  ) : (
-                    paginatedSheets.map((sheet) => {
-                      const displayPrice = getDisplayPrice(sheet);
-                      const isFavorite = favoriteIds.has(sheet.id);
-                      const isFavoriteLoading = favoriteLoadingIds.has(sheet.id);
-                      return (
-                        <tr key={sheet.id} className="hover:bg-gray-50 transition-colors">
-                          <td className="px-6 py-4 align-top">
-                            <div className="flex items-center space-x-3 overflow-hidden">
-                              <div className="flex-shrink-0">
-                                <img
-                                  src={getThumbnailUrl(sheet)}
-                                  alt={sheet.title}
-                                  className="w-12 h-12 object-cover rounded border border-gray-200 cursor-pointer"
-                                  onClick={() => router.push(`/drum-sheet/${sheet.slug}`)}
-                                />
-                              </div>
-                              <div className="flex flex-col space-y-1 min-w-0 flex-1">
-                                <div className="flex items-center gap-2 min-w-0">
-                                  <i className="ri-file-music-line text-gray-400 flex-shrink-0"></i>
-                                  <span
-                                    className="block truncate text-sm font-bold text-gray-900 cursor-pointer hover:text-blue-600"
-                                    title={sheet.title}
-                                    onClick={() => router.push(`/drum-sheet/${sheet.slug}`)}
-                                  >
-                                    {sheet.title}
-                                  </span>
-                                </div>
-                                <div className="flex items-center space-x-2 text-xs flex-shrink-0">
-                                  <span className="font-semibold text-gray-700">
-                                    {formatCurrency(displayPrice)}
-                                  </span>
-                                </div>
+            isYouTubeCategory ? (
+              /* ====== 드럼솔로/드럼커버: YouTube 썸네일 카드 그리드 ====== */
+              paginatedSheets.length === 0 ? (
+                <div className="py-8 text-center text-gray-500">
+                  {t('categoriesPage.noSheets')}
+                </div>
+              ) : (
+                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                  {paginatedSheets.map((sheet) => {
+                    const displayPrice = getDisplayPrice(sheet);
+                    const isFavorite = favoriteIds.has(sheet.id);
+                    const isFavoriteLoading = favoriteLoadingIds.has(sheet.id);
+                    const videoId = extractYouTubeVideoId(sheet.youtube_url);
+                    return (
+                      <div
+                        key={sheet.id}
+                        className="group relative flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all hover:shadow-lg"
+                      >
+                        {/* Thumbnail */}
+                        <div className="relative cursor-pointer" onClick={() => router.push(`/drum-sheet/${sheet.slug}`)}>
+                          <div
+                            className="aspect-video w-full bg-gray-200 transition duration-300 group-hover:brightness-95"
+                            style={{
+                              backgroundImage: `url(${getYouTubeThumbnailUrl(sheet)})`,
+                              backgroundPosition: 'center',
+                              backgroundSize: 'cover',
+                            }}
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+
+                          {videoId && (
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/95 text-red-600 shadow-lg transition-transform group-hover:scale-110">
+                                <svg className="w-7 h-7 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                                  <path d="M8 5v14l11-7z" />
+                                </svg>
                               </div>
                             </div>
-                          </td>
-                          <td className="px-6 py-4 align-top">
-                            <span
-                              className="block truncate text-sm text-gray-600 cursor-pointer hover:text-blue-600"
-                              onClick={() => {
-                                setSelectedArtist(sheet.artist);
-                                setCurrentPage(1);
-                                updateQueryParams(
-                                  {
-                                    artist: sheet.artist,
-                                    page: null,
-                                  }
-                                );
-                              }}
+                          )}
+
+                          {!videoId && (
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/90 text-gray-400">
+                                <i className="ri-music-2-line text-2xl"></i>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Favorite Button */}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleToggleFavorite(sheet.id);
+                            }}
+                            disabled={isFavoriteLoading}
+                            className={`absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full shadow transition-colors ${
+                              isFavorite
+                                ? 'bg-red-50 text-red-500 border border-red-200'
+                                : 'bg-white/90 text-gray-500 hover:text-red-500'
+                            } ${isFavoriteLoading ? 'opacity-60 cursor-not-allowed' : ''}`}
+                            aria-label={isFavorite ? t('categoriesPage.favoriteRemove') : t('categoriesPage.favoriteAdd')}
+                          >
+                            <i className={`ri-heart-${isFavorite ? 'fill' : 'line'} text-lg`} />
+                          </button>
+                        </div>
+
+                        {/* Card Content */}
+                        <div className="flex flex-1 flex-col gap-3 p-4">
+                          <div>
+                            <h3
+                              className="text-base font-bold text-gray-900 leading-tight line-clamp-2 cursor-pointer hover:text-blue-600"
+                              onClick={() => router.push(`/drum-sheet/${sheet.slug}`)}
                             >
-                              {sheet.artist}
+                              {sheet.title}
+                            </h3>
+                            <p className="text-sm font-medium text-blue-600 mt-0.5">{sheet.artist}</p>
+                          </div>
+
+                          <div className="mt-auto flex items-center justify-between">
+                            <span className="text-sm font-semibold text-gray-700">
+                              {formatCurrency(displayPrice)}
                             </span>
-                          </td>
-                          <td className="px-6 py-4 align-top">
-                            <span
-                              className="block truncate text-sm text-gray-600 cursor-pointer hover:text-blue-600"
-                              title={sheet.album_name || '-'}
-                              onClick={() => {
-                                if (sheet.album_name) {
-                                  setSelectedAlbum(sheet.album_name);
-                                  setCurrentPage(1);
-                                  updateQueryParams(
-                                    {
-                                      album: sheet.album_name,
-                                      page: null,
-                                    }
-                                  );
-                                }
-                              }}
-                            >
-                              {sheet.album_name || '-'}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 align-top">
-                            <div className="flex items-center justify-end gap-2">
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleToggleFavorite(sheet.id);
-                                }}
-                                disabled={isFavoriteLoading}
-                                className={`flex h-9 w-9 items-center justify-center rounded-full border transition-colors ${isFavorite
-                                  ? 'border-red-200 bg-red-50 text-red-500'
-                                  : 'border-gray-200 text-gray-400 hover:border-red-200 hover:text-red-500'
-                                  } ${isFavoriteLoading ? 'opacity-60 cursor-not-allowed' : ''}`}
-                                aria-label={isFavorite ? t('categoriesPage.favoriteRemove') : t('categoriesPage.favoriteAdd')}
-                              >
-                                <i className={`ri-heart-${isFavorite ? 'fill' : 'line'} text-lg`} />
-                              </button>
+                            <div className="flex gap-2">
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   handleAddToCart(sheet.id);
                                 }}
                                 disabled={isInCart(sheet.id)}
-                                className={`sheet-action-btn btn-cart ${isInCart(sheet.id) ? 'opacity-60' : ''}`}
+                                className={`sheet-action-btn btn-cart text-xs px-3 py-1.5 ${isInCart(sheet.id) ? 'opacity-60' : ''}`}
                               >
                                 {t('categoriesPage.addToCart')}
                               </button>
@@ -1598,19 +1696,157 @@ const CategoriesPage: React.FC = () => {
                                   handleBuyNow(sheet);
                                 }}
                                 disabled={buyingNowSheetId === sheet.id}
-                                className="sheet-action-btn btn-buy"
+                                className="sheet-action-btn btn-buy text-xs px-3 py-1.5"
                               >
                                 {buyingNowSheetId === sheet.id ? t('sheet.buyNowProcessing') || '처리 중...' : t('sheet.buyNow')}
                               </button>
                             </div>
-                          </td>
-                        </tr>
-                      );
-                    })
-                  )}
-                </tbody>
-              </table>
-            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )
+            ) : (
+              /* ====== 일반 카테고리: 기존 테이블 리스트 ====== */
+              <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <table className="w-full table-fixed">
+                  <thead className="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                      <th className="w-[34%] px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('categoriesPage.tableTitle')}</th>
+                      <th className="w-[18%] px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('categoriesPage.tableArtist')}</th>
+                      <th className="w-[24%] px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('categoriesPage.tableAlbum')}</th>
+                      <th className="w-[24%] px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('categoriesPage.tablePurchase')}</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {paginatedSheets.length === 0 ? (
+                      <tr>
+                        <td colSpan={4} className="px-6 py-8 text-center text-gray-500">
+                          {t('categoriesPage.noSheets')}
+                        </td>
+                      </tr>
+                    ) : (
+                      paginatedSheets.map((sheet) => {
+                        const displayPrice = getDisplayPrice(sheet);
+                        const isFavorite = favoriteIds.has(sheet.id);
+                        const isFavoriteLoading = favoriteLoadingIds.has(sheet.id);
+                        return (
+                          <tr key={sheet.id} className="hover:bg-gray-50 transition-colors">
+                            <td className="px-6 py-4 align-top">
+                              <div className="flex items-center space-x-3 overflow-hidden">
+                                <div className="flex-shrink-0">
+                                  <img
+                                    src={getThumbnailUrl(sheet)}
+                                    alt={sheet.title}
+                                    className="w-12 h-12 object-cover rounded border border-gray-200 cursor-pointer"
+                                    onClick={() => router.push(`/drum-sheet/${sheet.slug}`)}
+                                  />
+                                </div>
+                                <div className="flex flex-col space-y-1 min-w-0 flex-1">
+                                  <div className="flex items-center gap-2 min-w-0">
+                                    <i className="ri-file-music-line text-gray-400 flex-shrink-0"></i>
+                                    <span
+                                      className="block truncate text-sm font-bold text-gray-900 cursor-pointer hover:text-blue-600"
+                                      title={sheet.title}
+                                      onClick={() => router.push(`/drum-sheet/${sheet.slug}`)}
+                                    >
+                                      {sheet.title}
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center space-x-2 text-xs flex-shrink-0">
+                                    <span className="font-semibold text-gray-700">
+                                      {formatCurrency(displayPrice)}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 align-top">
+                              <span
+                                className="block truncate text-sm text-gray-600 cursor-pointer hover:text-blue-600"
+                                onClick={() => {
+                                  setSelectedArtist(sheet.artist);
+                                  setCurrentPage(1);
+                                  updateQueryParams(
+                                    {
+                                      artist: sheet.artist,
+                                      page: null,
+                                    }
+                                  );
+                                }}
+                              >
+                                {sheet.artist}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 align-top">
+                              <span
+                                className="block truncate text-sm text-gray-600 cursor-pointer hover:text-blue-600"
+                                title={sheet.album_name || '-'}
+                                onClick={() => {
+                                  if (sheet.album_name) {
+                                    setSelectedAlbum(sheet.album_name);
+                                    setCurrentPage(1);
+                                    updateQueryParams(
+                                      {
+                                        album: sheet.album_name,
+                                        page: null,
+                                      }
+                                    );
+                                  }
+                                }}
+                              >
+                                {sheet.album_name || '-'}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 align-top">
+                              <div className="flex items-center justify-end gap-2">
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleToggleFavorite(sheet.id);
+                                  }}
+                                  disabled={isFavoriteLoading}
+                                  className={`flex h-9 w-9 items-center justify-center rounded-full border transition-colors ${isFavorite
+                                    ? 'border-red-200 bg-red-50 text-red-500'
+                                    : 'border-gray-200 text-gray-400 hover:border-red-200 hover:text-red-500'
+                                    } ${isFavoriteLoading ? 'opacity-60 cursor-not-allowed' : ''}`}
+                                  aria-label={isFavorite ? t('categoriesPage.favoriteRemove') : t('categoriesPage.favoriteAdd')}
+                                >
+                                  <i className={`ri-heart-${isFavorite ? 'fill' : 'line'} text-lg`} />
+                                </button>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleAddToCart(sheet.id);
+                                  }}
+                                  disabled={isInCart(sheet.id)}
+                                  className={`sheet-action-btn btn-cart ${isInCart(sheet.id) ? 'opacity-60' : ''}`}
+                                >
+                                  {t('categoriesPage.addToCart')}
+                                </button>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleBuyNow(sheet);
+                                  }}
+                                  disabled={buyingNowSheetId === sheet.id}
+                                  className="sheet-action-btn btn-buy"
+                                >
+                                  {buyingNowSheetId === sheet.id ? t('sheet.buyNowProcessing') || '처리 중...' : t('sheet.buyNow')}
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )
           )}
 
           {/* 페이지네이션 */}

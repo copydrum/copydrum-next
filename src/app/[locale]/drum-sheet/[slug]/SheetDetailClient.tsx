@@ -86,6 +86,8 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
   
   const displayDescription = getDescriptionForCurrentLanguage();
 
+  const isYouTubeCategory = sheet.categories?.name === '드럼솔로' || sheet.categories?.name === '드럼커버';
+
   // 통화 로직
   const hostname = typeof window !== 'undefined' ? window.location.hostname : 'copydrum.com';
   const currency = getSiteCurrency(hostname, i18n.language);
@@ -397,18 +399,38 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12">
             {/* 왼쪽: 앨범 썸네일 + 모바일 곡 정보 */}
             <div className="space-y-6">
-              {/* 1. 앨범 썸네일 */}
+              {/* 1. 썸네일 (드럼솔로/드럼커버: 16:9, 일반: 정사각형) */}
               <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
-                <div className="aspect-square bg-gray-50 relative group">
+                <div className={`${isYouTubeCategory ? 'aspect-video' : 'aspect-square'} bg-gray-50 relative group`}>
                   <img
-                    src={sheet.thumbnail_url || `https://readdy.ai/api/search-image?query=drum%20sheet%20music%20${encodeURIComponent(sheet.title)}%20album%20cover%20modern%20minimalist&width=600&height=600&seq=${sheet.id}&orientation=square`}
+                    src={
+                      isYouTubeCategory
+                        ? (sheet.thumbnail_url || (sheet.youtube_url ? `https://i.ytimg.com/vi/${extractVideoId(sheet.youtube_url)}/hq720.jpg` : `https://readdy.ai/api/search-image?query=drum%20solo%20performance%20youtube%20thumbnail&width=1280&height=720&seq=${sheet.id}&orientation=landscape`))
+                        : (sheet.thumbnail_url || `https://readdy.ai/api/search-image?query=drum%20sheet%20music%20${encodeURIComponent(sheet.title)}%20album%20cover%20modern%20minimalist&width=600&height=600&seq=${sheet.id}&orientation=square`)
+                    }
                     alt={`${sheet.title} - ${sheet.artist}`}
                     className="w-full h-full object-cover"
                     onError={(e) => {
                       const img = e.target as HTMLImageElement;
-                      img.src = `https://readdy.ai/api/search-image?query=drum%20music%20album%20cover%20modern%20minimalist%20design&width=600&height=600&seq=fallback-${Date.now()}&orientation=square`;
+                      img.src = isYouTubeCategory
+                        ? `https://readdy.ai/api/search-image?query=drum%20performance%20modern%20minimalist%20design&width=1280&height=720&seq=fallback-${Date.now()}&orientation=landscape`
+                        : `https://readdy.ai/api/search-image?query=drum%20music%20album%20cover%20modern%20minimalist%20design&width=600&height=600&seq=fallback-${Date.now()}&orientation=square`;
                     }}
                   />
+                  {isYouTubeCategory && sheet.youtube_url && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <a
+                        href={sheet.youtube_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex h-16 w-16 items-center justify-center rounded-full bg-white/95 text-red-600 shadow-lg transition-transform hover:scale-110"
+                      >
+                        <svg className="w-8 h-8 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M8 5v14l11-7z" />
+                        </svg>
+                      </a>
+                    </div>
+                  )}
                 </div>
                 {/* 앨범 정보 바 (데스크톱 전용) */}
                 <div className="hidden lg:block px-5 py-4 bg-gradient-to-r from-gray-50 to-white border-t border-gray-100">
