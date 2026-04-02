@@ -94,6 +94,9 @@ export default function Home() {
       let error: any = null;
 
       const targetCategoryId = genreId || null;
+      const excludedCatIds = categories
+        .filter(c => c.name === '드럼솔로' || c.name === '드럼커버' || c.name === '드럼레슨')
+        .map(c => c.id);
 
       if (targetCategoryId) {
         const [primaryResult, junctionResult] = await Promise.all([
@@ -121,7 +124,7 @@ export default function Home() {
 
         const sheetMap = new Map<string, any>();
         for (const sheet of [...(primaryResult.data || []), ...junctionSheets]) {
-          if (sheet?.id && !sheetMap.has(sheet.id)) {
+          if (sheet?.id && !sheetMap.has(sheet.id) && !excludedCatIds.includes(sheet.category_id)) {
             sheetMap.set(sheet.id, sheet);
           }
         }
@@ -131,11 +134,6 @@ export default function Home() {
           .slice(0, 12);
         error = primaryResult.error || junctionResult.error;
       } else {
-        // "전체" 탭: 드럼솔로/드럼커버 제외
-        const excludedCatIds = categories
-          .filter(c => c.name === '드럼솔로' || c.name === '드럼커버' || c.name === '드럼레슨')
-          .map(c => c.id);
-
         let query = supabase
           .from('drum_sheets')
           .select(selectFields)
