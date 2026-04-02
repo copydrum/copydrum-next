@@ -66,6 +66,8 @@ export default function Home() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [latestSheets, setLatestSheets] = useState<DrumSheet[]>([]);
+  const [latestGenreTab, setLatestGenreTab] = useState<string>('');
+  const [youtubeLatestSheets, setYoutubeLatestSheets] = useState<DrumSheet[]>([]);
   const [popularSheets, setPopularSheets] = useState<DrumSheet[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedGenre, setSelectedGenre] = useState<string>('');
@@ -82,37 +84,34 @@ export default function Home() {
   const { i18n, t } = useTranslation();
   const { isKoreanSite } = useSiteLanguage();
 
-  const loadLatestSheets = useCallback(async () => {
+  const latestGenreList = ['가요', '팝', '락', 'CCM', '트로트/성인가요', '재즈', 'J-POP', 'OST'];
+
+  const loadLatestSheets = useCallback(async (genreId?: string) => {
     try {
-      // 장르 필터링: 한국 사이트는 '가요'(K-POP), 글로벌 사이트는 '팝'(Pop)
-      const targetGenreName = isKoreanSite ? '가요' : '팝';
-      
-      // 카테고리에서 해당 장르 ID 찾기
-      const targetCategory = categories.find(cat => cat.name === targetGenreName);
-      
-      const selectFields = 'id, title, artist, price, thumbnail_url, youtube_url, category_id, slug, sales_type';
+      const selectFields = 'id, title, artist, price, thumbnail_url, youtube_url, category_id, slug, sales_type, created_at';
 
       let data: any[] | null = null;
       let error: any = null;
 
-      if (targetCategory) {
-        // 두 개의 쿼리를 병렬 실행하여 URL 길이 초과 문제 방지
+      const targetCategoryId = genreId || null;
+
+      if (targetCategoryId) {
         const [primaryResult, junctionResult] = await Promise.all([
           supabase
             .from('drum_sheets')
             .select(selectFields)
             .eq('is_active', true)
-            .eq('category_id', targetCategory.id)
+            .eq('category_id', targetCategoryId)
             .order('created_at', { ascending: false })
             .limit(12),
           supabase
             .from('drum_sheet_categories')
             .select(`
               drum_sheets!inner (
-                id, title, artist, price, thumbnail_url, youtube_url, category_id, slug, sales_type
+                id, title, artist, price, thumbnail_url, youtube_url, category_id, slug, sales_type, created_at
               )
             `)
-            .eq('category_id', targetCategory.id)
+            .eq('category_id', targetCategoryId)
             .eq('drum_sheets.is_active', true)
         ]);
 
@@ -132,12 +131,23 @@ export default function Home() {
           .slice(0, 12);
         error = primaryResult.error || junctionResult.error;
       } else {
-        const result = await supabase
+        // "전체" 탭: 드럼솔로/드럼커버 제외
+        const excludedCatIds = categories
+          .filter(c => c.name === '드럼솔로' || c.name === '드럼커버' || c.name === '드럼레슨')
+          .map(c => c.id);
+
+        let query = supabase
           .from('drum_sheets')
           .select(selectFields)
           .eq('is_active', true)
           .order('created_at', { ascending: false })
           .limit(12);
+
+        for (const exId of excludedCatIds) {
+          query = query.neq('category_id', exId);
+        }
+
+        const result = await query;
         data = result.data;
         error = result.error;
       }
@@ -147,7 +157,56 @@ export default function Home() {
     } catch (error) {
       console.error(t('home.console.latestSheetsLoadError'), error);
     }
-  }, [t, categories, isKoreanSite]);
+  }, [t, categories]);
+
+  const loadYoutubeLatestSheets = useCallback(async () => {
+    try {
+      const selectFields = 'id, title, artist, price, thumbnail_url, youtube_url, category_id, slug, sales_type, created_at';
+      const youtubeCatIds = categories
+        .filter(c => c.name === '드럼솔로' || c.name === '드럼커버')
+        .map(c => c.id);
+
+      if (youtubeCatIds.length === 0) return;
+
+      const results = await Promise.all(
+        youtubeCatIds.map(catId =>
+          Promise.all([
+            supabase
+              .from('drum_sheets')
+              .select(selectFields)
+              .eq('is_active', true)
+              .eq('category_id', catId)
+              .order('created_at', { ascending: false })
+              .limit(6),
+            supabase
+              .from('drum_sheet_categories')
+              .select(`drum_sheets!inner (${selectFields})`)
+              .eq('category_id', catId)
+              .eq('drum_sheets.is_active', true)
+          ])
+        )
+      );
+
+      const sheetMap = new Map<string, any>();
+      for (const [primaryResult, junctionResult] of results) {
+        for (const sheet of (primaryResult.data || [])) {
+          if (sheet?.id && !sheetMap.has(sheet.id)) sheetMap.set(sheet.id, sheet);
+        }
+        for (const row of (junctionResult.data || [])) {
+          const sheet = (row as any).drum_sheets;
+          if (sheet?.id && !sheetMap.has(sheet.id)) sheetMap.set(sheet.id, sheet);
+        }
+      }
+
+      const sorted = Array.from(sheetMap.values())
+        .sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+        .slice(0, 6);
+
+      setYoutubeLatestSheets(sorted);
+    } catch (error) {
+      console.error('YouTube 최신 악보 로드 오류:', error);
+    }
+  }, [categories]);
 
   const loadCategories = useCallback(async () => {
     try {
@@ -506,11 +565,22 @@ export default function Home() {
   }, [loadCategories]);
 
   useEffect(() => {
-    // 카테고리가 로드된 후에 최신 악보 로드 (장르 필터링을 위해 카테고리 필요)
-    if (categories.length > 0) {
-      loadLatestSheets();
+    if (categories.length > 0 && !latestGenreTab) {
+      setLatestGenreTab('all');
     }
-  }, [loadLatestSheets, categories.length]);
+  }, [categories, latestGenreTab]);
+
+  useEffect(() => {
+    if (categories.length > 0 && latestGenreTab) {
+      loadLatestSheets(latestGenreTab === 'all' ? undefined : latestGenreTab);
+    }
+  }, [loadLatestSheets, categories.length, latestGenreTab]);
+
+  useEffect(() => {
+    if (categories.length > 0) {
+      loadYoutubeLatestSheets();
+    }
+  }, [loadYoutubeLatestSheets, categories.length]);
 
   useEffect(() => {
     // Popular Sheets에서 첫 번째 장르를 자동 선택 (카테고리 로드 후, selectedGenre가 비어있을 때만)
@@ -630,6 +700,37 @@ export default function Home() {
       return collection.description_translations['en'];
     }
     return collection.description;
+  };
+
+  const getGenreDisplayName = (categoryName: string | null | undefined): string => {
+    if (!categoryName) return '';
+    if (i18n.language === 'ko') return categoryName;
+    if (i18n.language === 'ja') {
+      const map: Record<string, string> = {
+        '가요': t('category.kpop'), '팝': t('category.pop'), '락': t('category.rock'),
+        'CCM': t('category.ccm'), '트로트/성인가요': t('category.trot'), '재즈': t('category.jazz'),
+        'J-POP': t('category.jpop'), 'OST': t('category.ost'),
+        '드럼솔로': t('category.drumSolo'), '드럼커버': t('category.drumCover'),
+      };
+      return map[categoryName] || categoryName;
+    }
+    const map: Record<string, string> = {
+      '가요': t('categoriesPage.categories.kpop'), '팝': t('categoriesPage.categories.pop'),
+      '락': t('categoriesPage.categories.rock'), 'CCM': t('categoriesPage.categories.ccm'),
+      '트로트/성인가요': t('categoriesPage.categories.trot'), '재즈': t('categoriesPage.categories.jazz'),
+      'J-POP': t('categoriesPage.categories.jpop'), 'OST': t('categoriesPage.categories.ost'),
+      '드럼솔로': t('categoriesPage.categories.drumSolo'), '드럼커버': t('categoriesPage.categories.drumCover'),
+    };
+    return map[categoryName] || categoryName;
+  };
+
+  const getYouTubeThumbnailUrl = (sheet: DrumSheet): string => {
+    if (sheet.thumbnail_url) return sheet.thumbnail_url;
+    if (sheet.youtube_url) {
+      const videoId = extractVideoId(sheet.youtube_url);
+      if (videoId) return `https://i.ytimg.com/vi/${videoId}/hq720.jpg`;
+    }
+    return generateDefaultThumbnail(1280, 720);
   };
 
   // PC: 3 items per page, Mobile: 1 item per page
@@ -794,9 +895,44 @@ export default function Home() {
         {/* Latest Sheets - 최상단에 배치 */}
         <section className="py-6 md:py-12">
           <div className="max-w-7xl mx-auto space-y-8">
+            {/* 모바일 최신 악보 */}
             <div className="md:hidden">
-              <div className="mb-4 flex items-center justify-between">
+              <div className="mb-3 flex items-center justify-between">
                 <h3 className="text-2xl font-bold text-gray-900">{t('home.latestSheets')}</h3>
+              </div>
+              {/* 모바일 장르 탭 */}
+              <div className="overflow-x-auto -mx-4 px-4 mb-4">
+                <div className="flex gap-2 pb-1">
+                  <button
+                    type="button"
+                    onClick={() => setLatestGenreTab('all')}
+                    className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${
+                      latestGenreTab === 'all'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    {t('home.all')}
+                  </button>
+                  {latestGenreList.map((genreName) => {
+                    const cat = categories.find(c => c.name === genreName);
+                    if (!cat) return null;
+                    return (
+                      <button
+                        key={cat.id}
+                        type="button"
+                        onClick={() => setLatestGenreTab(cat.id)}
+                        className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${
+                          latestGenreTab === cat.id
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        {getGenreDisplayName(genreName)}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 {latestSheets.slice(0, 6).map((sheet) => {
@@ -837,7 +973,6 @@ export default function Home() {
                         <div className="absolute bottom-0 left-0 right-0 px-2 pb-2 text-center text-white">
                           <div className="flex items-center justify-center gap-2 flex-wrap">
                             <h4 className="text-sm font-bold line-clamp-2 leading-tight">{sheet.title}</h4>
-                            {/* Pre-order 뱃지 제거 (모바일 버전) */}
                           </div>
                           <p className="text-xs text-white/80 line-clamp-1 mt-0.5">{sheet.artist}</p>
                         </div>
@@ -857,8 +992,39 @@ export default function Home() {
               </div>
             </div>
 
+            {/* 데스크톱 최신 악보 */}
             <div className="hidden md:block">
-              <h3 className="mb-8 text-left text-3xl font-bold text-gray-900">{t('home.latestSheets')}</h3>
+              <h3 className="mb-4 text-left text-3xl font-bold text-gray-900">{t('home.latestSheets')}</h3>
+              {/* 데스크톱 장르 탭 */}
+              <div className="mb-6 flex flex-wrap gap-2">
+                <button
+                  onClick={() => setLatestGenreTab('all')}
+                  className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
+                    latestGenreTab === 'all'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  {t('home.all')}
+                </button>
+                {latestGenreList.map((genreName) => {
+                  const cat = categories.find(c => c.name === genreName);
+                  if (!cat) return null;
+                  return (
+                    <button
+                      key={cat.id}
+                      onClick={() => setLatestGenreTab(cat.id)}
+                      className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
+                        latestGenreTab === cat.id
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      {getGenreDisplayName(genreName)}
+                    </button>
+                  );
+                })}
+              </div>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                 {latestSheets.map((sheet) => {
                   const isFavorite = favoriteIds.has(sheet.id);
@@ -904,6 +1070,144 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        {/* Latest YouTube Sheets - 최신 유튜브 영상악보 */}
+        {youtubeLatestSheets.length > 0 && (
+          <section className="py-6 md:py-12">
+            <div className="max-w-7xl mx-auto space-y-6">
+              {/* 모바일 */}
+              <div className="md:hidden">
+                <div className="mb-4 flex items-center justify-between">
+                  <h3 className="text-2xl font-bold text-gray-900">{t('home.latestYoutubeSheets')}</h3>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {youtubeLatestSheets.slice(0, 4).map((sheet) => {
+                    const isFavorite = favoriteIds.has(sheet.id);
+                    const isFavoriteLoading = favoriteLoadingIds.has(sheet.id);
+                    const videoId = sheet.youtube_url ? extractVideoId(sheet.youtube_url) : '';
+                    return (
+                      <div
+                        key={sheet.id}
+                        onClick={() => router.push(`/drum-sheet/${sheet.slug}`)}
+                        className="group relative cursor-pointer overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all hover:shadow-lg"
+                      >
+                        <div className="relative">
+                          <div
+                            className="aspect-video w-full bg-gray-200 transition duration-300 group-hover:brightness-95"
+                            style={{
+                              backgroundImage: `url(${getYouTubeThumbnailUrl(sheet)})`,
+                              backgroundPosition: 'center',
+                              backgroundSize: 'cover',
+                            }}
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                          {videoId && (
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/95 text-red-600 shadow-lg">
+                                <svg className="w-6 h-6 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                                  <path d="M8 5v14l11-7z" />
+                                </svg>
+                              </div>
+                            </div>
+                          )}
+                          <button
+                            type="button"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              handleToggleFavorite(sheet.id);
+                            }}
+                            disabled={isFavoriteLoading}
+                            className={`absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full shadow transition-colors ${
+                              isFavorite
+                                ? 'bg-red-50 text-red-500 border border-red-200'
+                                : 'bg-white/90 text-gray-500 hover:text-red-500'
+                            } ${isFavoriteLoading ? 'opacity-60 cursor-not-allowed' : ''}`}
+                          >
+                            <i className={`ri-heart-${isFavorite ? 'fill' : 'line'} text-base`} />
+                          </button>
+                        </div>
+                        <div className="p-3">
+                          <h4 className="text-sm font-bold text-gray-900 line-clamp-2 leading-tight">{sheet.title}</h4>
+                          <p className="text-xs font-medium text-blue-600 mt-0.5">{sheet.artist}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="mt-4 flex justify-center">
+                  <button
+                    type="button"
+                    onClick={() => router.push('/categories?category=drum-solo')}
+                    className="inline-flex items-center justify-center px-6 py-2.5 rounded-full bg-blue-600 text-white text-sm font-semibold shadow-sm hover:bg-blue-700 transition-colors"
+                  >
+                    {t('home.showMore')}
+                  </button>
+                </div>
+              </div>
+
+              {/* 데스크톱 */}
+              <div className="hidden md:block">
+                <div className="mb-6 flex items-center justify-between">
+                  <h3 className="text-3xl font-bold text-gray-900">{t('home.latestYoutubeSheets')}</h3>
+                </div>
+                <div className="grid grid-cols-3 gap-5">
+                  {youtubeLatestSheets.slice(0, 6).map((sheet) => {
+                    const isFavorite = favoriteIds.has(sheet.id);
+                    const isFavoriteLoading = favoriteLoadingIds.has(sheet.id);
+                    const videoId = sheet.youtube_url ? extractVideoId(sheet.youtube_url) : '';
+                    return (
+                      <div
+                        key={sheet.id}
+                        onClick={() => router.push(`/drum-sheet/${sheet.slug}`)}
+                        className="group relative cursor-pointer overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all hover:shadow-lg"
+                      >
+                        <div className="relative">
+                          <div
+                            className="aspect-video w-full bg-gray-200 transition duration-300 group-hover:brightness-95"
+                            style={{
+                              backgroundImage: `url(${getYouTubeThumbnailUrl(sheet)})`,
+                              backgroundPosition: 'center',
+                              backgroundSize: 'cover',
+                            }}
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                          {videoId && (
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/95 text-red-600 shadow-lg transition-transform group-hover:scale-110">
+                                <svg className="w-7 h-7 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                                  <path d="M8 5v14l11-7z" />
+                                </svg>
+                              </div>
+                            </div>
+                          )}
+                          <button
+                            type="button"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              handleToggleFavorite(sheet.id);
+                            }}
+                            disabled={isFavoriteLoading}
+                            className={`absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full shadow transition-colors ${
+                              isFavorite
+                                ? 'bg-red-50 text-red-500 border border-red-200'
+                                : 'bg-white/90 text-gray-500 hover:text-red-500 hover:bg-red-50/80'
+                            } ${isFavoriteLoading ? 'opacity-60 cursor-not-allowed' : ''}`}
+                          >
+                            <i className={`ri-heart-${isFavorite ? 'fill' : 'line'} text-lg`} />
+                          </button>
+                        </div>
+                        <div className="p-4">
+                          <h4 className="text-base font-bold text-gray-900 line-clamp-2 leading-tight">{sheet.title}</h4>
+                          <p className="text-sm font-medium text-blue-600 mt-0.5">{sheet.artist}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* Popular Sheets */}
         <section className="py-12 md:py-16 bg-gray-50 rounded-3xl md:rounded-none -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
