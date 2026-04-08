@@ -5255,10 +5255,10 @@ const AdminPage: React.FC = () => {
   };
 
   const downloadSheetCsvSample = () => {
-    const csvContent = `곡명,아티스트,파일명,유튜브링크,장르,가격,템포,앨범명,페이지수,난이도
-ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.youtube.com/watch?v=영상ID,POP,3000,120,,,중급
-곡 제목 2,아티스트 2,아티스트2-곡제목2.pdf,,ROCK,5000,95,,,초급
-곡 제목 3,아티스트 3,아티스트3-곡제목3.pdf,https://youtu.be/영상ID,KPOP,10000,140,,,고급`;
+    const csvContent = `곡명,아티스트,파일명,유튜브링크,장르,가격,템포,앨범명,페이지수,난이도,썸네일URL
+ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.youtube.com/watch?v=영상ID,POP,3000,120,앨범명 예시,,중급,https://example.com/cover.jpg
+곡 제목 2,아티스트 2,아티스트2-곡제목2.pdf,,ROCK,5000,95,,,초급,
+곡 제목 3,아티스트 3,아티스트3-곡제목3.pdf,https://youtu.be/영상ID,KPOP,10000,140,,,고급,`;
     const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' }); // UTF-8 BOM 추가
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
@@ -5306,7 +5306,8 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
         'drum cover': '드럼커버',
         'drumcover': '드럼커버',
         'pop': '팝',
-        
+        가요: '가요',
+
         // 그 외 편의를 위한 추가 매핑
         '트로트': '트로트/성인가요',
         'trot': '트로트/성인가요',
@@ -5321,17 +5322,26 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
       let errorCount = 0;
       const errors: string[] = [];
 
-      // 각 행을 순차적으로 처리 (Spotify API 호출 및 PDF 처리 포함)
+      // 각 행을 순차적으로 처리 (PDF 업로드·미리보기 생성 포함; 앨범명·썸네일은 시트 값만 사용)
       for (let i = 0; i < sheetCsvData.length; i++) {
         const row = sheetCsvData[i];
         const rowNum = i + 2; // 헤더 제외하고 1부터 시작, 실제로는 2행부터
 
         try {
-          // [수정] CSV 필드 파싱 (열 순서: A곡명, B아티스트, C파일명, D유튜브링크, E장르, F가격, G템포, H앨범명, I페이지수, J난이도)
+          // [수정] CSV/엑셀 필드 파싱 (열 순서: A곡명, B아티스트, C파일명, D유튜브링크, E장르, F가격, G템포, H앨범명, I페이지수, J난이도, K썸네일URL)
           const title = norm(row.곡명 || row.title || row.Title || row['곡 제목'] || '');
           const artist = norm(row.아티스트 || row.artist || row.Artist || '');
           const fileName = norm(row.파일명 || row.filename || row.fileName || row['파일명'] || '');
           const youtubeUrl = norm(row.유튜브링크 || row.youtube_url || row.youtubeUrl || row['유튜브링크'] || '');
+          const csvThumbnailUrlRaw = norm(
+            row.썸네일URL ||
+              row['썸네일 URL'] ||
+              row.썸네일_url ||
+              row.thumbnail_url ||
+              row.thumbnailUrl ||
+              row.ThumbnailURL ||
+              ''
+          );
           const genreInput = norm(row.장르 || row.genre || row.Genre || row['장르'] || '');
           const price = num(row.원화 || row.가격 || row.price || row.Price || 0);
           const tempo = num(row.템포 || row.tempo || row.Tempo || 0);
@@ -5360,70 +5370,32 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
           };
           difficulty = difficultyMap[difficulty.toLowerCase()] || '초급';
 
-          // 2. Spotify API로 썸네일 및 앨범 정보 가져오기
-          let thumbnailUrl = '';
-          let albumName = csvAlbumName; // CSV에서 제공된 앨범명 우선 사용
+          // 2. 앨범명·썸네일은 시트(엑셀/CSV)에 입력한 값만 사용 (Spotify·유튜브 자동 조회 없음)
+          const albumName = csvAlbumName;
+          let thumbnailUrl = csvThumbnailUrlRaw;
           let categoryId = '';
 
-          try {
-            console.log(`행 ${rowNum}: Spotify 정보 가져오기 시작...`);
-            const spotifyResult = await searchTrackAndGetCoverWithAlbum(artist, title);
-
-            if (spotifyResult) {
-              thumbnailUrl = spotifyResult.albumCoverUrl || '';
-              if (!albumName) albumName = spotifyResult.albumName || ''; // CSV 앨범명이 없을 때만 Spotify 값 사용
-
-              // CSV에서 장르가 없고 Spotify에서 장르를 가져온 경우 카테고리 자동 선택
-              if (!genreInput && spotifyResult.genre) {
-                const matchingCategory = categories.find(cat =>
-                  cat.name.toLowerCase().includes(spotifyResult.genre!.toLowerCase())
-                );
-                if (matchingCategory) {
-                  categoryId = matchingCategory.id;
-                  console.log(`행 ${rowNum}: Spotify 장르로 카테고리 자동 선택: ${matchingCategory.name}`);
-                }
-              }
-            }
-
-            console.log(`행 ${rowNum}: Spotify 정보 가져오기 완료 - 썸네일: ${thumbnailUrl ? '있음' : '없음'}`);
-          } catch (spotifyError) {
-            console.warn(`행 ${rowNum}: Spotify 정보 가져오기 실패 (계속 진행):`, spotifyError);
-          }
-
-          // 2-1. 유튜브 링크가 있으면 유튜브 썸네일을 상품 썸네일로 사용
-          if (youtubeUrl) {
-            const videoId = extractVideoId(youtubeUrl);
-            if (videoId) {
-              try {
-                const maxResUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
-                const response = await fetch(maxResUrl, { method: 'HEAD' });
-                if (response.ok) {
-                  thumbnailUrl = maxResUrl;
-                  console.log(`행 ${rowNum}: 유튜브 썸네일 사용 (maxresdefault): ${maxResUrl}`);
-                } else {
-                  const fallbackUrl = `https://img.youtube.com/vi/${videoId}/0.jpg`;
-                  thumbnailUrl = fallbackUrl;
-                  console.log(`행 ${rowNum}: 유튜브 썸네일 사용 (0.jpg 폴백): ${fallbackUrl}`);
-                }
-              } catch (error) {
-                const fallbackUrl = `https://img.youtube.com/vi/${videoId}/0.jpg`;
-                thumbnailUrl = fallbackUrl;
-                console.log(`행 ${rowNum}: 유튜브 썸네일 사용 (0.jpg 폴백): ${fallbackUrl}`);
-              }
-            }
+          if (thumbnailUrl) {
+            console.log(`행 ${rowNum}: 시트의 썸네일 URL 사용`);
           }
 
           // 3. 장르 매핑 및 카테고리 선택 로직
-          if (genreInput && !categoryId) {
+          if (genreInput) {
             // 입력값을 소문자로 변환하여 매핑 테이블에서 찾음. 없으면 입력값 그대로 사용.
             const mappedGenre = genreMap[genreInput.toLowerCase()] || genreInput;
 
             if (mappedGenre) {
-              // 카테고리 이름에 매핑된 장르명이 포함되어 있는지 확인 (부분 일치 허용)
-              const matchingCategory = categories.find(cat =>
-                cat.name.toLowerCase() === mappedGenre.toLowerCase() || // 정확히 일치하거나
-                cat.name.toLowerCase().includes(mappedGenre.toLowerCase()) // 포함하거나
+              const mappedLower = mappedGenre.trim().toLowerCase();
+              // 1) 정확히 같은 이름의 카테고리만 우선 (가요 ⊂ 트로트/성인가요 오매칭 방지)
+              let matchingCategory = categories.find(
+                (cat) => cat.name.trim().toLowerCase() === mappedLower
               );
+              // 2) 없을 때만 부분 포함 (예: 입력이 '락메탈' 등 긴 문자열일 때)
+              if (!matchingCategory) {
+                matchingCategory = categories.find((cat) =>
+                  cat.name.toLowerCase().includes(mappedLower)
+                );
+              }
 
               if (matchingCategory) {
                 categoryId = matchingCategory.id;
@@ -5630,11 +5602,6 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
             console.log(`행 ${rowNum}: 성공적으로 등록됨`);
           }
 
-          // API 부하 방지를 위한 대기 (Spotify API 호출 간격)
-          if (i < sheetCsvData.length - 1) {
-            await new Promise(resolve => setTimeout(resolve, 500));
-          }
-
         } catch (rowError) {
           console.error(`행 ${rowNum} 처리 오류:`, rowError);
           errorCount++;
@@ -5670,38 +5637,87 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
 
     setSheetCsvFile(file);
 
+    const lowerName = file.name.toLowerCase();
+    if (lowerName.endsWith('.xlsx') || lowerName.endsWith('.xls')) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = new Uint8Array(e.target?.result as ArrayBuffer);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
+          const jsonData = XLSX.utils.sheet_to_json(worksheet) as any[];
+          const filtered = jsonData.filter((item) => {
+            const title = (item.곡명 || item.title || item.Title || item['곡 제목'] || '').toString().trim();
+            const artist = (item.아티스트 || item.artist || item.Artist || '').toString().trim();
+            return title || artist;
+          });
+          setSheetCsvData(filtered);
+          console.log(`[엑셀] 총 ${filtered.length}개의 데이터가 로드되었습니다.`);
+          if (filtered.length === 0) {
+            alert('데이터를 찾을 수 없습니다. 첫 시트에 곡명·아티스트 열 헤더를 확인해주세요.');
+          }
+        } catch (err) {
+          console.error('엑셀 읽기 오류:', err);
+          alert('엑셀 파일을 읽는 중 오류가 발생했습니다.');
+          setSheetCsvData([]);
+        }
+      };
+      reader.onerror = () => {
+        alert('파일을 읽는 중 오류가 발생했습니다.');
+      };
+      reader.readAsArrayBuffer(file);
+      return;
+    }
+
     const reader = new FileReader();
 
     reader.onload = (e) => {
       const buffer = e.target?.result as ArrayBuffer;
-      // 1. 먼저 UTF-8로 디코딩 시도
-      let text = new TextDecoder('utf-8').decode(buffer);
+      const bytes = new Uint8Array(buffer);
 
-      // 2. 헤더 확인 (제대로 읽혔는지 체크)
-      let lines = text.split('\n').filter(line => line.trim());
-      if (lines.length > 0) {
-        const firstLine = lines[0];
-        // 필수 헤더인 '곡명'이나 'title'이 제대로 보이는지 확인
-        const hasValidHeader = ['곡명', 'title', '아티스트', 'artist'].some(keyword => 
-          firstLine.toLowerCase().includes(keyword)
-        );
+      const headerLooksValid = (firstLineRaw: string) => {
+        const line = firstLineRaw.replace(/^\uFEFF+/, '');
+        return /곡명|title|아티스트|artist|song|track/i.test(line);
+      };
 
-        // 3. UTF-8이 아니라고 판단되면 EUC-KR(한국 엑셀 표준)로 다시 디코딩
-        if (!hasValidHeader) {
-          console.log('CSV 인코딩 감지: EUC-KR로 재시도');
-          text = new TextDecoder('euc-kr').decode(buffer);
-          // 다시 줄 나누기
-          lines = text.split('\n').filter(line => line.trim());
+      const decodeBuffer = (): string => {
+        if (bytes.length >= 2 && bytes[0] === 0xff && bytes[1] === 0xfe) {
+          console.log('CSV 인코딩: UTF-16 LE');
+          return new TextDecoder('utf-16le').decode(buffer);
         }
-      }
+        if (bytes.length >= 2 && bytes[0] === 0xfe && bytes[1] === 0xff) {
+          console.log('CSV 인코딩: UTF-16 BE');
+          return new TextDecoder('utf-16be').decode(buffer);
+        }
+        const utf8 = new TextDecoder('utf-8').decode(buffer);
+        const first = (utf8.split(/\r\n|\n|\r/)[0] || '').replace(/^\uFEFF+/, '');
+        if (headerLooksValid(first)) return utf8;
+        try {
+          const kr = new TextDecoder('euc-kr').decode(buffer);
+          const firstKr = (kr.split(/\r\n|\n|\r/)[0] || '').replace(/^\uFEFF+/, '');
+          if (headerLooksValid(firstKr)) {
+            console.log('CSV 인코딩: EUC-KR');
+            return kr;
+          }
+        } catch {
+          /* TextDecoder euc-kr 미지원 등 */
+        }
+        return utf8;
+      };
+
+      let text = decodeBuffer().replace(/^\uFEFF+/, '');
+      let lines = text
+        .split(/\r\n|\n|\r/)
+        .map((l) => l.replace(/\r$/, '').trimEnd())
+        .filter((line) => line.trim());
 
       if (lines.length < 2) {
         alert('CSV 파일 형식이 올바르지 않거나 데이터가 없습니다. (최소 2줄 필요)');
         return;
       }
 
-      // CSV 파싱 로직 (따옴표 처리 포함)
-      const parseCsvLine = (line: string): string[] => {
+      const parseDelimitedLine = (line: string, delimiter: string): string[] => {
         const result: string[] = [];
         let current = '';
         let inQuotes = false;
@@ -5709,7 +5725,7 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
           const char = line[i];
           if (char === '"') {
             inQuotes = !inQuotes;
-          } else if (char === ',' && !inQuotes) {
+          } else if (char === delimiter && !inQuotes) {
             result.push(current.trim());
             current = '';
           } else {
@@ -5720,30 +5736,76 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
         return result;
       };
 
-      // 헤더 파싱
-      const headers = parseCsvLine(lines[0]).map(h => h.trim().replace(/"/g, ''));
-      console.log('CSV 헤더 파싱 결과:', headers);
+      const sniffDelimiter = (line: string): ',' | ';' | '\t' => {
+        const byComma = parseDelimitedLine(line, ',');
+        if (byComma.length >= 2) return ',';
+        const bySemi = parseDelimitedLine(line, ';');
+        if (bySemi.length >= 2) return ';';
+        const byTab = parseDelimitedLine(line, '\t');
+        if (byTab.length >= 2) return '\t';
+        return ',';
+      };
 
-      // 데이터 매핑
-      const data = lines.slice(1).map((line, index) => {
-        const values = parseCsvLine(line);
-        const row: any = {};
-        headers.forEach((header, idx) => {
-          if (header) row[header] = values[idx] || '';
+      const delimiter = sniffDelimiter(lines[0]);
+      const parseLine = (line: string) => parseDelimitedLine(line, delimiter);
+
+      const normalizeHeaderCell = (h: string) =>
+        h.replace(/^\uFEFF+/g, '').trim().replace(/^["']|["']$/g, '').trim();
+
+      const canonHeader = (raw: string): string => {
+        const n = normalizeHeaderCell(raw);
+        if (!n) return '';
+        const low = n.toLowerCase();
+        const map: Record<string, string> = {
+          곡명: '곡명',
+          '곡 제목': '곡명',
+          title: '곡명',
+          song: '곡명',
+          track: '곡명',
+          아티스트: '아티스트',
+          artist: '아티스트',
+          singer: '아티스트',
+        };
+        if (map[n]) return map[n];
+        if (map[low]) return map[low];
+        return n;
+      };
+
+      const headerCells = parseLine(lines[0]).map(normalizeHeaderCell);
+      const headers = headerCells.map(canonHeader);
+      console.log('CSV 구분자:', JSON.stringify(delimiter), '헤더(정규화):', headers);
+
+      const data = lines.slice(1).map((line) => {
+        const values = parseLine(line);
+        const row: Record<string, string> = {};
+        headerCells.forEach((rawH, idx) => {
+          const canon = headers[idx];
+          const v = values[idx] ?? '';
+          if (canon) row[canon] = v;
+          if (rawH && rawH !== canon) row[rawH] = v;
         });
+        const t = (row.곡명 || row.title || row.Title || row['곡 제목'] || '').toString().trim();
+        const a = (row.아티스트 || row.artist || row.Artist || '').toString().trim();
+        if (!t && values[0]) row.곡명 = values[0].trim();
+        if (!a && values[1]) row.아티스트 = values[1].trim();
         return row;
-      }).filter(item => {
-        // 필수 값이 있는 행만 포함
-        const title = item.곡명 || item.title || item.Title || item['곡 제목'] || '';
-        const artist = item.아티스트 || item.artist || item.Artist || '';
-        return title.trim() || artist.trim();
+      }).filter((item) => {
+        const title = (item.곡명 || item.title || item.Title || item['곡 제목'] || '').toString().trim();
+        const artist = (item.아티스트 || item.artist || item.Artist || '').toString().trim();
+        return title || artist;
       });
 
       console.log(`총 ${data.length}개의 데이터가 로드되었습니다.`);
       setSheetCsvData(data);
-      
+
       if (data.length === 0) {
-        alert('데이터를 찾을 수 없습니다. CSV 파일의 인코딩이나 헤더명을 확인해주세요.');
+        const preview = headers.filter(Boolean).slice(0, 12).join(', ') || '(헤더 없음)';
+        alert(
+          `데이터 행을 읽지 못했습니다.\n\n` +
+            `• 첫 줄: 곡명·아티스트(또는 title·artist) 열 이름이 있어야 합니다.\n` +
+            `• 엑셀에서는 「다른 이름으로 저장」→「CSV UTF-8(쉼표로 분리)」을 권장합니다.\n` +
+            `• 인식된 헤더: ${preview}`
+        );
       }
     };
 
@@ -7600,7 +7662,7 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
               className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
             >
               <i className="ri-file-upload-line w-4 h-4"></i>
-              <span>CSV 대량 등록</span>
+              <span>CSV·Excel 대량 등록</span>
             </button>
             <button
               onClick={startPreorderBulkAdd}
@@ -7905,7 +7967,7 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-lg font-semibold text-gray-900">CSV 대량 악보 등록</h3>
+              <h3 className="text-lg font-semibold text-gray-900">CSV·Excel 대량 악보 등록</h3>
               <button
                 onClick={() => {
                   setShowSheetBulkModal(false);
@@ -7918,17 +7980,17 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
               </button>
             </div>
             <div className="space-y-6">
-              {/* 1단계: CSV 파일 선택 */}
+              {/* 1단계: CSV / Excel 파일 선택 */}
               <div className="bg-blue-50 border border-blue-100 rounded-lg p-4">
-                <h4 className="font-semibold text-blue-900 mb-2">Step 1. 데이터 파일 (CSV)</h4>
+                <h4 className="font-semibold text-blue-900 mb-2">Step 1. 데이터 파일 (CSV 또는 Excel)</h4>
                 <div className="flex gap-3 items-center">
                   <label className="flex-1 cursor-pointer">
                     <span className="block w-full px-4 py-2 bg-white border border-blue-300 rounded-lg text-blue-700 text-center hover:bg-blue-50 transition-colors">
-                      {sheetCsvFile ? sheetCsvFile.name : 'CSV 파일 선택'}
+                      {sheetCsvFile ? sheetCsvFile.name : 'CSV 또는 Excel 선택'}
                     </span>
                     <input
                       type="file"
-                      accept=".csv"
+                      accept=".csv,.xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv"
                       onChange={handleSheetCsvUpload}
                       className="hidden"
                     />
@@ -7938,12 +8000,13 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
                     className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors flex items-center gap-2"
                   >
                     <i className="ri-download-line"></i>
-                    <span className="text-sm">샘플</span>
+                    <span className="text-sm">샘플(CSV)</span>
                   </button>
                 </div>
                 <p className="text-xs text-blue-600 mt-2">
                   * 필수 항목: A열 곡명, B열 아티스트<br/>
-                  * 추가 항목: C파일명, D유튜브링크, E장르, F가격, G템포, H앨범명, I페이지수, <strong>J난이도(초급/중급/고급)</strong>
+                  * 추가 항목: C파일명, D유튜브링크(영상 링크만 저장·썸네일 자동 없음), E장르, F가격, G템포, <strong>H앨범명</strong>, I페이지수, <strong>J난이도(초급/중급/고급)</strong>, <strong>K썸네일URL</strong>(권장·비우면 썸네일 없음)<br/>
+                  * 엑셀은 첫 번째 시트를 사용합니다. 열 이름은 샘플 CSV 헤더와 같게 맞추면 됩니다.
                 </p>
               </div>
               {/* 2단계: PDF 파일 다중 선택 */}
@@ -8023,7 +8086,7 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
                       <span>
                         {sheetCsvData.length > 0 
                           ? `${sheetCsvData.length}개 일괄 등록 시작하기` 
-                          : 'CSV 파일을 먼저 선택해주세요'}
+                          : 'CSV 또는 Excel 파일을 먼저 선택해주세요'}
                       </span>
                     </>
                   )}
