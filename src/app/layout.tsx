@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Script from 'next/script';
 import { cookies, headers } from 'next/headers';
 import './globals.css';
 import { Providers } from './providers';
@@ -73,6 +74,12 @@ export default async function RootLayout({
         <link
           rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css"
+        />
+        <Script
+          id="google-adsense"
+          strategy="beforeInteractive"
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9057801691949443"
+          crossOrigin="anonymous"
         />
       </head>
       <body className="font-sans antialiased" suppressHydrationWarning>
