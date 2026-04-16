@@ -141,15 +141,29 @@ interface Order {
 }
 
 interface CopyrightReportRow {
+  rowId: string;
   songId: string;
   title: string;
   artist: string;
   albumName: string | null;
   categoryName: string | null;
+  orderNumber: string | null;
+  orderedAt: string;
+  serviceType: 'D';
   purchaseCount: number;
   unitAmount: number;
   revenue: number;
 }
+
+interface OfficialReportInputRow {
+  month: string;
+  revenueInput: string;
+  usageInput: string;
+}
+
+const COPYRIGHT_OFFICIAL_COMPANY_NAME = 'COPYDRUM';
+const COPYRIGHT_OFFICIAL_SERVICE_NAME = '악보다운로드';
+const COPYRIGHT_OFFICIAL_REPRESENTATIVE_NAME = '강만수';
 
 interface DirectSaleRow {
   orderId: string;
@@ -221,6 +235,168 @@ const COPYRIGHT_QUICK_RANGES: Array<{ key: CopyrightQuickRangeKey; label: string
   { key: 'last-3-months', label: '최근 3개월' },
   { key: 'this-year', label: '올해' },
 ];
+
+const EXCLUDED_COPYRIGHT_CATEGORY_NAMES = new Set(['ccm', '드럼솔로', '드럼커버']);
+const EXCLUDED_COPYRIGHT_PAYMENT_KEYS = new Set([
+  'cash',
+  'point',
+  'points',
+  'credit',
+  'credits',
+  'paypal',
+  'banktransfer',
+]);
+
+const normalizeCategoryName = (value: unknown) =>
+  (typeof value === 'string' ? value : '').replace(/\s+/g, '').toLowerCase();
+
+const normalizePaymentToken = (value: unknown) =>
+  (typeof value === 'string' ? value : '').toLowerCase().replace(/[\s-_]/g, '');
+
+const toYearMonth = (dateValue: string) => {
+  if (typeof dateValue === 'string') {
+    const matched = dateValue.match(/^(\d{4})-(\d{2})/);
+    if (matched) {
+      return `${matched[1]}-${matched[2]}`;
+    }
+  }
+
+  const date = new Date(dateValue);
+  if (Number.isNaN(date.getTime())) {
+    return '';
+  }
+  const year = date.getUTCFullYear();
+  const month = `${date.getUTCMonth() + 1}`.padStart(2, '0');
+  return `${year}-${month}`;
+};
+
+const getMonthDateRange = (monthValue: string) => {
+  const [yearText, monthText] = monthValue.split('-');
+  const year = Number(yearText);
+  const month = Number(monthText);
+  if (!Number.isFinite(year) || !Number.isFinite(month) || month < 1 || month > 12) {
+    return null;
+  }
+
+  const start = new Date(year, month - 1, 1);
+  const end = new Date(year, month, 0);
+  return {
+    start: formatDateToYMD(start),
+    end: formatDateToYMD(end),
+  };
+};
+
+const aggregateCopyrightRowsBySong = (rows: CopyrightReportRow[]): CopyrightReportRow[] => {
+  const aggregatedMap = new Map<string, CopyrightReportRow>();
+
+  rows.forEach((row) => {
+    const existing = aggregatedMap.get(row.songId);
+    if (existing) {
+      existing.purchaseCount += row.purchaseCount;
+      existing.revenue += row.revenue;
+      if (!existing.albumName && row.albumName) {
+        existing.albumName = row.albumName;
+      }
+      if (!existing.artist && row.artist) {
+        existing.artist = row.artist;
+      }
+      if (!existing.categoryName && row.categoryName) {
+        existing.categoryName = row.categoryName;
+      }
+      const existingTime = new Date(existing.orderedAt).getTime();
+      const rowTime = new Date(row.orderedAt).getTime();
+      if (rowTime > existingTime) {
+        existing.orderedAt = row.orderedAt;
+      }
+    } else {
+      aggregatedMap.set(row.songId, { ...row, rowId: row.songId, orderNumber: null });
+    }
+  });
+
+  return Array.from(aggregatedMap.values())
+    .map((row) => ({
+      ...row,
+      unitAmount: row.purchaseCount > 0 ? row.revenue / row.purchaseCount : row.unitAmount,
+    }))
+    .sort((a, b) => {
+      if (b.revenue !== a.revenue) {
+        return b.revenue - a.revenue;
+      }
+      if (b.purchaseCount !== a.purchaseCount) {
+        return b.purchaseCount - a.purchaseCount;
+      }
+      return a.songId.localeCompare(b.songId, 'ko');
+    });
+};
+
+const buildMonthKeysBetween = (startDate: string, endDate: string): string[] => {
+  const start = getMonthDateRange(startDate.slice(0, 7));
+  const end = getMonthDateRange(endDate.slice(0, 7));
+  if (!start || !end) return [];
+
+  const startMonthDate = new Date(`${start.start}T00:00:00Z`);
+  const endMonthDate = new Date(`${end.start}T00:00:00Z`);
+  if (Number.isNaN(startMonthDate.getTime()) || Number.isNaN(endMonthDate.getTime())) return [];
+
+  const months: string[] = [];
+  const cursor = new Date(Date.UTC(startMonthDate.getUTCFullYear(), startMonthDate.getUTCMonth(), 1));
+  const endKeyDate = new Date(Date.UTC(endMonthDate.getUTCFullYear(), endMonthDate.getUTCMonth(), 1));
+
+  while (cursor.getTime() <= endKeyDate.getTime()) {
+    const key = `${cursor.getUTCFullYear()}-${String(cursor.getUTCMonth() + 1).padStart(2, '0')}`;
+    months.push(key);
+    cursor.setUTCMonth(cursor.getUTCMonth() + 1);
+  }
+  return months;
+};
+
+const parseManualNumber = (value: string) => Number((value ?? '').replace(/[,\s]/g, '')) || 0;
+
+const isPointPurchaseOrder = (order: any) => {
+  if (order?.order_type === 'cash') {
+    return true;
+  }
+
+  const paymentMethodKey = normalizePaymentToken(order?.payment_method ?? null);
+  if (
+    EXCLUDED_COPYRIGHT_PAYMENT_KEYS.has(paymentMethodKey) ||
+    paymentMethodKey.includes('dodo')
+  ) {
+    return true;
+  }
+
+  const metadata = (order?.metadata ?? null) as Record<string, any> | null;
+  if (!metadata) {
+    return false;
+  }
+
+  const metadataMethodTokens = [
+    metadata.payment_method,
+    metadata.paymentMethod,
+    metadata.method,
+    metadata.payment_type,
+    metadata.paymentType,
+  ]
+    .map((value) => (typeof value === 'string' ? normalizePaymentToken(value) : ''))
+    .filter(Boolean);
+
+  if (
+    metadataMethodTokens.some(
+      (token) => EXCLUDED_COPYRIGHT_PAYMENT_KEYS.has(token) || token.includes('dodo'),
+    )
+  ) {
+    return true;
+  }
+
+  const usedPointCandidates = [
+    metadata.used_points,
+    metadata.usedPoints,
+    metadata.used_credits,
+    metadata.usedCredits,
+  ];
+
+  return usedPointCandidates.some((value) => Number(value ?? 0) > 0);
+};
 
 const ORDER_STATUS_META: Record<OrderStatus, { label: string; className: string; description: string }> = {
   pending: {
@@ -294,8 +470,6 @@ const ORDER_STATUS_FALLBACK_MAP: Record<string, OrderStatus> = {
 
 const REFUNDABLE_STATUSES: OrderStatus[] = ['payment_confirmed', 'completed'];
 const CANCELLABLE_STATUSES: OrderStatus[] = ['pending', 'awaiting_deposit', 'payment_confirmed', 'completed'];
-const KOREAN_PAYMENT_METHODS = ['card', 'bank_transfer', 'kakaopay'] as const;
-
 const normalizeOrderStatus = (status: string | null | undefined): OrderStatus => {
   if (!status) return 'pending';
   const normalized = status.toLowerCase().replace(/[\s-]/g, '_');
@@ -1253,7 +1427,17 @@ const AdminPage: React.FC = () => {
     () => getRangeForQuickKey('this-month').end,
   );
   const [copyrightQuickRange, setCopyrightQuickRange] = useState<CopyrightRangeState>('this-month');
+  const [copyrightSelectedMonth, setCopyrightSelectedMonth] = useState<string>(
+    () => getRangeForQuickKey('this-month').start.slice(0, 7),
+  );
   const [copyrightReportData, setCopyrightReportData] = useState<CopyrightReportRow[]>([]);
+  const [officialReportInputRows, setOfficialReportInputRows] = useState<OfficialReportInputRow[]>(() =>
+    buildMonthKeysBetween(getRangeForQuickKey('this-month').start, getRangeForQuickKey('this-month').end).map((month) => ({
+      month,
+      revenueInput: '',
+      usageInput: '',
+    })),
+  );
   const [copyrightReportLoading, setCopyrightReportLoading] = useState(false);
   const [copyrightReportError, setCopyrightReportError] = useState<string | null>(null);
   const [directSalesData, setDirectSalesData] = useState<DirectSaleRow[]>([]);
@@ -2882,6 +3066,8 @@ const AdminPage: React.FC = () => {
             created_at,
             status,
             payment_method,
+            metadata,
+            order_type,
             total_amount,
             profiles (
               id,
@@ -2904,7 +3090,6 @@ const AdminPage: React.FC = () => {
           `,
           )
           .eq('status', 'completed')
-          .in('payment_method', [...KOREAN_PAYMENT_METHODS])
           .gte('created_at', startTimestamp)
           .lte('created_at', endTimestamp)
           .order('created_at', { ascending: false });
@@ -2913,10 +3098,12 @@ const AdminPage: React.FC = () => {
           throw error;
         }
 
-        const aggregatedMap = new Map<string, CopyrightReportRow>();
+        const filteredOrders = (data ?? []).filter((order: any) => !isPointPurchaseOrder(order));
+
+        const itemRows: CopyrightReportRow[] = [];
         const sheetIds = new Set<string>();
 
-        (data ?? []).forEach((order: any) => {
+        filteredOrders.forEach((order: any) => {
           const items = Array.isArray(order.order_items) ? order.order_items : [];
           items.forEach((item: any) => {
             const sheet = item.drum_sheets ?? null;
@@ -2936,29 +3123,24 @@ const AdminPage: React.FC = () => {
             );
             const normalizedAmount = Number.isFinite(resolvedAmount) ? resolvedAmount : 0;
 
-            const existing = aggregatedMap.get(sheetId);
-            if (existing) {
-              existing.purchaseCount += 1;
-              existing.revenue += normalizedAmount;
-              if (!existing.albumName && resolvedAlbum) {
-                existing.albumName = resolvedAlbum;
-              }
-            } else {
-              aggregatedMap.set(sheetId, {
-                songId: sheetId,
-                title: resolvedTitle,
-                artist: resolvedArtist,
-                albumName: resolvedAlbum,
-                categoryName: null,
-                purchaseCount: 1,
-                unitAmount: normalizedAmount,
-                revenue: normalizedAmount,
-              });
-            }
+            itemRows.push({
+              rowId: item.id ?? `${order.id}-${sheetId}-${itemRows.length + 1}`,
+              songId: sheetId,
+              title: resolvedTitle,
+              artist: resolvedArtist,
+              albumName: resolvedAlbum,
+              categoryName: null,
+              orderNumber: order.order_number ?? null,
+              orderedAt: order.created_at,
+              serviceType: 'D',
+              purchaseCount: 1,
+              unitAmount: normalizedAmount,
+              revenue: normalizedAmount,
+            });
           });
         });
 
-        const directSalesRows: DirectSaleRow[] = (data ?? []).map((order: any) => {
+        const directSalesRows: DirectSaleRow[] = filteredOrders.map((order: any) => {
           const orderItems = Array.isArray(order.order_items) ? order.order_items : [];
           const paymentMethod: string | null = order.payment_method ?? null;
           const paymentMethodLabel = getPaymentMethodLabel(paymentMethod, order);
@@ -2988,7 +3170,7 @@ const AdminPage: React.FC = () => {
             balance_after,
             description,
             created_at,
-            profiles (
+            user_profile:profiles!cash_transactions_user_id_fkey (
               email
             )
           `,
@@ -3010,7 +3192,7 @@ const AdminPage: React.FC = () => {
           return {
             id: transaction.id,
             userId: transaction.user_id,
-            userEmail: transaction.profiles?.email ?? null,
+            userEmail: transaction.user_profile?.email ?? null,
             chargedAt: transaction.created_at,
             amount,
             bonusAmount,
@@ -3024,60 +3206,116 @@ const AdminPage: React.FC = () => {
 
         // 카테고리 정보 별도 조회
         if (sheetIds.size > 0) {
-          const { data: categoryData, error: categoryError } = await supabase
-            .from('drum_sheet_categories')
-            .select(
-              `
-              sheet_id,
-              category:categories (
-                name
+          const [categoryRelationResult, primaryCategoryResult, allCategoryResult] = await Promise.all([
+            supabase
+              .from('drum_sheet_categories')
+              .select(
+                `
+                sheet_id,
+                category_id,
+                category:categories (
+                  id,
+                  name
+                )
+              `,
               )
-            `,
-            )
-            .in('sheet_id', Array.from(sheetIds));
+              .in('sheet_id', Array.from(sheetIds)),
+            supabase
+              .from('drum_sheets')
+              .select('id, category_id')
+              .in('id', Array.from(sheetIds)),
+            supabase
+              .from('categories')
+              .select('id, name'),
+          ]);
+
+          const { data: categoryData, error: categoryError } = categoryRelationResult;
+          const { data: primaryCategoryData } = primaryCategoryResult;
+          const { data: allCategories } = allCategoryResult;
+
+          const excludedCategoryIds = new Set(
+            (allCategories ?? [])
+              .filter((category: any) =>
+                EXCLUDED_COPYRIGHT_CATEGORY_NAMES.has(normalizeCategoryName(category?.name)),
+              )
+              .map((category: any) => category.id)
+              .filter((id: unknown): id is string => typeof id === 'string'),
+          );
+
+          const sheetCategoryIdMap = new Map<string, Set<string>>();
+          (primaryCategoryData ?? []).forEach((row: any) => {
+            if (!row?.id || !row?.category_id) return;
+            const existingIds = sheetCategoryIdMap.get(row.id) ?? new Set<string>();
+            existingIds.add(row.category_id);
+            sheetCategoryIdMap.set(row.id, existingIds);
+          });
 
           if (!categoryError && categoryData) {
-            const categoryMap = new Map<string, string>();
+            const categoryMap = new Map<string, string[]>();
             categoryData.forEach((row: any) => {
-              if (row.sheet_id && row.category?.name) {
-                const existingCategory = categoryMap.get(row.sheet_id);
-                if (!existingCategory) {
-                  categoryMap.set(row.sheet_id, row.category.name);
+              if (row.sheet_id && row.category_id) {
+                const existingIds = sheetCategoryIdMap.get(row.sheet_id) ?? new Set<string>();
+                existingIds.add(row.category_id);
+                sheetCategoryIdMap.set(row.sheet_id, existingIds);
+              }
+
+              const resolvedCategoryName =
+                typeof row.category?.name === 'string'
+                  ? row.category.name
+                  : Array.isArray(row.category)
+                    ? row.category.find((category: any) => typeof category?.name === 'string')?.name
+                    : null;
+
+              if (row.sheet_id && resolvedCategoryName) {
+                const existingCategories = categoryMap.get(row.sheet_id) ?? [];
+                if (!existingCategories.includes(resolvedCategoryName)) {
+                  existingCategories.push(resolvedCategoryName);
+                  categoryMap.set(row.sheet_id, existingCategories);
                 }
               }
             });
 
-            // 카테고리 정보 적용
-            aggregatedMap.forEach((row) => {
-              const categoryName = categoryMap.get(row.songId);
-              if (categoryName) {
-                row.categoryName = categoryName;
-              }
-            });
+            const rows = itemRows
+              .map((row) => {
+                const categories = categoryMap.get(row.songId) ?? [];
+                const normalizedCategories = categories.map((name) => normalizeCategoryName(name));
+                const categoryIds = sheetCategoryIdMap.get(row.songId) ?? new Set<string>();
+                const isExcludedCategory = normalizedCategories.some((name) =>
+                  EXCLUDED_COPYRIGHT_CATEGORY_NAMES.has(name),
+                ) || Array.from(categoryIds).some((categoryId) => excludedCategoryIds.has(categoryId));
+                if (isExcludedCategory) {
+                  return null;
+                }
+                return {
+                  ...row,
+                  categoryName: categories[0] ?? null,
+                };
+              })
+              .filter((row): row is CopyrightReportRow => row !== null);
+
+            setCopyrightReportData(aggregateCopyrightRowsBySong(rows));
+            return;
           }
         }
 
-        const rows = Array.from(aggregatedMap.values()).map((row) => ({
-          ...row,
-          unitAmount:
-            row.purchaseCount > 0 ? Number(row.revenue / row.purchaseCount) : row.unitAmount,
-        }));
+        const rows = itemRows
+          .filter((row) => !EXCLUDED_COPYRIGHT_CATEGORY_NAMES.has(normalizeCategoryName(row.categoryName)))
+          ;
 
-        rows.sort((a, b) => {
-          if (b.revenue !== a.revenue) {
-            return b.revenue - a.revenue;
-          }
-          if (b.purchaseCount !== a.purchaseCount) {
-            return b.purchaseCount - a.purchaseCount;
-          }
-          return a.title.localeCompare(b.title, 'ko');
-        });
-
-        setCopyrightReportData(rows);
+        setCopyrightReportData(aggregateCopyrightRowsBySong(rows));
       } catch (error: unknown) {
-        console.error('저작권 보고 데이터 로드 오류:', error);
-        const message =
-          error instanceof Error ? error.message : '데이터를 불러오는 중 문제가 발생했습니다.';
+        const parsedMessage =
+          error instanceof Error
+            ? error.message
+            : typeof (error as any)?.message === 'string'
+              ? (error as any).message
+              : typeof error === 'string'
+                ? error
+                : JSON.stringify(error);
+        console.error('저작권 보고 데이터 로드 오류:', error, parsedMessage);
+        const message = parsedMessage && parsedMessage !== '{}'
+          ? parsedMessage
+          : '데이터를 불러오는 중 문제가 발생했습니다.';
         setCopyrightReportError(message);
       } finally {
         setCopyrightReportLoading(false);
@@ -3102,21 +3340,65 @@ const AdminPage: React.FC = () => {
     setCopyrightQuickRange(key);
     setCopyrightStartDate(range.start);
     setCopyrightEndDate(range.end);
+    setCopyrightSelectedMonth(range.start.slice(0, 7));
+    resetOfficialReportInputRows(range.start, range.end);
     void loadCopyrightReport(range);
   };
 
   const handleCopyrightStartDateChange = (value: string) => {
     setCopyrightStartDate(value);
     setCopyrightQuickRange('custom');
+    setCopyrightSelectedMonth(value.slice(0, 7));
   };
 
   const handleCopyrightEndDateChange = (value: string) => {
     setCopyrightEndDate(value);
     setCopyrightQuickRange('custom');
+    setCopyrightSelectedMonth(value.slice(0, 7));
+  };
+
+  const handleCopyrightMonthChange = (value: string) => {
+    setCopyrightSelectedMonth(value);
+  };
+
+  const resetOfficialReportInputRows = (startDate: string, endDate: string) => {
+    const monthKeys = buildMonthKeysBetween(startDate, endDate);
+    setOfficialReportInputRows(
+      monthKeys.map((month) => ({
+        month,
+        revenueInput: '',
+        usageInput: '',
+      })),
+    );
+  };
+
+  const handleOfficialReportInputChange = (
+    month: string,
+    field: 'revenueInput' | 'usageInput',
+    value: string,
+  ) => {
+    setOfficialReportInputRows((prev) =>
+      prev.map((row) => (row.month === month ? { ...row, [field]: value } : row)),
+    );
   };
 
   const handleCopyrightSearch = () => {
+    resetOfficialReportInputRows(copyrightStartDate, copyrightEndDate);
     void loadCopyrightReport();
+  };
+
+  const handleCopyrightMonthSearch = () => {
+    const monthRange = getMonthDateRange(copyrightSelectedMonth);
+    if (!monthRange) {
+      setCopyrightReportError('유효한 조회 월을 선택해주세요.');
+      return;
+    }
+
+    setCopyrightQuickRange('custom');
+    setCopyrightStartDate(monthRange.start);
+    setCopyrightEndDate(monthRange.end);
+    resetOfficialReportInputRows(monthRange.start, monthRange.end);
+    void loadCopyrightReport(monthRange);
   };
 
   const handleCopyrightExport = async () => {
@@ -3127,16 +3409,18 @@ const AdminPage: React.FC = () => {
 
     try {
       const XLSX = await import('xlsx');
+      const startMonthToken = copyrightStartDate.slice(0, 7).replace('-', '');
+      const endMonthToken = copyrightEndDate.slice(0, 7).replace('-', '');
+      const monthToken = startMonthToken === endMonthToken ? startMonthToken : `${startMonthToken}_${endMonthToken}`;
       const worksheetData = [
-        ['SONG ID', '앨범명', '작품명', '가수명', '구매 수', '', '장르 카테고리', '매출액'],
+        ['SONG ID', '앨범명', '작품명', '가수명', '이용횟수', '서비스구분', '매출액'],
         ...copyrightReportData.map((row) => [
           row.songId,
           row.albumName ?? '',
           row.title,
           row.artist,
           row.purchaseCount,
-          '',
-          row.categoryName ?? '',
+          row.serviceType,
           Math.round(row.revenue),
         ]),
       ];
@@ -3145,14 +3429,62 @@ const AdminPage: React.FC = () => {
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, '저작권보고');
 
-      const startToken = copyrightStartDate.replace(/-/g, '');
-      const endToken = copyrightEndDate.replace(/-/g, '');
-      const fileName = `저작권보고_${startToken}_${endToken}.xlsx`;
-      XLSX.writeFile(workbook, fileName);
+      const excelFileName = `저작권정산_${monthToken}.xlsx`;
+      XLSX.writeFile(workbook, excelFileName);
+
+      // FTP 업로드용 로그데이터: 헤더 없이 탭 구분 6컬럼
+      const txtRows = copyrightReportData.map((row) => [
+        row.songId,
+        row.albumName ?? '',
+        row.title ?? '',
+        row.artist ?? '',
+        String(row.purchaseCount),
+        row.serviceType,
+      ]);
+      const txtContent = txtRows.map((columns) => columns.join('\t')).join('\r\n');
+      const txtBlob = new Blob([`\uFEFF${txtContent}`], { type: 'text/plain;charset=utf-8;' });
+      const txtUrl = URL.createObjectURL(txtBlob);
+      const txtLink = document.createElement('a');
+      txtLink.href = txtUrl;
+      txtLink.download = `COPYDRUM_다운로드_${monthToken}_D.txt`;
+      document.body.appendChild(txtLink);
+      txtLink.click();
+      document.body.removeChild(txtLink);
+      URL.revokeObjectURL(txtUrl);
     } catch (error) {
       console.error('저작권 보고 엑셀 생성 오류:', error);
       alert('엑셀 파일 생성 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
     }
+  };
+
+  const handleCopyrightTxtExport = () => {
+    if (copyrightReportData.length === 0) {
+      alert('다운로드할 데이터가 없습니다. 먼저 조회를 실행해주세요.');
+      return;
+    }
+
+    const startMonthToken = copyrightStartDate.slice(0, 7).replace('-', '');
+    const endMonthToken = copyrightEndDate.slice(0, 7).replace('-', '');
+    const monthToken = startMonthToken === endMonthToken ? startMonthToken : `${startMonthToken}_${endMonthToken}`;
+
+    const txtRows = copyrightReportData.map((row) => [
+      row.songId,
+      row.albumName ?? '',
+      row.title ?? '',
+      row.artist ?? '',
+      String(row.purchaseCount),
+      row.serviceType,
+    ]);
+    const txtContent = txtRows.map((columns) => columns.join('\t')).join('\r\n');
+    const txtBlob = new Blob([`\uFEFF${txtContent}`], { type: 'text/plain;charset=utf-8;' });
+    const txtUrl = URL.createObjectURL(txtBlob);
+    const txtLink = document.createElement('a');
+    txtLink.href = txtUrl;
+    txtLink.download = `COPYDRUM_다운로드_${monthToken}_D.txt`;
+    document.body.appendChild(txtLink);
+    txtLink.click();
+    document.body.removeChild(txtLink);
+    URL.revokeObjectURL(txtUrl);
   };
 
   const loadCustomOrders = async () => {
@@ -3370,15 +3702,14 @@ const AdminPage: React.FC = () => {
       const workbook = XLSX.utils.book_new();
 
       const purchaseSheetData = [
-        ['SONG ID', '앨범명', '작품명', '가수명', '구매 수', '', '장르 카테고리', '매출액'],
+        ['SONG ID', '앨범명', '작품명', '가수명', '이용횟수', '서비스구분', '매출액'],
         ...copyrightReportData.map((row) => [
           row.songId,
           row.albumName ?? '',
           row.title,
           row.artist,
           row.purchaseCount,
-          '',
-          row.categoryName ?? '',
+          row.serviceType,
           Math.round(row.revenue),
         ]),
       ];
@@ -3446,6 +3777,152 @@ const AdminPage: React.FC = () => {
     } catch (error) {
       console.error('저작권 보고 통합 엑셀 생성 오류:', error);
       alert('통합 데이터를 내보내는 중 오류가 발생했습니다.');
+    }
+  };
+
+  const handleCopyrightOfficialPdfExport = async () => {
+    if (officialReportInputRows.length === 0) {
+      alert('다운로드할 데이터가 없습니다. 먼저 조회를 실행해주세요.');
+      return;
+    }
+
+    const companyName = COPYRIGHT_OFFICIAL_COMPANY_NAME;
+    const serviceName = COPYRIGHT_OFFICIAL_SERVICE_NAME;
+    const representativeName = COPYRIGHT_OFFICIAL_REPRESENTATIVE_NAME;
+    const monthlyRows = officialReportInputRows.map((row) => ({
+      month: row.month,
+      revenue: parseManualNumber(row.revenueInput),
+      usageCount: parseManualNumber(row.usageInput),
+    }));
+    if (monthlyRows.length === 0) {
+      alert('월별로 집계 가능한 데이터가 없습니다.');
+      return;
+    }
+
+    const periodStart = monthlyRows[0]?.month ?? copyrightStartDate.slice(0, 7);
+    const periodEnd = monthlyRows[monthlyRows.length - 1]?.month ?? copyrightEndDate.slice(0, 7);
+
+    try {
+      const { jsPDF } = await import('jspdf');
+      const canvas = document.createElement('canvas');
+      canvas.width = 1240;
+      canvas.height = 1754;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        throw new Error('캔버스를 초기화할 수 없습니다.');
+      }
+
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#111827';
+
+      let y = 90;
+      const lineHeight = 42;
+      const bodyLineHeight = 52;
+      const left = 80;
+
+      const drawLine = (text: string, fontSize = 30, weight: 'normal' | 'bold' = 'normal') => {
+        ctx.font = `${weight} ${fontSize}px "Malgun Gothic", "Apple SD Gothic Neo", sans-serif`;
+        ctx.fillText(text, left, y);
+        y += lineHeight;
+      };
+
+      drawLine(`발송일자  ${new Date().getFullYear()}년 ${new Date().getMonth() + 1}월 ${new Date().getDate()}일`, 28);
+      drawLine('수    신  사단법인 한국음악저작권협회', 28);
+      drawLine('참    조  사업2국 전송팀', 28);
+      drawLine(`발    신  ${companyName}`, 28);
+      drawLine(`제    목  [${serviceName}] 저작권사용료 정산자료`, 28);
+      y += 14;
+
+      drawLine(`${companyName} 저작권사용료 정산자료`, 32, 'bold');
+      y += 18;
+
+      drawLine('1. 귀 협회의 무궁한 발전을 기원합니다.', 28);
+      drawLine(
+        `2. [${periodStart.slice(0, 4)}]년 [${periodStart.slice(5, 7)}]월~[${periodEnd.slice(0, 4)}]년 [${periodEnd.slice(5, 7)}]월 음악저작물 사용내역을 전달 드리며,`,
+        28,
+      );
+      drawLine('   이에 따른 저작권사용료 정산 진행을 요청 드립니다. 사용 내역은 아래와 같습니다.', 28);
+      y += 8;
+      drawLine('= 아 래 =', 28, 'bold');
+      y += 8;
+      drawLine('다운로드 사용내역', 29, 'bold');
+
+      // Table
+      const tableX = 80;
+      const tableY = y + 10;
+      const col1 = 290;
+      const col2 = 320;
+      const col3 = 240;
+      const headerHeight = 56;
+      const rowHeight = 54;
+      const tableWidth = col1 + col2 + col3;
+      const tableHeight = headerHeight + monthlyRows.length * rowHeight;
+
+      ctx.strokeStyle = '#111827';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(tableX, tableY, tableWidth, tableHeight);
+      ctx.beginPath();
+      ctx.moveTo(tableX + col1, tableY);
+      ctx.lineTo(tableX + col1, tableY + tableHeight);
+      ctx.moveTo(tableX + col1 + col2, tableY);
+      ctx.lineTo(tableX + col1 + col2, tableY + tableHeight);
+      ctx.moveTo(tableX, tableY + headerHeight);
+      ctx.lineTo(tableX + tableWidth, tableY + headerHeight);
+
+      monthlyRows.forEach((_, index) => {
+        const rowY = tableY + headerHeight + rowHeight * (index + 1);
+        ctx.moveTo(tableX, rowY);
+        ctx.lineTo(tableX + tableWidth, rowY);
+      });
+      ctx.stroke();
+
+      ctx.font = `bold 27px "Malgun Gothic", "Apple SD Gothic Neo", sans-serif`;
+      ctx.fillText('기간', tableX + 20, tableY + 38);
+      ctx.fillText('매출액', tableX + col1 + 20, tableY + 38);
+      ctx.fillText('이용횟수', tableX + col1 + col2 + 20, tableY + 38);
+
+      ctx.font = `26px "Malgun Gothic", "Apple SD Gothic Neo", sans-serif`;
+      monthlyRows.forEach((row, index) => {
+        const rowBaseY = tableY + headerHeight + rowHeight * index + 36;
+        const displayMonth = `${row.month.slice(0, 4)}년 ${row.month.slice(5, 7)}월`;
+        ctx.fillText(displayMonth, tableX + 20, rowBaseY);
+        ctx.fillText(formatCurrency(Math.round(row.revenue)), tableX + col1 + 20, rowBaseY);
+        ctx.fillText(`${row.usageCount.toLocaleString('ko-KR')}회`, tableX + col1 + col2 + 20, rowBaseY);
+      });
+
+      y = tableY + tableHeight + 90;
+      ctx.font = `28px "Malgun Gothic", "Apple SD Gothic Neo", sans-serif`;
+      ctx.fillText('3. 위와 같이 귀 협회의 확인을 요청 드리며, 청구서 및 계산서를 회신 부탁드립니다.', left, y);
+      y += bodyLineHeight;
+      ctx.fillText(`첨부  ${companyName} ${periodStart}~${periodEnd} 판매분 상세매출자료.  끝.`, left, y);
+      y += 90;
+      ctx.fillText(`${companyName} 대표 ${representativeName} (인)`, left, y);
+
+      try {
+        const stampImage = await new Promise<HTMLImageElement>((resolve, reject) => {
+          const image = new Image();
+          image.onload = () => resolve(image);
+          image.onerror = () => reject(new Error('도장 이미지를 불러오지 못했습니다.'));
+          image.src = '/stamp/seal.png';
+        });
+        // "(인)" 위치 우측에 도장 이미지를 겹쳐 찍는다.
+        ctx.drawImage(stampImage, left + 430, y - 58, 110, 110);
+      } catch (stampError) {
+        console.warn('도장 이미지 적용 실패:', stampError);
+      }
+
+      const imageData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      pdf.addImage(imageData, 'PNG', 0, 0, 210, 297);
+      const startYear = periodStart.slice(0, 4);
+      const startMonth = String(Number(periodStart.slice(5, 7)));
+      const endYear = periodEnd.slice(0, 4);
+      const endMonth = String(Number(periodEnd.slice(5, 7)));
+      pdf.save(`${companyName} 저작권사용료 ${startYear}.${startMonth}-${endYear}.${endMonth}.pdf`);
+    } catch (error) {
+      console.error('정산 공문서 PDF 생성 오류:', error);
+      alert('공문서 PDF 생성 중 오류가 발생했습니다. 다시 시도해주세요.');
     }
   };
 
@@ -13614,6 +14091,28 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
     return (
       <div className="space-y-6">
         <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm space-y-6">
+          <div className="grid gap-4 md:grid-cols-[minmax(220px,320px)_auto] md:items-end">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">조회 월</label>
+              <input
+                type="month"
+                className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                value={copyrightSelectedMonth}
+                onChange={(event) => handleCopyrightMonthChange(event.target.value)}
+                disabled={copyrightReportLoading}
+              />
+            </div>
+            <button
+              type="button"
+              onClick={handleCopyrightMonthSearch}
+              className="inline-flex h-10 items-center justify-center rounded-lg bg-indigo-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 disabled:bg-indigo-300"
+              disabled={copyrightReportLoading || !copyrightSelectedMonth}
+            >
+              <i className="ri-calendar-check-line mr-2"></i>
+              월별 조회
+            </button>
+          </div>
+
           <div className="grid gap-4 md:grid-cols-2">
             <div>
               <label className="block text-sm font-medium text-gray-700">시작일</label>
@@ -13682,12 +14181,84 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
               <i className="ri-download-2-line mr-2"></i>
               Excel 다운로드
             </button>
+            <button
+              type="button"
+              onClick={handleCopyrightTxtExport}
+              className="inline-flex items-center rounded-lg border border-slate-600 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:border-gray-300 disabled:text-gray-400"
+              disabled={copyrightReportLoading || !hasPurchaseData}
+            >
+              <i className="ri-file-text-line mr-2"></i>
+              TXT 다운로드
+            </button>
+            <button
+              type="button"
+              onClick={() => void handleCopyrightOfficialPdfExport()}
+              className="inline-flex items-center rounded-lg border border-emerald-600 px-4 py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-50 disabled:border-gray-300 disabled:text-gray-400"
+              disabled={copyrightReportLoading || !hasPurchaseData}
+            >
+              <i className="ri-file-pdf-2-line mr-2"></i>
+              공문서 PDF 다운로드
+            </button>
             {copyrightReportLoading && (
               <span className="inline-flex items-center text-sm text-gray-500">
                 <i className="ri-loader-4-line mr-2 animate-spin"></i>
                 데이터를 불러오는 중입니다...
               </span>
             )}
+          </div>
+
+          <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+            <div className="mb-3 flex items-center justify-between gap-2">
+              <div>
+                <div className="text-sm font-semibold text-gray-800">공문서 PDF 수기 입력</div>
+                <div className="text-xs text-gray-500">월별 매출액/이용횟수를 직접 입력하면 PDF에 그대로 반영됩니다.</div>
+              </div>
+              <button
+                type="button"
+                onClick={() => resetOfficialReportInputRows(copyrightStartDate, copyrightEndDate)}
+                className="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-100"
+              >
+                입력 초기화
+              </button>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="min-w-[540px] divide-y divide-gray-200">
+                <thead className="bg-white">
+                  <tr>
+                    <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600">기간</th>
+                    <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600">매출액</th>
+                    <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600">이용횟수</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100 bg-white">
+                  {officialReportInputRows.map((row) => (
+                    <tr key={row.month}>
+                      <td className="px-3 py-2 text-sm text-gray-700">{`[${row.month.slice(0, 4)}]년 [${row.month.slice(5, 7)}]월`}</td>
+                      <td className="px-3 py-2">
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          value={row.revenueInput}
+                          onChange={(event) => handleOfficialReportInputChange(row.month, 'revenueInput', event.target.value)}
+                          placeholder="예: 315400"
+                          className="w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                        />
+                      </td>
+                      <td className="px-3 py-2">
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          value={row.usageInput}
+                          onChange={(event) => handleOfficialReportInputChange(row.month, 'usageInput', event.target.value)}
+                          placeholder="예: 230"
+                          className="w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
 
           {copyrightReportError && (
@@ -13768,8 +14339,14 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
                     <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
                       장르
                     </th>
+                    <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-gray-500">
+                      서비스구분
+                    </th>
                     <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-500">
-                      구매 수
+                      이용횟수
+                    </th>
+                    <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-500">
+                      개당판매금액
                     </th>
                     <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-500">
                       매출액
@@ -13778,14 +14355,18 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
                 </thead>
                 <tbody className="divide-y divide-gray-100 bg-white">
                   {copyrightReportData.map((row) => (
-                    <tr key={row.songId}>
+                    <tr key={row.rowId}>
                       <td className="px-4 py-3 text-sm font-semibold text-gray-900">{row.songId}</td>
                       <td className="px-4 py-3 text-sm text-gray-800">{row.title || '-'}</td>
                       <td className="px-4 py-3 text-sm text-gray-700">{row.artist || '-'}</td>
                       <td className="px-4 py-3 text-sm text-gray-600">{row.albumName || '-'}</td>
                       <td className="px-4 py-3 text-sm text-gray-600">{row.categoryName || '-'}</td>
+                      <td className="px-4 py-3 text-center text-sm text-gray-700">{row.serviceType}</td>
                       <td className="px-4 py-3 text-right text-sm font-semibold text-gray-900">
                         {row.purchaseCount.toLocaleString('ko-KR')}
+                      </td>
+                      <td className="px-4 py-3 text-right text-sm font-semibold text-gray-900">
+                        {formatCurrency(Math.round(row.unitAmount))}
                       </td>
                       <td className="px-4 py-3 text-right text-sm font-semibold text-blue-700">
                         {formatCurrency(Math.round(row.revenue))}
@@ -13798,166 +14379,6 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
           </div>
         </div>
 
-        <div className="mt-8 space-y-4">
-          <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">직접 결제 매출</h3>
-              <p className="text-sm text-gray-500">
-                카드·무통장입금·카카오페이로 결제된 주문 내역입니다.
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => void handleDirectSalesExport()}
-              className="inline-flex items-center rounded-lg border border-blue-600 px-4 py-2 text-sm font-semibold text-blue-600 transition hover:bg-blue-50 disabled:border-gray-300 disabled:text-gray-400"
-              disabled={copyrightReportLoading || directSalesData.length === 0}
-            >
-              <i className="ri-download-2-line mr-2"></i>
-              Excel 다운로드
-            </button>
-          </div>
-
-          <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
-            <div className="overflow-x-auto">
-              {copyrightReportLoading ? (
-                <div className="flex h-48 items-center justify-center text-sm text-gray-500">
-                  <i className="ri-loader-4-line mr-2 animate-spin"></i>
-                  데이터를 불러오는 중입니다...
-                </div>
-              ) : directSalesData.length === 0 ? (
-                <div className="flex h-48 items-center justify-center text-sm text-gray-500">
-                  선택한 기간의 직접 결제 매출 데이터가 없습니다.
-                </div>
-              ) : (
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                        주문번호
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                        주문일시
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                        결제수단
-                      </th>
-                      <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-500">
-                        주문금액
-                      </th>
-                      <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-500">
-                        악보 수량
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                        고객 이메일
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100 bg-white">
-                    {directSalesData.map((order) => (
-                      <tr key={order.orderId}>
-                        <td className="px-4 py-3 text-sm font-semibold text-gray-900">
-                          {order.orderNumber ?? order.orderId}
-                        </td>
-                        <td className="px-4 py-3 text-sm text-gray-700">{formatDateTime(order.orderedAt)}</td>
-                        <td className="px-4 py-3 text-sm text-gray-700">{order.paymentMethodLabel}</td>
-                        <td className="px-4 py-3 text-right text-sm font-semibold text-gray-900">
-                          {formatCurrency(order.totalAmount)}
-                        </td>
-                        <td className="px-4 py-3 text-right text-sm text-gray-700">
-                          {order.itemCount.toLocaleString('ko-KR')}
-                        </td>
-                        <td className="px-4 py-3 text-sm text-gray-600">{order.customerEmail ?? '-'}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-8 space-y-4">
-          <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">캐시 충전 내역 (유상)</h3>
-              <p className="text-sm text-gray-500">
-                고객이 결제한 캐시 충전 내역과 보너스 지급 정보를 확인할 수 있습니다.
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => void handleCashChargeExport()}
-              className="inline-flex items-center rounded-lg border border-blue-600 px-4 py-2 text-sm font-semibold text-blue-600 transition hover:bg-blue-50 disabled:border-gray-300 disabled:text-gray-400"
-              disabled={copyrightReportLoading || cashChargeData.length === 0}
-            >
-              <i className="ri-download-2-line mr-2"></i>
-              Excel 다운로드
-            </button>
-          </div>
-
-          <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
-            <div className="overflow-x-auto">
-              {copyrightReportLoading ? (
-                <div className="flex h-48 items-center justify-center text-sm text-gray-500">
-                  <i className="ri-loader-4-line mr-2 animate-spin"></i>
-                  데이터를 불러오는 중입니다...
-                </div>
-              ) : cashChargeData.length === 0 ? (
-                <div className="flex h-48 items-center justify-center text-sm text-gray-500">
-                  선택한 기간의 캐시 충전 데이터가 없습니다.
-                </div>
-              ) : (
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                        충전일시
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                        고객 이메일
-                      </th>
-                      <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-500">
-                        유상 금액
-                      </th>
-                      <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-500">
-                        보너스 금액
-                      </th>
-                      <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-500">
-                        총 지급 캐시
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                        결제수단
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100 bg-white">
-                    {cashChargeData.map((transaction) => (
-                      <tr key={transaction.id}>
-                        <td className="px-4 py-3 text-sm text-gray-700">{formatDateTime(transaction.chargedAt)}</td>
-                        <td className="px-4 py-3 text-sm text-gray-700">{transaction.userEmail ?? '-'}</td>
-                        <td className="px-4 py-3 text-right text-sm font-semibold text-gray-900">
-                          {formatCurrency(transaction.amount)}
-                        </td>
-                        <td className="px-4 py-3 text-right text-sm text-gray-700">
-                          {formatCurrency(transaction.bonusAmount)}
-                        </td>
-                        <td className="px-4 py-3 text-right text-sm font-semibold text-gray-900">
-                          {formatCurrency(transaction.totalCredit)}
-                        </td>
-                        <td className="px-4 py-3 text-sm text-gray-700">
-                          <div>{transaction.paymentLabel}</div>
-                          {transaction.description ? (
-                            <div className="text-xs text-gray-500">{transaction.description}</div>
-                          ) : null}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </div>
-          </div>
-        </div>
       </div>
     );
   };
