@@ -79,9 +79,44 @@ const formatDateTime = (value: string | null | undefined) => {
   return date.toLocaleString('ko-KR');
 };
 
+const normalizeCompletedFiles = (order: Pick<OrderDetail, 'completed_pdf_url' | 'completed_pdf_filename'>) => {
+  const encoded = order.completed_pdf_filename?.trim();
+  if (encoded && encoded.startsWith('[')) {
+    try {
+      const parsed = JSON.parse(encoded) as Array<{ url?: string; filename?: string; uploaded_at?: string }>;
+      const files = Array.isArray(parsed)
+        ? parsed
+          .filter((file) => file && typeof file.url === 'string' && file.url.trim())
+          .map((file) => ({
+            url: file.url as string,
+            filename: file.filename || '완성된 악보.pdf',
+            uploaded_at: file.uploaded_at,
+          }))
+        : [];
+
+      if (files.length > 0) {
+        return files;
+      }
+    } catch (error) {
+      console.warn('completed_pdf_filename JSON 파싱 실패:', error);
+    }
+  }
+
+  if (order.completed_pdf_url) {
+    return [
+      {
+        url: order.completed_pdf_url,
+        filename: order.completed_pdf_filename || '완성된 악보.pdf',
+      },
+    ];
+  }
+
+  return [];
+};
+
 export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
   const { user } = useAuthStore();
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
   
   // 통화 결정 (locale 기반)
   const hostname = typeof window !== 'undefined' ? window.location.hostname : 'copydrum.com';
@@ -102,7 +137,8 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
 
   const [messageInput, setMessageInput] = useState('');
   const [isSendingMessage, setIsSendingMessage] = useState(false);
-  const [isDownloading, setIsDownloading] = useState(false);
+  const [downloadingFileKey, setDownloadingFileKey] = useState<string | null>(null);
+  const completedFiles = useMemo(() => (order ? normalizeCompletedFiles(order) : []), [order]);
 
   const loadDetail = useCallback(async () => {
     if (!user) return;
@@ -221,7 +257,7 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
   };
 
   const canDownload = useMemo(() => {
-    if (!order?.completed_pdf_url) return false;
+    if (!order || completedFiles.length === 0) return false;
 
     const downloadLimit = order.max_download_count;
     const usedCount = order.download_count ?? 0;
@@ -239,11 +275,11 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
     }
 
     return true;
-  }, [order]);
+  }, [completedFiles.length, order]);
 
   const downloadRestrictionMessage = useMemo(() => {
     if (!order) return '';
-    if (!order.completed_pdf_url) return '아직 다운로드 가능한 파일이 없습니다.';
+    if (completedFiles.length === 0) return '아직 다운로드 가능한 파일이 없습니다.';
 
     const downloadLimit = order.max_download_count;
     const usedCount = order.download_count ?? 0;
@@ -261,7 +297,7 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
     }
 
     return '';
-  }, [order]);
+  }, [completedFiles.length, order]);
 
   const downloadUsageText = useMemo(() => {
     if (!order) return '';
@@ -274,15 +310,16 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
     return `다운로드 ${usedCount}회 사용 (무제한)`;
   }, [order]);
 
-  const handleDownload = async () => {
-    if (!order || !order.completed_pdf_url || !user) return;
+  const handleDownload = async (fileUrl: string, fileName: string, fileIndex: number) => {
+    if (!order || !user) return;
     if (!canDownload) {
       const message = downloadRestrictionMessage || '현재는 다운로드할 수 없습니다.';
       alert(message);
       return;
     }
 
-    setIsDownloading(true);
+    const fileKey = `${fileUrl}-${fileIndex}`;
+    setDownloadingFileKey(fileKey);
     try {
       const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
@@ -298,7 +335,7 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
 
         if (updateError) throw updateError;
 
-        window.open(order.completed_pdf_url, '_blank');
+        window.open(fileUrl, '_blank');
 
         setOrder((prev) =>
           prev
@@ -310,7 +347,7 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
         );
       } else {
         // PC: Fetch blob to force download with correct filename
-        const response = await fetch(order.completed_pdf_url);
+        const response = await fetch(fileUrl);
         if (!response.ok) {
           throw new Error('파일 다운로드에 실패했습니다.');
         }
@@ -331,7 +368,7 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = order.completed_pdf_filename || `${order.song_title}_악보.pdf`;
+        link.download = fileName || `${order.song_title}_${fileIndex + 1}_악보.pdf`;
         document.body.appendChild(link);
         link.click();
         window.URL.revokeObjectURL(url);
@@ -350,7 +387,7 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
       console.error('다운로드 실패:', downloadError);
       alert(downloadError?.message ?? '다운로드 중 오류가 발생했습니다.');
     } finally {
-      setIsDownloading(false);
+      setDownloadingFileKey(null);
     }
   };
 
@@ -459,12 +496,12 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
           작업이 완료되면 아래에서 악보 PDF 파일을 다운로드할 수 있습니다.
         </p>
 
-        {order.completed_pdf_url ? (
+        {completedFiles.length > 0 ? (
           <div className="mt-4 rounded-lg border border-purple-200 bg-purple-50 p-4">
-            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div className="flex flex-col gap-3">
               <div>
                 <p className="text-sm font-semibold text-purple-800">
-                  {order.completed_pdf_filename ?? '완성된 악보.pdf'}
+                  다운로드 가능한 파일 {completedFiles.length}개
                 </p>
                 <p className="text-xs text-purple-700">
                   {downloadUsageText} · 만료일 {formatDateTime(order.download_expires_at)}
@@ -473,14 +510,31 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
                   <p className="mt-2 text-xs text-red-600">{downloadRestrictionMessage}</p>
                 ) : null}
               </div>
-              <button
-                type="button"
-                onClick={handleDownload}
-                disabled={!canDownload || isDownloading}
-                className="inline-flex items-center justify-center rounded-md bg-purple-600 px-4 py-2 text-sm font-semibold text-white hover:bg-purple-700 disabled:bg-purple-300"
-              >
-                {isDownloading ? '다운로드 준비 중...' : 'PDF 다운로드'}
-              </button>
+              <div className="space-y-2">
+                {completedFiles.map((file, index) => {
+                  const fileKey = `${file.url}-${index}`;
+                  const isDownloading = downloadingFileKey === fileKey;
+
+                  return (
+                    <div
+                      key={fileKey}
+                      className="flex flex-col gap-2 rounded-md bg-white/80 px-3 py-2 md:flex-row md:items-center md:justify-between"
+                    >
+                      <p className="text-sm text-purple-800">
+                        {index + 1}. {file.filename || `완성된 악보_${index + 1}.pdf`}
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => handleDownload(file.url, file.filename || '', index)}
+                        disabled={!canDownload || isDownloading}
+                        className="inline-flex items-center justify-center rounded-md bg-purple-600 px-4 py-2 text-sm font-semibold text-white hover:bg-purple-700 disabled:bg-purple-300"
+                      >
+                        {isDownloading ? '다운로드 준비 중...' : 'PDF 다운로드'}
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         ) : (

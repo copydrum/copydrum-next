@@ -71,6 +71,41 @@ const getStatusMeta = (status: StatusOptionValue) => {
   return STATUS_OPTIONS.find((option) => option.value === status) ?? STATUS_OPTIONS[0];
 };
 
+const normalizeCompletedFiles = (order: Pick<OrderDetail, 'completed_pdf_url' | 'completed_pdf_filename'>) => {
+  const encoded = order.completed_pdf_filename?.trim();
+  if (encoded && encoded.startsWith('[')) {
+    try {
+      const parsed = JSON.parse(encoded) as Array<{ url?: string; filename?: string; uploaded_at?: string }>;
+      const files = Array.isArray(parsed)
+        ? parsed
+          .filter((file) => file && typeof file.url === 'string' && file.url.trim())
+          .map((file) => ({
+            url: file.url as string,
+            filename: file.filename || '완성된 악보.pdf',
+            uploaded_at: file.uploaded_at,
+          }))
+        : [];
+
+      if (files.length > 0) {
+        return files;
+      }
+    } catch (error) {
+      console.warn('completed_pdf_filename JSON 파싱 실패:', error);
+    }
+  }
+
+  if (order.completed_pdf_url) {
+    return [
+      {
+        url: order.completed_pdf_url,
+        filename: order.completed_pdf_filename || '완성된 악보.pdf',
+      },
+    ];
+  }
+
+  return [];
+};
+
 export default function CustomOrderDetail({ orderId, onClose, onUpdated }: CustomOrderDetailProps) {
   const { user } = useAuthStore();
 
@@ -88,8 +123,12 @@ export default function CustomOrderDetail({ orderId, onClose, onUpdated }: Custo
   const [estimatedPrice, setEstimatedPrice] = useState<string>('');
   const [isSavingPrice, setIsSavingPrice] = useState(false);
 
-  const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [pdfFiles, setPdfFiles] = useState<File[]>([]);
   const [isUploadingPdf, setIsUploadingPdf] = useState(false);
+  const completedFiles = useMemo(
+    () => (order ? normalizeCompletedFiles(order) : []),
+    [order]
+  );
 
   const loadOrderDetail = useCallback(async () => {
     setLoading(true);
@@ -253,39 +292,55 @@ export default function CustomOrderDetail({ orderId, onClose, onUpdated }: Custo
 
   const handlePdfUpload = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!order || !pdfFile) return;
+    if (!order || pdfFiles.length === 0) return;
 
     // Client-side file size validation (max 20MB)
     const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB in bytes
-    if (pdfFile.size > MAX_FILE_SIZE) {
-      alert('파일 크기는 20MB를 초과할 수 없습니다.');
-      return;
+    for (const file of pdfFiles) {
+      if (file.size > MAX_FILE_SIZE) {
+        alert(`"${file.name}" 파일 크기는 20MB를 초과할 수 없습니다.`);
+        return;
+      }
     }
 
     setIsUploadingPdf(true);
     try {
-      const fileExt = pdfFile.name.split('.').pop() ?? 'pdf';
-      const filePath = `${order.user_id}/${order.id}/${Date.now()}.${fileExt}`;
+      const existingFiles = normalizeCompletedFiles(order);
+      const newlyUploadedFiles: Array<{ url: string; filename: string; uploaded_at: string }> = [];
 
-      const { error: uploadError } = await supabase.storage
-        .from('custom-orders')
-        .upload(filePath, pdfFile);
+      for (const file of pdfFiles) {
+        const fileExt = file.name.split('.').pop() ?? 'pdf';
+        const filePath = `${order.user_id}/${order.id}/${Date.now()}-${Math.random()
+          .toString(36)
+          .slice(2, 8)}.${fileExt}`;
 
-      if (uploadError) {
-        throw uploadError;
+        const { error: uploadError } = await supabase.storage
+          .from('custom-orders')
+          .upload(filePath, file);
+
+        if (uploadError) {
+          throw uploadError;
+        }
+
+        const { data: publicUrlData } = supabase.storage
+          .from('custom-orders')
+          .getPublicUrl(filePath);
+
+        newlyUploadedFiles.push({
+          url: publicUrlData.publicUrl,
+          filename: file.name,
+          uploaded_at: new Date().toISOString(),
+        });
       }
 
-      const { data: publicUrlData } = supabase.storage
-        .from('custom-orders')
-        .getPublicUrl(filePath);
-
-      const publicUrl = publicUrlData.publicUrl;
+      const nextCompletedFiles = [...existingFiles, ...newlyUploadedFiles];
+      const latestFile = nextCompletedFiles[nextCompletedFiles.length - 1] ?? null;
 
       const { error: updateError } = await supabase
         .from('custom_orders')
         .update({
-          completed_pdf_url: publicUrl,
-          completed_pdf_filename: pdfFile.name,
+          completed_pdf_url: latestFile?.url ?? null,
+          completed_pdf_filename: JSON.stringify(nextCompletedFiles),
           status: 'completed', // PDF 업로드 시 자동으로 완료 상태로 변경
         })
         .eq('id', order.id);
@@ -298,15 +353,15 @@ export default function CustomOrderDetail({ orderId, onClose, onUpdated }: Custo
         prev
           ? {
             ...prev,
-            completed_pdf_url: publicUrl,
-            completed_pdf_filename: pdfFile.name,
+            completed_pdf_url: latestFile?.url ?? null,
+            completed_pdf_filename: JSON.stringify(nextCompletedFiles),
             status: 'completed',
           }
           : prev
       );
       setSelectedStatus('completed');
-      setPdfFile(null);
-      alert('악보 파일이 업로드되었습니다.');
+      setPdfFiles([]);
+      alert(`${newlyUploadedFiles.length}개의 악보 파일이 업로드되었습니다.`);
       onUpdated?.();
     } catch (err: any) {
       console.error('PDF 업로드 실패:', err);
@@ -515,21 +570,27 @@ export default function CustomOrderDetail({ orderId, onClose, onUpdated }: Custo
 
             <section className="rounded-lg border border-gray-200 p-4">
               <h3 className="mb-4 font-semibold text-gray-900">파일 업로드</h3>
-              {order.completed_pdf_url ? (
+              {completedFiles.length > 0 ? (
                 <div className="mb-4 rounded bg-green-50 p-3">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-green-800">
-                        파일이 등록되어 있습니다
+                        파일이 {completedFiles.length}개 등록되어 있습니다
                       </p>
-                      <a
-                        href={order.completed_pdf_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs text-green-600 hover:underline"
-                      >
-                        {order.completed_pdf_filename}
-                      </a>
+                      <ul className="mt-2 space-y-1">
+                        {completedFiles.map((file, index) => (
+                          <li key={`${file.url}-${index}`}>
+                            <a
+                              href={file.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs text-green-600 hover:underline"
+                            >
+                              {index + 1}. {file.filename}
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
                     <div className="text-right text-xs text-gray-500">
                       <p>다운로드: {order.download_count ?? 0} / {order.max_download_count ?? '무제한'}</p>
@@ -552,12 +613,16 @@ export default function CustomOrderDetail({ orderId, onClose, onUpdated }: Custo
                 <input
                   type="file"
                   accept=".pdf"
-                  onChange={(e) => setPdfFile(e.target.files?.[0] ?? null)}
+                  multiple
+                  onChange={(e) => setPdfFiles(Array.from(e.target.files ?? []))}
                   className="block w-full text-sm text-gray-500 file:mr-4 file:rounded-full file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100"
                 />
+                {pdfFiles.length > 0 ? (
+                  <p className="text-xs text-gray-500">선택된 파일: {pdfFiles.length}개</p>
+                ) : null}
                 <button
                   type="submit"
-                  disabled={!pdfFile || isUploadingPdf}
+                  disabled={pdfFiles.length === 0 || isUploadingPdf}
                   className="w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:bg-blue-300"
                 >
                   {isUploadingPdf ? '업로드 중...' : 'PDF 파일 등록'}
