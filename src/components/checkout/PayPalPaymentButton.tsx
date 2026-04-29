@@ -202,15 +202,29 @@ export default function PayPalPaymentButton({
             // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
             // 서버 측 결제 검증 (재시도 로직 포함)
             // → PayPal은 결제 완료 직후 PortOne 상태가 PAY_PENDING일 수 있음
-            // → 몇 초 후 PAID로 변경되므로 재시도하여 주문 완료 처리
+            //   (PayPal 자체 위험분석 / 환전 처리 등으로 PAID 전환에 10~120초 소요 가능)
+            // → 충분히 재시도하여 PAID 전환을 기다림
+            // → 그래도 PENDING이면 success 페이지에서 추가 폴링 + 웹훅으로 자동 완료
             // → KG이니시스/카카오페이는 즉시 PAID → 재시도 불필요
+            //
+            // 📊 재시도 스케줄 (점진적 백오프, 총 ~75초 대기):
+            //    1차:  2초 후
+            //    2차:  3초 후 (누적 5초)
+            //    3차:  3초 후 (누적 8초)
+            //    4차:  5초 후 (누적 13초)
+            //    5차:  5초 후 (누적 18초)
+            //    6차:  7초 후 (누적 25초)
+            //    7차:  10초 후 (누적 35초)
+            //    8차:  10초 후 (누적 45초)
+            //    9차:  15초 후 (누적 60초)
+            //   10차:  15초 후 (누적 75초)
             // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
             const finalOrderId = dbOrderIdRef.current || orderId;
             console.log('[PayPal-SDK] 사용할 orderId:', finalOrderId);
 
             let verifySuccess = false;
-            const MAX_RETRIES = 5;
-            const RETRY_DELAY_MS = 3000; // 3초 간격
+            const RETRY_SCHEDULE_MS = [2000, 3000, 3000, 5000, 5000, 7000, 10000, 10000, 15000, 15000];
+            const MAX_RETRIES = RETRY_SCHEDULE_MS.length;
 
             for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
               try {
@@ -237,13 +251,14 @@ export default function PayPalPaymentButton({
 
                 if (verifyResult.pending) {
                   // ⏳ PayPal 결제 처리 대기 중 (PAY_PENDING)
-                  console.log(`[PayPal-SDK] ⏳ 결제 처리 대기 중 (시도 ${attempt}/${MAX_RETRIES}), ${RETRY_DELAY_MS}ms 후 재시도...`);
+                  const delayMs = RETRY_SCHEDULE_MS[attempt - 1];
+                  console.log(`[PayPal-SDK] ⏳ 결제 처리 대기 중 (시도 ${attempt}/${MAX_RETRIES}), ${delayMs}ms 후 재시도...`);
                   if (attempt < MAX_RETRIES) {
-                    await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS));
+                    await new Promise((resolve) => setTimeout(resolve, delayMs));
                     continue;
                   }
-                  // 최대 재시도 횟수 초과 → 웹훅으로 자동 완료 예정
-                  console.warn('[PayPal-SDK] ⚠️ 최대 재시도 횟수 초과. 웹훅으로 자동 완료 처리될 예정.');
+                  // 최대 재시도 초과 → success 페이지에서 추가 폴링/웹훅으로 처리
+                  console.warn('[PayPal-SDK] ⚠️ 최대 재시도 횟수 초과. success 페이지에서 추가 폴링 진행.');
                 } else {
                   // ❌ 검증 실패 (FAILED 등)
                   console.error('[PayPal-SDK] ❌ 서버 검증 실패:', {
@@ -258,17 +273,17 @@ export default function PayPalPaymentButton({
                   message: verifyErr instanceof Error ? verifyErr.message : String(verifyErr),
                 });
                 if (attempt < MAX_RETRIES) {
-                  await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS));
+                  const delayMs = RETRY_SCHEDULE_MS[attempt - 1];
+                  await new Promise((resolve) => setTimeout(resolve, delayMs));
                 }
               }
             }
 
+            // 검증이 완료되지 않아도 success 페이지로 이동
+            // → success 페이지가 추가 폴링하면서 사용자에게 명확한 "처리 중" UI 표시
+            // → 더 이상 alert로 사용자를 놀라게 하지 않음 (success 페이지가 모두 처리)
             if (!verifySuccess) {
-              // 검증이 완료되지 않았지만, 결제 자체는 PayPal에서 성공했으므로 안내
-              alert(
-                t('checkout.paymentVerificationError',
-                  '결제는 완료되었으나 확인 처리가 지연되고 있습니다. 잠시 후 자동으로 처리됩니다. 중복 결제하지 마세요. 결제 ID: ') + confirmedPaymentId
-              );
+              console.warn('[PayPal-SDK] ⏳ verify 미확정 — success 페이지에서 추가 폴링 진행:', confirmedPaymentId);
             }
 
             // 성공 콜백 → OnePageCheckout에서 결제 성공 페이지로 이동

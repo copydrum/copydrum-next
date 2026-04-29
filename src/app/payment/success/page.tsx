@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/stores/authStore';
@@ -13,6 +13,13 @@ import {
   downloadFile,
 } from '@/utils/downloadHelpers';
 import { generateDefaultThumbnail } from '@/lib/defaultThumbnail';
+
+// PayPal pending 폴링 설정
+// PortOne PayPal 결제는 PAY_PENDING 상태에서 PAID로 전환되는 데
+// 보통 30초~2분, 드물게 5분 이상 걸릴 수 있음.
+// 페이지에 머무는 동안 주기적으로 verify를 다시 호출하여 자동 완료 처리.
+const PAYPAL_POLL_INTERVAL_MS = 5000; // 5초마다 폴링
+const PAYPAL_POLL_MAX_DURATION_MS = 10 * 60 * 1000; // 최대 10분
 
 interface Order {
   id: string;
@@ -60,11 +67,18 @@ export default function PaymentSuccessPage() {
   // Dodo Payments는 결제 완료 후 payment_id와 status 파라미터를 추가함
   const dodoPaymentId = searchParams.get('payment_id');
   const dodoStatus = searchParams.get('status');
+  // PayPal/PortOne paymentId (재검증 폴링용)
+  const urlPaymentId = searchParams.get('paymentId');
 
   const [order, setOrder] = useState<Order | null>(null);
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // PayPal pending 상태 폴링 관련 state
+  const [pollingPending, setPollingPending] = useState(false);
+  const [pollElapsedSec, setPollElapsedSec] = useState(0);
+  const pollStartedAtRef = useRef<number | null>(null);
 
   // Download state
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -250,20 +264,32 @@ export default function PaymentSuccessPage() {
             setOrder(orderData);
           }
         } else if (orderData.status !== 'completed') {
-          // ━━━ PortOne (카드/카카오페이) 결제 검증 ━━━
+          // ━━━ PortOne (카드/카카오페이/PayPal) 결제 검증 ━━━
           const actualMethod = resolvedMethod;
           if (actualMethod !== 'point' && actualMethod !== 'points' && actualMethod !== 'dodo') {
+            // URL의 paymentId(PayPal-SDK가 전달)를 우선 사용, 없으면 DB 값 사용
+            const paymentIdForVerify = urlPaymentId || orderData.transaction_id;
+
             const verifyResponse = await fetch('/api/payments/portone/verify', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
-                paymentId: orderData.transaction_id,
+                paymentId: paymentIdForVerify,
                 orderId: orderData.id,
                 paymentMethod: actualMethod || 'card', // 결제 수단도 전달
               }),
             });
 
-            if (!verifyResponse.ok) {
+            // verifyResponse는 PENDING일 때 200 + { success:false, pending:true }를 반환할 수 있음
+            // 따라서 단순히 .ok만 체크하지 않고 응답 본문도 확인해야 함
+            let verifyResult: any = null;
+            try {
+              verifyResult = await verifyResponse.json();
+            } catch {
+              // JSON 파싱 실패는 무시 (HTML 에러 페이지 등)
+            }
+
+            if (!verifyResponse.ok && !verifyResult?.pending) {
               setError(t('paymentSuccess.verifyFailed', '결제 검증에 실패했습니다.'));
               setLoading(false);
               return;
@@ -278,6 +304,18 @@ export default function PaymentSuccessPage() {
 
             if (updatedOrderData) {
               setOrder(updatedOrderData);
+
+              // PayPal이 여전히 pending이면 폴링 시작
+              // (verify가 200 + pending:true를 반환했거나, DB 상태가 여전히 pending인 경우)
+              if (
+                actualMethod === 'paypal' &&
+                updatedOrderData.status !== 'completed' &&
+                updatedOrderData.payment_status !== 'paid'
+              ) {
+                console.log('[payment-success] ⏳ PayPal 결제 PENDING 상태 — 자동 폴링 시작');
+                setPollingPending(true);
+                pollStartedAtRef.current = Date.now();
+              }
             }
           } else {
             setOrder(orderData);
@@ -333,6 +371,106 @@ export default function PaymentSuccessPage() {
     verifyAndLoadOrder();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [orderId, urlMethod, user, authLoading]);
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // PayPal PAY_PENDING 자동 폴링
+  // → PayPal 결제는 PortOne API에서 PAID로 전환되기까지 30초~수분이 걸릴 수 있음
+  // → 페이지에 머무는 동안 5초마다 verify를 다시 호출하여 자동 완료 처리
+  // → 최대 10분간 폴링하며, 완료되면 즉시 화면 갱신
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  useEffect(() => {
+    if (!pollingPending || !orderId || !order) return;
+
+    let cancelled = false;
+
+    const pollOnce = async () => {
+      if (cancelled) return;
+
+      // 경과 시간 갱신
+      const startedAt = pollStartedAtRef.current ?? Date.now();
+      const elapsedMs = Date.now() - startedAt;
+      setPollElapsedSec(Math.floor(elapsedMs / 1000));
+
+      // 최대 폴링 시간 초과 → 폴링 중단 (사용자에게는 안내 메시지가 계속 표시됨)
+      if (elapsedMs > PAYPAL_POLL_MAX_DURATION_MS) {
+        console.warn('[payment-success] 폴링 최대 시간 초과 (10분) — 폴링 중단');
+        return;
+      }
+
+      try {
+        const paymentIdForVerify = urlPaymentId || order.transaction_id;
+        if (!paymentIdForVerify) {
+          console.warn('[payment-success] paymentId 없음 — 폴링 건너뜀');
+        } else {
+          const verifyResponse = await fetch('/api/payments/portone/verify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              paymentId: paymentIdForVerify,
+              orderId: order.id,
+              paymentMethod: 'paypal',
+            }),
+          });
+
+          let verifyResult: any = null;
+          try {
+            verifyResult = await verifyResponse.json();
+          } catch {
+            // ignore
+          }
+
+          if (verifyResponse.ok && verifyResult?.success) {
+            console.log('[payment-success] ✅ 폴링으로 결제 완료 확인됨');
+            const { data: refreshed } = await supabase
+              .from('orders')
+              .select('*')
+              .eq('id', order.id)
+              .single();
+
+            if (refreshed && !cancelled) {
+              setOrder(refreshed);
+              if (refreshed.status === 'completed' || refreshed.payment_status === 'paid') {
+                setPollingPending(false); // 폴링 종료
+                return;
+              }
+            }
+          }
+        }
+
+        // DB 직접 재조회 (웹훅이 백그라운드에서 완료했을 수 있음)
+        const { data: refreshed } = await supabase
+          .from('orders')
+          .select('*')
+          .eq('id', order.id)
+          .single();
+
+        if (refreshed && !cancelled) {
+          setOrder(refreshed);
+          if (refreshed.status === 'completed' || refreshed.payment_status === 'paid') {
+            console.log('[payment-success] ✅ DB 재조회로 결제 완료 확인됨 (웹훅 처리)');
+            setPollingPending(false);
+            return;
+          }
+        }
+      } catch (err) {
+        console.error('[payment-success] 폴링 중 오류:', err);
+      }
+
+      // 다음 폴링 예약
+      if (!cancelled) {
+        setTimeout(pollOnce, PAYPAL_POLL_INTERVAL_MS);
+      }
+    };
+
+    // 첫 폴링 시작
+    const timer = setTimeout(pollOnce, PAYPAL_POLL_INTERVAL_MS);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pollingPending, orderId, order?.id]);
 
   // ========== Download helpers ==========
   const downloadableItems = orderItems.filter((item) => !!item.pdf_url);
@@ -446,6 +584,12 @@ export default function PaymentSuccessPage() {
   const methodKey = METHOD_KEY_MAP[resolvedMethod] || 'methodCard';
   const methodLabel = t(`paymentSuccess.${methodKey}`);
 
+  // 결제가 아직 처리 대기 중인지 (PayPal PAY_PENDING 등)
+  const isPendingPayment =
+    !!order &&
+    order.status !== 'completed' &&
+    order.payment_status !== 'paid';
+
   // ========== Render ==========
   if (loading) {
     return (
@@ -488,6 +632,83 @@ export default function PaymentSuccessPage() {
               suppressHydrationWarning
             >
               {t('paymentSuccess.viewPurchases', '구매내역')}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ━━━ PayPal 결제 대기 중 UI ━━━
+  // PortOne API에서 PayPal 상태가 아직 PAY_PENDING인 경우, 자동 폴링하면서
+  // "처리 중" 화면을 표시. 폴링이 완료되면 아래의 정상 success UI로 자동 전환.
+  if (isPendingPayment) {
+    const isTakingTooLong = pollElapsedSec >= 120; // 2분 이상 경과 시 추가 안내
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
+        <div className="max-w-lg w-full bg-white rounded-2xl shadow-md p-8 text-center">
+          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-blue-100 mb-4">
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600"></div>
+          </div>
+
+          <h1 className="text-2xl font-bold text-gray-900 mb-2" suppressHydrationWarning>
+            {t('paymentSuccess.pendingTitle', '결제 처리 중입니다')}
+          </h1>
+
+          <p className="text-gray-700 mb-4" suppressHydrationWarning>
+            {t('paymentSuccess.pendingMessage', 'PayPal에서 결제를 최종 확인하고 있습니다. 잠시만 기다려 주세요.')}
+          </p>
+
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4 text-left">
+            <div className="flex gap-2">
+              <i className="ri-alert-line text-yellow-600 text-lg flex-shrink-0 mt-0.5"></i>
+              <div className="text-sm text-yellow-900">
+                <p className="font-semibold mb-1" suppressHydrationWarning>
+                  {t('paymentSuccess.pendingDoNotPayAgain', '이미 결제가 완료되었으니 다시 결제하지 마세요.')}
+                </p>
+                <p className="text-yellow-800" suppressHydrationWarning>
+                  {t('paymentSuccess.pendingNote', '보통 30초~2분 정도 소요되며, 자동으로 완료됩니다. 페이지를 닫지 마세요.')}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {order && (
+            <div className="bg-gray-50 rounded-lg px-4 py-3 mb-4">
+              <p className="text-xs text-gray-500" suppressHydrationWarning>
+                {t('paymentSuccess.orderNumber', '주문번호')}
+              </p>
+              <p className="text-sm font-semibold text-gray-900">{order.order_number}</p>
+            </div>
+          )}
+
+          <p className="text-xs text-gray-500 mb-2" suppressHydrationWarning>
+            {t('paymentSuccess.pendingCheckingStatus', '결제 상태 확인 중...')} ({pollElapsedSec}s)
+          </p>
+
+          {isTakingTooLong && (
+            <div className="mt-4 pt-4 border-t border-gray-200 text-sm text-gray-700">
+              <p className="font-semibold text-orange-700 mb-1" suppressHydrationWarning>
+                {t('paymentSuccess.pendingTakingTooLong', '처리가 평소보다 오래 걸리고 있습니다.')}
+              </p>
+              <p suppressHydrationWarning>
+                {t('paymentSuccess.pendingContactSupport', '10분이 지나도 처리되지 않으면 결제 ID와 함께 고객센터로 문의해 주세요.')}
+              </p>
+              {urlPaymentId && (
+                <p className="mt-2 text-xs font-mono text-gray-500 break-all">
+                  Payment ID: {urlPaymentId}
+                </p>
+              )}
+            </div>
+          )}
+
+          <div className="mt-6">
+            <button
+              onClick={() => router.push('/purchases')}
+              className="text-sm text-blue-600 hover:text-blue-800 underline"
+              suppressHydrationWarning
+            >
+              {t('paymentSuccess.viewPurchases', '구매내역 보기')}
             </button>
           </div>
         </div>

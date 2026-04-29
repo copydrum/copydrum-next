@@ -37,5 +37,12 @@
   "methodCard": "Card Payment",
   "methodInicis": "KG Inicis Payment",
   "methodPaypal": "PayPal Payment",
-  "methodDodo": "Card Payment"
+  "methodDodo": "Card Payment",
+  "pendingTitle": "Processing your payment",
+  "pendingMessage": "PayPal is finalizing your payment. Please wait a moment.",
+  "pendingNote": "This usually takes 30 seconds to 2 minutes and completes automatically. Please do not close this page.",
+  "pendingDoNotPayAgain": "Your payment is already submitted — please do not pay again.",
+  "pendingCheckingStatus": "Checking payment status...",
+  "pendingTakingTooLong": "This is taking longer than usual.",
+  "pendingContactSupport": "If it isn't completed in 10 minutes, please contact support with the payment ID."
 }

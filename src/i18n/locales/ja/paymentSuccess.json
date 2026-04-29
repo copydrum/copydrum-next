@@ -37,5 +37,12 @@
   "methodCard": "カード決済",
   "methodInicis": "KGイニシス決済",
   "methodPaypal": "PayPal決済",
-  "methodDodo": "カード決済"
+  "methodDodo": "カード決済",
+  "pendingTitle": "お支払いを処理中です",
+  "pendingMessage": "PayPalでお支払いを最終確認しています。少々お待ちください。",
+  "pendingNote": "通常30秒〜2分ほどで自動的に完了します。このページを閉じないでください。",
+  "pendingDoNotPayAgain": "お支払いは既に送信済みです。再度お支払いしないでください。",
+  "pendingCheckingStatus": "お支払い状況を確認中...",
+  "pendingTakingTooLong": "通常より処理に時間がかかっています。",
+  "pendingContactSupport": "10分経っても完了しない場合は、決済IDと共にカスタマーサポートまでお問い合わせください。"
 }

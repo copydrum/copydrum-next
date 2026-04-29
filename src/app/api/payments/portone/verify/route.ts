@@ -94,6 +94,10 @@ function classifyPaymentStatus(status: string): 'PAID' | 'FAILED' | 'PENDING' | 
 // ⚠️ [핵심 수정] transaction_id도 함께 저장하여 웹훅이 나중에 주문을 찾을 수 있도록 함
 //    (PayPal은 결제 완료 직후 PAY_PENDING → 나중에 PAID로 변경 시 웹훅 발생
 //     → 웹훅이 transaction_id로 주문을 찾아 completed로 업데이트)
+//
+// 🛡️ [중요] 이미 'completed'/'paid' 상태인 주문은 PENDING/FAILED로 절대 강등하지 않음
+//     (PayPal PAY_PENDING → 웹훅이 먼저 PAID 처리한 직후, 클라이언트의 늦은 verify 호출이
+//      PortOne API에서 캐시된 PENDING 응답을 받아 주문을 pending으로 되돌리는 경합 방지)
 async function updateOrderStatusIfExists(
   supabase: ReturnType<typeof createClient>,
   orderId: string | undefined,
@@ -109,7 +113,7 @@ async function updateOrderStatusIfExists(
   if (orderId && uuidRegex.test(orderId)) {
     const { data } = await supabase
       .from('orders')
-      .select('id')
+      .select('id, status, payment_status')
       .eq('id', orderId)
       .maybeSingle();
     order = data;
@@ -119,13 +123,26 @@ async function updateOrderStatusIfExists(
   if (!order) {
     const { data } = await supabase
       .from('orders')
-      .select('id')
+      .select('id, status, payment_status')
       .eq('transaction_id', paymentId)
       .maybeSingle();
     order = data;
   }
 
   if (order) {
+    // 🛡️ 이미 결제 완료된 주문이면 절대 덮어쓰지 않음 (downgrade 방지)
+    //    PayPal: 웹훅이 PAID로 완료한 직후, 늦은 verify 호출이 PENDING을 덮어쓰는 경합 방지
+    if (order.status === 'completed' || order.payment_status === 'paid') {
+      console.log(`[verify] 🛡️ 이미 완료된 주문 — ${status}로 강등 시도 차단:`, {
+        orderId: order.id,
+        currentStatus: order.status,
+        currentPaymentStatus: order.payment_status,
+        attemptedStatus: status,
+        attemptedPaymentStatus: paymentStatus,
+      });
+      return;
+    }
+
     const { error } = await supabase
       .from('orders')
       .update({
