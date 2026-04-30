@@ -35,7 +35,17 @@ export async function POST(request: NextRequest) {
 
     // ============================================================
     // Upsert 로직: 동일 유저 + 동일 장바구니 + 동일 금액의 pending 주문 재활용
-    // → PayPal 등에서 체크아웃 페이지 재진입 시 결제대기 주문이 중복 생성되는 것 방지
+    // → 페이지 새로고침 등으로 인한 단순 중복 생성 방지가 목적
+    //
+    // 🛡️ [중요] transaction_id가 이미 세팅된 주문은 재활용하지 않음.
+    //   PayPal SPB 결제는 비동기(PAY_PENDING) 처리 시간이 길어서
+    //   사용자가 1차 결제를 시작한 뒤 페이지를 닫고 2차 결제를 시도하는 경우,
+    //   기존 pending 주문에는 이미 1차 결제의 transaction_id가 저장되어 있음.
+    //   이를 재활용해 2차 결제를 진행하면 verify가 transaction_id를 덮어써서
+    //   1차 결제의 PortOne 웹훅이 도착해도 매칭되는 주문을 찾을 수 없게 됨
+    //   → 1차 결제 흔적이 DB에서 사라지는 치명적 문제 발생.
+    //   따라서 결제가 한 번이라도 시도된 주문(transaction_id가 있는 주문)은
+    //   재활용하지 않고 새 주문을 생성한다.
     // ============================================================
 
     // 요청된 아이템의 sheetId 목록을 정렬하여 비교용 키 생성
@@ -44,13 +54,15 @@ export async function POST(request: NextRequest) {
       .filter(Boolean)
       .sort();
 
-    // 동일 유저의 pending 상태 주문 중 동일 금액인 것 조회
+    // 동일 유저의 pending 상태 주문 중 동일 금액 + 결제 시도가 없었던(transaction_id IS NULL) 것만 조회
+    // → 이미 결제 시도가 진행 중인 주문은 재활용 후보에서 제외
     const { data: existingPendingOrders } = await supabase
       .from('orders')
       .select(`
         id,
         order_number,
         total_amount,
+        transaction_id,
         order_items (
           drum_sheet_id
         )
@@ -58,6 +70,7 @@ export async function POST(request: NextRequest) {
       .eq('user_id', userId)
       .eq('status', 'pending')
       .eq('total_amount', amount)
+      .is('transaction_id', null)
       .order('created_at', { ascending: false });
 
     if (existingPendingOrders && existingPendingOrders.length > 0) {
@@ -75,6 +88,7 @@ export async function POST(request: NextRequest) {
 
         if (isSameItems) {
           // ✅ 기존 pending 주문 재활용: updated_at만 갱신
+          // (transaction_id가 NULL인 주문이므로 결제 시도가 없었음 — 안전하게 재활용 가능)
           await supabase
             .from('orders')
             .update({
@@ -83,7 +97,7 @@ export async function POST(request: NextRequest) {
             })
             .eq('id', existingOrder.id);
 
-          console.log('[create-order] ♻️ 기존 pending 주문 재활용:', {
+          console.log('[create-order] ♻️ 기존 pending 주문 재활용 (transaction_id NULL):', {
             orderId: existingOrder.id,
             orderNumber: existingOrder.order_number,
           });
@@ -96,6 +110,24 @@ export async function POST(request: NextRequest) {
           });
         }
       }
+    }
+
+    // 참고용 로그: transaction_id가 이미 있는 pending 주문이 있는지 확인 (재활용은 하지 않지만 모니터링)
+    const { count: inflightCount } = await supabase
+      .from('orders')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .eq('status', 'pending')
+      .eq('total_amount', amount)
+      .not('transaction_id', 'is', null);
+
+    if (inflightCount && inflightCount > 0) {
+      console.log('[create-order] ℹ️ 동일 금액의 in-flight 결제 주문 발견 — 재활용하지 않고 새 주문 생성:', {
+        userId,
+        amount,
+        inflightCount,
+        note: '1차 결제 PAY_PENDING 진행 중에 2차 결제 시도 시나리오',
+      });
     }
 
     // ============================================================

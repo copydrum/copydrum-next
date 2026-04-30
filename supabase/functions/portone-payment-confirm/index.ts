@@ -177,14 +177,29 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, serviceRoleKey);
     let orderData = null;
-    
-    // transaction_id로 찾기
+
+    // ─────────────────────────────────────────────────────────────
+    // 주문 매칭 도우미: 후보 주문이 "이 결제에 속한 주문"인지 검증
+    //   - transaction_id가 NULL이면: 아직 결제가 매칭되지 않은 주문 → 사용 가능
+    //   - transaction_id가 paymentId와 일치하면: 이 결제의 주문 → 사용 가능 (멱등 처리)
+    //   - 그 외 (다른 paymentId가 이미 점유): 다른 결제의 주문 → 사용 불가
+    //     (PayPal: 1차 결제가 PAY_PENDING인 동안 2차 결제가 같은 주문을 점유한 경우 등)
+    // ─────────────────────────────────────────────────────────────
+    const isOrderUsableForThisPayment = (candidate: any): boolean => {
+      if (!candidate) return false;
+      const candTxId = candidate.transaction_id;
+      if (!candTxId) return true; // 아직 매칭 전
+      if (candTxId === paymentId) return true; // 이 결제로 이미 매칭됨 (멱등)
+      return false; // 다른 결제로 점유됨
+    };
+
+    // transaction_id로 찾기 (가장 정확한 매칭)
     const { data: byTxId, error: txError } = await supabase
       .from("orders")
       .select("*")
       .eq("transaction_id", paymentId)
       .maybeSingle();
-      
+
     if (txError) {
       console.error("[portone-payment-confirm] transaction_id로 주문 조회 실패:", {
         error: txError,
@@ -194,23 +209,73 @@ serve(async (req) => {
       orderData = byTxId;
       console.log("[portone-payment-confirm] ✅ transaction_id로 주문 조회 성공:", byTxId.id);
     }
-    
-    // orderId로 찾기
+
+    // orderId(웹훅 페이로드)로 찾기 — 단, 다른 결제로 점유된 주문은 거부
     if (!orderData && orderId) {
       const { data: byOrderId, error: orderError } = await supabase
         .from("orders")
         .select("*")
         .eq("id", orderId)
         .maybeSingle();
-        
+
       if (orderError) {
         console.error("[portone-payment-confirm] orderId로 주문 조회 실패:", {
           error: orderError,
           orderId,
         });
       } else if (byOrderId) {
-        orderData = byOrderId;
-        console.log("[portone-payment-confirm] ✅ orderId로 주문 조회 성공:", byOrderId.id);
+        if (isOrderUsableForThisPayment(byOrderId)) {
+          orderData = byOrderId;
+          console.log("[portone-payment-confirm] ✅ orderId로 주문 조회 성공:", byOrderId.id);
+        } else {
+          // 같은 ID의 주문이 이미 다른 결제(transaction_id)로 점유됨
+          // → 이 결제는 별도의 새 주문으로 처리해야 함 (orphaned 결제 보호)
+          console.warn("[portone-payment-confirm] ⚠️ orderId 매칭됐으나 다른 결제가 이미 점유 — 새 주문으로 분리 처리:", {
+            orderId,
+            existingTxId: byOrderId.transaction_id,
+            incomingPaymentId: paymentId,
+            existingStatus: byOrderId.status,
+          });
+        }
+      }
+    }
+
+    // metadata.clientOrderId(PortOne API에서 가져온 원본 주문 ID)로 찾기
+    // → 일부 웹훅 페이로드에는 orderId가 누락될 수 있어, metadata도 폴백으로 검사
+    if (!orderData) {
+      const metadataClientOrderId =
+        (portonePayment.metadata?.clientOrderId as string | undefined) ||
+        (portonePayment.metadata?.supabaseOrderId as string | undefined) ||
+        null;
+
+      if (metadataClientOrderId) {
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        if (uuidRegex.test(metadataClientOrderId)) {
+          const { data: byMetaId, error: metaErr } = await supabase
+            .from("orders")
+            .select("*")
+            .eq("id", metadataClientOrderId)
+            .maybeSingle();
+
+          if (metaErr) {
+            console.error("[portone-payment-confirm] metadata.clientOrderId로 주문 조회 실패:", {
+              error: metaErr,
+              metadataClientOrderId,
+            });
+          } else if (byMetaId) {
+            if (isOrderUsableForThisPayment(byMetaId)) {
+              orderData = byMetaId;
+              console.log("[portone-payment-confirm] ✅ metadata.clientOrderId로 주문 조회 성공:", byMetaId.id);
+            } else {
+              console.warn("[portone-payment-confirm] ⚠️ metadata.clientOrderId 매칭됐으나 다른 결제가 이미 점유 — 새 주문으로 분리 처리:", {
+                metadataClientOrderId,
+                existingTxId: byMetaId.transaction_id,
+                incomingPaymentId: paymentId,
+                existingStatus: byMetaId.status,
+              });
+            }
+          }
+        }
       }
     }
 
@@ -264,18 +329,43 @@ serve(async (req) => {
         // UUID 형식 검증 (RFC 4122 표준: 8-4-4-4-12 형식)
         const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
         const isValidUUID = uuidRegex.test(clientOrderId);
-        
+
         // UUID가 아닌 경우 새로운 UUID 생성 (과거 코드에서 넘어온 요청 대비)
         let finalOrderId: string;
         let originalClientOrderId: string | undefined;
-        
+        let idConflictReason: string | undefined; // 디버깅용: 새 UUID로 전환된 이유
+
         if (isValidUUID) {
-          finalOrderId = clientOrderId;
-          console.log("[portone-payment-confirm] ✅ clientOrderId가 유효한 UUID 형식:", finalOrderId);
+          // ⚠️ 추가 안전장치: 같은 ID의 주문이 이미 DB에 존재하면 새 UUID 발급
+          //   (PayPal: 1차 결제가 PAY_PENDING 상태에서 사용자가 같은 주문 ID로 2차 결제를 진행해
+          //    2차 결제가 그 주문을 점유한 경우, 1차 결제의 lazy creation이 unique violation으로
+          //    실패해 결제가 통째로 유실되는 것을 방지)
+          const { data: conflicting } = await supabase
+            .from("orders")
+            .select("id, transaction_id, status")
+            .eq("id", clientOrderId)
+            .maybeSingle();
+
+          if (conflicting) {
+            finalOrderId = crypto.randomUUID();
+            originalClientOrderId = clientOrderId;
+            idConflictReason = `existing order ${conflicting.id} already taken by tx_id=${conflicting.transaction_id} (status=${conflicting.status})`;
+            console.warn("[portone-payment-confirm] ⚠️ clientOrderId가 이미 다른 결제로 점유됨 — 새 UUID 발급하여 분리된 주문 생성:", {
+              originalClientOrderId: clientOrderId,
+              newOrderId: finalOrderId,
+              conflictingTxId: conflicting.transaction_id,
+              conflictingStatus: conflicting.status,
+              incomingPaymentId: paymentId,
+            });
+          } else {
+            finalOrderId = clientOrderId;
+            console.log("[portone-payment-confirm] ✅ clientOrderId가 유효한 UUID 형식이고 충돌 없음:", finalOrderId);
+          }
         } else {
           // UUID가 아니면 새로 생성하고 원본을 보존
           finalOrderId = crypto.randomUUID();
           originalClientOrderId = clientOrderId;
+          idConflictReason = "clientOrderId is not a valid UUID";
           console.warn("[portone-payment-confirm] ⚠️ clientOrderId가 UUID 형식이 아님. 새 UUID 생성:", {
             original: clientOrderId,
             new: finalOrderId,
@@ -299,7 +389,7 @@ serve(async (req) => {
         const randomStr = Math.random().toString(36).substring(2, 8).toUpperCase();
         const orderNumber = `ORDER-${dateStr}-${randomStr}`;
 
-        // metadata에 원본 clientOrderId 보존 (UUID가 아닌 경우)
+        // metadata에 원본 clientOrderId 보존 (UUID가 아니거나 ID 충돌로 새 UUID 발급된 경우)
         const orderMetadata: Record<string, unknown> = {
           type: "sheet_purchase",
           description: portonePayment.orderId || "포트원 결제",
@@ -308,10 +398,13 @@ serve(async (req) => {
           portone_metadata: metadata,
         };
 
-        // UUID가 아니어서 새로 생성한 경우, 원본 clientOrderId를 metadata에 보존
+        // 새 UUID로 전환된 경우 원본 clientOrderId와 사유를 metadata에 보존 (운영 추적용)
         if (originalClientOrderId) {
           orderMetadata.original_client_order_id = originalClientOrderId;
           orderMetadata.uuid_converted = true;
+          if (idConflictReason) {
+            orderMetadata.id_conflict_reason = idConflictReason;
+          }
         }
 
         const { data: newOrder, error: createError } = await supabase
