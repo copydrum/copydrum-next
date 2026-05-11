@@ -403,77 +403,71 @@ const CategoriesPage: React.FC = () => {
 
     try {
       if (trimmedSearch) {
-        // ━━━ 개선된 검색 로직: AND/OR 조건 명확히 구분 ━━━
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // 통합 검색 로직 (cross-field flexible search)
+        //
+        // 지원 케이스:
+        //  1) "윤종신 지난날"        → artist=윤종신, title=지난날 매칭
+        //  2) "윤종신 - 지난날"      → 구분자(-, ·, |, /, : 등) 무시
+        //  3) "윤종신 - 지 난날"     → 띄어쓰기 오류 무시 (정규화 키)
+        //  4) "지난날"               → 단일 단어 부분 매칭
+        //  5) "Heize Even if"        → 영문 다중 단어
+        //  6) "헤이즈 (Heize) Even"  → 괄호 안 별칭/영문병기 무시
+        //
+        // 전략:
+        //   A) DB에서는 광범위(loose) OR 쿼리로 후보 행을 가져옴
+        //      - 각 단어 개별 ilike (title/artist/album_name)
+        //      - normalized_key.ilike (artist+title 결합 정규화 키)
+        //   B) 클라이언트에서 정밀 채점 (cross-field AND, 결합 매칭, 정규화)
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        // PostgREST ilike 패턴에서만 % 와 _ 를 escape 한다
         const escapePattern = (s: string) => s.replace(/[%_]/g, (m) => `\\${m}`);
-        
-        // 검색어 특수문자 전처리: 괄호 등 특수문자를 공백으로 치환하여 Supabase 쿼리 문법 오류 방지
-        const cleanQuery = trimmedSearch.replace(/[()[\]{},.!?;:'"]/g, ' ');
-        const searchWords = cleanQuery.split(/\s+/).filter((w) => w.length > 0);
 
-        // 1단계: 정규화된 검색어 생성 (공백, 특수문자 제거)
-        // normalized_key 컬럼과 동일한 방식으로 정규화
-        const normalizedSearchQuery = trimmedSearch
-          .toLowerCase()
-          .replace(/\([^)]*\)/g, '') // 괄호와 그 내용 제거
-          .replace(/\[[^\]]*\]/g, '') // 대괄호와 그 내용 제거
-          .replace(/\s+/g, '') // 모든 공백 제거
-          .replace(/[^a-z0-9가-힣ㄱ-ㅎㅏ-ㅣ]/g, ''); // 한글, 영문, 숫자만 유지
+        // 단어 분리용 클린업: 구분자/특수문자를 공백으로 치환
+        // (대시 - 는 반드시 포함해야 "윤종신 - 지난날"이 ["윤종신","지난날"]로 분리됨)
+        const cleanQuery = trimmedSearch.replace(
+          /[()[\]{},.!?;:'"\-_~`@#$^&*+=|<>/\\·•∙ㆍ]/g,
+          ' ',
+        );
+        const searchWords = cleanQuery
+          .split(/\s+/)
+          .filter((w) => w.length > 0);
 
-        // 2단계: Supabase 쿼리 구성
-        // 조건 A: 모든 단어가 포함된 경우 (AND 조건)
-        // - title에 모든 단어 포함 OR artist에 모든 단어 포함 OR album_name에 모든 단어 포함
-        // 조건 B: 원본 검색어 전체 일치 (OR 조건)
-        // - title에 원본 검색어 포함 OR artist에 원본 검색어 포함 OR album_name에 원본 검색어 포함
-        // 조건 C: 정규화 키 일치 (OR 조건)
-        // - normalized_key에 정규화 검색어 포함
-        
-        // 최종: (조건 A) OR (조건 B) OR (조건 C)
+        // normalized_key 컬럼과 동일한 방식으로 검색어 정규화
+        // (괄호/대괄호 내용 제거 + 모든 공백 제거 + 한/영/숫자만 유지)
+        const normalize = (s: string) =>
+          s
+            .toLowerCase()
+            .replace(/\([^)]*\)/g, '')
+            .replace(/\[[^\]]*\]/g, '')
+            .replace(/\s+/g, '')
+            .replace(/[^a-z0-9가-힣ㄱ-ㅎㅏ-ㅣ]/g, '');
 
+        const normalizedSearchQuery = normalize(trimmedSearch);
+
+        // ── A) DB 광범위 OR 조회 (후보군 확보) ──────────────────
         const orConditions: string[] = [];
 
-        // 조건 A: 모든 단어가 포함된 경우 (AND 조건)
-        // PostgREST 문법: .or() 안에서 AND를 표현하려면 and(cond1,cond2) 를 사용해야 함
-        // 주의: 단순 괄호 (cond1,cond2)는 AND가 아니라 OR로 해석됨!
-        if (searchWords.length > 1) {
-          // title에 모든 단어 포함
-          const titleAndCondition = searchWords
-            .map((word) => `title.ilike.%${escapePattern(word)}%`)
-            .join(',');
-          orConditions.push(`and(${titleAndCondition})`);
-
-          // artist에 모든 단어 포함
-          const artistAndCondition = searchWords
-            .map((word) => `artist.ilike.%${escapePattern(word)}%`)
-            .join(',');
-          orConditions.push(`and(${artistAndCondition})`);
-
-          // album_name에 모든 단어 포함
-          const albumAndCondition = searchWords
-            .map((word) => `album_name.ilike.%${escapePattern(word)}%`)
-            .join(',');
-          orConditions.push(`and(${albumAndCondition})`);
-        } else if (searchWords.length === 1) {
-          // 단어가 하나인 경우 — 어차피 단어가 1개이므로 AND/OR 구분 불필요
-          const wordPattern = `%${escapePattern(searchWords[0])}%`;
+        // 각 단어를 title/artist/album_name 어디서든 매칭 (cross-field 후보군)
+        searchWords.forEach((word) => {
+          const wordPattern = `%${escapePattern(word)}%`;
           orConditions.push(`title.ilike.${wordPattern}`);
           orConditions.push(`artist.ilike.${wordPattern}`);
           orConditions.push(`album_name.ilike.${wordPattern}`);
-        }
+        });
 
-        // 조건 B: 원본 검색어 전체 일치 (특수문자 제거된 버전 사용)
-        // cleanQuery를 사용하여 괄호 등 특수문자로 인한 쿼리 문법 오류 방지
-        const cleanExactPattern = cleanQuery.trim();
-        if (cleanExactPattern.length > 0) {
-          const exactPattern = `%${escapePattern(cleanExactPattern)}%`;
-          orConditions.push(`title.ilike.${exactPattern}`);
-          orConditions.push(`artist.ilike.${exactPattern}`);
-          orConditions.push(`album_name.ilike.${exactPattern}`);
-        }
-
-        // 조건 C: 정규화 키 일치
+        // 정규화된 전체 검색어 (artist+title 결합/공백 오류/괄호 무시 모두 처리)
         if (normalizedSearchQuery.length > 0) {
           const normalizedPattern = `%${escapePattern(normalizedSearchQuery)}%`;
           orConditions.push(`normalized_key.ilike.${normalizedPattern}`);
+        }
+
+        if (orConditions.length === 0) {
+          if (fetchId !== fetchIdRef.current) return;
+          setDrumSheets([]);
+          setLoading(false);
+          return;
         }
 
         const { data, error } = await supabase
@@ -481,7 +475,8 @@ const CategoriesPage: React.FC = () => {
           .select(baseSelect)
           .eq('is_active', true)
           .or(orConditions.join(','))
-          .order('created_at', { ascending: false });
+          .order('created_at', { ascending: false })
+          .limit(500); // 안전 상한선
 
         if (error) {
           throw error;
@@ -489,9 +484,88 @@ const CategoriesPage: React.FC = () => {
 
         if (fetchId !== fetchIdRef.current) return;
 
-        // 클라이언트 측 점수 계산 로직 완전 삭제
-        // DB에서 가져온 데이터를 그대로 사용
-        setDrumSheets(normalizeSheets(data || []));
+        // ── B) 클라이언트 정밀 채점 & 필터링 ─────────────────────
+        const exactLower = trimmedSearch.toLowerCase();
+        const noSpacesLower = trimmedSearch.replace(/\s+/g, '').toLowerCase();
+
+        const scored = (data || [])
+          .map((sheet: any) => {
+            const title: string = sheet.title || '';
+            const artist: string = sheet.artist || '';
+            const album: string = sheet.album_name || '';
+
+            const titleLower = title.toLowerCase();
+            const artistLower = artist.toLowerCase();
+            const albumLower = album.toLowerCase();
+
+            // 정규화 (괄호 제거 + 공백 제거 + 한/영/숫자만)
+            const titleN = normalize(title);
+            const artistN = normalize(artist);
+            const albumN = normalize(album);
+
+            // artist+title / title+artist 결합 (cross-field 매칭용)
+            const combinedAT = artistN + titleN;
+            const combinedTA = titleN + artistN;
+
+            let score = 0;
+
+            // (1) 원본 그대로 단일 필드 포함 (가장 높은 점수)
+            if (titleLower.includes(exactLower)) score = 100;
+            else if (artistLower.includes(exactLower)) score = 95;
+            else if (albumLower.includes(exactLower)) score = 90;
+            // (2) 공백 제거 후 단일 필드 포함
+            else if (noSpacesLower && titleLower.replace(/\s+/g, '').includes(noSpacesLower)) score = 85;
+            else if (noSpacesLower && artistLower.replace(/\s+/g, '').includes(noSpacesLower)) score = 80;
+            else if (noSpacesLower && albumLower.replace(/\s+/g, '').includes(noSpacesLower)) score = 75;
+            // (3) 정규화 후 단일 필드 포함 (괄호/특수문자 제거 효과)
+            else if (normalizedSearchQuery && titleN.includes(normalizedSearchQuery)) score = 78;
+            else if (normalizedSearchQuery && artistN.includes(normalizedSearchQuery)) score = 73;
+            else if (normalizedSearchQuery && albumN.includes(normalizedSearchQuery)) score = 68;
+            // (4) artist+title / title+artist 결합 매칭
+            //     예: 검색 "윤종신지난날" → artistN("윤종신")+titleN("지난날")="윤종신지난날" 매칭
+            else if (normalizedSearchQuery && combinedAT.includes(normalizedSearchQuery)) score = 65;
+            else if (normalizedSearchQuery && combinedTA.includes(normalizedSearchQuery)) score = 62;
+            // (5) 다중 단어 cross-field AND
+            //     각 단어가 title/artist/album/결합 어디서든 매칭되면 통과
+            //     예: "윤종신 지난날" → "윤종신"은 artistN, "지난날"은 titleN
+            else if (searchWords.length > 1) {
+              const allWordsMatch = searchWords.every((word) => {
+                const wn = normalize(word);
+                if (!wn) return true;
+                return (
+                  titleN.includes(wn) ||
+                  artistN.includes(wn) ||
+                  albumN.includes(wn) ||
+                  combinedAT.includes(wn) ||
+                  combinedTA.includes(wn)
+                );
+              });
+              if (allWordsMatch) score = 50;
+            }
+            // (6) 단일 단어 — DB ilike가 이미 매칭했으므로 통과
+            else if (searchWords.length === 1) {
+              const wn = normalize(searchWords[0]);
+              if (
+                titleN.includes(wn) ||
+                artistN.includes(wn) ||
+                albumN.includes(wn)
+              ) {
+                score = 30;
+              }
+            }
+
+            return { sheet, score };
+          })
+          .filter((item) => item.score > 0)
+          .sort(
+            (a, b) =>
+              b.score - a.score ||
+              new Date(b.sheet.created_at).getTime() -
+                new Date(a.sheet.created_at).getTime(),
+          )
+          .map((item) => item.sheet);
+
+        setDrumSheets(normalizeSheets(scored));
       } else if (selectedArtist || selectedAlbum) {
         // 아티스트나 앨범 필터가 있을 때는 카테고리 제한 없이 모든 곡을 가져옴
         let query = supabase
