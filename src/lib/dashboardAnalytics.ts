@@ -1,5 +1,17 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
 import { supabase } from './supabase';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
+/** 대시보드·오늘 상세 집계 기준 타임존 (Vercel=UTC 환경에서 KST '오늘'과 맞춤) */
+const REPORT_TZ = process.env.DASHBOARD_ANALYTICS_TZ || 'Asia/Seoul';
+
+const zoned = (d: Date) => dayjs(d).tz(REPORT_TZ);
+const startOfReportingDay = (date: Date): Date => zoned(date).startOf('day').toDate();
 
 // 서버/클라이언트 어디서든 .from() 호출만 사용하므로 가벼운 타입으로 추상화
 export type DashboardAnalyticsClient = Pick<SupabaseClient, 'from'>;
@@ -91,50 +103,11 @@ const ABUSE_DETECTION_CONFIG = {
   ENABLE_ABUSE_FILTERING: process.env.NEXT_PUBLIC_ENABLE_ABUSE_FILTERING !== 'false', // 기본값: true
 };
 
-const startOfDay = (date: Date): Date => {
-  const d = new Date(date);
-  d.setHours(0, 0, 0, 0);
-  return d;
-};
-
-const startOfWeek = (date: Date): Date => {
-  const d = startOfDay(date);
-  const day = d.getDay();
-  // 주 시작을 월요일로 지정
-  const diff = (day + 6) % 7;
-  d.setDate(d.getDate() - diff);
-  return d;
-};
-
-const startOfMonth = (date: Date): Date => {
-  const d = startOfDay(date);
-  d.setDate(1);
-  return d;
-};
-
-const addPeriod = (base: Date, period: DashboardAnalyticsPeriod, amount: number): Date => {
-  const date = new Date(base);
-  switch (period) {
-    case 'daily': {
-      date.setDate(date.getDate() + amount);
-      break;
-    }
-    case 'weekly': {
-      date.setDate(date.getDate() + amount * 7);
-      break;
-    }
-    case 'monthly': {
-      date.setMonth(date.getMonth() + amount);
-      break;
-    }
-  }
-  return date;
-};
-
 const formatLabel = (date: Date, period: DashboardAnalyticsPeriod): string => {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
+  const d = zoned(date);
+  const year = d.year();
+  const month = String(d.month() + 1).padStart(2, '0');
+  const day = String(d.date()).padStart(2, '0');
   switch (period) {
     case 'daily':
       return `${month}-${day}`;
@@ -148,14 +121,17 @@ const formatLabel = (date: Date, period: DashboardAnalyticsPeriod): string => {
 };
 
 const createBuckets = (period: DashboardAnalyticsPeriod, bucketCount: number, now: Date): Bucket[] => {
-  // 모든 기간을 일별 버킷으로 생성 (오늘=1일, 최근7일=7일, 최근한달=30일)
-  const alignedNow = startOfDay(now);
-  const earliestStart = addPeriod(alignedNow, 'daily', -(bucketCount - 1));
+  // 모든 기간을 일별 버킷으로 생성 (오늘=1일, 최근7일=7일, 최근한달=30일) — REPORT_TZ 달력 기준
+  const alignedNow = startOfReportingDay(now);
+  const earliestStart = zoned(alignedNow)
+    .subtract(bucketCount - 1, 'day')
+    .startOf('day')
+    .toDate();
 
   const buckets: Bucket[] = [];
   for (let i = 0; i < bucketCount; i += 1) {
-    const start = addPeriod(earliestStart, 'daily', i);
-    const end = addPeriod(start, 'daily', 1);
+    const start = zoned(earliestStart).add(i, 'day').startOf('day').toDate();
+    const end = zoned(start).add(1, 'day').startOf('day').toDate();
     buckets.push({
       label: formatLabel(start, 'daily'),
       start,
@@ -163,10 +139,9 @@ const createBuckets = (period: DashboardAnalyticsPeriod, bucketCount: number, no
     });
   }
 
-  // 마지막 버킷의 end를 다음날 자정으로 설정하여 데이터 누락 방지
+  // 마지막 버킷의 end를 REPORT_TZ 기준 '내일 0시'로 고정
   const lastIndex = buckets.length - 1;
-  const endOfToday = new Date(alignedNow);
-  endOfToday.setDate(endOfToday.getDate() + 1);
+  const endOfToday = zoned(alignedNow).add(1, 'day').startOf('day').toDate();
   buckets[lastIndex].end = endOfToday;
 
   return buckets;
@@ -606,17 +581,35 @@ const fetchOrders = async (
   startIso: string,
   endIso: string
 ): Promise<OrderRow[]> => {
-  const { data, error } = await client
-    .from('orders')
-    .select('created_at,total_amount')
-    .eq('status', 'completed')
-    .gte('created_at', startIso)
-    .lt('created_at', endIso)
-    .order('created_at', { ascending: true });
-  if (error) {
-    throw new Error(`주문 데이터를 불러오지 못했습니다: ${error.message}`);
+  const pageSize = 1000;
+  const all: OrderRow[] = [];
+  let page = 0;
+  let hasMore = true;
+
+  while (hasMore) {
+    const { data, error } = await client
+      .from('orders')
+      .select('created_at,total_amount')
+      .eq('status', 'completed')
+      .gte('created_at', startIso)
+      .lt('created_at', endIso)
+      .order('created_at', { ascending: true })
+      .range(page * pageSize, (page + 1) * pageSize - 1);
+
+    if (error) {
+      throw new Error(`주문 데이터를 불러오지 못했습니다: ${error.message}`);
+    }
+
+    if (data && data.length > 0) {
+      all.push(...data);
+      page += 1;
+      hasMore = data.length === pageSize;
+    } else {
+      hasMore = false;
+    }
   }
-  return data ?? [];
+
+  return all;
 };
 
 const fetchProfiles = async (
@@ -661,14 +654,17 @@ export const runDashboardAnalytics = async (
   const now = new Date();
   const { buckets } = PERIOD_CONFIG[period];
   const currentBuckets = createBuckets(period, buckets, now);
-  const currentRangeStart = currentBuckets[0]?.start ?? startOfDay(now);
+  const currentRangeStart = currentBuckets[0]?.start ?? startOfReportingDay(now);
   const currentRangeEnd = now;
 
   // 성능 측정 시작
   const startTime = Date.now();
 
   const previousRangeEnd = new Date(currentRangeStart);
-  const previousRangeStart = addPeriod(previousRangeEnd, 'daily', -buckets);
+  const previousRangeStart = zoned(currentRangeStart)
+    .subtract(buckets, 'day')
+    .startOf('day')
+    .toDate();
 
   const [
     currentPageViews,
