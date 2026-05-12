@@ -47,7 +47,6 @@
   "noLyrics": "Solo notazione per batteria (senza testo)",
   "checkPerformanceVideo": "Guarda il video della performance su YouTube",
   "performanceVideo": "Video della Performance",
-  "tableOfContents": "Indice",
   "fullSheetAfterPurchase": "Acquista per visualizzare la partitura completa",
   "enlargePreview": "Ingrandisci Anteprima",
   "purchaseToViewFull": "Acquista per visualizzare la partitura completa",
@@ -80,7 +79,8 @@
     "subtitle": "Prodotto in Pre-ordine"
   },
   "preorderNotice": {
-    "title": "?“¦ Avviso Prodotto in Pre-ordine",
+    "title": "ðŸ“¦ Avviso Prodotto in Pre-ordine",
     "description": "Questa partitura Ã¨ un prodotto in pre-ordine. Il lavoro di trascrizione inizia immediatamente dopo il pagamento, e lo completeremo il piÃ¹ rapidamente possibile. Una volta completato il lavoro, puoi scaricarlo immediatamente da La Mia Pagina (Cronologia Acquisti), e puoi anche verificare lo stato di avanzamento in tempo reale."
-  }
+  },
+  "tableOfContents": "Indice"
 }
