@@ -17,6 +17,7 @@ import { getSiteCurrency, convertFromKrw, formatCurrency as formatCurrencyUtil }
 import { useSiteLanguage } from '@/hooks/useSiteLanguage';
 import { useBuyNow } from '@/hooks/useBuyNow';
 import { useUserCredits } from '@/hooks/useUserCredits';
+import { sanitizeLessonDetailHtml } from '@/lib/sanitizeLessonDetailHtml';
 
 interface DrumSheet {
   id: string;
@@ -39,6 +40,30 @@ interface DrumSheet {
   sales_type?: 'INSTANT' | 'PREORDER';
   description?: string | null;
   table_of_contents?: string | null;
+  title_translations?: Record<string, string> | null;
+  table_of_contents_translations?: Record<string, string> | null;
+}
+
+function lessonDetailLooksLikeHtml(raw: string): boolean {
+  return /<[a-z][\s\S]*>/i.test(raw.trim());
+}
+
+function LessonBookDetailBody({ raw }: { raw: string }) {
+  const trimmed = raw.trim();
+  if (!trimmed) return null;
+  if (lessonDetailLooksLikeHtml(trimmed)) {
+    return (
+      <div
+        className="prose prose-sm sm:prose-base max-w-none text-gray-800 [&_img]:max-w-full [&_img]:h-auto [&_img]:rounded-lg"
+        dangerouslySetInnerHTML={{ __html: sanitizeLessonDetailHtml(trimmed) }}
+      />
+    );
+  }
+  return (
+    <pre className="font-sans text-sm sm:text-[15px] leading-7 text-gray-800 whitespace-pre-wrap break-words m-0">
+      {trimmed}
+    </pre>
+  );
 }
 
 export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
@@ -92,7 +117,19 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
   // 드럼레슨 교재(=드럼레슨 카테고리) 여부 판정 (목차 표시 등 UI 분기용)
   const isLessonBook =
     sheet.categories?.name === '드럼레슨' ||
-    (typeof sheet.table_of_contents === 'string' && sheet.table_of_contents.trim().length > 0);
+    (typeof sheet.table_of_contents === 'string' && sheet.table_of_contents.trim().length > 0) ||
+    (typeof sheet.table_of_contents_translations?.en === 'string' &&
+      sheet.table_of_contents_translations.en.trim().length > 0);
+
+  const displaySheetTitle =
+    isLessonBook && i18n.language !== 'ko'
+      ? (sheet.title_translations?.en?.trim() || sheet.title)
+      : sheet.title;
+
+  const lessonDetailKo = sheet.table_of_contents?.trim() ?? '';
+  const lessonDetailEn = sheet.table_of_contents_translations?.en?.trim() ?? '';
+  const lessonDetailToShow =
+    i18n.language === 'ko' ? lessonDetailKo : lessonDetailEn || lessonDetailKo;
 
   // 통화 로직
   const hostname = typeof window !== 'undefined' ? window.location.hostname : 'copydrum.com';
@@ -308,7 +345,7 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
     }
     await buyNow.handleBuyNow({
       id: sheet.id,
-      title: sheet.title,
+      title: displaySheetTitle,
       price: getSheetPrice(),
     });
   };
@@ -412,9 +449,9 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
                     src={
                       isYouTubeCategory
                         ? (sheet.thumbnail_url || (sheet.youtube_url ? `https://i.ytimg.com/vi/${extractVideoId(sheet.youtube_url)}/hq720.jpg` : `https://readdy.ai/api/search-image?query=drum%20solo%20performance%20youtube%20thumbnail&width=1280&height=720&seq=${sheet.id}&orientation=landscape`))
-                        : (sheet.thumbnail_url || `https://readdy.ai/api/search-image?query=drum%20sheet%20music%20${encodeURIComponent(sheet.title)}%20album%20cover%20modern%20minimalist&width=600&height=600&seq=${sheet.id}&orientation=square`)
+                        : (sheet.thumbnail_url || `https://readdy.ai/api/search-image?query=drum%20sheet%20music%20${encodeURIComponent(displaySheetTitle)}%20album%20cover%20modern%20minimalist&width=600&height=600&seq=${sheet.id}&orientation=square`)
                     }
-                    alt={`${sheet.title} - ${sheet.artist}`}
+                    alt={`${displaySheetTitle} - ${sheet.artist}`}
                     className="w-full h-full object-cover"
                     onError={(e) => {
                       const img = e.target as HTMLImageElement;
@@ -440,7 +477,7 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
                 </div>
                 {/* 앨범 정보 바 (데스크톱 전용) */}
                 <div className="hidden lg:block px-5 py-4 bg-gradient-to-r from-gray-50 to-white border-t border-gray-100">
-                  <p className="text-sm font-medium text-gray-900 truncate">{sheet.title}</p>
+                  <p className="text-sm font-medium text-gray-900 truncate">{displaySheetTitle}</p>
                   <p className="text-xs text-gray-500 truncate mt-0.5">{sheet.artist}{sheet.album_name ? ` · ${sheet.album_name}` : ''}</p>
                 </div>
               </div>
@@ -450,7 +487,7 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <h1 className="text-xl font-bold text-gray-900 leading-tight truncate">{sheet.title}</h1>
+                      <h1 className="text-xl font-bold text-gray-900 leading-tight truncate">{displaySheetTitle}</h1>
                       {sheet.is_featured && (
                         <Star className="w-5 h-5 text-yellow-500 fill-current flex-shrink-0" />
                       )}
@@ -508,7 +545,7 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
                     <div className="relative">
                       <img
                         src={getPreviewImageUrl(sheet)}
-                        alt={`${sheet.title} ${t('sheetDetail.sheetMusicPreview')}`}
+                        alt={`${displaySheetTitle} ${t('sheetDetail.sheetMusicPreview')}`}
                         className="w-full h-auto rounded-lg cursor-pointer hover:opacity-95 transition-opacity"
                         onClick={() => setShowPreviewModal(true)}
                         onError={handlePreviewImageError}
@@ -618,7 +655,7 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
             <div className="space-y-8 hidden lg:block">
               <div>
                 <div className="flex items-center space-x-3 mb-4">
-                  <h1 className="text-3xl font-bold text-gray-900">{sheet.title}</h1>
+                  <h1 className="text-3xl font-bold text-gray-900">{displaySheetTitle}</h1>
                   {sheet.is_featured && (
                     <Star className="w-6 h-6 text-yellow-500 fill-current" />
                   )}
@@ -799,7 +836,7 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
                 <div className="relative max-w-2xl mx-auto">
                   <img
                     src={getPreviewImageUrl(sheet)}
-                    alt={`${sheet.title} ${t('sheetDetail.sheetMusicPreview')}`}
+                    alt={`${displaySheetTitle} ${t('sheetDetail.sheetMusicPreview')}`}
                     className="w-full h-auto rounded-lg cursor-pointer hover:opacity-95 transition-opacity"
                     onClick={() => setShowPreviewModal(true)}
                     onError={handlePreviewImageError}
@@ -824,8 +861,8 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
             </div>
           )}
 
-          {/* 드럼레슨 교재 목차 섹션 (table_of_contents 컬럼이 있을 때만 표시) */}
-          {sheet.table_of_contents && sheet.table_of_contents.trim().length > 0 && (
+          {/* 드럼레슨 교재 상세(목차) — 한국어/그 외 언어별 본문 */}
+          {isLessonBook && lessonDetailToShow.length > 0 && (
             <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden mt-8">
               <div className="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-amber-50 to-orange-50">
                 <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
@@ -835,9 +872,7 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
               </div>
               <div className="p-6">
                 <div className="rounded-xl border border-gray-100 bg-gray-50/60 p-4 sm:p-5">
-                  <pre className="font-sans text-sm sm:text-[15px] leading-7 text-gray-800 whitespace-pre-wrap break-words m-0">
-{sheet.table_of_contents}
-                  </pre>
+                  <LessonBookDetailBody raw={lessonDetailToShow} />
                 </div>
               </div>
             </div>
@@ -858,7 +893,7 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
                 <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden">
                   <iframe
                     src={`https://www.youtube.com/embed/${extractVideoId(sheet.youtube_url)}`}
-                    title={`${sheet.title} - ${sheet.artist} ${t('sheetDetail.performanceVideo')}`}
+                    title={`${displaySheetTitle} - ${sheet.artist} ${t('sheetDetail.performanceVideo')}`}
                     className="w-full h-full"
                     frameBorder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -915,7 +950,7 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
               <div className="relative">
                 <img
                   src={getPreviewImageUrl(sheet)}
-                  alt={`${sheet.title} ${t('sheetDetail.sheetMusicPreview')}`}
+                  alt={`${displaySheetTitle} ${t('sheetDetail.sheetMusicPreview')}`}
                   className="w-full h-auto rounded"
                   onError={handlePreviewImageError}
                 />

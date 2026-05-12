@@ -75,6 +75,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const headersList = await headers();
   const locale = headersList.get('x-locale') || 'en';
 
+  const sheetRow = sheet as {
+    title: string;
+    artist: string;
+    categories?: { name?: string } | null;
+    title_translations?: Record<string, string> | null;
+  };
+  const isDrumLessonBook = sheetRow.categories?.name === '드럼레슨';
+  const metaTitle =
+    isDrumLessonBook && locale !== 'ko'
+      ? (sheetRow.title_translations?.en?.trim() || sheetRow.title)
+      : sheetRow.title;
+
   // Use canonical slug (not UUID)
   const canonicalSlug = sheet.slug || slug;
 
@@ -95,15 +107,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   languageAlternates['x-default'] = `${BASE_URL}/en/drum-sheet/${canonicalSlug}`;
 
   return {
-    title: `${sheet.title} - ${sheet.artist} | CopyDrum`,
-    description: `Drum sheet music for ${sheet.title} by ${sheet.artist}. High-quality PDF drum score, instant download.`,
+    title: `${metaTitle} - ${sheetRow.artist} | CopyDrum`,
+    description: `Drum sheet music for ${metaTitle} by ${sheetRow.artist}. High-quality PDF drum score, instant download.`,
     alternates: {
       canonical,
       languages: languageAlternates,
     },
     openGraph: {
-      title: `${sheet.title} - ${sheet.artist}`,
-      description: `Drum sheet music for ${sheet.title} by ${sheet.artist}`,
+      title: `${metaTitle} - ${sheetRow.artist}`,
+      description: `Drum sheet music for ${metaTitle} by ${sheetRow.artist}`,
       url: canonical,
       type: 'website',
       images: sheet.preview_image_url || sheet.thumbnail_url
@@ -112,7 +124,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
               url: sheet.preview_image_url || sheet.thumbnail_url,
               width: 1200,
               height: 630,
-              alt: `${sheet.title} - ${sheet.artist} drum sheet music`,
+              alt: `${metaTitle} - ${sheetRow.artist} drum sheet music`,
             },
           ]
         : [],

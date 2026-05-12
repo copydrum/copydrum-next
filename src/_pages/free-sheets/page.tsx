@@ -29,11 +29,13 @@ interface SupabaseLessonBookRow {
   price: number | null;
   sales_type?: string | null;
   youtube_url?: string | null;
+  title_translations?: Record<string, string> | null;
 }
 
 interface LessonBook {
   id: string;
   title: string;
+  titleTranslations?: Record<string, string> | null;
   artist: string;
   difficulty: string | null;
   createdAt: string;
@@ -49,6 +51,7 @@ interface LessonBook {
 const SHEET_SELECT_FIELDS = `
   id,
   title,
+  title_translations,
   artist,
   difficulty,
   created_at,
@@ -117,6 +120,15 @@ const LessonBooksPage = () => {
   const { t, i18n } = useTranslation();
   const contentRef = useRef<HTMLElement>(null);
 
+  const getLessonBookListTitle = useCallback(
+    (book: LessonBook) => {
+      if (i18n.language === 'ko') return book.title;
+      const en = book.titleTranslations?.en?.trim();
+      return en || book.title;
+    },
+    [i18n.language],
+  );
+
   const { addToCart, isInCart } = useCart();
 
   const formatPrice = useCallback((price: number) => {
@@ -176,7 +188,7 @@ const LessonBooksPage = () => {
         .from('drum_sheet_categories')
         .select(`
           drum_sheets!inner (
-            id, title, artist, difficulty, created_at, thumbnail_url,
+            id, title, title_translations, artist, difficulty, created_at, thumbnail_url,
             pdf_url, page_count, slug, price, sales_type, youtube_url
           )
         `)
@@ -197,6 +209,7 @@ const LessonBooksPage = () => {
       const mapped: LessonBook[] = sheetList.map((sheet) => ({
         id: sheet.id,
         title: sheet.title,
+        titleTranslations: sheet.title_translations ?? null,
         artist: sheet.artist,
         difficulty: sheet.difficulty,
         createdAt: sheet.created_at,
@@ -314,7 +327,8 @@ const LessonBooksPage = () => {
 
     let result = books.filter((book) => {
       if (!term) return true;
-      const haystack = `${book.title} ${book.artist}`.toLowerCase();
+      const enTitle = (book.titleTranslations?.en || '').toLowerCase();
+      const haystack = `${book.title} ${enTitle} ${book.artist}`.toLowerCase();
       if (haystack.includes(term)) return true;
       const titleNoSpace = (book.title || '').toLowerCase().replace(/\s+/g, '');
       const artistNoSpace = (book.artist || '').toLowerCase().replace(/\s+/g, '');
@@ -501,7 +515,7 @@ const LessonBooksPage = () => {
                     >
                       <img
                         src={book.thumbnailUrl}
-                        alt={book.title}
+                        alt={getLessonBookListTitle(book)}
                         loading="lazy"
                         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
@@ -557,7 +571,7 @@ const LessonBooksPage = () => {
                         className="text-left"
                       >
                         <h3 className="text-sm font-bold text-gray-900 leading-snug line-clamp-2 hover:text-orange-600 transition-colors">
-                          {book.title}
+                          {getLessonBookListTitle(book)}
                         </h3>
                         <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">{book.artist}</p>
                       </button>
