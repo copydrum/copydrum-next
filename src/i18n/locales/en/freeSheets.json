@@ -1,106 +1,89 @@
 {
-  "badge": "FREE DRUM LESSONS",
-  "title": "Free Drum Lesson Sheets",
-  "description": "Explore all sheet music in the drum lesson category for free! Practice with YouTube lessons to improve your skills faster. Choose from various learning topics such as drum techniques, rudiments, drum solos, and more.",
+  "badge": "PDF DRUM LESSON BOOKS",
+  "title": "Drum Lesson Books",
+  "description": "Discover expertly curated PDF drum lesson books. Deepen your skills with focused materials on fills, solos, daily routines, technique, and more — designed for systematic, long-term growth.",
   "features": {
-    "freeDownload": "Free Full Download",
-    "categoryLearning": "Category-based Learning",
-    "youtubeLesson": "YouTube Lesson Links"
+    "freeDownload": "Instant PDF Download",
+    "categoryLearning": "Structured Curriculum",
+    "youtubeLesson": "Lifetime Access & Re-download"
   },
   "categories": {
     "all": "All",
     "drumTechnique": "Drum Technique",
-    "rudiment": "Rudiment",
+    "rudiment": "Rudiments",
     "drumSolo": "Drum Solo",
-    "beginnerBasics": "Beginner/Basics",
-    "rhythmPattern": "Rhythm Pattern",
-    "fillIn": "Fill-in",
-    "drumLesson": "Drum Lesson",
-    "categoryPending": "Category pending"
+    "beginnerBasics": "Basics / Beginner",
+    "rhythmPattern": "Rhythm Patterns",
+    "fillIn": "Fill-Ins",
+    "drumLesson": "Drum Lesson Books",
+    "categoryPending": "Category coming soon"
   },
   "search": {
-    "placeholder": "Search by title, artist, or tag"
+    "placeholder": "Search by book title or author"
   },
   "sort": {
-    "label": "Sort",
-    "latest": "Latest",
+    "label": "Sort by",
+    "latest": "Newest",
     "title": "Title",
-    "difficulty": "Difficulty"
+    "difficulty": "Level",
+    "priceLow": "Price: Low to High",
+    "priceHigh": "Price: High to Low"
   },
   "difficulty": {
     "beginner": "Beginner",
     "intermediate": "Intermediate",
     "advanced": "Advanced",
-    "notAvailable": "Difficulty not available"
+    "notAvailable": "Level not specified"
   },
-  "loading": "Loading free drum lesson sheets...",
+  "loading": "Loading drum lesson books...",
   "empty": {
-    "title": "No free sheets match your criteria.",
-    "description": "Try selecting a different category or changing your search term."
+    "title": "No lesson books match your filters.",
+    "description": "Try a different search term or check back soon."
   },
   "actions": {
-    "viewFreeSheet": "Free Download",
-    "viewYoutubeLesson": "View YouTube Lesson",
-    "goToDetail": "Go to Detail Page",
-    "closeDetail": "Close Free Sheet Detail"
+    "viewFreeSheet": "View Book",
+    "viewBook": "View Book",
+    "addToCart": "Add to Cart",
+    "buyNow": "Buy Now",
+    "viewYoutubeLesson": "Watch Sample Video",
+    "goToDetail": "Go to detail page",
+    "closeDetail": "Close book detail"
+  },
+  "price": {
+    "free": "Free",
+    "originalPrice": "List price",
+    "discount": "{{percent}}% off"
   },
   "errors": {
-    "lessonCategoryLoadError": "Failed to load drum lesson category. Please try again later.",
-    "lessonCategoryNotFound": "Drum lesson category does not exist. Please contact the administrator.",
-    "sheetsLoadError": "Failed to load free drum lesson sheets. Please try again later.",
-    "generalError": "An error occurred while loading free drum lesson sheets.",
-    "loginRequired": "Login required.",
-    "favoriteError": "An error occurred while processing favorites. Please try again later.",
-    "pdfNotReady": "PDF link is not ready.",
-    "youtubeNotAvailable": "No YouTube video is registered."
+    "lessonCategoryLoadError": "Could not load the drum lesson books category. Please try again shortly.",
+    "lessonCategoryNotFound": "The drum lesson books category does not exist. Please contact the administrator.",
+    "sheetsLoadError": "Could not load the drum lesson books. Please try again shortly.",
+    "generalError": "An error occurred while loading the drum lesson books page.",
+    "loginRequired": "Login is required.",
+    "favoriteError": "There was a problem updating your favorites. Please try again later.",
+    "pdfNotReady": "The PDF link is not ready yet.",
+    "youtubeNotAvailable": "No sample video has been registered."
   },
   "mobile": {
-    "freeSheet": "Free Sheet",
+    "freeSheet": "Book",
     "upload": "Upload",
     "pages": "pages",
-    "youtubeLessonIncluded": "YouTube lesson included",
-    "freeDownload": "Free Download",
-    "practiceWithPdf": "Practice with PDF sheet music.",
-    "favorite": "Favorite",
-    "unfavorite": "Unfavorite"
+    "youtubeLessonIncluded": "Sample video included",
+    "freeDownload": "Download PDF",
+    "practiceWithPdf": "Study systematically with the PDF lesson book.",
+    "favorite": "Add to favorites",
+    "unfavorite": "Remove from favorites"
   },
   "console": {
-    "lessonCategoryError": "Drum lesson category lookup error:",
-    "primarySheetsError": "Primary drum lesson sheets load error:",
-    "relationsError": "Drum lesson category relations load error:",
-    "additionalSheetsError": "Additional drum lesson sheets load error:",
-    "extraCategoriesError": "Extra categories load error:",
-    "generalError": "Free sheets page processing error:",
+    "lessonCategoryError": "Drum lesson books category lookup error:",
+    "primarySheetsError": "Primary drum lesson books load error:",
+    "relationsError": "Drum lesson books category relation load error:",
+    "additionalSheetsError": "Additional drum lesson books load error:",
+    "extraCategoriesError": "Extra category load error:",
+    "generalError": "Drum lesson books page error:",
     "favoritesLoadError": "Favorites load error:",
     "favoriteToggleError": "Favorite toggle error:",
     "userLoadError": "Failed to load user information:",
-    "youtubeUrlParseError": "YouTube URL parsing failed:"
+    "youtubeUrlParseError": "YouTube URL parse error:"
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

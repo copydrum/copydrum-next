@@ -1,11 +1,11 @@
 {
-  "badge": "FREE DRUM LESSONS",
-  "title": "무료 드럼레슨 악보",
-  "description": "드럼 레슨 카테고리의 모든 악보를 무료로 만나보세요! 유튜브 레슨과 함께 연습하면 더욱 빠르게 실력이 향상됩니다. 드럼 테크닉, 루디먼트, 드럼 솔로 등 다양한 학습 주제를 자유롭게 선택해보세요.",
+  "badge": "PDF 드럼 교재",
+  "title": "드럼레슨 교재",
+  "description": "전문가가 직접 편저한 PDF 드럼 교재를 만나보세요. 필인, 솔로, 루틴, 테크닉 등 분야별 심화 학습이 가능한 교재로 체계적으로 실력을 키워보세요.",
   "features": {
-    "freeDownload": "전곡 무료 다운로드",
-    "categoryLearning": "카테고리별 학습",
-    "youtubeLesson": "유튜브 레슨 참고 링크"
+    "freeDownload": "PDF 즉시 다운로드",
+    "categoryLearning": "체계적 커리큘럼",
+    "youtubeLesson": "평생 소장·재다운로드"
   },
   "categories": {
     "all": "전체",
@@ -15,92 +15,75 @@
     "beginnerBasics": "기초/입문",
     "rhythmPattern": "리듬패턴",
     "fillIn": "필인",
-    "drumLesson": "드럼레슨",
-    "categoryPending": "카테고리 준비 중"
+    "drumLesson": "드럼레슨 교재",
+    "categoryPending": "분류 준비 중"
   },
   "search": {
-    "placeholder": "제목, 아티스트 또는 태그 검색"
+    "placeholder": "교재명, 저자로 검색"
   },
   "sort": {
     "label": "정렬",
     "latest": "최신순",
     "title": "제목순",
-    "difficulty": "난이도순"
+    "difficulty": "난이도순",
+    "priceLow": "낮은 가격순",
+    "priceHigh": "높은 가격순"
   },
   "difficulty": {
     "beginner": "초급",
     "intermediate": "중급",
     "advanced": "고급",
-    "notAvailable": "난이도 정보 없음"
+    "notAvailable": "수준 정보 없음"
   },
-  "loading": "무료 드럼레슨 악보를 불러오는 중입니다...",
+  "loading": "드럼레슨 교재를 불러오는 중입니다...",
   "empty": {
-    "title": "조건에 맞는 무료 악보가 없습니다.",
-    "description": "다른 카테고리를 선택하거나 검색어를 변경해 보세요."
+    "title": "조건에 맞는 교재가 없습니다.",
+    "description": "검색어를 변경하거나 잠시 후 다시 확인해 주세요."
   },
   "actions": {
-    "viewFreeSheet": "무료 다운로드",
-    "viewYoutubeLesson": "유튜브 레슨 보기",
+    "viewFreeSheet": "교재 자세히 보기",
+    "viewBook": "교재 자세히 보기",
+    "addToCart": "장바구니",
+    "buyNow": "바로구매",
+    "viewYoutubeLesson": "샘플 영상 보기",
     "goToDetail": "상세 페이지로 이동",
-    "closeDetail": "무료 악보 상세 닫기"
+    "closeDetail": "교재 상세 닫기"
+  },
+  "price": {
+    "free": "무료",
+    "originalPrice": "정가",
+    "discount": "{{percent}}% 할인"
   },
   "errors": {
-    "lessonCategoryLoadError": "드럼레슨 카테고리를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.",
-    "lessonCategoryNotFound": "드럼레슨 카테고리가 존재하지 않습니다. 관리자에게 문의해 주세요.",
-    "sheetsLoadError": "무료 드럼레슨 악보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.",
-    "generalError": "무료 드럼레슨 악보를 불러오는 중 오류가 발생했습니다.",
+    "lessonCategoryLoadError": "드럼레슨 교재 카테고리를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.",
+    "lessonCategoryNotFound": "드럼레슨 교재 카테고리가 존재하지 않습니다. 관리자에게 문의해 주세요.",
+    "sheetsLoadError": "드럼레슨 교재 목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.",
+    "generalError": "드럼레슨 교재 페이지를 불러오는 중 오류가 발생했습니다.",
     "loginRequired": "로그인이 필요합니다.",
     "favoriteError": "찜하기 처리 중 문제가 발생했습니다. 잠시 후 다시 시도해 주세요.",
     "pdfNotReady": "PDF 링크가 준비되지 않았습니다.",
-    "youtubeNotAvailable": "등록된 유튜브 영상이 없습니다."
+    "youtubeNotAvailable": "등록된 샘플 영상이 없습니다."
   },
   "mobile": {
-    "freeSheet": "무료 악보",
+    "freeSheet": "교재",
     "upload": "업로드",
     "pages": "페이지",
-    "youtubeLessonIncluded": "유튜브 레슨 포함",
-    "freeDownload": "무료 다운로드",
-    "practiceWithPdf": "PDF 악보와 함께 연습해보세요.",
+    "youtubeLessonIncluded": "샘플 영상 포함",
+    "freeDownload": "PDF 다운로드",
+    "practiceWithPdf": "PDF 교재로 체계적으로 학습하세요.",
     "favorite": "찜하기",
     "unfavorite": "찜 해제"
   },
   "console": {
-    "lessonCategoryError": "드럼레슨 카테고리 조회 오류:",
-    "primarySheetsError": "드럼레슨 기본 카테고리 악보 로드 오류:",
-    "relationsError": "드럼레슨 카테고리 관계 로드 오류:",
-    "additionalSheetsError": "추가 드럼레슨 악보 로드 오류:",
+    "lessonCategoryError": "드럼레슨 교재 카테고리 조회 오류:",
+    "primarySheetsError": "드럼레슨 교재 기본 카테고리 로드 오류:",
+    "relationsError": "드럼레슨 교재 카테고리 관계 로드 오류:",
+    "additionalSheetsError": "추가 드럼레슨 교재 로드 오류:",
     "extraCategoriesError": "추가 카테고리 로드 오류:",
-    "generalError": "무료 악보 페이지 처리 오류:",
+    "generalError": "드럼레슨 교재 페이지 처리 오류:",
     "favoritesLoadError": "찜 목록 로드 오류:",
     "favoriteToggleError": "찜하기 처리 오류:",
     "userLoadError": "사용자 정보를 불러오지 못했습니다:",
     "youtubeUrlParseError": "유튜브 URL 파싱 실패:"
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

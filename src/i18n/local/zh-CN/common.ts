@@ -23,7 +23,7 @@ export default {
   'nav.guide': '使用指南',
   'nav.eventSale': '活动促销',
   'nav.collections': '合集',
-  'nav.drumLesson': 'Drum Lesson',
+  'nav.drumLesson': '架子鼓教材',
   'nav.freeSheets': '免费乐谱',
   'nav.customerSupport': '客户支持',
   'nav.company.about': '关于我们',

@@ -1,79 +1,89 @@
 {
-  "badge": "ÜCRETSİZ DAVUL DERSLERİ",
-  "title": "Ücretsiz Davul Dersi Notaları",
-  "description": "Davul dersi kategorisindeki tüm notaları ücretsiz keşfedin! Becerilerinizi daha hızlı geliştirmek için YouTube dersleriyle pratik yapın. Davul teknikleri, rudimentler, davul soloları ve daha fazlası gibi çeşitli öğrenme konularından seçim yapın.",
+  "badge": "PDF DAVUL DERSİ KİTAPLARI",
+  "title": "Davul Dersi Kitapları",
+  "description": "Uzmanlar tarafından özenle hazırlanmış PDF davul dersi kitaplarını keşfedin. Fill, solo, günlük rutin, teknik ve daha fazlasına odaklanan materyallerle yeteneklerinizi sistematik olarak geliştirin.",
   "features": {
-    "freeDownload": "Ücretsiz Tam İndirme",
-    "categoryLearning": "Kategori Bazlı Öğrenme",
-    "youtubeLesson": "YouTube Ders Bağlantıları"
+    "freeDownload": "Anında PDF indirme",
+    "categoryLearning": "Yapılandırılmış müfredat",
+    "youtubeLesson": "Ömür boyu erişim ve yeniden indirme"
   },
   "categories": {
     "all": "Tümü",
-    "drumTechnique": "Davul Tekniği",
-    "rudiment": "Rudiment",
-    "drumSolo": "Davul Solo",
-    "beginnerBasics": "Başlangıç/Temeller",
-    "rhythmPattern": "Ritim Kalıbı",
-    "fillIn": "Doldurma",
-    "drumLesson": "Davul Dersi",
-    "categoryPending": "Kategori bekleniyor"
+    "drumTechnique": "Davul tekniği",
+    "rudiment": "Rudimanlar",
+    "drumSolo": "Davul solosu",
+    "beginnerBasics": "Temel / Başlangıç",
+    "rhythmPattern": "Ritim kalıpları",
+    "fillIn": "Fill",
+    "drumLesson": "Davul dersi kitapları",
+    "categoryPending": "Kategori yakında"
   },
   "search": {
-    "placeholder": "Başlık, sanatçı veya etiket ile ara"
+    "placeholder": "Başlık veya yazara göre ara"
   },
   "sort": {
-    "label": "Sırala",
-    "latest": "En Yeni",
+    "label": "Sıralama",
+    "latest": "En yeni",
     "title": "Başlık",
-    "difficulty": "Zorluk"
+    "difficulty": "Seviye",
+    "priceLow": "Fiyat: artan",
+    "priceHigh": "Fiyat: azalan"
   },
   "difficulty": {
     "beginner": "Başlangıç",
     "intermediate": "Orta",
     "advanced": "İleri",
-    "notAvailable": "Zorluk mevcut değil"
+    "notAvailable": "Seviye belirtilmemiş"
   },
-  "loading": "Ücretsiz davul dersi notaları yükleniyor...",
+  "loading": "Davul dersi kitapları yükleniyor...",
   "empty": {
-    "title": "Kriterlerinize uyan ücretsiz nota yok.",
-    "description": "Farklı bir kategori seçmeyi veya arama teriminizi değiştirmeyi deneyin."
+    "title": "Filtrelerinize uyan kitap yok.",
+    "description": "Farklı bir arama terimi deneyin veya yakında tekrar bakın."
   },
   "actions": {
-    "viewFreeSheet": "Ücretsiz Notayı Görüntüle",
-    "viewYoutubeLesson": "YouTube Dersini Görüntüle",
-    "goToDetail": "Detay Sayfasına Git",
-    "closeDetail": "Ücretsiz Nota Detayını Kapat"
+    "viewFreeSheet": "Kitabı görüntüle",
+    "viewBook": "Kitabı görüntüle",
+    "addToCart": "Sepete ekle",
+    "buyNow": "Hemen satın al",
+    "viewYoutubeLesson": "Örnek videoyu izle",
+    "goToDetail": "Detay sayfasına git",
+    "closeDetail": "Kitap detayını kapat"
+  },
+  "price": {
+    "free": "Ücretsiz",
+    "originalPrice": "Liste fiyatı",
+    "discount": "%{{percent}} indirim"
   },
   "errors": {
-    "lessonCategoryLoadError": "Davul dersi kategorisi yüklenemedi. Lütfen daha sonra tekrar deneyin.",
-    "lessonCategoryNotFound": "Davul dersi kategorisi mevcut değil. Lütfen yöneticiye başvurun.",
-    "sheetsLoadError": "Ücretsiz davul dersi notaları yüklenemedi. Lütfen daha sonra tekrar deneyin.",
-    "generalError": "Ücretsiz davul dersi notaları yüklenirken bir hata oluştu.",
+    "lessonCategoryLoadError": "Davul dersi kitapları kategorisi yüklenemedi. Lütfen daha sonra tekrar deneyin.",
+    "lessonCategoryNotFound": "Davul dersi kitapları kategorisi mevcut değil. Lütfen yöneticiyle iletişime geçin.",
+    "sheetsLoadError": "Davul dersi kitapları yüklenemedi. Lütfen daha sonra tekrar deneyin.",
+    "generalError": "Davul dersi kitapları sayfası yüklenirken bir hata oluştu.",
     "loginRequired": "Giriş gerekli.",
-    "favoriteError": "Favoriler işlenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.",
-    "pdfNotReady": "PDF bağlantısı hazır değil.",
-    "youtubeNotAvailable": "YouTube videosu kayıtlı değil."
+    "favoriteError": "Favorileri güncellerken bir sorun oluştu. Lütfen daha sonra tekrar deneyin.",
+    "pdfNotReady": "PDF bağlantısı henüz hazır değil.",
+    "youtubeNotAvailable": "Kayıtlı örnek video yok."
   },
   "mobile": {
-    "freeSheet": "Ücretsiz Nota",
+    "freeSheet": "Kitap",
     "upload": "Yükle",
     "pages": "sayfa",
-    "youtubeLessonIncluded": "YouTube dersi dahil",
-    "freeDownload": "Ücretsiz İndir",
-    "practiceWithPdf": "PDF nota ile pratik yapın.",
-    "favorite": "Favori",
-    "unfavorite": "Favori Değil"
+    "youtubeLessonIncluded": "Örnek video dahil",
+    "freeDownload": "PDF indir",
+    "practiceWithPdf": "PDF kitabıyla sistematik şekilde çalışın.",
+    "favorite": "Favorilere ekle",
+    "unfavorite": "Favorilerden çıkar"
   },
   "console": {
-    "lessonCategoryError": "Davul dersi kategorisi arama hatası:",
-    "primarySheetsError": "Birincil davul dersi notaları yükleme hatası:",
-    "relationsError": "Davul dersi kategorisi ilişkileri yükleme hatası:",
-    "additionalSheetsError": "Ek davul dersi notaları yükleme hatası:",
-    "extraCategoriesError": "Ek kategoriler yükleme hatası:",
-    "generalError": "Ücretsiz notalar sayfası işleme hatası:",
-    "favoritesLoadError": "Favoriler yükleme hatası:",
-    "favoriteToggleError": "Favori değiştirme hatası:",
-    "userLoadError": "Kullanıcı bilgileri yüklenemedi:",
-    "youtubeUrlParseError": "YouTube URL ayrıştırma başarısız:"
+    "lessonCategoryError": "Drum lesson books category lookup error:",
+    "primarySheetsError": "Primary drum lesson books load error:",
+    "relationsError": "Drum lesson books category relation load error:",
+    "additionalSheetsError": "Additional drum lesson books load error:",
+    "extraCategoriesError": "Extra category load error:",
+    "generalError": "Drum lesson books page error:",
+    "favoritesLoadError": "Favorites load error:",
+    "favoriteToggleError": "Favorite toggle error:",
+    "userLoadError": "Failed to load user information:",
+    "youtubeUrlParseError": "YouTube URL parse error:"
   }
 }

@@ -23,7 +23,7 @@ export default {
   'nav.guide': 'Panduan',
   'nav.eventSale': 'Obral Acara',
   'nav.collections': 'Koleksi',
-  'nav.drumLesson': 'Drum Lesson',
+  'nav.drumLesson': 'Buku Pelajaran Drum',
   'nav.freeSheets': 'Partitur Gratis',
   'nav.customerSupport': 'Dukungan Pelanggan',
   'nav.company.about': 'Tentang Kami',

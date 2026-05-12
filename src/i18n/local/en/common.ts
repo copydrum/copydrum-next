@@ -23,7 +23,7 @@ export default {
   'nav.guide': 'Guide',
   'nav.eventSale': 'Event Sale',
   'nav.collections': 'Collections',
-  'nav.drumLesson': 'Drum Lesson',
+  'nav.drumLesson': 'Drum Lesson Books',
   'nav.freeSheets': 'Free Sheets',
   'nav.customerSupport': 'Customer Support',
   'nav.company.about': 'About Us',

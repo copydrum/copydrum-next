@@ -47,6 +47,7 @@
   "noLyrics": "Hanya notasi drum (tanpa lirik)",
   "checkPerformanceVideo": "Lihat video pertunjukan di YouTube",
   "performanceVideo": "Video Pertunjukan",
+  "tableOfContents": "Daftar Isi",
   "fullSheetAfterPurchase": "Beli untuk melihat partitur lengkap",
   "enlargePreview": "Perbesar Pratinjau",
   "purchaseToViewFull": "Beli untuk melihat partitur lengkap",
@@ -79,8 +80,7 @@
     "subtitle": "Produk Pre-order"
   },
   "preorderNotice": {
-    "title": "ðŸ“¦ Pemberitahuan Produk Pre-order",
+    "title": "?“¦ Pemberitahuan Produk Pre-order",
     "description": "Partitur ini adalah produk pre-order. Pekerjaan transkripsi dimulai segera setelah pembayaran selesai, dan kami akan menyelesaikannya secepat mungkin. Setelah pekerjaan selesai, Anda dapat mengunduhnya segera dari Halaman Saya (Riwayat Pembelian), dan Anda juga dapat memeriksa status kemajuan secara real-time."
   }
-}
 }

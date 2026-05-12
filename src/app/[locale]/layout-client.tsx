@@ -8,7 +8,7 @@ import MobileHeader from '@/components/mobile/MobileHeader';
 import MobileQuickNav from '@/components/mobile/MobileQuickNav';
 import MobileMenuSidebar from '@/components/mobile/MobileMenuSidebar';
 import MobileSearchOverlay from '@/components/mobile/MobileSearchOverlay';
-import { recordPageView } from '@/lib/dashboardAnalytics';
+import { recordPageView, isBotUserAgent } from '@/lib/dashboardAnalytics';
 
 /**
  * 페이지뷰 추적 컴포넌트
@@ -21,7 +21,12 @@ function PageViewTracker({ user }: { user: User | null }) {
   const searchParams = useSearchParams();
   const sessionIdRef = useRef<string | null>(null);
   const previousPathRef = useRef<string>('');
+  const lastLogAtRef = useRef<number>(0);
   const isAdminPage = pathname.startsWith('/admin');
+
+  // 동일 세션에서 너무 잦은 페이지뷰 INSERT 를 막기 위한 최소 간격 (ms).
+  // (홈 → 카테고리 → 상세를 1초 안에 클릭하는 경우 마지막 1건만 기록)
+  const MIN_LOG_INTERVAL_MS = 1500;
 
   // 세션 ID 생성 또는 가져오기
   useEffect(() => {
@@ -63,10 +68,14 @@ function PageViewTracker({ user }: { user: User | null }) {
     localStorage.setItem(SESSION_ID_KEY, JSON.stringify({ sessionId: newSessionId, timestamp: Date.now() }));
   }, []);
 
-  // 페이지뷰 기록
+  // 페이지뷰 기록 (봇 1차 필터 + 디바운스 + 중복 경로 방지로 INSERT IO 절감)
   useEffect(() => {
     if (isAdminPage) return;
     if (typeof window === 'undefined') return;
+
+    // 1차: 클라이언트 user-agent 로 봇 차단 → DB INSERT 자체를 건너뜀
+    const userAgent = navigator.userAgent || null;
+    if (isBotUserAgent(userAgent)) return;
 
     const currentPath = pathname + (searchParams?.toString() ? '?' + searchParams.toString() : '');
 
@@ -77,10 +86,16 @@ function PageViewTracker({ user }: { user: User | null }) {
     previousPathRef.current = currentPath;
 
     const logPageView = async () => {
+      // 디바운스: 직전 기록으로부터 MIN_LOG_INTERVAL_MS 미만이면 건너뜀
+      const now = Date.now();
+      if (now - lastLogAtRef.current < MIN_LOG_INTERVAL_MS) {
+        return;
+      }
+      lastLogAtRef.current = now;
+
       try {
         const pageUrl = window.location.href;
         const referrer = document.referrer || null;
-        const userAgent = navigator.userAgent || null;
         const country = navigator.language || null;
 
         await recordPageView({
@@ -97,10 +112,10 @@ function PageViewTracker({ user }: { user: User | null }) {
       }
     };
 
-    // 약간의 딜레이를 두어 초기 렌더링에 영향을 주지 않도록 함
+    // 빠른 연속 navigation 시 마지막 한 번만 기록되도록 딜레이 적용
     const timeoutId = setTimeout(() => {
       void logPageView();
-    }, 100);
+    }, 800);
 
     return () => {
       clearTimeout(timeoutId);

@@ -38,6 +38,7 @@ interface DrumSheet {
   categories?: { name: string } | null;
   sales_type?: 'INSTANT' | 'PREORDER';
   description?: string | null;
+  table_of_contents?: string | null;
 }
 
 export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
@@ -87,6 +88,11 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
   const displayDescription = getDescriptionForCurrentLanguage();
 
   const isYouTubeCategory = sheet.categories?.name === '드럼솔로' || sheet.categories?.name === '드럼커버';
+
+  // 드럼레슨 교재(=드럼레슨 카테고리) 여부 판정 (목차 표시 등 UI 분기용)
+  const isLessonBook =
+    sheet.categories?.name === '드럼레슨' ||
+    (typeof sheet.table_of_contents === 'string' && sheet.table_of_contents.trim().length > 0);
 
   // 통화 로직
   const hostname = typeof window !== 'undefined' ? window.location.hostname : 'copydrum.com';
@@ -818,7 +824,26 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
             </div>
           )}
 
-          {/* 유튜브 영상 섹션 */}
+          {/* 드럼레슨 교재 목차 섹션 (table_of_contents 컬럼이 있을 때만 표시) */}
+          {sheet.table_of_contents && sheet.table_of_contents.trim().length > 0 && (
+            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden mt-8">
+              <div className="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-amber-50 to-orange-50">
+                <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                  <i className="ri-list-ordered-2 text-orange-600 text-xl"></i>
+                  <span>{t('sheetDetail.tableOfContents')}</span>
+                </h3>
+              </div>
+              <div className="p-6">
+                <div className="rounded-xl border border-gray-100 bg-gray-50/60 p-4 sm:p-5">
+                  <pre className="font-sans text-sm sm:text-[15px] leading-7 text-gray-800 whitespace-pre-wrap break-words m-0">
+{sheet.table_of_contents}
+                  </pre>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 유튜브 영상 섹션 (교재인 경우 "샘플 영상"으로 표기) */}
           {sheet.youtube_url && (
             <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden mt-8">
               <div className="px-6 py-4 border-b border-gray-100">
@@ -826,7 +851,7 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
                   <svg className="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
                   </svg>
-                  <span>{t('sheetDetail.performanceVideo')}</span>
+                  <span>{isLessonBook ? t('freeSheets.actions.viewYoutubeLesson') : t('sheetDetail.performanceVideo')}</span>
                 </h3>
               </div>
               <div className="p-4 sm:p-6">

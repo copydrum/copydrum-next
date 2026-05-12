@@ -23,7 +23,7 @@ export default {
   'nav.guide': 'Guía',
   'nav.eventSale': 'Venta de eventos',
   'nav.collections': 'Colecciones',
-  'nav.drumLesson': 'Drum Lesson',
+  'nav.drumLesson': 'Libros de Lecciones de Batería',
   'nav.freeSheets': 'Partituras gratis',
   'nav.customerSupport': 'Atención al cliente',
   'nav.company.about': 'Sobre nosotros',

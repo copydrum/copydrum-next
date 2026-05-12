@@ -1,4 +1,8 @@
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { supabase } from './supabase';
+
+// 서버/클라이언트 어디서든 .from() 호출만 사용하므로 가벼운 타입으로 추상화
+export type DashboardAnalyticsClient = Pick<SupabaseClient, 'from'>;
 
 export type DashboardAnalyticsPeriod = 'daily' | 'weekly' | 'monthly';
 
@@ -323,21 +327,22 @@ const generateSeries = (
   return series;
 };
 
-// 봇 감지 함수
-const isBotUserAgent = (userAgent: string | null): boolean => {
+// 봇 감지 함수 (클라이언트 추적/대시보드 필터에서 공통 사용)
+export const isBotUserAgent = (userAgent: string | null | undefined): boolean => {
   if (!userAgent) return false;
 
   const botPatterns = [
     'bot', 'crawl', 'spider', 'slurp', 'scrape',
-    'Googlebot', 'bingbot', 'YandexBot', 'DuckDuckBot',
-    'Baiduspider', 'facebookexternalhit', 'LinkedInBot',
-    'WhatsApp', 'Telegram', 'Slack', 'Discord',
-    'AhrefsBot', 'SemrushBot', 'MJ12bot', 'DotBot',
-    'archive.org_bot', 'SeekportBot', 'ia_archiver'
+    'googlebot', 'bingbot', 'yandexbot', 'duckduckbot',
+    'baiduspider', 'facebookexternalhit', 'linkedinbot',
+    'whatsapp', 'telegram', 'slack', 'discord',
+    'ahrefsbot', 'semrushbot', 'mj12bot', 'dotbot',
+    'archive.org_bot', 'seekportbot', 'ia_archiver',
+    'pingdom', 'gtmetrix', 'lighthouse', 'headlesschrome',
   ];
 
   const lowerUA = userAgent.toLowerCase();
-  return botPatterns.some(pattern => lowerUA.includes(pattern.toLowerCase()));
+  return botPatterns.some((pattern) => lowerUA.includes(pattern));
 };
 
 // 어뷰징 세션 정보 타입
@@ -517,7 +522,11 @@ const filterAbusiveSessions = (pageViews: PageViewRow[]): PageViewRow[] => {
   return filteredViews;
 };
 
-const fetchPageViews = async (startIso: string, endIso: string): Promise<PageViewRow[]> => {
+const fetchPageViews = async (
+  client: DashboardAnalyticsClient,
+  startIso: string,
+  endIso: string
+): Promise<PageViewRow[]> => {
   const allData: PageViewRow[] = [];
   const pageSize = 1000;
   let page = 0;
@@ -525,7 +534,7 @@ const fetchPageViews = async (startIso: string, endIso: string): Promise<PageVie
 
   // 페이지네이션으로 모든 데이터 가져오기
   while (hasMore) {
-    const { data, error } = await supabase
+    const { data, error } = await client
       .from('page_views')
       .select('id, created_at, user_id, session_id, country, referrer, user_agent')
       .gte('created_at', startIso)
@@ -541,7 +550,7 @@ const fetchPageViews = async (startIso: string, endIso: string): Promise<PageVie
       let basicHasMore = true;
 
       while (basicHasMore) {
-        const { data: basicData, error: basicError } = await supabase
+        const { data: basicData, error: basicError } = await client
           .from('page_views')
           .select('id, created_at, user_id, session_id')
           .gte('created_at', startIso)
@@ -592,8 +601,12 @@ const fetchPageViews = async (startIso: string, endIso: string): Promise<PageVie
   return finalData;
 };
 
-const fetchOrders = async (startIso: string, endIso: string): Promise<OrderRow[]> => {
-  const { data, error } = await supabase
+const fetchOrders = async (
+  client: DashboardAnalyticsClient,
+  startIso: string,
+  endIso: string
+): Promise<OrderRow[]> => {
+  const { data, error } = await client
     .from('orders')
     .select('created_at,total_amount')
     .eq('status', 'completed')
@@ -606,8 +619,12 @@ const fetchOrders = async (startIso: string, endIso: string): Promise<OrderRow[]
   return data ?? [];
 };
 
-const fetchProfiles = async (startIso: string, endIso: string): Promise<ProfileRow[]> => {
-  const { data, error } = await supabase
+const fetchProfiles = async (
+  client: DashboardAnalyticsClient,
+  startIso: string,
+  endIso: string
+): Promise<ProfileRow[]> => {
+  const { data, error } = await client
     .from('profiles')
     .select('created_at')
     .gte('created_at', startIso)
@@ -619,8 +636,12 @@ const fetchProfiles = async (startIso: string, endIso: string): Promise<ProfileR
   return data ?? [];
 };
 
-const fetchInquiries = async (startIso: string, endIso: string): Promise<InquiryRow[]> => {
-  const { data, error } = await supabase
+const fetchInquiries = async (
+  client: DashboardAnalyticsClient,
+  startIso: string,
+  endIso: string
+): Promise<InquiryRow[]> => {
+  const { data, error } = await client
     .from('customer_inquiries')
     .select('created_at')
     .gte('created_at', startIso)
@@ -632,7 +653,9 @@ const fetchInquiries = async (startIso: string, endIso: string): Promise<Inquiry
   return data ?? [];
 };
 
-export const getDashboardAnalytics = async (
+// 서버/클라이언트 어디서든 호출 가능하도록 supabase client 주입형 진입점.
+export const runDashboardAnalytics = async (
+  client: DashboardAnalyticsClient,
   period: DashboardAnalyticsPeriod
 ): Promise<DashboardAnalyticsResult> => {
   const now = new Date();
@@ -657,14 +680,14 @@ export const getDashboardAnalytics = async (
     currentInquiries,
     previousInquiries,
   ] = await Promise.all([
-    fetchPageViews(currentRangeStart.toISOString(), currentRangeEnd.toISOString()),
-    fetchPageViews(previousRangeStart.toISOString(), previousRangeEnd.toISOString()),
-    fetchOrders(currentRangeStart.toISOString(), currentRangeEnd.toISOString()),
-    fetchOrders(previousRangeStart.toISOString(), previousRangeEnd.toISOString()),
-    fetchProfiles(currentRangeStart.toISOString(), currentRangeEnd.toISOString()),
-    fetchProfiles(previousRangeStart.toISOString(), previousRangeEnd.toISOString()),
-    fetchInquiries(currentRangeStart.toISOString(), currentRangeEnd.toISOString()),
-    fetchInquiries(previousRangeStart.toISOString(), previousRangeEnd.toISOString()),
+    fetchPageViews(client, currentRangeStart.toISOString(), currentRangeEnd.toISOString()),
+    fetchPageViews(client, previousRangeStart.toISOString(), previousRangeEnd.toISOString()),
+    fetchOrders(client, currentRangeStart.toISOString(), currentRangeEnd.toISOString()),
+    fetchOrders(client, previousRangeStart.toISOString(), previousRangeEnd.toISOString()),
+    fetchProfiles(client, currentRangeStart.toISOString(), currentRangeEnd.toISOString()),
+    fetchProfiles(client, previousRangeStart.toISOString(), previousRangeEnd.toISOString()),
+    fetchInquiries(client, currentRangeStart.toISOString(), currentRangeEnd.toISOString()),
+    fetchInquiries(client, previousRangeStart.toISOString(), previousRangeEnd.toISOString()),
   ]);
 
   const series = generateSeries(currentBuckets, currentPageViews, currentOrders, currentProfiles, currentInquiries);
@@ -786,6 +809,12 @@ export const getDashboardAnalytics = async (
   };
 };
 
+// 하위 호환: 기존 클라이언트 호출부에서 그대로 사용.
+// 새로 추가된 admin API route 는 runDashboardAnalytics 를 직접 호출.
+export const getDashboardAnalytics = (
+  period: DashboardAnalyticsPeriod
+): Promise<DashboardAnalyticsResult> => runDashboardAnalytics(supabase, period);
+
 export interface PageViewPayload {
   user_id?: string | null;
   session_id?: string | null;
@@ -796,6 +825,14 @@ export interface PageViewPayload {
 }
 
 export const recordPageView = async (payload: PageViewPayload): Promise<void> => {
+  // 클라이언트 측 1차 봇 필터링: DB INSERT 를 건너뛰어 IO 절감
+  if (isBotUserAgent(payload.user_agent)) {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[recordPageView] Skipping bot user-agent:', payload.user_agent?.slice(0, 80));
+    }
+    return;
+  }
+
   // 먼저 모든 컬럼으로 시도
   const fullPayload = {
     user_id: payload.user_id ?? null,

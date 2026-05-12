@@ -23,7 +23,7 @@ export default {
   'nav.guide': 'गाइड',
   'nav.eventSale': 'इवेंट सेल',
   'nav.collections': 'संग्रह',
-  'nav.drumLesson': 'Drum Lesson',
+  'nav.drumLesson': 'ड्रम पाठ पुस्तकें',
   'nav.freeSheets': 'मुफ्त शीट',
   'nav.customerSupport': 'ग्राहक सहायता',
   'nav.company.about': 'हमारे बारे में',

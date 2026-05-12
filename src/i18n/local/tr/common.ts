@@ -23,7 +23,7 @@ export default {
   'nav.guide': 'Rehber',
   'nav.eventSale': 'Etkinlik İndirimi',
   'nav.collections': 'Koleksiyonlar',
-  'nav.drumLesson': 'Drum Lesson',
+  'nav.drumLesson': 'Davul Dersi Kitapları',
   'nav.freeSheets': 'Ücretsiz Notalar',
   'nav.customerSupport': 'Müşteri Desteği',
   'nav.company.about': 'Hakkımızda',

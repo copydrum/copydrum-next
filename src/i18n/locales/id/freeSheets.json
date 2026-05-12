@@ -1,79 +1,89 @@
 {
-  "badge": "PELAJARAN DRUM GRATIS",
-  "title": "Lembaran Pelajaran Drum Gratis",
-  "description": "Jelajahi semua lembaran musik dalam kategori pelajaran drum secara gratis! Berlatih dengan pelajaran YouTube untuk meningkatkan keterampilan Anda lebih cepat. Pilih dari berbagai topik pembelajaran seperti teknik drum, rudiment, drum solo, dan lainnya.",
+  "badge": "BUKU PELAJARAN DRUM PDF",
+  "title": "Buku Pelajaran Drum",
+  "description": "Temukan buku pelajaran drum PDF yang dikurasi oleh para ahli. Tingkatkan kemampuan Anda dengan materi terfokus pada fill, solo, rutinitas harian, teknik, dan banyak lagi — dirancang untuk pertumbuhan yang sistematis.",
   "features": {
-    "freeDownload": "Unduhan Penuh Gratis",
-    "categoryLearning": "Pembelajaran Berbasis Kategori",
-    "youtubeLesson": "Tautan Pelajaran YouTube"
+    "freeDownload": "Unduh PDF langsung",
+    "categoryLearning": "Kurikulum terstruktur",
+    "youtubeLesson": "Akses seumur hidup & unduh ulang"
   },
   "categories": {
     "all": "Semua",
-    "drumTechnique": "Teknik Drum",
-    "rudiment": "Rudiment",
-    "drumSolo": "Drum Solo",
-    "beginnerBasics": "Pemula/Dasar",
-    "rhythmPattern": "Pola Ritme",
-    "fillIn": "Fill-in",
-    "drumLesson": "Pelajaran Drum",
-    "categoryPending": "Kategori tertunda"
+    "drumTechnique": "Teknik drum",
+    "rudiment": "Rudimen",
+    "drumSolo": "Solo drum",
+    "beginnerBasics": "Dasar / Pemula",
+    "rhythmPattern": "Pola ritme",
+    "fillIn": "Fill",
+    "drumLesson": "Buku pelajaran drum",
+    "categoryPending": "Kategori segera hadir"
   },
   "search": {
-    "placeholder": "Cari berdasarkan judul, artis, atau tag"
+    "placeholder": "Cari berdasarkan judul atau penulis"
   },
   "sort": {
     "label": "Urutkan",
     "latest": "Terbaru",
     "title": "Judul",
-    "difficulty": "Tingkat Kesulitan"
+    "difficulty": "Tingkat",
+    "priceLow": "Harga: rendah ke tinggi",
+    "priceHigh": "Harga: tinggi ke rendah"
   },
   "difficulty": {
     "beginner": "Pemula",
     "intermediate": "Menengah",
     "advanced": "Lanjutan",
-    "notAvailable": "Tingkat kesulitan tidak tersedia"
+    "notAvailable": "Tingkat tidak ditentukan"
   },
-  "loading": "Memuat lembaran pelajaran drum gratis...",
+  "loading": "Memuat buku pelajaran drum...",
   "empty": {
-    "title": "Tidak ada lembaran gratis yang sesuai dengan kriteria Anda.",
-    "description": "Coba pilih kategori yang berbeda atau ubah istilah pencarian Anda."
+    "title": "Tidak ada buku pelajaran yang cocok.",
+    "description": "Coba kata pencarian lain atau kembali lagi nanti."
   },
   "actions": {
-    "viewFreeSheet": "Lihat Lembaran Gratis",
-    "viewYoutubeLesson": "Lihat Pelajaran YouTube",
-    "goToDetail": "Pergi ke Halaman Detail",
-    "closeDetail": "Tutup Detail Lembaran Gratis"
+    "viewFreeSheet": "Lihat buku",
+    "viewBook": "Lihat buku",
+    "addToCart": "Tambah ke keranjang",
+    "buyNow": "Beli sekarang",
+    "viewYoutubeLesson": "Lihat video sampel",
+    "goToDetail": "Ke halaman detail",
+    "closeDetail": "Tutup detail buku"
+  },
+  "price": {
+    "free": "Gratis",
+    "originalPrice": "Harga normal",
+    "discount": "Diskon {{percent}}%"
   },
   "errors": {
-    "lessonCategoryLoadError": "Gagal memuat kategori pelajaran drum. Silakan coba lagi nanti.",
-    "lessonCategoryNotFound": "Kategori pelajaran drum tidak ada. Silakan hubungi administrator.",
-    "sheetsLoadError": "Gagal memuat lembaran pelajaran drum gratis. Silakan coba lagi nanti.",
-    "generalError": "Terjadi kesalahan saat memuat lembaran pelajaran drum gratis.",
+    "lessonCategoryLoadError": "Gagal memuat kategori buku pelajaran drum. Coba lagi nanti.",
+    "lessonCategoryNotFound": "Kategori buku pelajaran drum tidak ada. Hubungi administrator.",
+    "sheetsLoadError": "Gagal memuat buku pelajaran drum. Coba lagi nanti.",
+    "generalError": "Terjadi kesalahan saat memuat halaman buku pelajaran drum.",
     "loginRequired": "Login diperlukan.",
-    "favoriteError": "Terjadi kesalahan saat memproses favorit. Silakan coba lagi nanti.",
+    "favoriteError": "Terjadi masalah saat memperbarui favorit. Coba lagi nanti.",
     "pdfNotReady": "Tautan PDF belum siap.",
-    "youtubeNotAvailable": "Tidak ada video YouTube yang terdaftar."
+    "youtubeNotAvailable": "Tidak ada video sampel terdaftar."
   },
   "mobile": {
-    "freeSheet": "Lembaran Gratis",
+    "freeSheet": "Buku",
     "upload": "Unggah",
     "pages": "halaman",
-    "youtubeLessonIncluded": "Pelajaran YouTube disertakan",
-    "freeDownload": "Unduhan Gratis",
-    "practiceWithPdf": "Berlatih dengan lembaran musik PDF.",
-    "favorite": "Favorit",
-    "unfavorite": "Hapus Favorit"
+    "youtubeLessonIncluded": "Video sampel disertakan",
+    "freeDownload": "Unduh PDF",
+    "practiceWithPdf": "Belajar secara sistematis dengan buku PDF.",
+    "favorite": "Tambah ke favorit",
+    "unfavorite": "Hapus dari favorit"
   },
   "console": {
-    "lessonCategoryError": "Kesalahan pencarian kategori pelajaran drum:",
-    "primarySheetsError": "Kesalahan memuat lembaran pelajaran drum utama:",
-    "relationsError": "Kesalahan memuat relasi kategori pelajaran drum:",
-    "additionalSheetsError": "Kesalahan memuat lembaran pelajaran drum tambahan:",
-    "extraCategoriesError": "Kesalahan memuat kategori ekstra:",
-    "generalError": "Kesalahan pemrosesan halaman lembaran gratis:",
-    "favoritesLoadError": "Kesalahan memuat favorit:",
-    "favoriteToggleError": "Kesalahan toggle favorit:",
-    "userLoadError": "Gagal memuat informasi pengguna:",
-    "youtubeUrlParseError": "Parsing URL YouTube gagal:"
+    "lessonCategoryError": "Drum lesson books category lookup error:",
+    "primarySheetsError": "Primary drum lesson books load error:",
+    "relationsError": "Drum lesson books category relation load error:",
+    "additionalSheetsError": "Additional drum lesson books load error:",
+    "extraCategoriesError": "Extra category load error:",
+    "generalError": "Drum lesson books page error:",
+    "favoritesLoadError": "Favorites load error:",
+    "favoriteToggleError": "Favorite toggle error:",
+    "userLoadError": "Failed to load user information:",
+    "youtubeUrlParseError": "YouTube URL parse error:"
   }
 }

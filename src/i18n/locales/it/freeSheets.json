@@ -1,79 +1,89 @@
 {
-  "badge": "LEZIONI DI BATTERIA GRATUITE",
-  "title": "Spartiti lezioni di batteria gratuite",
-  "description": "Esplora tutti gli spartiti nella categoria lezioni di batteria gratuitamente! Pratica con le lezioni YouTube per migliorare le tue abilità più velocemente. Scegli tra vari argomenti di apprendimento come tecniche di batteria, rudimenti, assoli di batteria e altro ancora.",
+  "badge": "LIBRI DI LEZIONI DI BATTERIA IN PDF",
+  "title": "Libri di Lezioni di Batteria",
+  "description": "Scopri libri di lezioni di batteria in PDF curati da esperti. Approfondisci le tue capacità con materiali mirati su fill, assoli, routine quotidiane, tecnica e altro ancora — pensati per una crescita sistematica.",
   "features": {
-    "freeDownload": "Download completo gratuito",
-    "categoryLearning": "Apprendimento per categoria",
-    "youtubeLesson": "Link lezioni YouTube"
+    "freeDownload": "Download PDF immediato",
+    "categoryLearning": "Programma strutturato",
+    "youtubeLesson": "Accesso a vita e ridownload"
   },
   "categories": {
     "all": "Tutti",
-    "drumTechnique": "Tecnica di batteria",
-    "rudiment": "Rudimento",
-    "drumSolo": "Assolo di batteria",
-    "beginnerBasics": "Principiante/Basi",
-    "rhythmPattern": "Pattern ritmico",
-    "fillIn": "Fill-in",
-    "drumLesson": "Lezione di batteria",
-    "categoryPending": "Categoria in attesa"
+    "drumTechnique": "Tecnica della batteria",
+    "rudiment": "Rudimenti",
+    "drumSolo": "Assoli di batteria",
+    "beginnerBasics": "Basi / Principiante",
+    "rhythmPattern": "Pattern ritmici",
+    "fillIn": "Fill-In",
+    "drumLesson": "Libri di lezioni di batteria",
+    "categoryPending": "Categoria in arrivo"
   },
   "search": {
-    "placeholder": "Cerca per titolo, artista o tag"
+    "placeholder": "Cerca per titolo o autore"
   },
   "sort": {
-    "label": "Ordina",
+    "label": "Ordina per",
     "latest": "Più recenti",
     "title": "Titolo",
-    "difficulty": "Difficoltà"
+    "difficulty": "Livello",
+    "priceLow": "Prezzo crescente",
+    "priceHigh": "Prezzo decrescente"
   },
   "difficulty": {
     "beginner": "Principiante",
     "intermediate": "Intermedio",
     "advanced": "Avanzato",
-    "notAvailable": "Difficoltà non disponibile"
+    "notAvailable": "Livello non specificato"
   },
-  "loading": "Caricamento spartiti lezioni di batteria gratuite...",
+  "loading": "Caricamento dei libri di lezioni di batteria...",
   "empty": {
-    "title": "Nessuno spartito gratuito corrisponde ai tuoi criteri.",
-    "description": "Prova a selezionare una categoria diversa o cambiare il tuo termine di ricerca."
+    "title": "Nessun libro corrisponde ai filtri.",
+    "description": "Prova un termine di ricerca diverso o torna a trovarci."
   },
   "actions": {
-    "viewFreeSheet": "Visualizza spartito gratuito",
-    "viewYoutubeLesson": "Visualizza lezione YouTube",
-    "goToDetail": "Vai alla pagina dettagli",
-    "closeDetail": "Chiudi dettaglio spartito gratuito"
+    "viewFreeSheet": "Vedi libro",
+    "viewBook": "Vedi libro",
+    "addToCart": "Aggiungi al carrello",
+    "buyNow": "Acquista ora",
+    "viewYoutubeLesson": "Guarda video di esempio",
+    "goToDetail": "Vai alla pagina di dettaglio",
+    "closeDetail": "Chiudi dettaglio libro"
+  },
+  "price": {
+    "free": "Gratis",
+    "originalPrice": "Prezzo di listino",
+    "discount": "{{percent}}% di sconto"
   },
   "errors": {
-    "lessonCategoryLoadError": "Impossibile caricare la categoria lezioni di batteria. Riprova più tardi.",
-    "lessonCategoryNotFound": "La categoria lezioni di batteria non esiste. Contatta l'amministratore.",
-    "sheetsLoadError": "Impossibile caricare gli spartiti lezioni di batteria gratuite. Riprova più tardi.",
-    "generalError": "Si è verificato un errore durante il caricamento degli spartiti lezioni di batteria gratuite.",
-    "loginRequired": "Accesso richiesto.",
-    "favoriteError": "Si è verificato un errore durante l'elaborazione dei preferiti. Riprova più tardi.",
-    "pdfNotReady": "Il link PDF non è pronto.",
-    "youtubeNotAvailable": "Nessun video YouTube è registrato."
+    "lessonCategoryLoadError": "Impossibile caricare la categoria dei libri di lezioni di batteria. Riprova più tardi.",
+    "lessonCategoryNotFound": "La categoria dei libri di lezioni di batteria non esiste. Contatta l'amministratore.",
+    "sheetsLoadError": "Impossibile caricare i libri di lezioni di batteria. Riprova più tardi.",
+    "generalError": "Si è verificato un errore durante il caricamento della pagina dei libri di lezioni di batteria.",
+    "loginRequired": "È richiesto l'accesso.",
+    "favoriteError": "Si è verificato un problema durante l'aggiornamento dei preferiti. Riprova più tardi.",
+    "pdfNotReady": "Il link PDF non è ancora pronto.",
+    "youtubeNotAvailable": "Nessun video di esempio registrato."
   },
   "mobile": {
-    "freeSheet": "Spartito gratuito",
+    "freeSheet": "Libro",
     "upload": "Carica",
     "pages": "pagine",
-    "youtubeLessonIncluded": "Lezione YouTube inclusa",
-    "freeDownload": "Download gratuito",
-    "practiceWithPdf": "Pratica con lo spartito PDF.",
-    "favorite": "Preferito",
-    "unfavorite": "Rimuovi preferito"
+    "youtubeLessonIncluded": "Video di esempio incluso",
+    "freeDownload": "Scarica PDF",
+    "practiceWithPdf": "Studia in modo sistematico con il libro PDF.",
+    "favorite": "Aggiungi ai preferiti",
+    "unfavorite": "Rimuovi dai preferiti"
   },
   "console": {
-    "lessonCategoryError": "Errore nella ricerca della categoria lezioni di batteria:",
-    "primarySheetsError": "Errore nel caricamento degli spartiti lezioni di batteria principali:",
-    "relationsError": "Errore nel caricamento delle relazioni categoria lezioni di batteria:",
-    "additionalSheetsError": "Errore nel caricamento degli spartiti lezioni di batteria aggiuntivi:",
-    "extraCategoriesError": "Errore nel caricamento delle categorie extra:",
-    "generalError": "Errore nell'elaborazione della pagina spartiti gratuiti:",
-    "favoritesLoadError": "Errore nel caricamento dei preferiti:",
-    "favoriteToggleError": "Errore nel toggle preferito:",
-    "userLoadError": "Impossibile caricare le informazioni utente:",
-    "youtubeUrlParseError": "Il parsing dell'URL YouTube è fallito:"
+    "lessonCategoryError": "Drum lesson books category lookup error:",
+    "primarySheetsError": "Primary drum lesson books load error:",
+    "relationsError": "Drum lesson books category relation load error:",
+    "additionalSheetsError": "Additional drum lesson books load error:",
+    "extraCategoriesError": "Extra category load error:",
+    "generalError": "Drum lesson books page error:",
+    "favoritesLoadError": "Favorites load error:",
+    "favoriteToggleError": "Favorite toggle error:",
+    "userLoadError": "Failed to load user information:",
+    "youtubeUrlParseError": "YouTube URL parse error:"
   }
 }

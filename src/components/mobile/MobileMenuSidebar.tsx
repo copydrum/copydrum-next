@@ -31,7 +31,7 @@ interface NavItem {
 const baseMenuItems: NavItem[] = [
   { labelKey: 'nav.categories', href: '/categories', icon: 'ri-apps-line' },
   { labelKey: 'sidebar.nav.collections', href: '/collections', icon: 'ri-stack-line' },
-  { labelKey: 'sidebar.nav.drumLesson', href: '/free-sheets', icon: 'ri-music-2-line' },
+  { labelKey: 'sidebar.nav.drumLesson', href: '/free-sheets', icon: 'ri-book-2-line' },
   { labelKey: 'nav.customOrder', href: '/custom-order', icon: 'ri-edit-line' },
   { labelKey: 'sidebar.nav.purchaseHistory', href: '/purchases', icon: 'ri-file-list-3-line' },
 ];

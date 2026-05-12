@@ -17,7 +17,6 @@ import MarketingSettings from '../../components/admin/MarketingSettings';
 import MarketingStatus from '../../components/admin/MarketingStatus';
 import DrumLessonManagement from '../../components/admin/DrumLessonManagement';
 import {
-  getDashboardAnalytics,
   type DashboardAnalyticsPeriod,
   type DashboardAnalyticsResult,
 } from '../../lib/dashboardAnalytics';
@@ -6377,15 +6376,25 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
   };
 
   const loadDashboardAnalytics = useCallback(
-    async (period: DashboardAnalyticsPeriod) => {
+    async (period: DashboardAnalyticsPeriod, opts?: { force?: boolean }) => {
       if (!isAdmin) return;
 
       setDashboardAnalyticsLoading(true);
       setDashboardAnalyticsError(null);
 
       try {
-        const result = await getDashboardAnalytics(period);
-        setDashboardAnalyticsData(result);
+        // 서버 캐시(5분 TTL) + service-role 집계로 IO 절감
+        const params = new URLSearchParams({ period });
+        if (opts?.force) params.set('force', '1');
+        const res = await fetch(`/api/admin/dashboard-analytics?${params.toString()}`, {
+          cache: 'no-store',
+          credentials: 'same-origin',
+        });
+        const json = await res.json();
+        if (!res.ok || !json.success) {
+          throw new Error(json.error || `요청 실패: ${res.status}`);
+        }
+        setDashboardAnalyticsData(json.data as DashboardAnalyticsResult);
       } catch (error) {
         console.error('대시보드 통계 로드 실패:', error);
         setDashboardAnalyticsError(
@@ -6452,11 +6461,11 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
     // 대시보드에서도 미처리 문의 확인을 위해 문의 목록 로드
     loadCustomerInquiries();
 
-    // 30초마다 자동 새로고침
+    // 5분마다 자동 새로고침 (Supabase Disk IO 절감, 즉시 갱신은 수동 새로고침)
     const intervalId = setInterval(() => {
       void loadDashboardAnalytics(dashboardAnalyticsPeriod);
       loadCustomerInquiries();
-    }, 30000);
+    }, 5 * 60 * 1000);
 
     return () => clearInterval(intervalId);
   }, [isAdmin, activeMenu, dashboardAnalyticsPeriod, loadDashboardAnalytics]);
@@ -6467,10 +6476,10 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
       return;
     }
 
-    // 60초마다 자동 새로고침
+    // 5분마다 자동 새로고침
     const intervalId = setInterval(() => {
       loadCustomerInquiries();
-    }, 60000);
+    }, 5 * 60 * 1000);
 
     return () => clearInterval(intervalId);
   }, [isAdmin, activeMenu]);
@@ -13692,7 +13701,8 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
               );
             })()}
 
-            {/* ═══════════════ 드럼레슨 무료악보 분석 ═══════════════ */}
+            {/* ═══════════════ 드럼레슨 무료악보 분석 (드럼레슨 코너가 교재 판매로 전환됨에 따라 숨김 처리. 과거 데이터 보관용) ═══════════════ */}
+            {false && (
             <div className="rounded-xl border border-purple-200 bg-white p-6 shadow-sm">
               <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
@@ -13957,6 +13967,7 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
                 </div>
               )}
             </div>
+            )}
 
             <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
               <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
@@ -15163,8 +15174,8 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
             className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-left transition-colors ${activeMenu === 'drum-lessons' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100'
               }`}
           >
-            <i className="ri-play-circle-line w-5 h-5"></i>
-            <span className="text-sm md:text-base">드럼레슨 관리</span>
+            <i className="ri-book-2-line w-5 h-5"></i>
+            <span className="text-sm md:text-base">드럼레슨 교재 관리</span>
           </button>
 
           <button
@@ -15321,7 +15332,7 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
                   {activeMenu === 'dashboard' ? '대시보드' :
                     activeMenu === 'member-list' ? '회원 관리' :
                       activeMenu === 'sheets' ? '악보 관리' :
-                        activeMenu === 'drum-lessons' ? '드럼레슨 관리' :
+                        activeMenu === 'drum-lessons' ? '드럼레슨 교재 관리' :
                           activeMenu === 'categories' ? '카테고리 관리' :
                             activeMenu === 'collections' ? '악보모음집 관리' :
                               activeMenu === 'event-discounts' ? '이벤트 할인악보 관리' :

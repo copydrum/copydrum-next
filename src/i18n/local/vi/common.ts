@@ -23,7 +23,7 @@ export default {
   'nav.guide': 'Hướng dẫn',
   'nav.eventSale': 'Khuyến mãi',
   'nav.collections': 'Bộ sưu tập',
-  'nav.drumLesson': 'Drum Lesson',
+  'nav.drumLesson': 'Giáo Trình Học Trống',
   'nav.freeSheets': 'Bản nhạc miễn phí',
   'nav.customerSupport': 'Hỗ trợ khách hàng',
   'nav.company.about': 'Về chúng tôi',

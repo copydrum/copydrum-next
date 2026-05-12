@@ -1,79 +1,89 @@
 {
-  "badge": "免費鼓課程",
-  "title": "免費鼓課程樂譜",
-  "description": "免費探索鼓課程類別中的所有樂譜！透過 YouTube 課程練習，更快提升您的技能。從各種學習主題中選擇，例如鼓技巧、基礎練習、鼓獨奏等。",
+  "badge": "PDF 爵士鼓教材",
+  "title": "爵士鼓教材",
+  "description": "由專業鼓手精心編撰的 PDF 爵士鼓教材。涵蓋過門、獨奏、日常練習、技巧等主題,助你系統化提升演奏實力。",
   "features": {
-    "freeDownload": "免費完整下載",
-    "categoryLearning": "按類別學習",
-    "youtubeLesson": "YouTube 課程連結"
+    "freeDownload": "PDF 即時下載",
+    "categoryLearning": "結構化課程",
+    "youtubeLesson": "終身使用與重新下載"
   },
   "categories": {
     "all": "全部",
     "drumTechnique": "鼓技巧",
-    "rudiment": "基礎練習",
+    "rudiment": "鼓基本功",
     "drumSolo": "鼓獨奏",
-    "beginnerBasics": "初學者/基礎",
+    "beginnerBasics": "基礎 / 入門",
     "rhythmPattern": "節奏型",
     "fillIn": "過門",
-    "drumLesson": "鼓課程",
-    "categoryPending": "類別待定"
+    "drumLesson": "爵士鼓教材",
+    "categoryPending": "分類準備中"
   },
   "search": {
-    "placeholder": "依標題、藝人或標籤搜尋"
+    "placeholder": "依教材名稱或作者搜尋"
   },
   "sort": {
     "label": "排序",
     "latest": "最新",
     "title": "標題",
-    "difficulty": "難度"
+    "difficulty": "難度",
+    "priceLow": "價格由低到高",
+    "priceHigh": "價格由高到低"
   },
   "difficulty": {
-    "beginner": "初學者",
+    "beginner": "初級",
     "intermediate": "中級",
-    "advanced": "進階",
-    "notAvailable": "難度不可用"
+    "advanced": "高級",
+    "notAvailable": "尚未提供難度資訊"
   },
-  "loading": "正在載入免費鼓課程樂譜...",
+  "loading": "正在載入爵士鼓教材...",
   "empty": {
-    "title": "沒有符合您條件的免費樂譜。",
-    "description": "請嘗試選擇不同的類別或更改您的搜尋詞。"
+    "title": "沒有符合條件的教材。",
+    "description": "請嘗試其他關鍵字或稍後再來。"
   },
   "actions": {
-    "viewFreeSheet": "查看免費樂譜",
-    "viewYoutubeLesson": "查看 YouTube 課程",
-    "goToDetail": "前往詳情頁面",
-    "closeDetail": "關閉免費樂譜詳情"
+    "viewFreeSheet": "查看教材",
+    "viewBook": "查看教材",
+    "addToCart": "加入購物車",
+    "buyNow": "立即購買",
+    "viewYoutubeLesson": "觀看範例影片",
+    "goToDetail": "前往詳細頁面",
+    "closeDetail": "關閉教材詳情"
+  },
+  "price": {
+    "free": "免費",
+    "originalPrice": "原價",
+    "discount": "{{percent}}% 折扣"
   },
   "errors": {
-    "lessonCategoryLoadError": "載入鼓課程類別失敗。請稍後再試。",
-    "lessonCategoryNotFound": "鼓課程類別不存在。請聯絡管理員。",
-    "sheetsLoadError": "載入免費鼓課程樂譜失敗。請稍後再試。",
-    "generalError": "載入免費鼓課程樂譜時發生錯誤。",
+    "lessonCategoryLoadError": "無法載入爵士鼓教材分類,請稍後再試。",
+    "lessonCategoryNotFound": "爵士鼓教材分類不存在,請聯絡管理員。",
+    "sheetsLoadError": "無法載入爵士鼓教材列表,請稍後再試。",
+    "generalError": "載入爵士鼓教材頁面時發生錯誤。",
     "loginRequired": "需要登入。",
-    "favoriteError": "處理我的最愛時發生錯誤。請稍後再試。",
+    "favoriteError": "更新收藏時發生問題,請稍後再試。",
     "pdfNotReady": "PDF 連結尚未準備好。",
-    "youtubeNotAvailable": "未註冊 YouTube 影片。"
+    "youtubeNotAvailable": "尚未註冊範例影片。"
   },
   "mobile": {
-    "freeSheet": "免費樂譜",
+    "freeSheet": "教材",
     "upload": "上傳",
     "pages": "頁",
-    "youtubeLessonIncluded": "包含 YouTube 課程",
-    "freeDownload": "免費下載",
-    "practiceWithPdf": "使用 PDF 樂譜練習。",
-    "favorite": "我的最愛",
-    "unfavorite": "取消我的最愛"
+    "youtubeLessonIncluded": "含範例影片",
+    "freeDownload": "下載 PDF",
+    "practiceWithPdf": "透過 PDF 教材系統化學習。",
+    "favorite": "收藏",
+    "unfavorite": "取消收藏"
   },
   "console": {
-    "lessonCategoryError": "鼓課程類別查詢錯誤：",
-    "primarySheetsError": "主要鼓課程樂譜載入錯誤：",
-    "relationsError": "鼓課程類別關係載入錯誤：",
-    "additionalSheetsError": "額外鼓課程樂譜載入錯誤：",
-    "extraCategoriesError": "額外類別載入錯誤：",
-    "generalError": "免費樂譜頁面處理錯誤：",
-    "favoritesLoadError": "我的最愛載入錯誤：",
-    "favoriteToggleError": "我的最愛切換錯誤：",
-    "userLoadError": "載入使用者資訊失敗：",
-    "youtubeUrlParseError": "YouTube URL 解析失敗："
+    "lessonCategoryError": "Drum lesson books category lookup error:",
+    "primarySheetsError": "Primary drum lesson books load error:",
+    "relationsError": "Drum lesson books category relation load error:",
+    "additionalSheetsError": "Additional drum lesson books load error:",
+    "extraCategoriesError": "Extra category load error:",
+    "generalError": "Drum lesson books page error:",
+    "favoritesLoadError": "Favorites load error:",
+    "favoriteToggleError": "Favorite toggle error:",
+    "userLoadError": "Failed to load user information:",
+    "youtubeUrlParseError": "YouTube URL parse error:"
   }
 }

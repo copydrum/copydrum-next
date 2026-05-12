@@ -1,79 +1,89 @@
 {
-  "badge": "БЕЗКОШТОВНІ УРОКИ ГРИ НА БАРАБАНАХ",
-  "title": "Безкоштовні ноти для уроків гри на барабанах",
-  "description": "Дослідіть всі ноти в категорії уроків гри на барабанах безкоштовно! Практикуйтеся з уроками YouTube, щоб швидше покращити свої навички. Виберіть з різних тем навчання, таких як техніки гри на барабанах, рудименти, соло на барабанах та інше.",
+  "badge": "PDF ПІДРУЧНИКИ З БАРАБАНІВ",
+  "title": "Підручники з Барабанів",
+  "description": "Відкрийте для себе PDF-підручники з гри на барабанах, ретельно підготовлені експертами. Поглиблюйте навички з матеріалами про філи, соло, щоденні рутини, техніку та багато іншого — створено для системного зростання.",
   "features": {
-    "freeDownload": "Безкоштовне повне завантаження",
-    "categoryLearning": "Навчання за категоріями",
-    "youtubeLesson": "Посилання на уроки YouTube"
+    "freeDownload": "Миттєве завантаження PDF",
+    "categoryLearning": "Структурована програма",
+    "youtubeLesson": "Довічний доступ та повторне завантаження"
   },
   "categories": {
-    "all": "Всі",
-    "drumTechnique": "Техніка гри на барабанах",
-    "rudiment": "Рудимент",
-    "drumSolo": "Соло на барабанах",
-    "beginnerBasics": "Початківець/Основи",
-    "rhythmPattern": "Ритмічний патерн",
-    "fillIn": "Філ-ін",
-    "drumLesson": "Урок гри на барабанах",
-    "categoryPending": "Категорія в очікуванні"
+    "all": "Усі",
+    "drumTechnique": "Техніка гри",
+    "rudiment": "Рудименти",
+    "drumSolo": "Барабанне соло",
+    "beginnerBasics": "Основи / Початківцям",
+    "rhythmPattern": "Ритмічні патерни",
+    "fillIn": "Філи",
+    "drumLesson": "Підручники з барабанів",
+    "categoryPending": "Категорія готується"
   },
   "search": {
-    "placeholder": "Пошук за назвою, виконавцем або тегом"
+    "placeholder": "Пошук за назвою або автором"
   },
   "sort": {
-    "label": "Сортувати",
+    "label": "Сортування",
     "latest": "Найновіші",
-    "title": "Назва",
-    "difficulty": "Складність"
+    "title": "За назвою",
+    "difficulty": "За рівнем",
+    "priceLow": "Ціна: за зростанням",
+    "priceHigh": "Ціна: за спаданням"
   },
   "difficulty": {
-    "beginner": "Початківець",
+    "beginner": "Початковий",
     "intermediate": "Середній",
     "advanced": "Просунутий",
-    "notAvailable": "Складність недоступна"
+    "notAvailable": "Рівень не вказано"
   },
-  "loading": "Завантаження безкоштовних нот для уроків гри на барабанах...",
+  "loading": "Завантаження підручників з барабанів...",
   "empty": {
-    "title": "Жодні безкоштовні ноти не відповідають вашим критеріям.",
-    "description": "Спробуйте вибрати іншу категорію або змінити ваш пошуковий запит."
+    "title": "Немає підручників за вашими фільтрами.",
+    "description": "Спробуйте інший запит або зайдіть пізніше."
   },
   "actions": {
-    "viewFreeSheet": "Переглянути безкоштовну ноту",
-    "viewYoutubeLesson": "Переглянути урок YouTube",
-    "goToDetail": "Перейти на сторінку деталей",
-    "closeDetail": "Закрити деталі безкоштовної ноти"
+    "viewFreeSheet": "Переглянути підручник",
+    "viewBook": "Переглянути підручник",
+    "addToCart": "До кошика",
+    "buyNow": "Купити зараз",
+    "viewYoutubeLesson": "Дивитись приклад",
+    "goToDetail": "Перейти до деталей",
+    "closeDetail": "Закрити деталі"
+  },
+  "price": {
+    "free": "Безкоштовно",
+    "originalPrice": "Ціна",
+    "discount": "Знижка {{percent}}%"
   },
   "errors": {
-    "lessonCategoryLoadError": "Не вдалося завантажити категорію уроків гри на барабанах. Будь ласка, спробуйте пізніше.",
-    "lessonCategoryNotFound": "Категорія уроків гри на барабанах не існує. Будь ласка, зв'яжіться з адміністратором.",
-    "sheetsLoadError": "Не вдалося завантажити безкоштовні ноти для уроків гри на барабанах. Будь ласка, спробуйте пізніше.",
-    "generalError": "Під час завантаження безкоштовних нот для уроків гри на барабанах сталася помилка.",
+    "lessonCategoryLoadError": "Не вдалося завантажити категорію підручників з барабанів. Спробуйте пізніше.",
+    "lessonCategoryNotFound": "Категорія підручників з барабанів не існує. Зв'яжіться з адміністратором.",
+    "sheetsLoadError": "Не вдалося завантажити підручники з барабанів. Спробуйте пізніше.",
+    "generalError": "Сталася помилка під час завантаження сторінки підручників з барабанів.",
     "loginRequired": "Потрібен вхід.",
-    "favoriteError": "Під час обробки обраного сталася помилка. Будь ласка, спробуйте пізніше.",
-    "pdfNotReady": "Посилання на PDF не готове.",
-    "youtubeNotAvailable": "Відео YouTube не зареєстровано."
+    "favoriteError": "Виникла проблема з оновленням обраного. Спробуйте пізніше.",
+    "pdfNotReady": "PDF-посилання ще не готове.",
+    "youtubeNotAvailable": "Зразкове відео не зареєстровано."
   },
   "mobile": {
-    "freeSheet": "Безкоштовна нота",
+    "freeSheet": "Підручник",
     "upload": "Завантажити",
     "pages": "сторінок",
-    "youtubeLessonIncluded": "Урок YouTube включено",
-    "freeDownload": "Безкоштовне завантаження",
-    "practiceWithPdf": "Практикуйтеся з PDF-нотами.",
-    "favorite": "Обране",
-    "unfavorite": "Видалити з обраного"
+    "youtubeLessonIncluded": "Зі зразковим відео",
+    "freeDownload": "Завантажити PDF",
+    "practiceWithPdf": "Вчіться системно з PDF-підручником.",
+    "favorite": "У обране",
+    "unfavorite": "З обраного"
   },
   "console": {
-    "lessonCategoryError": "Помилка пошуку категорії уроків гри на барабанах:",
-    "primarySheetsError": "Помилка завантаження основних нот для уроків гри на барабанах:",
-    "relationsError": "Помилка завантаження зв'язків категорії уроків гри на барабанах:",
-    "additionalSheetsError": "Помилка завантаження додаткових нот для уроків гри на барабанах:",
-    "extraCategoriesError": "Помилка завантаження додаткових категорій:",
-    "generalError": "Помилка обробки сторінки безкоштовних нот:",
-    "favoritesLoadError": "Помилка завантаження обраного:",
-    "favoriteToggleError": "Помилка перемикання обраного:",
-    "userLoadError": "Не вдалося завантажити інформацію про користувача:",
-    "youtubeUrlParseError": "Не вдалося розпарсити URL YouTube:"
+    "lessonCategoryError": "Drum lesson books category lookup error:",
+    "primarySheetsError": "Primary drum lesson books load error:",
+    "relationsError": "Drum lesson books category relation load error:",
+    "additionalSheetsError": "Additional drum lesson books load error:",
+    "extraCategoriesError": "Extra category load error:",
+    "generalError": "Drum lesson books page error:",
+    "favoritesLoadError": "Favorites load error:",
+    "favoriteToggleError": "Favorite toggle error:",
+    "userLoadError": "Failed to load user information:",
+    "youtubeUrlParseError": "YouTube URL parse error:"
   }
 }

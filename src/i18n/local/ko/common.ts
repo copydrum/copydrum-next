@@ -23,7 +23,7 @@ export default {
   'nav.guide': '이용가이드',
   'nav.eventSale': '이벤트 할인',
   'nav.collections': '컬렉션',
-  'nav.drumLesson': '드럼레슨',
+  'nav.drumLesson': '드럼레슨 교재',
   'nav.freeSheets': '무료 악보',
   'nav.customerSupport': '고객지원',
   'nav.company.about': '회사소개',

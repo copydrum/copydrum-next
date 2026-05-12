@@ -47,6 +47,7 @@
   "noLyrics": "Yalnızca davul notasyonu (söz yok)",
   "checkPerformanceVideo": "YouTube'daki performans videosunu kontrol edin",
   "performanceVideo": "Performans Videosu",
+  "tableOfContents": "İçindekiler",
   "fullSheetAfterPurchase": "Tam notayı görüntülemek için satın alın",
   "enlargePreview": "Önizlemeyi Büyüt",
   "purchaseToViewFull": "Tam notayı görüntülemek için satın alın",
@@ -79,8 +80,7 @@
     "subtitle": "Ön Sipariş Ürünü"
   },
   "preorderNotice": {
-    "title": "📦 Ön Sipariş Ürünü Bildirimi",
+    "title": "?�� Ön Sipariş Ürünü Bildirimi",
     "description": "Bu nota bir ön sipariş ürünüdür. Ödeme tamamlandıktan hemen sonra transkripsiyon çalışması başlar ve mümkün olan en kısa sürede tamamlarız. Çalışma tamamlandığında, Sayfam (Satın Alma Geçmişi) üzerinden hemen indirebilir ve gerçek zamanlı ilerleme durumunu da kontrol edebilirsiniz."
   }
-}
 }

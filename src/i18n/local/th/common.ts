@@ -23,7 +23,7 @@ export default {
   'nav.guide': 'คู่มือ',
   'nav.eventSale': 'โปรโมชั่น',
   'nav.collections': 'คอลเลกชัน',
-  'nav.drumLesson': 'Drum Lesson',
+  'nav.drumLesson': 'ตำราเรียนกลอง',
   'nav.freeSheets': 'โน้ตฟรี',
   'nav.customerSupport': 'ฝ่ายบริการลูกค้า',
   'nav.company.about': 'เกี่ยวกับเรา',

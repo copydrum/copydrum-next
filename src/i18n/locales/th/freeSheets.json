@@ -1,79 +1,89 @@
 {
-  "badge": "บทเรียนกลองฟรี",
-  "title": "แผ่นเพลงบทเรียนกลองฟรี",
-  "description": "สำรวจแผ่นเพลงทั้งหมดในหมวดหมู่บทเรียนกลองได้ฟรี! ฝึกซ้อมด้วยบทเรียน YouTube เพื่อพัฒนาทักษะของคุณให้เร็วขึ้น เลือกจากหัวข้อการเรียนรู้ต่างๆ เช่น เทคนิคกลอง รูดิเมนต์ โซโลกลอง และอื่นๆ",
+  "badge": "ตำราเรียนกลอง PDF",
+  "title": "ตำราเรียนกลอง",
+  "description": "พบกับตำราเรียนกลอง PDF ที่คัดสรรโดยผู้เชี่ยวชาญ พัฒนาทักษะอย่างเป็นระบบด้วยเนื้อหาเฉพาะทาง เช่น ฟิล โซโล รูทีนประจำวัน เทคนิค และอีกมากมาย",
   "features": {
-    "freeDownload": "ดาวน์โหลดเต็มรูปแบบฟรี",
-    "categoryLearning": "การเรียนรู้ตามหมวดหมู่",
-    "youtubeLesson": "ลิงก์บทเรียน YouTube"
+    "freeDownload": "ดาวน์โหลด PDF ทันที",
+    "categoryLearning": "หลักสูตรเป็นระบบ",
+    "youtubeLesson": "ใช้งานได้ตลอดชีพ และดาวน์โหลดซ้ำ"
   },
   "categories": {
     "all": "ทั้งหมด",
     "drumTechnique": "เทคนิคกลอง",
-    "rudiment": "รูดิเมนต์",
-    "drumSolo": "Drum Solo",
-    "beginnerBasics": "ผู้เริ่มต้น/พื้นฐาน",
-    "rhythmPattern": "แพทเทิร์นจังหวะ",
-    "fillIn": "Fill-in",
-    "drumLesson": "บทเรียนกลอง",
-    "categoryPending": "หมวดหมู่รอดำเนินการ"
+    "rudiment": "พื้นฐานรูดิเมนต์",
+    "drumSolo": "กลองโซโล",
+    "beginnerBasics": "พื้นฐาน / เริ่มต้น",
+    "rhythmPattern": "แพตเทิร์นจังหวะ",
+    "fillIn": "ฟิลอิน",
+    "drumLesson": "ตำราเรียนกลอง",
+    "categoryPending": "หมวดหมู่กำลังเตรียม"
   },
   "search": {
-    "placeholder": "ค้นหาตามชื่อเพลง ศิลปิน หรือแท็ก"
+    "placeholder": "ค้นหาด้วยชื่อตำราหรือผู้เขียน"
   },
   "sort": {
-    "label": "เรียงลำดับ",
-    "latest": "ล่าสุด",
-    "title": "ชื่อเพลง",
-    "difficulty": "ระดับความยาก"
+    "label": "เรียงตาม",
+    "latest": "ใหม่ล่าสุด",
+    "title": "ชื่อ",
+    "difficulty": "ระดับ",
+    "priceLow": "ราคา: น้อยไปมาก",
+    "priceHigh": "ราคา: มากไปน้อย"
   },
   "difficulty": {
-    "beginner": "เริ่มต้น",
-    "intermediate": "ปานกลาง",
-    "advanced": "ขั้นสูง",
-    "notAvailable": "ระดับความยากไม่พร้อมใช้งาน"
+    "beginner": "ระดับต้น",
+    "intermediate": "ระดับกลาง",
+    "advanced": "ระดับสูง",
+    "notAvailable": "ไม่มีข้อมูลระดับ"
   },
-  "loading": "กำลังโหลดแผ่นเพลงบทเรียนกลองฟรี...",
+  "loading": "กำลังโหลดตำราเรียนกลอง...",
   "empty": {
-    "title": "ไม่มีแผ่นเพลงฟรีที่ตรงกับเกณฑ์ของคุณ",
-    "description": "ลองเลือกหมวดหมู่อื่นหรือเปลี่ยนคำค้นหาของคุณ"
+    "title": "ไม่พบตำราที่ตรงกับเงื่อนไข",
+    "description": "ลองเปลี่ยนคำค้นหาหรือกลับมาเยี่ยมชมอีกครั้ง"
   },
   "actions": {
-    "viewFreeSheet": "ดูแผ่นเพลงฟรี",
-    "viewYoutubeLesson": "ดูบทเรียน YouTube",
+    "viewFreeSheet": "ดูตำรา",
+    "viewBook": "ดูตำรา",
+    "addToCart": "เพิ่มในตะกร้า",
+    "buyNow": "ซื้อทันที",
+    "viewYoutubeLesson": "ดูวิดีโอตัวอย่าง",
     "goToDetail": "ไปที่หน้ารายละเอียด",
-    "closeDetail": "ปิดรายละเอียดแผ่นเพลงฟรี"
+    "closeDetail": "ปิดรายละเอียด"
+  },
+  "price": {
+    "free": "ฟรี",
+    "originalPrice": "ราคาเต็ม",
+    "discount": "ลด {{percent}}%"
   },
   "errors": {
-    "lessonCategoryLoadError": "โหลดหมวดหมู่บทเรียนกลองล้มเหลว กรุณาลองอีกครั้งในภายหลัง",
-    "lessonCategoryNotFound": "หมวดหมู่บทเรียนกลองไม่มีอยู่ กรุณาติดต่อผู้ดูแลระบบ",
-    "sheetsLoadError": "โหลดแผ่นเพลงบทเรียนกลองฟรีล้มเหลว กรุณาลองอีกครั้งในภายหลัง",
-    "generalError": "เกิดข้อผิดพลาดขณะโหลดแผ่นเพลงบทเรียนกลองฟรี",
-    "loginRequired": "จำเป็นต้องเข้าสู่ระบบ",
-    "favoriteError": "เกิดข้อผิดพลาดขณะประมวลผลรายการโปรด กรุณาลองอีกครั้งในภายหลัง",
+    "lessonCategoryLoadError": "ไม่สามารถโหลดหมวดหมู่ตำราเรียนกลองได้ กรุณาลองใหม่ภายหลัง",
+    "lessonCategoryNotFound": "ไม่พบหมวดหมู่ตำราเรียนกลอง กรุณาติดต่อผู้ดูแลระบบ",
+    "sheetsLoadError": "ไม่สามารถโหลดตำราเรียนกลองได้ กรุณาลองใหม่ภายหลัง",
+    "generalError": "เกิดข้อผิดพลาดขณะโหลดหน้าตำราเรียนกลอง",
+    "loginRequired": "ต้องเข้าสู่ระบบ",
+    "favoriteError": "เกิดปัญหาในการอัปเดตรายการโปรด กรุณาลองใหม่ภายหลัง",
     "pdfNotReady": "ลิงก์ PDF ยังไม่พร้อม",
-    "youtubeNotAvailable": "ไม่มีวิดีโอ YouTube ที่ลงทะเบียน"
+    "youtubeNotAvailable": "ยังไม่มีวิดีโอตัวอย่าง"
   },
   "mobile": {
-    "freeSheet": "แผ่นเพลงฟรี",
+    "freeSheet": "ตำรา",
     "upload": "อัปโหลด",
     "pages": "หน้า",
-    "youtubeLessonIncluded": "รวมบทเรียน YouTube",
-    "freeDownload": "ดาวน์โหลดฟรี",
-    "practiceWithPdf": "ฝึกซ้อมด้วยแผ่นเพลง PDF",
-    "favorite": "รายการโปรด",
-    "unfavorite": "ลบออกจากรายการโปรด"
+    "youtubeLessonIncluded": "มีวิดีโอตัวอย่าง",
+    "freeDownload": "ดาวน์โหลด PDF",
+    "practiceWithPdf": "เรียนอย่างเป็นระบบด้วยตำรา PDF",
+    "favorite": "เพิ่มในรายการโปรด",
+    "unfavorite": "นำออกจากรายการโปรด"
   },
   "console": {
-    "lessonCategoryError": "ข้อผิดพลาดการค้นหาหมวดหมู่บทเรียนกลอง:",
-    "primarySheetsError": "ข้อผิดพลาดการโหลดแผ่นเพลงบทเรียนกลองหลัก:",
-    "relationsError": "ข้อผิดพลาดการโหลดความสัมพันธ์หมวดหมู่บทเรียนกลอง:",
-    "additionalSheetsError": "ข้อผิดพลาดการโหลดแผ่นเพลงบทเรียนกลองเพิ่มเติม:",
-    "extraCategoriesError": "ข้อผิดพลาดการโหลดหมวดหมู่พิเศษ:",
-    "generalError": "ข้อผิดพลาดการประมวลผลหน้าแผ่นเพลงฟรี:",
-    "favoritesLoadError": "ข้อผิดพลาดการโหลดรายการโปรด:",
-    "favoriteToggleError": "ข้อผิดพลาดการสลับรายการโปรด:",
-    "userLoadError": "โหลดข้อมูลผู้ใช้ล้มเหลว:",
-    "youtubeUrlParseError": "การแยกวิเคราะห์ URL YouTube ล้มเหลว:"
+    "lessonCategoryError": "Drum lesson books category lookup error:",
+    "primarySheetsError": "Primary drum lesson books load error:",
+    "relationsError": "Drum lesson books category relation load error:",
+    "additionalSheetsError": "Additional drum lesson books load error:",
+    "extraCategoriesError": "Extra category load error:",
+    "generalError": "Drum lesson books page error:",
+    "favoritesLoadError": "Favorites load error:",
+    "favoriteToggleError": "Favorite toggle error:",
+    "userLoadError": "Failed to load user information:",
+    "youtubeUrlParseError": "YouTube URL parse error:"
   }
 }

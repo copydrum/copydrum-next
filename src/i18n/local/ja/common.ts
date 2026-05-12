@@ -23,7 +23,7 @@ export default {
   'nav.guide': 'ご利用ガイド',
   'nav.eventSale': 'イベントセール',
   'nav.collections': 'コレクション',
-  'nav.drumLesson': 'Drum Lesson',
+  'nav.drumLesson': 'ドラムレッスン教材',
   'nav.freeSheets': '無料楽譜',
   'nav.customerSupport': 'カスタマーサポート',
   'nav.company.about': '会社概要',

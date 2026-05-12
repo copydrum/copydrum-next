@@ -1,79 +1,89 @@
 {
-  "badge": "無料ドラムレッスン",
-  "title": "無料ドラムレッスン楽譜",
-  "description": "ドラムレッスンカテゴリーのすべての楽譜を無料で探索！YouTubeレッスンと一緒に練習して、スキルをより早く向上させましょう。ドラムテクニック、ルーディメント、ドラムソロなど、さまざまな学習トピックから選択できます。",
+  "badge": "PDFドラム教材",
+  "title": "ドラムレッスン教材",
+  "description": "プロが編纂したPDFドラム教材をご紹介します。フィルイン、ソロ、ルーティン、テクニックなど、テーマ別の専門教材で体系的にスキルアップできます。",
   "features": {
-    "freeDownload": "無料フルダウンロード",
-    "categoryLearning": "カテゴリー別学習",
-    "youtubeLesson": "YouTubeレッスンリンク"
+    "freeDownload": "PDF即時ダウンロード",
+    "categoryLearning": "体系的なカリキュラム",
+    "youtubeLesson": "永久所有・再ダウンロード可能"
   },
   "categories": {
     "all": "すべて",
     "drumTechnique": "ドラムテクニック",
-    "rudiment": "ルーディメント",
+    "rudiment": "ルーディメンツ",
     "drumSolo": "ドラムソロ",
-    "beginnerBasics": "初級/基礎",
+    "beginnerBasics": "基礎/入門",
     "rhythmPattern": "リズムパターン",
     "fillIn": "フィルイン",
-    "drumLesson": "ドラムレッスン",
-    "categoryPending": "カテゴリー保留中"
+    "drumLesson": "ドラムレッスン教材",
+    "categoryPending": "カテゴリ準備中"
   },
   "search": {
-    "placeholder": "タイトル、アーティスト、またはタグで検索"
+    "placeholder": "教材名・著者で検索"
   },
   "sort": {
     "label": "並び替え",
-    "latest": "最新",
-    "title": "タイトル",
-    "difficulty": "難易度"
+    "latest": "新着順",
+    "title": "タイトル順",
+    "difficulty": "レベル順",
+    "priceLow": "価格が安い順",
+    "priceHigh": "価格が高い順"
   },
   "difficulty": {
     "beginner": "初級",
     "intermediate": "中級",
     "advanced": "上級",
-    "notAvailable": "難易度情報なし"
+    "notAvailable": "レベル情報なし"
   },
-  "loading": "無料ドラムレッスン楽譜を読み込み中...",
+  "loading": "ドラムレッスン教材を読み込んでいます...",
   "empty": {
-    "title": "条件に一致する無料楽譜がありません。",
-    "description": "別のカテゴリーを選択するか、検索語を変更してお試しください。"
+    "title": "条件に合う教材がありません。",
+    "description": "検索キーワードを変更するか、しばらくしてからもう一度お試しください。"
   },
   "actions": {
-    "viewFreeSheet": "無料ダウンロード",
-    "viewYoutubeLesson": "YouTubeレッスンを見る",
+    "viewFreeSheet": "教材を見る",
+    "viewBook": "教材を見る",
+    "addToCart": "カートに追加",
+    "buyNow": "今すぐ購入",
+    "viewYoutubeLesson": "サンプル動画を見る",
     "goToDetail": "詳細ページへ",
-    "closeDetail": "無料楽譜詳細を閉じる"
+    "closeDetail": "教材詳細を閉じる"
+  },
+  "price": {
+    "free": "無料",
+    "originalPrice": "定価",
+    "discount": "{{percent}}%OFF"
   },
   "errors": {
-    "lessonCategoryLoadError": "ドラムレッスンカテゴリーの読み込みに失敗しました。後でもう一度お試しください。",
-    "lessonCategoryNotFound": "ドラムレッスンカテゴリーが存在しません。管理者にお問い合わせください。",
-    "sheetsLoadError": "無料ドラムレッスン楽譜の読み込みに失敗しました。後でもう一度お試しください。",
-    "generalError": "無料ドラムレッスン楽譜の読み込み中にエラーが発生しました。",
+    "lessonCategoryLoadError": "ドラムレッスン教材カテゴリの読み込みに失敗しました。しばらくしてからもう一度お試しください。",
+    "lessonCategoryNotFound": "ドラムレッスン教材カテゴリが存在しません。管理者にお問い合わせください。",
+    "sheetsLoadError": "ドラムレッスン教材の読み込みに失敗しました。しばらくしてからもう一度お試しください。",
+    "generalError": "ドラムレッスン教材ページの読み込み中にエラーが発生しました。",
     "loginRequired": "ログインが必要です。",
-    "favoriteError": "お気に入り処理中にエラーが発生しました。後でもう一度お試しください。",
+    "favoriteError": "お気に入り処理中に問題が発生しました。しばらくしてからもう一度お試しください。",
     "pdfNotReady": "PDFリンクの準備ができていません。",
-    "youtubeNotAvailable": "YouTube動画が登録されていません。"
+    "youtubeNotAvailable": "登録されたサンプル動画はありません。"
   },
   "mobile": {
-    "freeSheet": "無料楽譜",
+    "freeSheet": "教材",
     "upload": "アップロード",
     "pages": "ページ",
-    "youtubeLessonIncluded": "YouTubeレッスン含む",
-    "freeDownload": "無料ダウンロード",
-    "practiceWithPdf": "PDF楽譜で練習します。",
+    "youtubeLessonIncluded": "サンプル動画あり",
+    "freeDownload": "PDFをダウンロード",
+    "practiceWithPdf": "PDF教材で体系的に学習しましょう。",
     "favorite": "お気に入り",
     "unfavorite": "お気に入り解除"
   },
   "console": {
-    "lessonCategoryError": "ドラムレッスンカテゴリー検索エラー:",
-    "primarySheetsError": "主要ドラムレッスン楽譜読み込みエラー:",
-    "relationsError": "ドラムレッスンカテゴリー関連読み込みエラー:",
-    "additionalSheetsError": "追加ドラムレッスン楽譜読み込みエラー:",
-    "extraCategoriesError": "追加カテゴリー読み込みエラー:",
-    "generalError": "無料楽譜ページ処理エラー:",
-    "favoritesLoadError": "お気に入り読み込みエラー:",
+    "lessonCategoryError": "ドラムレッスン教材カテゴリ取得エラー:",
+    "primarySheetsError": "ドラムレッスン教材ロードエラー:",
+    "relationsError": "ドラムレッスン教材カテゴリ関連ロードエラー:",
+    "additionalSheetsError": "追加ドラムレッスン教材ロードエラー:",
+    "extraCategoriesError": "追加カテゴリロードエラー:",
+    "generalError": "ドラムレッスン教材ページ処理エラー:",
+    "favoritesLoadError": "お気に入りロードエラー:",
     "favoriteToggleError": "お気に入り切り替えエラー:",
     "userLoadError": "ユーザー情報の読み込みに失敗しました:",
-    "youtubeUrlParseError": "YouTube URL解析に失敗しました:"
+    "youtubeUrlParseError": "YouTube URL 解析失敗:"
   }
 }
