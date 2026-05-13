@@ -49,6 +49,7 @@ interface HomeCollection {
 interface FreeLessonSheet {
   id: string;
   title: string;
+  title_translations?: Record<string, string> | null;
   artist: string;
   difficulty: string | null;
   thumbnail_url: string | null;
@@ -602,7 +603,7 @@ export default function Home() {
       // 2. 해당 카테고리의 활성 교재 6권 가져오기
       const { data: sheets, error: sheetsError } = await supabase
         .from('drum_sheets')
-        .select('id, title, artist, difficulty, thumbnail_url, youtube_url, pdf_url, slug, created_at, price, page_count, categories ( name )')
+        .select('id, title, title_translations, artist, difficulty, thumbnail_url, youtube_url, pdf_url, slug, created_at, price, page_count, categories ( name )')
         .eq('category_id', lessonCategory.id)
         .eq('is_active', true)
         .order('created_at', { ascending: false })
@@ -634,6 +635,13 @@ export default function Home() {
       return collection.title_translations['en'];
     }
     return collection.title;
+  };
+
+  /** 드럼레슨 교재: 한국어 사이트는 한글 제목, 그 외는 영문 제목(없으면 한글) */
+  const getFreeLessonSheetTitle = (sheet: FreeLessonSheet) => {
+    if (i18n.language === 'ko') return sheet.title;
+    const en = sheet.title_translations?.en?.trim();
+    return en || sheet.title;
   };
 
   const getCollectionLocalizedDescription = (collection: HomeCollection) => {
@@ -1486,7 +1494,7 @@ export default function Home() {
                           <div className="relative aspect-[3/4] bg-gradient-to-br from-amber-50 to-orange-50 overflow-hidden">
                             <img
                               src={sheet.thumbnail_url || generateDefaultThumbnail(600, 800)}
-                              alt={sheet.title}
+                              alt={getFreeLessonSheetTitle(sheet)}
                               className="w-full h-full object-cover"
                               onError={(e) => {
                                 const img = e.target as HTMLImageElement;
@@ -1507,7 +1515,7 @@ export default function Home() {
                           {/* Content */}
                           <div className="p-3">
                             <h4 className="font-bold text-gray-900 text-sm line-clamp-2 leading-snug mb-1">
-                              {sheet.title}
+                              {getFreeLessonSheetTitle(sheet)}
                             </h4>
                             <p className="text-[11px] text-gray-500 line-clamp-1 mb-2">{sheet.artist}</p>
                             <div className="text-base font-extrabold text-gray-900">
@@ -1549,7 +1557,7 @@ export default function Home() {
                         <div className="relative aspect-[3/4] bg-gradient-to-br from-amber-50 to-orange-50 overflow-hidden">
                           <img
                             src={sheet.thumbnail_url || generateDefaultThumbnail(600, 800)}
-                            alt={sheet.title}
+                            alt={getFreeLessonSheetTitle(sheet)}
                             className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
                             onError={(e) => {
                               const img = e.target as HTMLImageElement;
@@ -1573,7 +1581,7 @@ export default function Home() {
                         {/* Content */}
                         <div className="p-4">
                           <h4 className="font-bold text-gray-900 text-sm line-clamp-2 leading-snug mb-1 hover:text-orange-600 transition-colors">
-                            {sheet.title}
+                            {getFreeLessonSheetTitle(sheet)}
                           </h4>
                           <p className="text-xs text-gray-500 line-clamp-1 mb-3">{sheet.artist}</p>
                           <div className="text-lg font-extrabold text-gray-900">
