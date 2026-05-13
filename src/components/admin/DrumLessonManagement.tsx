@@ -19,6 +19,8 @@ interface LessonBookSheet {
   table_of_contents?: string | null;
   title_translations?: Record<string, string> | null;
   table_of_contents_translations?: Record<string, string> | null;
+  /** 악보 미리보기용 PDF 페이지 (1부터). null이면 1페이지와 동일 */
+  preview_pdf_page?: number | null;
   is_active: boolean;
   created_at: string;
 }
@@ -37,6 +39,8 @@ interface BookFormData {
   tempo: number;
   detail_page_ko: string;   // 상세(한국어) → table_of_contents
   detail_page_en: string;   // 상세(영문) → table_of_contents_translations.en
+  /** PDF에서 모자이크 미리보기로 쓸 페이지 번호 (1 = 첫 페이지) */
+  preview_pdf_page: number;
   pdf_file: File | null;
 }
 
@@ -54,6 +58,7 @@ const createEmptyForm = (): BookFormData => ({
   tempo: 0,
   detail_page_ko: '',
   detail_page_en: '',
+  preview_pdf_page: 1,
   pdf_file: null,
 });
 
@@ -96,6 +101,48 @@ const applyMosaicToImageData = (imageData: ImageData, blockSize = 15): ImageData
   }
   return imageData;
 };
+
+/** PDF 버퍼에서 지정 페이지(1-based)를 렌더해 모자이크 JPEG를 스토리지에 올리고 public URL 반환 */
+async function uploadMosaicPreviewFromPdfPage(
+  pdfArrayBuffer: ArrayBuffer,
+  page1Based: number,
+): Promise<{ previewImageUrl: string; pageUsed: number }> {
+  const loadingTask = pdfjsLib.getDocument({ data: pdfArrayBuffer });
+  const pdf = await loadingTask.promise;
+  const numPages = pdf.numPages;
+  const pageIdx = Math.min(Math.max(1, page1Based || 1), numPages);
+  const page = await pdf.getPage(pageIdx);
+  const viewport = page.getViewport({ scale: 2.0 });
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  if (!ctx) {
+    return { previewImageUrl: '', pageUsed: pageIdx };
+  }
+  canvas.width = viewport.width;
+  canvas.height = viewport.height;
+  await page.render({ canvasContext: ctx, viewport }).promise;
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const mosaicData = applyMosaicToImageData(imageData, 15);
+  ctx.putImageData(mosaicData, 0, 0);
+  const blob = await new Promise<Blob>((resolve, reject) => {
+    canvas.toBlob(
+      (b) => (b ? resolve(b) : reject(new Error('blob fail'))),
+      'image/jpeg',
+      0.85,
+    );
+  });
+  const imgFileName = `preview_${Date.now()}_${Math.random().toString(36).substring(7)}.jpg`;
+  const imgPath = `previews/${imgFileName}`;
+  const { error: imgErr } = await supabase.storage
+    .from('drum-sheets')
+    .upload(imgPath, blob, { contentType: 'image/jpeg', upsert: true });
+  if (imgErr) {
+    console.warn('미리보기 스토리지 업로드 실패:', imgErr);
+    return { previewImageUrl: '', pageUsed: pageIdx };
+  }
+  const { data: imgUrlData } = supabase.storage.from('drum-sheets').getPublicUrl(imgPath);
+  return { previewImageUrl: imgUrlData.publicUrl, pageUsed: pageIdx };
+}
 
 // ─── Component ───────────────────────────────────────
 export default function DrumLessonManagement() {
@@ -168,16 +215,17 @@ export default function DrumLessonManagement() {
     setter(maxResUrl);
   };
 
-  // ── PDF Upload (PDF + page count + mosaic preview image) ──
+  // ── PDF Upload (PDF + page count + mosaic preview image, 페이지 지정 가능) ──
   const handlePdfUpload = async (
     file: File,
     setter: (updates: Partial<BookFormData>) => void,
+    previewPage1Based: number,
   ) => {
     setIsUploadingPdf(true);
     try {
+      const arrayBuffer = await file.arrayBuffer();
       let pageCount = 0;
       try {
-        const arrayBuffer = await file.arrayBuffer();
         const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
         const pdf = await loadingTask.promise;
         pageCount = pdf.numPages;
@@ -203,50 +251,65 @@ export default function DrumLessonManagement() {
       const pdfUrl = urlData.publicUrl;
 
       let previewImageUrl = '';
+      let pageUsedForPreview = Math.max(1, previewPage1Based || 1);
       try {
-        const ab = await file.arrayBuffer();
-        const loadingTask = pdfjsLib.getDocument({ data: ab });
-        const pdf = await loadingTask.promise;
-        if (pdf.numPages > 0) {
-          const page = await pdf.getPage(1);
-          const viewport = page.getViewport({ scale: 2.0 });
-          const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d');
-          if (ctx) {
-            canvas.width = viewport.width;
-            canvas.height = viewport.height;
-            await page.render({ canvasContext: ctx, viewport }).promise;
-            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const mosaicData = applyMosaicToImageData(imageData, 15);
-            ctx.putImageData(mosaicData, 0, 0);
-            const blob = await new Promise<Blob>((resolve, reject) => {
-              canvas.toBlob(
-                (b) => (b ? resolve(b) : reject(new Error('blob fail'))),
-                'image/jpeg',
-                0.85,
-              );
-            });
-            const imgFileName = `preview_${Date.now()}_${Math.random().toString(36).substring(7)}.jpg`;
-            const imgPath = `previews/${imgFileName}`;
-            const { error: imgErr } = await supabase.storage
-              .from('drum-sheets')
-              .upload(imgPath, blob, { contentType: 'image/jpeg', upsert: true });
-            if (!imgErr) {
-              const { data: imgUrlData } = supabase.storage
-                .from('drum-sheets')
-                .getPublicUrl(imgPath);
-              previewImageUrl = imgUrlData.publicUrl;
-            }
-          }
+        if (pageCount > 0) {
+          pageUsedForPreview = Math.min(Math.max(1, previewPage1Based || 1), pageCount);
+          const { previewImageUrl: url } = await uploadMosaicPreviewFromPdfPage(
+            arrayBuffer,
+            pageUsedForPreview,
+          );
+          previewImageUrl = url;
         }
       } catch (e) {
         console.warn('미리보기 생성 실패:', e);
       }
 
-      setter({ pdf_url: pdfUrl, page_count: pageCount, preview_image_url: previewImageUrl });
-      alert(`PDF 업로드 완료! 페이지수: ${pageCount}페이지`);
+      setter({
+        pdf_url: pdfUrl,
+        page_count: pageCount,
+        preview_image_url: previewImageUrl,
+        preview_pdf_page: pageUsedForPreview,
+      });
+      alert(
+        `PDF 업로드 완료! 총 ${pageCount}페이지 · 미리보기는 ${pageUsedForPreview}페이지에서 생성했습니다.`,
+      );
     } catch (error: any) {
       alert(`PDF 업로드 오류: ${error.message}`);
+    } finally {
+      setIsUploadingPdf(false);
+    }
+  };
+
+  /** 이미 업로드된 PDF URL에서 미리보기만 다시 생성 (페이지 번호 변경 후 사용) */
+  const regenerateLessonPreviewFromPdf = async (
+    pdfUrl: string,
+    previewPage1Based: number,
+    setter: (updates: Partial<BookFormData>) => void,
+  ) => {
+    if (!pdfUrl) {
+      alert('PDF가 먼저 업로드되어 있어야 합니다.');
+      return;
+    }
+    setIsUploadingPdf(true);
+    try {
+      const res = await fetch(pdfUrl, { mode: 'cors' });
+      if (!res.ok) {
+        throw new Error(`PDF 불러오기 실패 (${res.status})`);
+      }
+      const ab = await res.arrayBuffer();
+      const { previewImageUrl, pageUsed } = await uploadMosaicPreviewFromPdfPage(
+        ab,
+        previewPage1Based,
+      );
+      if (!previewImageUrl) {
+        throw new Error('미리보기 이미지 생성에 실패했습니다.');
+      }
+      setter({ preview_image_url: previewImageUrl, preview_pdf_page: pageUsed });
+      alert(`미리보기를 ${pageUsed}페이지 기준으로 다시 생성했습니다.`);
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : '미리보기 재생성 실패';
+      alert(msg);
     } finally {
       setIsUploadingPdf(false);
     }
@@ -329,6 +392,8 @@ export default function DrumLessonManagement() {
       if (form.page_count > 0) insertData.page_count = form.page_count;
       if (form.tempo > 0) insertData.tempo = form.tempo;
       if (form.preview_image_url) insertData.preview_image_url = form.preview_image_url;
+      const previewPage = Math.max(1, Math.floor(form.preview_pdf_page) || 1);
+      insertData.preview_pdf_page = previewPage;
       if (form.detail_page_ko.trim()) insertData.table_of_contents = form.detail_page_ko.trim();
       if (form.title_en.trim()) insertData.title_translations = { en: form.title_en.trim() };
       if (form.detail_page_en.trim()) {
@@ -397,6 +462,7 @@ export default function DrumLessonManagement() {
       detail_page_ko: book.table_of_contents || '',
       detail_page_en: detailEn,
       pdf_file: null,
+      preview_pdf_page: book.preview_pdf_page != null && book.preview_pdf_page > 0 ? book.preview_pdf_page : 1,
     });
   };
 
@@ -432,6 +498,8 @@ export default function DrumLessonManagement() {
         table_of_contents_translations: editForm.detail_page_en.trim()
           ? { en: editForm.detail_page_en.trim() }
           : null,
+        preview_pdf_page: Math.max(1, Math.floor(editForm.preview_pdf_page) || 1),
+        preview_image_url: editForm.preview_image_url || null,
       };
 
       const { error: updateError } = await supabase
@@ -685,7 +753,14 @@ export default function DrumLessonManagement() {
           onClose={() => setShowAddBook(false)}
           onSubmit={handleAddBook}
           onPdfUpload={(file) =>
-            handlePdfUpload(file, (updates) => setForm((prev) => ({ ...prev, ...updates })))
+            handlePdfUpload(file, (updates) => setForm((prev) => ({ ...prev, ...updates })), form.preview_pdf_page)
+          }
+          onRegeneratePdfPreview={() =>
+            regenerateLessonPreviewFromPdf(
+              form.pdf_url,
+              Math.max(1, form.preview_pdf_page || 1),
+              (updates) => setForm((prev) => ({ ...prev, ...updates })),
+            )
           }
           onCoverUpload={(file) =>
             handleCoverImageUpload(file, (url) => setForm((prev) => ({ ...prev, thumbnail_url: url })))
@@ -712,6 +787,14 @@ export default function DrumLessonManagement() {
           onPdfUpload={(file) =>
             handlePdfUpload(file, (updates) =>
               setEditForm((prev) => ({ ...prev, ...updates })),
+              editForm.preview_pdf_page,
+            )
+          }
+          onRegeneratePdfPreview={() =>
+            regenerateLessonPreviewFromPdf(
+              editForm.pdf_url,
+              Math.max(1, editForm.preview_pdf_page || 1),
+              (updates) => setEditForm((prev) => ({ ...prev, ...updates })),
             )
           }
           onCoverUpload={(file) =>
@@ -741,6 +824,8 @@ interface BookFormModalProps {
   onClose: () => void;
   onSubmit: () => void;
   onPdfUpload: (file: File) => void;
+  /** PDF가 이미 있을 때, 입력한 페이지 번호로 모자이크 미리보기만 다시 생성 */
+  onRegeneratePdfPreview: () => void | Promise<void>;
   onCoverUpload: (file: File) => void;
   onLessonDetailImageUpload: (file: File) => Promise<string>;
   onYoutubeAutoFillThumb: (url: string) => void;
@@ -755,6 +840,7 @@ function BookFormModal({
   onClose,
   onSubmit,
   onPdfUpload,
+  onRegeneratePdfPreview,
   onCoverUpload,
   onLessonDetailImageUpload,
   onYoutubeAutoFillThumb,
@@ -928,36 +1014,92 @@ function BookFormModal({
               </div>
             </div>
 
-            {/* PDF 업로드 */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                교재 PDF 파일 *
-              </label>
-              <input
-                type="file"
-                accept=".pdf"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    setForm((prev) => ({ ...prev, pdf_file: file }));
-                    onPdfUpload(file);
-                  }
-                }}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 text-sm"
-              />
-              {isUploadingPdf && (
-                <p className="mt-1 text-sm text-orange-600 flex items-center gap-1">
-                  <i className="ri-loader-4-line animate-spin"></i> PDF 업로드 및 처리 중...
+            {/* PDF 업로드 + 미리보기 페이지 지정 */}
+            <div className="rounded-lg border border-amber-100 bg-amber-50/40 p-4 space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-800 mb-1">
+                  악보 미리보기용 PDF 페이지
+                </label>
+                <p className="text-xs text-gray-600 mb-2">
+                  교재 PDF는 보통 1페이지가 책 표지입니다. 상세 페이지에 보일 <strong>모자이크 미리보기</strong>를 PDF의 몇 번째 페이지에서
+                  만들지 입력하세요. (예: 본문이 3페이지부터면 <strong>3</strong>)
                 </p>
-              )}
-              {form.page_count > 0 && (
-                <p className="mt-1 text-sm text-gray-600">페이지수: {form.page_count}페이지</p>
-              )}
-              {form.pdf_url && !isUploadingPdf && (
-                <p className="mt-1 text-xs text-green-600 truncate">
-                  업로드 완료: <a href={form.pdf_url} target="_blank" rel="noreferrer" className="underline">PDF 링크 확인</a>
-                </p>
-              )}
+                <div className="flex flex-wrap items-center gap-3">
+                  <input
+                    type="number"
+                    min={1}
+                    max={form.page_count > 0 ? form.page_count : undefined}
+                    value={form.preview_pdf_page || 1}
+                    onChange={(e) => {
+                      const v = Math.max(1, Math.floor(Number(e.target.value)) || 1);
+                      setForm({ ...form, preview_pdf_page: v });
+                    }}
+                    className="w-28 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 text-sm"
+                  />
+                  <span className="text-sm text-gray-600">
+                    페이지부터 미리보기 생성
+                    {form.page_count > 0 ? (
+                      <span className="text-gray-500"> (PDF 총 {form.page_count}페이지)</span>
+                    ) : null}
+                  </span>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">교재 PDF 파일 *</label>
+                <input
+                  type="file"
+                  accept=".pdf"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setForm((prev) => ({ ...prev, pdf_file: file }));
+                      onPdfUpload(file);
+                    }
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 text-sm bg-white"
+                />
+                {isUploadingPdf && (
+                  <p className="mt-1 text-sm text-orange-600 flex items-center gap-1">
+                    <i className="ri-loader-4-line animate-spin"></i> PDF 업로드 및 미리보기 처리 중...
+                  </p>
+                )}
+                {form.page_count > 0 && (
+                  <p className="mt-1 text-sm text-gray-600">페이지수: {form.page_count}페이지</p>
+                )}
+                {form.pdf_url && !isUploadingPdf && (
+                  <p className="mt-1 text-xs text-green-700 truncate">
+                    업로드 완료:{' '}
+                    <a href={form.pdf_url} target="_blank" rel="noreferrer" className="underline">
+                      PDF 링크 확인
+                    </a>
+                  </p>
+                )}
+                {form.pdf_url && !isUploadingPdf && (
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => void onRegeneratePdfPreview()}
+                      className="text-sm px-3 py-1.5 rounded-lg bg-white border border-orange-300 text-orange-800 hover:bg-orange-50"
+                    >
+                      위 페이지 번호로 미리보기 다시 만들기
+                    </button>
+                    <span className="text-xs text-gray-500">
+                      페이지 번호만 바꾼 뒤 이 버튼을 누르면 이미지가 갱신됩니다.
+                    </span>
+                  </div>
+                )}
+                {form.preview_image_url ? (
+                  <div className="mt-3 flex items-start gap-3">
+                    <span className="text-xs text-gray-600 shrink-0 pt-1">현재 미리보기:</span>
+                    <img
+                      src={form.preview_image_url}
+                      alt="PDF 미리보기"
+                      className="max-h-40 rounded border border-gray-200 shadow-sm"
+                    />
+                  </div>
+                ) : null}
+              </div>
             </div>
 
             {/* 상세페이지(한/영): 텍스트 + 이미지 삽입 */}
