@@ -1820,10 +1820,14 @@ const AdminPage: React.FC = () => {
       }
 
       // 2. 세션이 없으면 상태 변화 대기 (탭 복귀·리다이렉트 지연 대응)
-      const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event: AuthChangeEvent, session: Session | null) => {
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
         if (session?.user) {
           setUser(session.user);
-          await checkAdminStatus(session.user);
+          // 인증 콜백 내부에서 직접 Supabase 쿼리를 호출하면 인증 잠금과 충돌해
+          // 교착(deadlock)이 발생할 수 있으므로, setTimeout으로 콜백 밖에서 실행한다.
+          setTimeout(() => {
+            void checkAdminStatus(session.user);
+          }, 0);
           subscription.unsubscribe();
         } else if (event === 'SIGNED_OUT' || !session) {
           window.location.href = LOGIN_PATH;

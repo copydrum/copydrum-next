@@ -330,7 +330,7 @@ const MyOrdersPage = () => {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!isMounted) {
         return;
       }
@@ -339,15 +339,20 @@ const MyOrdersPage = () => {
       setUser(nextUser);
 
       if (nextUser) {
-        setLoading(true);
-        try {
-          await loadOrders(nextUser, paymentStatusFilter);
-        } catch (error) {
-          console.error('구매 내역 갱신 오류:', error);
-          setOrders([]);
-        } finally {
-          setLoading(false);
-        }
+        // 인증 콜백 내부에서 직접 Supabase 쿼리를 호출하면 인증 잠금과 충돌해
+        // 교착(deadlock)이 발생할 수 있으므로, setTimeout으로 콜백 밖에서 실행한다.
+        setTimeout(() => {
+          if (!isMounted) return;
+          setLoading(true);
+          loadOrders(nextUser, paymentStatusFilter)
+            .catch((error) => {
+              console.error('구매 내역 갱신 오류:', error);
+              setOrders([]);
+            })
+            .finally(() => {
+              if (isMounted) setLoading(false);
+            });
+        }, 0);
       } else {
         setOrders([]);
       }

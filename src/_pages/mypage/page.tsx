@@ -576,24 +576,28 @@ export default function MyPage() {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event: AuthChangeEvent, session: Session | null) => {
+    } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
       if (!isMounted) return;
 
       const nextUser = session?.user ?? null;
       setUser(nextUser);
 
       if (nextUser) {
-        if (event === 'USER_UPDATED') {
-          setLoading(true);
-          try {
-            await Promise.allSettled([loadProfile(nextUser)]);
-          } finally {
-            setLoading(false);
-          }
-          return;
-        }
+        // Supabase 인증 콜백 내부에서 직접 DB 쿼리를 호출하면 인증 잠금과 충돌해
+        // 교착(deadlock)이 발생할 수 있으므로, setTimeout으로 콜백 실행 컨텍스트 밖에서 처리한다.
+        setTimeout(() => {
+          if (!isMounted) return;
 
-        await loadAll(nextUser);
+          if (event === 'USER_UPDATED') {
+            setLoading(true);
+            Promise.allSettled([loadProfile(nextUser)]).finally(() => {
+              if (isMounted) setLoading(false);
+            });
+            return;
+          }
+
+          loadAll(nextUser);
+        }, 0);
       } else {
         setProfile(null);
         setProfileForm({ name: '', phone: '' });
