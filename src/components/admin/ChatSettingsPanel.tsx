@@ -42,7 +42,8 @@ export default function ChatSettingsPanel({ updatedBy }: { updatedBy?: string | 
       await updateSettings({ chat }, { updatedBy: updatedBy ?? null });
       setSavedAt(new Date().toLocaleTimeString('ko-KR'));
     } catch (e) {
-      alert('저장에 실패했습니다.');
+      const msg = e && typeof e === 'object' && 'message' in e ? String((e as { message: string }).message) : '';
+      alert(msg ? `저장에 실패했습니다.\n${msg}` : '저장에 실패했습니다.');
     } finally {
       setSaving(false);
     }

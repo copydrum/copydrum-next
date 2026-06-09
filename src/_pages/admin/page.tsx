@@ -1618,7 +1618,7 @@ const AdminPage: React.FC = () => {
       } as Partial<{ [K in SiteSettingKey]: SiteSettings[K] }>;
 
       const { settings, rows } = await updateSettings(payload, {
-        updatedBy: user?.email ?? user?.id ?? null,
+        updatedBy: user?.id ?? null,
       });
 
       setSiteSettings(settings);
@@ -15078,7 +15078,7 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
       case 'chat':
         return <ChatInbox />;
       case 'chat-settings':
-        return <ChatSettingsPanel updatedBy={user?.email ?? user?.id ?? null} />;
+        return <ChatSettingsPanel updatedBy={user?.id ?? null} />;
       case 'custom-orders':
         return renderCustomOrderManagement();
       case 'points':

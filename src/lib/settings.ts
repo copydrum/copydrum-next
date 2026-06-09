@@ -254,6 +254,14 @@ export const getSettingByKey = async <K extends SiteSettingKey>(key: K): Promise
   return mergeWithDefaults(key, data.value as SiteSettingValue<K>);
 };
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** site_settings.updated_by 는 uuid 컬럼 — 이메일 등 비-uuid 값은 null 로 처리 */
+const sanitizeUpdatedBy = (value: string | null | undefined): string | null => {
+  if (!value) return null;
+  return UUID_RE.test(value) ? value : null;
+};
+
 export const updateSettings = async (
   payload: Partial<{ [K in SiteSettingKey]: SiteSettingValue<K> }>,
   options: { updatedBy?: string | null } = {}
@@ -267,11 +275,13 @@ export const updateSettings = async (
     return fetchSettings();
   }
 
+  const updatedBy = sanitizeUpdatedBy(options.updatedBy);
+
   const { error } = await supabase.from('site_settings').upsert(
     entries.map(([key, value]) => ({
       key,
       value,
-      updated_by: options.updatedBy ?? null,
+      updated_by: updatedBy,
     })),
     {
       onConflict: 'key',
