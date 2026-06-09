@@ -1,7 +1,7 @@
 'use client';
 
 import { supabase } from '@/lib/supabase';
-import { getSettingByKey, type ChatSettings } from '@/lib/settings';
+import { getPublicChatSettings, type ChatSettings } from '@/lib/settings';
 import type { ChatConversation, ChatMessage, GuestIdentity } from './types';
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -12,7 +12,7 @@ const CONVERSATION_FIELDS =
   'id, user_id, guest_token, guest_name, guest_email, status, channel, subject, last_message_at, last_message_preview, unread_for_admin, unread_for_user, assigned_admin_id, rating, created_at, updated_at';
 
 export async function loadChatSettings(): Promise<ChatSettings> {
-  return getSettingByKey('chat');
+  return getPublicChatSettings();
 }
 
 export interface BotResult {

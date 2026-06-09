@@ -255,6 +255,48 @@ export const getSettingByKey = async <K extends SiteSettingKey>(key: K): Promise
   return mergeWithDefaults(key, data.value as SiteSettingValue<K>);
 };
 
+const CHAT_SETTINGS_EDGE_URL = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/chat-guest`;
+const CHAT_SETTINGS_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
+
+/** chat-guest 엣지함수(service role)로 설정 조회 — RLS·RPC 없이도 동작 */
+async function fetchChatSettingsViaEdge(): Promise<Partial<ChatSettings> | null> {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !CHAT_SETTINGS_ANON_KEY) return null;
+  try {
+    const res = await fetch(CHAT_SETTINGS_EDGE_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        apikey: CHAT_SETTINGS_ANON_KEY,
+        Authorization: `Bearer ${CHAT_SETTINGS_ANON_KEY}`,
+      },
+      body: JSON.stringify({ action: 'settings' }),
+    });
+    if (!res.ok) return null;
+    const body = (await res.json()) as { settings?: Partial<ChatSettings> };
+    return body.settings ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/** 채팅 위젯용 공개 설정 (모든 방문자 동일 값) */
+export const getPublicChatSettings = async (): Promise<ChatSettings> => {
+  const viaEdge = await fetchChatSettingsViaEdge();
+  if (viaEdge !== null) {
+    return mergeWithDefaults('chat', viaEdge) as ChatSettings;
+  }
+
+  const { data, error } = await supabase.rpc('get_public_chat_settings');
+  if (!error) {
+    const value = (data ?? {}) as Partial<ChatSettings>;
+    return mergeWithDefaults('chat', value) as ChatSettings;
+  }
+
+  // 최후 fallback: 관리자만 직접 조회 가능
+  console.warn('chat settings public fetch failed, falling back to direct read:', error.message);
+  return getSettingByKey('chat');
+};
+
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /** site_settings.updated_by 는 uuid 컬럼 — 이메일 등 비-uuid 값은 null 로 처리 */

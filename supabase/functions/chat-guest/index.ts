@@ -5,6 +5,7 @@
 // 배포: supabase functions deploy chat-guest --no-verify-jwt
 //
 // action:
+//   settings: {} -> { settings }  (채팅 위젯 공개 설정, service role 조회)
 //   start: { name, email, channel, firstMessage? } -> { conversationId, token }
 //   send:  { token, conversationId, body } -> { ok }
 //   fetch: { token, conversationId, since? } -> { messages }
@@ -46,6 +47,17 @@ serve(async (req) => {
 
     const action = String(payload.action ?? "");
     const nowIso = new Date().toISOString();
+
+    // ── settings (공개: 위젯 on/off·운영시간 등) ──
+    if (action === "settings") {
+      const { data, error: settingsErr } = await service
+        .from("site_settings")
+        .select("value")
+        .eq("key", "chat")
+        .maybeSingle();
+      if (settingsErr) return json(500, { success: false, error: "설정 조회 실패" });
+      return json(200, { success: true, settings: data?.value ?? {} });
+    }
 
     // ── start ──
     if (action === "start") {
