@@ -6,6 +6,8 @@
 //
 // action:
 //   settings: {} -> { settings }  (채팅 위젯 공개 설정, service role 조회)
+//   ensureConversation: {} -> { conversationId }  (로그인 사용자, JWT 필요)
+//   userSend: { conversationId, body } -> { message }  (로그인 사용자, JWT 필요)
 //   start: { name, email, channel, firstMessage? } -> { conversationId, token }
 //   send:  { token, conversationId, body } -> { ok }
 //   fetch: { token, conversationId, since? } -> { messages }
@@ -25,6 +27,23 @@ const json = (status: number, body: Record<string, unknown>) =>
   });
 
 const isEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+
+async function getUserFromRequest(
+  req: Request,
+  supabaseUrl: string,
+): Promise<{ id: string } | null> {
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader?.startsWith("Bearer ")) return null;
+  const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
+  if (!anonKey) return null;
+  const userClient = createClient(supabaseUrl, anonKey, {
+    global: { headers: { Authorization: authHeader } },
+    auth: { persistSession: false },
+  });
+  const { data: { user }, error } = await userClient.auth.getUser();
+  if (error || !user) return null;
+  return { id: user.id };
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -47,6 +66,80 @@ serve(async (req) => {
 
     const action = String(payload.action ?? "");
     const nowIso = new Date().toISOString();
+
+    // ── ensureConversation (로그인 사용자) ──
+    if (action === "ensureConversation") {
+      const user = await getUserFromRequest(req, supabaseUrl);
+      if (!user) return json(401, { success: false, error: "로그인이 필요합니다." });
+
+      const { data: existing } = await service
+        .from("chat_conversations")
+        .select("id")
+        .eq("user_id", user.id)
+        .neq("status", "closed")
+        .order("last_message_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (existing?.id) return json(200, { success: true, conversationId: existing.id });
+
+      const { data: created, error: createErr } = await service
+        .from("chat_conversations")
+        .insert({ user_id: user.id, channel: "live", status: "open" })
+        .select("id")
+        .single();
+      if (createErr || !created) return json(500, { success: false, error: "대화를 생성하지 못했습니다." });
+      return json(200, { success: true, conversationId: created.id });
+    }
+
+    // ── userSend (로그인 사용자) ──
+    if (action === "userSend") {
+      const user = await getUserFromRequest(req, supabaseUrl);
+      if (!user) return json(401, { success: false, error: "로그인이 필요합니다." });
+
+      const conversationId = String(payload.conversationId ?? "");
+      const body = String(payload.body ?? "").trim().slice(0, 2000);
+      if (!conversationId || !body) {
+        return json(400, { success: false, error: "메시지를 입력해 주세요." });
+      }
+
+      const { data: conv } = await service
+        .from("chat_conversations")
+        .select("id, user_id, guest_email, status")
+        .eq("id", conversationId)
+        .maybeSingle();
+      if (!conv || conv.user_id !== user.id) {
+        return json(403, { success: false, error: "Forbidden" });
+      }
+
+      if (conv.status === "closed") {
+        await service.from("chat_conversations").update({ status: "open" }).eq("id", conversationId);
+      }
+
+      const { data: msg, error: insErr } = await service
+        .from("chat_messages")
+        .insert({
+          conversation_id: conversationId,
+          sender_type: "user",
+          sender_id: user.id,
+          body,
+        })
+        .select("id, conversation_id, sender_type, sender_id, body, attachment_url, read_at, created_at")
+        .single();
+      if (insErr || !msg) return json(500, { success: false, error: "전송 실패" });
+
+      await service
+        .from("chat_conversations")
+        .update({
+          last_message_at: nowIso,
+          last_message_preview: body.slice(0, 120),
+          status: "open",
+          unread_for_admin: 1,
+          updated_at: nowIso,
+        })
+        .eq("id", conversationId);
+
+      return json(200, { success: true, message: msg });
+    }
 
     // ── settings (공개: 위젯 on/off·운영시간 등) ──
     if (action === "settings") {

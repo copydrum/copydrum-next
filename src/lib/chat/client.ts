@@ -69,30 +69,59 @@ export function clearGuestSession(): void {
   window.localStorage.removeItem(GUEST_STORAGE_KEY);
 }
 
-// ── 로그인 사용자: 직접 RLS 접근 ──────────────────────────────────────────────
+async function callChatFnWithAuth<T>(action: string, payload: Record<string, unknown>): Promise<T> {
+  const { data: { session } } = await supabase.auth.getSession();
+  const bearer = session?.access_token ?? ANON_KEY;
+  const res = await fetch(`${SUPABASE_URL}/functions/v1/chat-guest`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      apikey: ANON_KEY,
+      Authorization: `Bearer ${bearer}`,
+    },
+    body: JSON.stringify({ action, ...payload }),
+  });
+  const json = await res.json();
+  if (!res.ok || json?.success === false) {
+    throw new Error(json?.error || `chat-guest ${action} failed`);
+  }
+  return json as T;
+}
+
+// ── 로그인 사용자: RLS 직접 접근, 실패 시 엣지 함수(service role) ─────────────
 export async function getOrCreateUserConversation(
   userId: string,
   channel: 'live' | 'offline_message',
 ): Promise<ChatConversation> {
-  const { data: existing } = await supabase
-    .from('chat_conversations')
-    .select(CONVERSATION_FIELDS)
-    .eq('user_id', userId)
-    .neq('status', 'closed')
-    .order('last_message_at', { ascending: false })
-    .limit(1)
-    .maybeSingle();
+  try {
+    const { data: existing } = await supabase
+      .from('chat_conversations')
+      .select(CONVERSATION_FIELDS)
+      .eq('user_id', userId)
+      .neq('status', 'closed')
+      .order('last_message_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
 
-  if (existing) return existing as ChatConversation;
+    if (existing) return existing as ChatConversation;
 
-  const { data: created, error } = await supabase
-    .from('chat_conversations')
-    .insert({ user_id: userId, channel, status: 'open' })
-    .select(CONVERSATION_FIELDS)
-    .single();
+    const { data: created, error } = await supabase
+      .from('chat_conversations')
+      .insert({ user_id: userId, channel, status: 'open' })
+      .select(CONVERSATION_FIELDS)
+      .single();
 
-  if (error) throw error;
-  return created as ChatConversation;
+    if (error) throw error;
+    return created as ChatConversation;
+  } catch {
+    const data = await callChatFnWithAuth<{ conversationId: string }>('ensureConversation', {});
+    return {
+      id: data.conversationId,
+      user_id: userId,
+      channel,
+      status: 'open',
+    } as ChatConversation;
+  }
 }
 
 export async function listUserMessages(conversationId: string): Promise<ChatMessage[]> {
@@ -111,31 +140,38 @@ export async function sendUserMessage(
   body: string,
 ): Promise<ChatMessage> {
   const trimmed = body.trim();
-  const { data, error } = await supabase
-    .from('chat_messages')
-    .insert({
-      conversation_id: conversationId,
-      sender_type: 'user',
-      sender_id: userId,
+  try {
+    const { data, error } = await supabase
+      .from('chat_messages')
+      .insert({
+        conversation_id: conversationId,
+        sender_type: 'user',
+        sender_id: userId,
+        body: trimmed,
+      })
+      .select('*')
+      .single();
+    if (error) throw error;
+
+    await supabase
+      .from('chat_conversations')
+      .update({
+        last_message_at: new Date().toISOString(),
+        last_message_preview: trimmed.slice(0, 120),
+        status: 'open',
+        unread_for_admin: 1,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', conversationId);
+
+    return data as ChatMessage;
+  } catch {
+    const data = await callChatFnWithAuth<{ message: ChatMessage }>('userSend', {
+      conversationId,
       body: trimmed,
-    })
-    .select('*')
-    .single();
-  if (error) throw error;
-
-  // 대화 메타 갱신(실패해도 메시지 전송은 성공으로 간주)
-  await supabase
-    .from('chat_conversations')
-    .update({
-      last_message_at: new Date().toISOString(),
-      last_message_preview: trimmed.slice(0, 120),
-      status: 'open',
-      unread_for_admin: 1,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', conversationId);
-
-  return data as ChatMessage;
+    });
+    return data.message;
+  }
 }
 
 /** 로그인 사용자: 해당 대화의 신규 메시지를 Realtime 으로 구독 */

@@ -57,6 +57,8 @@ export default function ChatWidget() {
   const [sending, setSending] = useState(false);
 
   const [conversationId, setConversationId] = useState<string | null>(null);
+  const [liveReady, setLiveReady] = useState(false);
+  const [sendError, setSendError] = useState<string | null>(null);
   const [botRunning, setBotRunning] = useState(false);
   const [offBotMessage, setOffBotMessage] = useState<string | null>(null);
   const guestSessionRef = useRef<GuestSession | null>(null);
@@ -73,6 +75,7 @@ export default function ChatWidget() {
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const realtimeUnsubRef = useRef<(() => void) | null>(null);
 
   // 초기 로드: 설정 + 사용자
   useEffect(() => {
@@ -94,8 +97,16 @@ export default function ChatWidget() {
         if (active) setSettings(null);
       }
     })();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!active) return;
+      setUserId(session?.user?.id ?? null);
+      setUserEmail(session?.user?.email ?? null);
+    });
+
     return () => {
       active = false;
+      authListener.subscription.unsubscribe();
     };
   }, []);
 
@@ -125,29 +136,45 @@ export default function ChatWidget() {
     scrollToBottom();
   }, [scrollToBottom]);
 
+  const attachRealtime = useCallback(
+    (convId: string) => {
+      realtimeUnsubRef.current?.();
+      realtimeUnsubRef.current = subscribeToConversation(convId, (msg) => appendUnique([msg]));
+    },
+    [appendUnique],
+  );
+
   // 라이브 채팅 초기화
   const initLive = useCallback(async () => {
-    if (userId) {
-      // 로그인 사용자: 직접 RLS + Realtime
-      const conv = await getOrCreateUserConversation(userId, 'live');
-      setConversationId(conv.id);
-      const msgs = await listUserMessages(conv.id);
-      setMessages(msgs);
-      scrollToBottom();
-      const unsub = subscribeToConversation(conv.id, (msg) => appendUnique([msg]));
-      return unsub;
+    setLiveReady(false);
+    setSendError(null);
+    try {
+      if (userId) {
+        const conv = await getOrCreateUserConversation(userId, 'live');
+        setConversationId(conv.id);
+        const msgs = await listUserMessages(conv.id);
+        setMessages(msgs);
+        scrollToBottom();
+        attachRealtime(conv.id);
+        setLiveReady(true);
+        return () => realtimeUnsubRef.current?.();
+      }
+      const session = readGuestSession();
+      guestSessionRef.current = session;
+      if (session) {
+        setConversationId(session.conversationId);
+        const msgs = await guestFetch(session);
+        setMessages(msgs);
+        scrollToBottom();
+        setLiveReady(true);
+      }
+      return undefined;
+    } catch (err) {
+      console.error('[chat] initLive failed', err);
+      setSendError(t.sendFailed);
+      return undefined;
     }
-    // 게스트: 기존 세션 있으면 폴링 시작, 없으면 시작 폼 노출(여기선 메시지 비움)
-    const session = readGuestSession();
-    guestSessionRef.current = session;
-    if (session) {
-      setConversationId(session.conversationId);
-      const msgs = await guestFetch(session);
-      setMessages(msgs);
-      scrollToBottom();
-    }
-    return undefined;
-  }, [userId, appendUnique, scrollToBottom]);
+  }, [userId, attachRealtime, scrollToBottom, t.sendFailed]);
 
   // 게스트 폴링
   useEffect(() => {
@@ -174,9 +201,11 @@ export default function ChatWidget() {
     let cleanup: (() => void) | undefined;
     if (online) {
       setView('live');
+      setLiveReady(false);
       // 게스트이면서 세션 없으면 시작 폼만, 있으면 초기화
       if (!userId && !readGuestSession()) {
         setMessages([]);
+        setConversationId(null);
       } else {
         initLive().then((unsub) => {
           cleanup = unsub;
@@ -184,11 +213,15 @@ export default function ChatWidget() {
       }
     } else {
       setView('offline');
+      setLiveReady(false);
+      setConversationId(null);
       setOffName('');
       setOffEmail(userEmail ?? '');
     }
     return () => {
       cleanup?.();
+      realtimeUnsubRef.current?.();
+      realtimeUnsubRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, online, settings, userId]);
@@ -197,17 +230,22 @@ export default function ChatWidget() {
     const body = input.trim();
     if (!body || sending) return;
     setSending(true);
+    setSendError(null);
     try {
-      if (userId && conversationId) {
-        const msg = await sendUserMessage(conversationId, userId, body);
-        appendUnique([msg]);
-      } else if (!userId) {
-        let session = guestSessionRef.current;
-        if (!session) {
-          // 게스트가 폼 없이 보낼 수 없음 — 시작 폼에서 처리
-          setSending(false);
-          return;
+      if (userId) {
+        let convId = conversationId;
+        if (!convId) {
+          const conv = await getOrCreateUserConversation(userId, 'live');
+          convId = conv.id;
+          setConversationId(conv.id);
+          attachRealtime(conv.id);
+          setLiveReady(true);
         }
+        const msg = await sendUserMessage(convId, userId, body);
+        appendUnique([msg]);
+      } else {
+        const session = guestSessionRef.current;
+        if (!session) return;
         await guestSend(session, body);
         appendUnique([
           {
@@ -223,12 +261,13 @@ export default function ChatWidget() {
         ]);
       }
       setInput('');
-    } catch {
-      /* noop */
+    } catch (err) {
+      console.error('[chat] send failed', err);
+      setSendError(t.sendFailed);
     } finally {
       setSending(false);
     }
-  }, [input, sending, userId, conversationId, appendUnique]);
+  }, [input, sending, userId, conversationId, appendUnique, attachRealtime, t.sendFailed]);
 
   const handleGuestStart = useCallback(async () => {
     if (!guestName.trim() || !guestEmail.trim()) return;
@@ -241,6 +280,7 @@ export default function ChatWidget() {
       guestSessionRef.current = session;
       setConversationId(session.conversationId);
       setMessages([]);
+      setLiveReady(true);
     } catch {
       /* noop */
     } finally {
@@ -479,26 +519,32 @@ export default function ChatWidget() {
                     </div>
                   )}
                 </div>
-                <div className="flex items-center gap-2 border-t border-gray-200 bg-white p-2">
-                  <input
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        handleSend();
-                      }
-                    }}
-                    placeholder={t.inputPlaceholder}
-                    className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
-                  />
-                  <button
-                    onClick={handleSend}
-                    disabled={sending || !input.trim()}
-                    className="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
-                  >
-                    {t.send}
-                  </button>
+                <div className="border-t border-gray-200 bg-white p-2">
+                  {sendError && (
+                    <p className="mb-1 text-xs text-red-600">{sendError}</p>
+                  )}
+                  <div className="flex items-center gap-2">
+                    <input
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault();
+                          handleSend();
+                        }
+                      }}
+                      placeholder={t.inputPlaceholder}
+                      disabled={!!userId && !liveReady && !conversationId}
+                      className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none disabled:bg-gray-50"
+                    />
+                    <button
+                      onClick={handleSend}
+                      disabled={sending || !input.trim() || (!!userId && !liveReady && !conversationId)}
+                      className="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
+                    >
+                      {t.send}
+                    </button>
+                  </div>
                 </div>
               </>
             )}

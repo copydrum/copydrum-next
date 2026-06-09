@@ -23,6 +23,7 @@ export interface ChatStrings {
   close: string;
   payBotRunning: string;
   payBotNeedEmail: string;
+  sendFailed: string;
 }
 
 const ko: ChatStrings = {
@@ -49,6 +50,7 @@ const ko: ChatStrings = {
   close: '닫기',
   payBotRunning: '결제 확인 중...',
   payBotNeedEmail: '결제하신 이메일을 먼저 입력해 주세요.',
+  sendFailed: '메시지 전송에 실패했습니다. 잠시 후 다시 시도해 주세요.',
 };
 
 const en: ChatStrings = {
@@ -75,6 +77,7 @@ const en: ChatStrings = {
   close: 'Close',
   payBotRunning: 'Checking your payment…',
   payBotNeedEmail: 'Please enter the email you paid with first.',
+  sendFailed: 'Failed to send your message. Please try again.',
 };
 
 const ja: ChatStrings = {
@@ -101,6 +104,7 @@ const ja: ChatStrings = {
   close: '閉じる',
   payBotRunning: '決済を確認中...',
   payBotNeedEmail: 'お支払いに使用したメールを先に入力してください。',
+  sendFailed: 'メッセージの送信に失敗しました。しばらくしてから再度お試しください。',
 };
 
 const DICT: Record<string, ChatStrings> = { ko, en, ja };
@@ -124,6 +128,26 @@ const CAT_REFUND: Record<string, string> = {
   it: 'Richiesta ordine personalizzato',
   tr: 'Özel sipariş talebi',
   uk: 'Запит на індивідуальне замовлення',
+};
+
+const SEND_FAILED: Record<string, string> = {
+  ko: '메시지 전송에 실패했습니다. 잠시 후 다시 시도해 주세요.',
+  en: 'Failed to send your message. Please try again.',
+  ja: 'メッセージの送信に失敗しました。しばらくしてから再度お試しください。',
+  'zh-CN': '消息发送失败，请稍后再试。',
+  'zh-TW': '訊息傳送失敗，請稍後再試。',
+  de: 'Nachricht konnte nicht gesendet werden. Bitte versuchen Sie es erneut.',
+  fr: "Échec de l'envoi du message. Veuillez réessayer.",
+  es: 'No se pudo enviar el mensaje. Inténtalo de nuevo.',
+  vi: 'Gửi tin nhắn thất bại. Vui lòng thử lại.',
+  th: 'ส่งข้อความไม่สำเร็จ กรุณาลองอีกครั้ง',
+  hi: 'संदेश भेजने में विफल। कृपया पुनः प्रयास करें।',
+  id: 'Gagal mengirim pesan. Silakan coba lagi.',
+  pt: 'Falha ao enviar a mensagem. Tente novamente.',
+  ru: 'Не удалось отправить сообщение. Попробуйте снова.',
+  it: 'Invio del messaggio non riuscito. Riprova.',
+  tr: 'Mesaj gönderilemedi. Lütfen tekrar deneyin.',
+  uk: 'Не вдалося надіслати повідомлення. Спробуйте ще раз.',
 };
 
 /** 오프라인 문의 입력 placeholder (17개 언어) */
@@ -161,5 +185,6 @@ export function getChatStrings(lang?: string): ChatStrings {
     ...base,
     catRefund: pickLocale(CAT_REFUND, locale),
     offlinePlaceholder: pickLocale(OFFLINE_PLACEHOLDER, locale),
+    sendFailed: pickLocale(SEND_FAILED, locale),
   };
 }
