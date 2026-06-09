@@ -480,12 +480,6 @@ export default function MyPage() {
           : [],
       );
       setDownloads(downloadItems);
-      setSelectedDownloadIds((prev) => {
-        const validKeys = new Set(
-          downloadItems.map((item) => buildDownloadKey(item.order_id, item.id)),
-        );
-        return prev.filter((key) => validKeys.has(key));
-      });
     } catch (error) {
       console.error(t('mypage.console.orderHistoryError'), error);
       // 오류가 발생해도 빈 배열로 설정하여 다른 데이터 로드는 계속 진행
@@ -831,17 +825,6 @@ export default function MyPage() {
     } finally {
       setDeletingAccount(false);
     }
-  };
-
-  const toggleDownloadSelection = (item: DownloadableItem) => {
-    if (!DOWNLOADABLE_STATUSES.includes((item.order_status ?? '').toLowerCase())) {
-      return;
-    }
-
-    const key = buildDownloadKey(item.order_id, item.id);
-    setSelectedDownloadIds((prev) =>
-      prev.includes(key) ? prev.filter((value) => value !== key) : [...prev, key]
-    );
   };
 
   const renderInquiryStatusBadge = (status: string) => {
