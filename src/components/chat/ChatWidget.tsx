@@ -3,9 +3,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '@/lib/supabase';
-import { isChatOnline, nextOpeningHint } from '@/lib/chat/online';
+import { isChatOnline } from '@/lib/chat/online';
 import { getChatStrings } from '@/lib/chat/strings';
-import { getChatWelcomeMessage, getChatOfflineMessage, getPayBotButtonLabel } from '@/lib/chat/messages';
+import {
+  getChatWelcomeMessage,
+  getChatOfflineMessage,
+  getPayBotButtonLabel,
+  getBusinessHoursHint,
+} from '@/lib/chat/messages';
 import type { ChatSettings } from '@/lib/settings';
 import {
   loadChatSettings,
@@ -37,6 +42,10 @@ export default function ChatWidget() {
     [i18n.language, settings],
   );
   const payBotLabel = useMemo(() => getPayBotButtonLabel(i18n.language), [i18n.language]);
+  const businessHoursHint = useMemo(
+    () => getBusinessHoursHint(i18n.language, settings),
+    [i18n.language, settings],
+  );
   const [open, setOpen] = useState(false);
   const [online, setOnline] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
@@ -336,8 +345,8 @@ export default function ChatWidget() {
               <div className="flex flex-1 flex-col overflow-y-auto p-4">
                 <div className="mb-3 rounded-lg bg-amber-50 p-3 text-sm text-amber-800 whitespace-pre-wrap">
                   {offlineText}
-                  {nextOpeningHint(settings) && (
-                    <p className="mt-1 text-xs text-amber-600">{nextOpeningHint(settings)}</p>
+                  {businessHoursHint && (
+                    <p className="mt-1 text-xs text-amber-600">{businessHoursHint}</p>
                   )}
                 </div>
 

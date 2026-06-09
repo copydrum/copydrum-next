@@ -128,7 +128,55 @@ const PAY_BOT_BUTTON: Record<string, string> = {
   uk: 'Не бачите ноти після оплати? (Натисніть цю кнопку)',
 };
 
+/** 운영시간 표시 접두사 (일요일=0 … 토요일=6) */
+const BUSINESS_HOURS_LABEL: Record<string, string> = {
+  ko: '운영시간:',
+  en: 'Business hours:',
+  ja: '営業時間:',
+  'zh-CN': '营业时间:',
+  'zh-TW': '營業時間:',
+  de: 'Öffnungszeiten:',
+  fr: "Heures d'ouverture :",
+  es: 'Horario:',
+  vi: 'Giờ làm việc:',
+  th: 'เวลาทำการ:',
+  hi: 'कार्य समय:',
+  id: 'Jam operasional:',
+  pt: 'Horário de atendimento:',
+  ru: 'Часы работы:',
+  it: 'Orari:',
+  tr: 'Çalışma saatleri:',
+  uk: 'Години роботи:',
+};
+
+const WEEKDAY_SHORT: Record<string, string[]> = {
+  ko: ['일', '월', '화', '수', '목', '금', '토'],
+  en: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+  ja: ['日', '月', '火', '水', '木', '金', '土'],
+  'zh-CN': ['周日', '周一', '周二', '周三', '周四', '周五', '周六'],
+  'zh-TW': ['週日', '週一', '週二', '週三', '週四', '週五', '週六'],
+  de: ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'],
+  fr: ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.'],
+  es: ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'],
+  vi: ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'],
+  th: ['อา.', 'จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.'],
+  hi: ['रवि', 'सोम', 'मंग', 'बुध', 'गुरु', 'शुक्र', 'शनि'],
+  id: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'],
+  pt: ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'],
+  ru: ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'],
+  it: ['dom', 'lun', 'mar', 'mer', 'gio', 'ven', 'sab'],
+  tr: ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'],
+  uk: ['Нд', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'],
+};
+
 function pickLocale(map: Record<string, string>, locale: string): string {
+  if (map[locale]) return map[locale];
+  const base = locale.split('-')[0];
+  if (map[base]) return map[base];
+  return map.en;
+}
+
+function pickLocaleArray(map: Record<string, string[]>, locale: string): string[] {
   if (map[locale]) return map[locale];
   const base = locale.split('-')[0];
   if (map[base]) return map[base];
@@ -154,4 +202,15 @@ export function getChatOfflineMessage(locale: string, settings?: ChatSettings | 
 /** 결제 자동확인 버튼 문구 */
 export function getPayBotButtonLabel(locale: string): string {
   return pickLocale(PAY_BOT_BUTTON, locale);
+}
+
+/** 운영시간 요약 (오프라인 화면 하단) */
+export function getBusinessHoursHint(locale: string, settings?: ChatSettings | null): string | null {
+  if (!settings || !Array.isArray(settings.businessHours)) return null;
+  const dayLabels = pickLocaleArray(WEEKDAY_SHORT, locale);
+  const prefix = pickLocale(BUSINESS_HOURS_LABEL, locale);
+  const openDays = settings.businessHours
+    .map((d, i) => (d.enabled ? `${dayLabels[i]} ${d.from}~${d.to}` : null))
+    .filter(Boolean);
+  return openDays.length ? `${prefix} ${openDays.join(', ')}` : null;
 }

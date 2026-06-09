@@ -66,12 +66,3 @@ export function isChatOnline(chat: ChatSettings, now: Date = new Date()): boolea
   }
 }
 
-/** 다음 운영 시작 시각을 사람이 읽을 문자열로(간단 버전). 없으면 null. */
-export function nextOpeningHint(chat: ChatSettings): string | null {
-  if (!Array.isArray(chat?.businessHours)) return null;
-  const labels = ['일', '월', '화', '수', '목', '금', '토'];
-  const openDays = chat.businessHours
-    .map((d, i) => (d.enabled ? `${labels[i]} ${d.from}~${d.to}` : null))
-    .filter(Boolean);
-  return openDays.length ? `운영시간: ${openDays.join(', ')}` : null;
-}

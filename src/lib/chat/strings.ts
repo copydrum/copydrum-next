@@ -37,12 +37,12 @@ const ko: ChatStrings = {
   inputPlaceholder: '메시지를 입력하세요',
   send: '전송',
   offlineSubmit: '문의 남기기',
-  offlinePlaceholder: '문의 내용을 남겨주세요. (결제 문의는 주문번호를 함께 적어주세요)',
+  offlinePlaceholder: '문의 내용을 남겨주세요.',
   offlineSentTitle: '문의가 접수되었습니다.',
   offlineSentDesc: '운영시간에 순차적으로 확인 후 입력하신 이메일로 답변드리겠습니다.',
   catPayment: '결제/주문 문의',
   catDownload: '다운로드 문의',
-  catRefund: '환불 문의',
+  catRefund: '주문제작 요청',
   catEtc: '기타',
   quickReplies: ['결제했는데 악보가 안 보여요', '다운로드가 안 돼요', '요청하고 싶은 악보가 있어요', '기타 다른 궁금한 점이 있어요'],
   ariaOpen: '고객 상담 채팅',
@@ -63,12 +63,12 @@ const en: ChatStrings = {
   inputPlaceholder: 'Type a message',
   send: 'Send',
   offlineSubmit: 'Leave a message',
-  offlinePlaceholder: 'Leave your message. (For payment issues, please include your order number.)',
+  offlinePlaceholder: 'Leave your message.',
   offlineSentTitle: 'Your message has been received.',
   offlineSentDesc: 'We will review it during business hours and reply to your email.',
   catPayment: 'Payment / Order',
   catDownload: 'Download issue',
-  catRefund: 'Refund',
+  catRefund: 'Custom order request',
   catEtc: 'Other',
   quickReplies: ["I paid but can't see my sheet", "I can't download", "I'd like to request a sheet", 'I have other questions'],
   ariaOpen: 'Customer support chat',
@@ -89,12 +89,12 @@ const ja: ChatStrings = {
   inputPlaceholder: 'メッセージを入力',
   send: '送信',
   offlineSubmit: 'メッセージを残す',
-  offlinePlaceholder: 'お問い合わせ内容をご記入ください。（決済のお問い合わせは注文番号もご記入ください）',
+  offlinePlaceholder: 'お問い合わせ内容をご記入ください。',
   offlineSentTitle: 'お問い合わせを受け付けました。',
   offlineSentDesc: '営業時間内に順次確認し、ご入力のメールへ返信いたします。',
   catPayment: '決済・注文',
   catDownload: 'ダウンロード',
-  catRefund: '返金',
+  catRefund: 'オーダー制作依頼',
   catEtc: 'その他',
   quickReplies: ['支払ったのに楽譜が見えません', 'ダウンロードできません', 'リクエストしたい楽譜があります', 'その他のご質問があります'],
   ariaOpen: 'カスタマーサポートチャット',
@@ -105,9 +105,61 @@ const ja: ChatStrings = {
 
 const DICT: Record<string, ChatStrings> = { ko, en, ja };
 
+/** 문의 유형: 주문제작 요청 (17개 언어) */
+const CAT_REFUND: Record<string, string> = {
+  ko: '주문제작 요청',
+  en: 'Custom order request',
+  ja: 'オーダー制作依頼',
+  'zh-CN': '定制订单请求',
+  'zh-TW': '客製訂單請求',
+  de: 'Individuelle Bestellung anfragen',
+  fr: 'Demande de commande personnalisée',
+  es: 'Solicitud de pedido personalizado',
+  vi: 'Yêu cầu đặt hàng tùy chỉnh',
+  th: 'ขอสั่งทำแบบกำหนดเอง',
+  hi: 'कस्टम ऑर्डर अनुरोध',
+  id: 'Permintaan pesanan kustom',
+  pt: 'Solicitação de pedido personalizado',
+  ru: 'Запрос на индивидуальный заказ',
+  it: 'Richiesta ordine personalizzato',
+  tr: 'Özel sipariş talebi',
+  uk: 'Запит на індивідуальне замовлення',
+};
+
+/** 오프라인 문의 입력 placeholder (17개 언어) */
+const OFFLINE_PLACEHOLDER: Record<string, string> = {
+  ko: '문의 내용을 남겨주세요.',
+  en: 'Leave your message.',
+  ja: 'お問い合わせ内容をご記入ください。',
+  'zh-CN': '请留下您的咨询内容。',
+  'zh-TW': '請留下您的諮詢內容。',
+  de: 'Bitte hinterlassen Sie Ihre Nachricht.',
+  fr: 'Laissez votre message.',
+  es: 'Deja tu consulta.',
+  vi: 'Vui lòng để lại nội dung câu hỏi.',
+  th: 'กรุณาแจ้งข้อความของคุณ',
+  hi: 'कृपया अपना संदेश छोड़ें।',
+  id: 'Silakan tinggalkan pesan Anda.',
+  pt: 'Deixe sua mensagem.',
+  ru: 'Оставьте ваше сообщение.',
+  it: 'Lascia il tuo messaggio.',
+  tr: 'Mesajınızı bırakın.',
+  uk: 'Залиште ваше повідомлення.',
+};
+
+function pickLocale(map: Record<string, string>, locale: string): string {
+  if (map[locale]) return map[locale];
+  const base = locale.split('-')[0];
+  if (map[base]) return map[base];
+  return map.en;
+}
+
 export function getChatStrings(lang?: string): ChatStrings {
-  if (!lang) return en;
-  if (DICT[lang]) return DICT[lang];
-  const base = lang.split('-')[0];
-  return DICT[base] ?? en;
+  const locale = lang ?? 'en';
+  const base = DICT[locale] ?? DICT[locale.split('-')[0]] ?? en;
+  return {
+    ...base,
+    catRefund: pickLocale(CAT_REFUND, locale),
+    offlinePlaceholder: pickLocale(OFFLINE_PLACEHOLDER, locale),
+  };
 }
