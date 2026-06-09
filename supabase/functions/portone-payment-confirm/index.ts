@@ -63,12 +63,49 @@ async function getPortOneAccessToken(apiSecret: string): Promise<string> {
   return result.accessToken;
 }
 
+// PortOne V2 정식 단건 조회(/payments/{id})의 top-level status 를 권위 있는 값으로 사용.
+// (주의: 아래 /v2/payments/{id} 는 transactions 배열을 반환하는데, PayPal 같은 비동기
+//  결제에서 transactions[0] 이 비-primary(예: READY) 트랜잭션일 수 있어 실제 PAID 를
+//  PENDING 으로 오판한다. 그래서 상태 판정은 항상 top-level status 로 한다.)
+async function getAuthoritativeStatus(
+  paymentId: string,
+  accessToken: string,
+): Promise<string | null> {
+  try {
+    const res = await fetch(
+      `https://api.portone.io/payments/${encodeURIComponent(paymentId)}`,
+      {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      },
+    );
+    if (!res.ok) {
+      console.warn("[portone-payment-confirm] top-level status 조회 실패", {
+        status: res.status,
+      });
+      return null;
+    }
+    const p = await res.json() as Record<string, any>;
+    return p?.status ? String(p.status).toUpperCase() : null;
+  } catch (e) {
+    console.warn("[portone-payment-confirm] top-level status 조회 예외", e);
+    return null;
+  }
+}
+
 async function getPortOnePayment(
   paymentId: string,
   apiSecret: string
 ): Promise<PortOnePaymentResponse> {
   
   const accessToken = await getPortOneAccessToken(apiSecret);
+
+  // 권위 있는 결제 상태(top-level)를 먼저 확보 (비동기 PayPal 오판 방지)
+  const authoritativeStatus = await getAuthoritativeStatus(paymentId, accessToken);
+
   const url = `https://api.portone.io/v2/payments/${paymentId}`;
   
   const response = await fetch(url, {
@@ -88,7 +125,9 @@ async function getPortOnePayment(
   const rawResult = await response.json();
   
   if (rawResult.payment && rawResult.payment.transactions && rawResult.payment.transactions.length > 0) {
-    const tx = rawResult.payment.transactions[0];
+    // 상세 정보(가상계좌/결제수단)는 primary 트랜잭션 우선, 없으면 첫 번째 사용
+    const txs = rawResult.payment.transactions;
+    const tx = txs.find((t: any) => t.is_primary === true || t.isPrimary === true) ?? txs[0];
     
     // 👇 [핵심 수정] 로그에서 발견된 깊은 경로(payment_method_detail) 탐색 추가
     const paymentMethodDetail = tx.payment_method_detail || tx.paymentMethodDetail;
@@ -124,7 +163,9 @@ async function getPortOnePayment(
     return {
       id: rawResult.payment.id,
       transactionId: tx.id,
-      status: tx.status,
+      // 상태 판정은 권위 있는 top-level status 우선 (비동기 PayPal 오판 방지),
+      // 조회 실패 시에만 primary 트랜잭션 status 로 폴백
+      status: authoritativeStatus ?? tx.status,
       amount: tx.amount,
       orderId: rawResult.payment.order_name,
       metadata: tx.metadata || rawResult.payment.metadata || {},

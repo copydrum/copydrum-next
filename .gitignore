@@ -69,6 +69,10 @@ CHECK_INQUIRIES_STATUS*.txt
 # Supabase temp files
 supabase/.temp/
 
+# Operational reports containing customer data (keep local only)
+paypal_stuck_orders.md
+paypal_stuck_orders.csv
+
 # Test page
 src/app/test/
 
