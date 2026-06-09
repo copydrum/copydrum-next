@@ -125,7 +125,10 @@ serve(async (req) => {
         })
         .select("id, conversation_id, sender_type, sender_id, body, attachment_url, read_at, created_at")
         .single();
-      if (insErr || !msg) return json(500, { success: false, error: "전송 실패" });
+      if (insErr || !msg) {
+        console.error("[chat-guest] userSend insert error:", insErr);
+        return json(500, { success: false, error: insErr?.message ?? "전송 실패" });
+      }
 
       await service
         .from("chat_conversations")
