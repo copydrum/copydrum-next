@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabase';
 
-export const SITE_SETTING_KEYS = ['general', 'payment', 'event', 'system', 'notification'] as const;
+export const SITE_SETTING_KEYS = ['general', 'payment', 'event', 'system', 'notification', 'chat'] as const;
 
 export type SiteSettingKey = (typeof SITE_SETTING_KEYS)[number];
 
@@ -40,12 +40,43 @@ export interface NotificationSettings {
   newsletterSubscription: boolean;
 }
 
+/** 요일별 운영시간 (0=일요일 ~ 6=토요일). enabled=false면 그날은 종일 오프라인. */
+export interface ChatBusinessDay {
+  enabled: boolean;
+  /** "HH:mm" 24시간 형식 */
+  from: string;
+  to: string;
+}
+
+export interface ChatSettings {
+  /** 채팅 기능 자체 사용 여부(끄면 위젯 미노출) */
+  enabled: boolean;
+  /**
+   * online 판정 방식
+   * - 'manual': manualOnline 값만 사용(운영시간 무시)
+   * - 'auto': 운영시간(businessHours)으로 자동 판정
+   * - 'manual_and_hours': manualOnline=true 이고 운영시간 내일 때만 온라인
+   */
+  mode: 'manual' | 'auto' | 'manual_and_hours';
+  /** mode가 manual/manual_and_hours일 때 사용하는 수동 스위치 */
+  manualOnline: boolean;
+  /** 운영시간 판정 기준 타임존 */
+  timezone: string;
+  /** 0(일)~6(토) 인덱스의 7일 배열 */
+  businessHours: ChatBusinessDay[];
+  /** 위젯 환영 메시지 */
+  welcomeMessage: string;
+  /** 오프라인 안내 문구 */
+  offlineMessage: string;
+}
+
 export interface SiteSettings {
   general: GeneralSettings;
   payment: PaymentSettings;
   event: EventSettings;
   system: SystemSettings;
   notification: NotificationSettings;
+  chat: ChatSettings;
 }
 
 export type SiteSettingValue<K extends SiteSettingKey = SiteSettingKey> = SiteSettings[K];
@@ -95,6 +126,24 @@ export const SITE_SETTING_DEFAULTS: SiteSettings = {
     inquiryNotification: true,
     newsletterSubscription: false,
   },
+  chat: {
+    enabled: true,
+    mode: 'manual_and_hours',
+    manualOnline: false,
+    timezone: 'Asia/Seoul',
+    businessHours: [
+      { enabled: false, from: '10:00', to: '18:00' }, // 일
+      { enabled: true, from: '10:00', to: '18:00' }, // 월
+      { enabled: true, from: '10:00', to: '18:00' }, // 화
+      { enabled: true, from: '10:00', to: '18:00' }, // 수
+      { enabled: true, from: '10:00', to: '18:00' }, // 목
+      { enabled: true, from: '10:00', to: '18:00' }, // 금
+      { enabled: false, from: '10:00', to: '18:00' }, // 토
+    ],
+    welcomeMessage: '안녕하세요! 무엇을 도와드릴까요? 결제·다운로드 관련 문의는 주문번호를 함께 남겨주시면 빠르게 확인해 드립니다.',
+    offlineMessage:
+      '현재 고객센터 운영시간이 아닙니다. 메시지를 남겨주시면 운영시간에 순차적으로 확인 후 답변드리겠습니다.',
+  },
 };
 
 export const createDefaultSiteSettings = (): SiteSettings => ({
@@ -103,6 +152,10 @@ export const createDefaultSiteSettings = (): SiteSettings => ({
   event: { ...SITE_SETTING_DEFAULTS.event },
   system: { ...SITE_SETTING_DEFAULTS.system },
   notification: { ...SITE_SETTING_DEFAULTS.notification },
+  chat: {
+    ...SITE_SETTING_DEFAULTS.chat,
+    businessHours: SITE_SETTING_DEFAULTS.chat.businessHours.map((d) => ({ ...d })),
+  },
 });
 
 const isSiteSettingKey = (value: string): value is SiteSettingKey => {
@@ -121,6 +174,14 @@ const mergeWithDefaults = <K extends SiteSettingKey>(key: K, value: SiteSettingV
       return { ...SITE_SETTING_DEFAULTS.system, ...value } as SiteSettingValue<K>;
     case 'notification':
       return { ...SITE_SETTING_DEFAULTS.notification, ...value } as SiteSettingValue<K>;
+    case 'chat': {
+      const merged = { ...SITE_SETTING_DEFAULTS.chat, ...(value as Partial<ChatSettings>) } as ChatSettings;
+      const incomingHours = (value as Partial<ChatSettings>)?.businessHours;
+      merged.businessHours = Array.isArray(incomingHours) && incomingHours.length === 7
+        ? incomingHours.map((d) => ({ ...SITE_SETTING_DEFAULTS.chat.businessHours[0], ...d }))
+        : SITE_SETTING_DEFAULTS.chat.businessHours.map((d) => ({ ...d }));
+      return merged as SiteSettingValue<K>;
+    }
     default:
       return value;
   }

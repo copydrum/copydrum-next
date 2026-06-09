@@ -8,6 +8,7 @@ import MobileHeader from '@/components/mobile/MobileHeader';
 import MobileQuickNav from '@/components/mobile/MobileQuickNav';
 import MobileMenuSidebar from '@/components/mobile/MobileMenuSidebar';
 import MobileSearchOverlay from '@/components/mobile/MobileSearchOverlay';
+import ChatWidget from '@/components/chat/ChatWidget';
 import { recordPageView, isBotUserAgent } from '@/lib/dashboardAnalytics';
 
 /**
@@ -202,6 +203,9 @@ export default function ClientLayout({
       <div className={`${isAdminPage ? '' : 'pt-[240px]'} md:pt-0`}>
         {children}
       </div>
+
+      {/* 고객 상담 채팅 위젯 (관리자 페이지 제외) */}
+      {!isAdminPage && <ChatWidget />}
     </>
   );
 }
