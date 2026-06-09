@@ -26,11 +26,14 @@ const STATUS_BADGE: Record<string, string> = {
 export default function ChatCustomerContext({
   userId,
   email,
+  memberName,
 }: {
   userId: string | null;
   email: string | null;
+  memberName?: string | null;
 }) {
   const [resolvedUserId, setResolvedUserId] = useState<string | null>(userId);
+  const [resolvedEmail, setResolvedEmail] = useState<string | null>(email);
   const [orders, setOrders] = useState<OrderRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [recovering, setRecovering] = useState(false);
@@ -41,15 +44,26 @@ export default function ChatCustomerContext({
     setResult(null);
     try {
       let uid = userId;
-      if (!uid && email) {
+      let resolved = email;
+      if (uid) {
         const { data: prof } = await supabase
           .from('profiles')
-          .select('id')
+          .select('id, email, name')
+          .eq('id', uid)
+          .maybeSingle();
+        resolved = resolved || prof?.email || null;
+        uid = prof?.id ?? uid;
+      } else if (email) {
+        const { data: prof } = await supabase
+          .from('profiles')
+          .select('id, email')
           .eq('email', email)
           .maybeSingle();
         uid = prof?.id ?? null;
+        resolved = resolved || prof?.email || email;
       }
       setResolvedUserId(uid);
+      setResolvedEmail(resolved);
       if (!uid) {
         setOrders([]);
         return;
@@ -82,7 +96,7 @@ export default function ChatCustomerContext({
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
       const res = await supabase.functions.invoke('admin-reconcile-order', {
-        body: { userId: resolvedUserId, email },
+        body: { userId: resolvedUserId, email: resolvedEmail },
         headers: token ? { Authorization: `Bearer ${token}` } : undefined,
       });
       if (res.error) throw res.error;
@@ -105,7 +119,10 @@ export default function ChatCustomerContext({
     <div className="flex w-72 shrink-0 flex-col border-l border-gray-200 bg-white">
       <div className="border-b border-gray-200 px-3 py-2">
         <p className="text-sm font-semibold text-gray-800">고객 / 주문</p>
-        <p className="truncate text-xs text-gray-400">{email || (resolvedUserId ? '회원' : '식별 불가')}</p>
+        <p className="truncate text-xs text-gray-500">
+          {memberName && <span className="font-medium text-gray-700">{memberName} · </span>}
+          {resolvedEmail || (resolvedUserId ? '이메일 조회 실패' : '식별 불가')}
+        </p>
       </div>
 
       {pendingPaypal.length > 0 && (

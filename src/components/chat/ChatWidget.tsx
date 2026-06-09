@@ -151,6 +151,9 @@ export default function ChatWidget() {
     try {
       if (userId) {
         const conv = await getOrCreateUserConversation(userId, 'live');
+        if (userEmail) {
+          await supabase.from('chat_conversations').update({ guest_email: userEmail }).eq('id', conv.id);
+        }
         setConversationId(conv.id);
         const msgs = await listUserMessages(conv.id);
         setMessages(msgs);
@@ -174,7 +177,7 @@ export default function ChatWidget() {
       setSendError(t.sendFailed);
       return undefined;
     }
-  }, [userId, attachRealtime, scrollToBottom, t.sendFailed]);
+  }, [userId, userEmail, attachRealtime, scrollToBottom, t.sendFailed]);
 
   // 게스트 폴링
   useEffect(() => {

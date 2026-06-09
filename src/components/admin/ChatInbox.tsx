@@ -15,6 +15,17 @@ const QUICK_REPLIES = [
 const CONVERSATION_FIELDS =
   'id, user_id, guest_token, guest_name, guest_email, status, channel, subject, last_message_at, last_message_preview, unread_for_admin, unread_for_user, assigned_admin_id, rating, created_at, updated_at';
 
+type MemberProfile = { email: string; name: string | null };
+
+function convDisplayName(c: ChatConversation, profiles: Record<string, MemberProfile>): string {
+  const member = c.user_id ? profiles[c.user_id] : null;
+  return c.guest_name || member?.name || c.guest_email || member?.email || (c.user_id ? '회원' : '게스트');
+}
+
+function convDisplayEmail(c: ChatConversation, profiles: Record<string, MemberProfile>): string | null {
+  return c.guest_email || (c.user_id ? profiles[c.user_id]?.email ?? null : null);
+}
+
 async function callAdminChat(
   action: 'send' | 'close' | 'read' | 'block' | 'unblock',
   conversationId: string,
@@ -41,6 +52,7 @@ export default function ChatInbox() {
   const [soundOn, setSoundOn] = useState(true);
   const [blockedUserIds, setBlockedUserIds] = useState<Set<string>>(new Set());
   const [blockedEmails, setBlockedEmails] = useState<Set<string>>(new Set());
+  const [memberProfiles, setMemberProfiles] = useState<Record<string, MemberProfile>>({});
   const endRef = useRef<HTMLDivElement | null>(null);
   const selectedIdRef = useRef<string | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -97,7 +109,24 @@ export default function ChatInbox() {
       .select(CONVERSATION_FIELDS)
       .order('last_message_at', { ascending: false })
       .limit(200);
-    setConversations((data ?? []) as ChatConversation[]);
+    const convs = (data ?? []) as ChatConversation[];
+    const userIds = [...new Set(convs.map((c) => c.user_id).filter(Boolean))] as string[];
+
+    if (userIds.length > 0) {
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, email, name')
+        .in('id', userIds);
+      const map: Record<string, MemberProfile> = {};
+      (profiles ?? []).forEach((p: { id: string; email: string; name: string | null }) => {
+        if (p.email) map[p.id] = { email: p.email, name: p.name };
+      });
+      setMemberProfiles(map);
+    } else {
+      setMemberProfiles({});
+    }
+
+    setConversations(convs);
   }, []);
 
   const loadBlocks = useCallback(async () => {
@@ -281,7 +310,7 @@ export default function ChatInbox() {
             >
               <div className="flex w-full items-center justify-between">
                 <span className="truncate text-sm font-medium text-gray-800">
-                  {c.guest_name || c.guest_email || (c.user_id ? '회원' : '게스트')}
+                  {convDisplayName(c, memberProfiles)}
                 </span>
                 {c.unread_for_admin > 0 && (
                   <span className="ml-2 h-2 w-2 shrink-0 rounded-full bg-red-500" />
@@ -307,10 +336,11 @@ export default function ChatInbox() {
             <div className="flex items-center justify-between border-b border-gray-200 px-4 py-2">
               <div>
                 <p className="text-sm font-semibold text-gray-800">
-                  {selected.guest_name || selected.guest_email || '회원'}
+                  {convDisplayName(selected, memberProfiles)}
                 </p>
                 <p className="text-xs text-gray-400">
-                  {selected.guest_email || ''} {selected.user_id ? '(회원)' : '(게스트)'}
+                  {convDisplayEmail(selected, memberProfiles) || '이메일 없음'}{' '}
+                  {selected.user_id ? '(회원)' : '(게스트)'}
                   {isConvBlocked(selected) && <span className="ml-1 font-semibold text-red-500">· 차단됨</span>}
                 </p>
               </div>
@@ -404,7 +434,8 @@ export default function ChatInbox() {
         <ChatCustomerContext
           key={selected.id}
           userId={selected.user_id}
-          email={selected.guest_email}
+          email={convDisplayEmail(selected, memberProfiles)}
+          memberName={selected.user_id ? memberProfiles[selected.user_id]?.name ?? null : null}
         />
       )}
     </div>
