@@ -128,6 +128,19 @@ serve(async (req) => {
       return json(200, { success: true });
     }
 
+    // ── rate ──
+    if (action === "rate") {
+      const rating = Number(payload.rating ?? 0);
+      if (!Number.isFinite(rating) || rating < 1 || rating > 5) {
+        return json(400, { success: false, error: "평점은 1~5 사이여야 합니다." });
+      }
+      await service
+        .from("chat_conversations")
+        .update({ rating: Math.round(rating), updated_at: nowIso })
+        .eq("id", conversationId);
+      return json(200, { success: true });
+    }
+
     // ── fetch ──
     if (action === "fetch") {
       const since = payload.since ? String(payload.since) : null;

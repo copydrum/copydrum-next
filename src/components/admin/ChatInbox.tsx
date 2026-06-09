@@ -15,6 +15,8 @@ const QUICK_REPLIES = [
 const CONVERSATION_FIELDS =
   'id, user_id, guest_token, guest_name, guest_email, status, channel, subject, last_message_at, last_message_preview, unread_for_admin, unread_for_user, assigned_admin_id, rating, created_at, updated_at';
 
+const CLOSED_SENTINEL = '__CHAT_CLOSED__';
+
 async function callAdminChat(action: 'send' | 'close' | 'read', conversationId: string, message?: string) {
   const { data: { session } } = await supabase.auth.getSession();
   const token = session?.access_token;
@@ -34,7 +36,56 @@ export default function ChatInbox() {
   const [sending, setSending] = useState(false);
   const [filter, setFilter] = useState<'all' | 'open' | 'closed'>('all');
   const [showContext, setShowContext] = useState(true);
+  const [soundOn, setSoundOn] = useState(true);
   const endRef = useRef<HTMLDivElement | null>(null);
+  const selectedIdRef = useRef<string | null>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+
+  useEffect(() => {
+    selectedIdRef.current = selectedId;
+  }, [selectedId]);
+
+  // 데스크톱 알림 권한 요청
+  useEffect(() => {
+    if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
+      Notification.requestPermission().catch(() => {});
+    }
+  }, []);
+
+  const playBeep = useCallback(() => {
+    try {
+      if (!audioCtxRef.current) {
+        const Ctor = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+        audioCtxRef.current = new Ctor();
+      }
+      const ctx = audioCtxRef.current;
+      if (!ctx) return;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.value = 880;
+      gain.gain.setValueAtTime(0.001, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.15, ctx.currentTime + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.26);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const notifyNewMessage = useCallback((body: string) => {
+    if (soundOn) playBeep();
+    try {
+      if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+        new Notification('새 채팅 메시지', { body: body.slice(0, 80) });
+      }
+    } catch {
+      /* ignore */
+    }
+  }, [soundOn, playBeep]);
 
   const loadConversations = useCallback(async () => {
     const { data } = await supabase
@@ -58,6 +109,27 @@ export default function ChatInbox() {
       supabase.removeChannel(channel);
     };
   }, [loadConversations]);
+
+  // 신규 고객 메시지 알림(데스크톱 + 소리)
+  useEffect(() => {
+    const channel = supabase
+      .channel('admin-chat-notify')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'chat_messages', filter: 'sender_type=eq.user' },
+        (payload) => {
+          const m = payload.new as ChatMessage;
+          const viewingThis = selectedIdRef.current === m.conversation_id;
+          if (!viewingThis || document.hidden) {
+            notifyNewMessage(m.body);
+          }
+        },
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [notifyNewMessage]);
 
   const scrollToBottom = useCallback(() => {
     requestAnimationFrame(() => endRef.current?.scrollIntoView({ behavior: 'smooth' }));
@@ -134,7 +206,7 @@ export default function ChatInbox() {
     <div className="flex h-[70vh] overflow-hidden rounded-lg border border-gray-200 bg-white">
       {/* 좌측: 목록 */}
       <div className="flex w-72 shrink-0 flex-col border-r border-gray-200">
-        <div className="flex gap-1 border-b border-gray-200 p-2">
+        <div className="flex items-center gap-1 border-b border-gray-200 p-2">
           {(['all', 'open', 'closed'] as const).map((f) => (
             <button
               key={f}
@@ -144,6 +216,13 @@ export default function ChatInbox() {
               {f === 'all' ? '전체' : f === 'open' ? '진행중' : '종료'}
             </button>
           ))}
+          <button
+            onClick={() => setSoundOn((v) => !v)}
+            title="알림음"
+            className={`ml-auto rounded px-2 py-1 text-xs ${soundOn ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}
+          >
+            {soundOn ? '🔔' : '🔕'}
+          </button>
         </div>
         <div className="flex-1 overflow-y-auto">
           {visible.length === 0 && <p className="p-4 text-sm text-gray-400">대화가 없습니다.</p>}
@@ -187,6 +266,7 @@ export default function ChatInbox() {
                 </p>
                 <p className="text-xs text-gray-400">
                   {selected.guest_email || ''} {selected.user_id ? '(회원)' : '(게스트)'}
+                  {selected.rating ? ` · 만족도 ${'★'.repeat(selected.rating)}` : ''}
                 </p>
               </div>
               <div className="flex items-center gap-2">
@@ -217,7 +297,7 @@ export default function ChatInbox() {
                           : 'mx-auto bg-gray-100 text-gray-500'
                     }`}
                   >
-                    {m.body}
+                    {m.body === CLOSED_SENTINEL ? '— 상담 종료 —' : m.body}
                     <div className={`mt-1 text-[10px] ${m.sender_type === 'admin' ? 'text-indigo-200' : 'text-gray-400'}`}>
                       {new Date(m.created_at).toLocaleTimeString('ko-KR')}
                     </div>

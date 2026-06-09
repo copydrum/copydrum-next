@@ -1,8 +1,10 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '@/lib/supabase';
 import { isChatOnline, nextOpeningHint } from '@/lib/chat/online';
+import { getChatStrings } from '@/lib/chat/strings';
 import type { ChatSettings } from '@/lib/settings';
 import {
   loadChatSettings,
@@ -14,20 +16,19 @@ import {
   guestStart,
   guestSend,
   guestFetch,
+  rateUserConversation,
+  guestRate,
   type GuestSession,
 } from '@/lib/chat/client';
 import type { ChatMessage } from '@/lib/chat/types';
 
 type View = 'loading' | 'live' | 'offline' | 'offline_sent';
 
-const QUICK_REPLIES = [
-  '결제했는데 악보가 안 보여요',
-  '다운로드가 안 돼요',
-  '환불 문의드려요',
-  '주문번호를 알려드릴게요',
-];
+const CLOSED_SENTINEL = '__CHAT_CLOSED__';
 
 export default function ChatWidget() {
+  const { i18n } = useTranslation();
+  const t = useMemo(() => getChatStrings(i18n.language), [i18n.language]);
   const [settings, setSettings] = useState<ChatSettings | null>(null);
   const [open, setOpen] = useState(false);
   const [online, setOnline] = useState(false);
@@ -40,6 +41,7 @@ export default function ChatWidget() {
   const [sending, setSending] = useState(false);
 
   const [conversationId, setConversationId] = useState<string | null>(null);
+  const [rated, setRated] = useState(false);
   const guestSessionRef = useRef<GuestSession | null>(null);
 
   // 게스트 시작 폼
@@ -211,6 +213,19 @@ export default function ChatWidget() {
     }
   }, [input, sending, userId, conversationId, appendUnique]);
 
+  const handleRate = useCallback(async (rating: number) => {
+    try {
+      if (userId && conversationId) {
+        await rateUserConversation(conversationId, rating);
+      } else if (guestSessionRef.current) {
+        await guestRate(guestSessionRef.current, rating);
+      }
+      setRated(true);
+    } catch {
+      /* noop */
+    }
+  }, [userId, conversationId]);
+
   const handleGuestStart = useCallback(async () => {
     if (!guestName.trim() || !guestEmail.trim()) return;
     setSending(true);
@@ -260,6 +275,7 @@ export default function ChatWidget() {
 
   const hasGuestSession = !userId && !!guestSessionRef.current;
   const needsGuestStart = view === 'live' && !userId && !hasGuestSession;
+  const isClosed = messages.some((m) => m.sender_type === 'system' && m.body === CLOSED_SENTINEL);
 
   return (
     <div className="fixed bottom-5 right-5 z-[9999] flex flex-col items-end">
@@ -268,13 +284,13 @@ export default function ChatWidget() {
           {/* 헤더 */}
           <div className="flex items-center justify-between bg-gradient-to-r from-indigo-600 to-violet-600 px-4 py-3 text-white">
             <div>
-              <p className="text-sm font-semibold">CopyDrum 상담</p>
+              <p className="text-sm font-semibold">{t.headerTitle}</p>
               <p className="flex items-center gap-1 text-xs text-indigo-100">
                 <span className={`inline-block h-2 w-2 rounded-full ${online ? 'bg-green-400' : 'bg-gray-300'}`} />
-                {online ? '상담 가능' : '운영시간 외'}
+                {online ? t.statusOnline : t.statusOffline}
               </p>
             </div>
-            <button onClick={() => setOpen(false)} aria-label="닫기" className="rounded p-1 hover:bg-white/10">
+            <button onClick={() => setOpen(false)} aria-label={t.close} className="rounded p-1 hover:bg-white/10">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M18 6 6 18M6 6l12 12" />
               </svg>
@@ -295,13 +311,13 @@ export default function ChatWidget() {
                   <input
                     value={offName}
                     onChange={(e) => setOffName(e.target.value)}
-                    placeholder="이름"
+                    placeholder={t.name}
                     className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
                   />
                   <input
                     value={offEmail}
                     onChange={(e) => setOffEmail(e.target.value)}
-                    placeholder="이메일 (답변 받을 주소)"
+                    placeholder={t.emailForReply}
                     className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
                   />
                   <select
@@ -309,15 +325,15 @@ export default function ChatWidget() {
                     onChange={(e) => setOffCategory(e.target.value)}
                     className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
                   >
-                    <option value="payment">결제/주문 문의</option>
-                    <option value="download">다운로드 문의</option>
-                    <option value="refund">환불 문의</option>
-                    <option value="etc">기타</option>
+                    <option value="payment">{t.catPayment}</option>
+                    <option value="download">{t.catDownload}</option>
+                    <option value="refund">{t.catRefund}</option>
+                    <option value="etc">{t.catEtc}</option>
                   </select>
                   <textarea
                     value={offMessage}
                     onChange={(e) => setOffMessage(e.target.value)}
-                    placeholder="문의 내용을 남겨주세요. (결제 문의는 주문번호를 함께 적어주세요)"
+                    placeholder={t.offlinePlaceholder}
                     rows={4}
                     className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm"
                   />
@@ -326,7 +342,7 @@ export default function ChatWidget() {
                     disabled={sending}
                     className="w-full rounded-lg bg-indigo-600 py-2 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
                   >
-                    문의 남기기
+                    {t.offlineSubmit}
                   </button>
                 </div>
               </div>
@@ -339,8 +355,8 @@ export default function ChatWidget() {
                     <path d="M20 6 9 17l-5-5" />
                   </svg>
                 </div>
-                <p className="text-sm font-semibold text-gray-800">문의가 접수되었습니다.</p>
-                <p className="mt-1 text-xs text-gray-500">운영시간에 순차적으로 확인 후 입력하신 이메일로 답변드리겠습니다.</p>
+                <p className="text-sm font-semibold text-gray-800">{t.offlineSentTitle}</p>
+                <p className="mt-1 text-xs text-gray-500">{t.offlineSentDesc}</p>
               </div>
             )}
 
@@ -349,18 +365,18 @@ export default function ChatWidget() {
                 <div className="mb-3 rounded-lg bg-indigo-50 p-3 text-sm text-indigo-800">
                   {settings.welcomeMessage}
                 </div>
-                <p className="mb-2 text-xs text-gray-500">상담을 시작하려면 정보를 입력해 주세요.</p>
+                <p className="mb-2 text-xs text-gray-500">{t.guestStartHint}</p>
                 <div className="space-y-2">
                   <input
                     value={guestName}
                     onChange={(e) => setGuestName(e.target.value)}
-                    placeholder="이름"
+                    placeholder={t.name}
                     className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
                   />
                   <input
                     value={guestEmail}
                     onChange={(e) => setGuestEmail(e.target.value)}
-                    placeholder="이메일"
+                    placeholder={t.email}
                     className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
                   />
                   <button
@@ -368,7 +384,7 @@ export default function ChatWidget() {
                     disabled={sending}
                     className="w-full rounded-lg bg-indigo-600 py-2 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
                   >
-                    상담 시작
+                    {t.startChat}
                   </button>
                 </div>
               </div>
@@ -381,44 +397,71 @@ export default function ChatWidget() {
                     {settings.welcomeMessage}
                   </div>
                   {messages.map((m) => (
-                    <MessageBubble key={m.id} message={m} />
+                    <MessageBubble key={m.id} message={m} closedLabel={t.closed} />
                   ))}
                   <div ref={messagesEndRef} />
                 </div>
-                {messages.length === 0 && (
-                  <div className="flex flex-wrap gap-1 border-t border-gray-100 bg-white px-2 pt-2">
-                    {QUICK_REPLIES.map((q) => (
-                      <button
-                        key={q}
-                        onClick={() => setInput(q)}
-                        className="rounded-full border border-indigo-200 bg-indigo-50 px-2.5 py-1 text-xs text-indigo-700 hover:bg-indigo-100"
-                      >
-                        {q}
-                      </button>
-                    ))}
+
+                {isClosed ? (
+                  <div className="border-t border-gray-200 bg-white p-3 text-center">
+                    {rated ? (
+                      <p className="text-sm text-green-600">{t.ratingThanks}</p>
+                    ) : (
+                      <>
+                        <p className="mb-2 text-xs text-gray-600">{t.ratingPrompt}</p>
+                        <div className="flex justify-center gap-1">
+                          {[1, 2, 3, 4, 5].map((n) => (
+                            <button
+                              key={n}
+                              onClick={() => handleRate(n)}
+                              aria-label={`${n}`}
+                              className="text-2xl text-amber-400 transition hover:scale-110"
+                            >
+                              ☆
+                            </button>
+                          ))}
+                        </div>
+                      </>
+                    )}
                   </div>
+                ) : (
+                  <>
+                    {messages.length === 0 && (
+                      <div className="flex flex-wrap gap-1 border-t border-gray-100 bg-white px-2 pt-2">
+                        {t.quickReplies.map((q) => (
+                          <button
+                            key={q}
+                            onClick={() => setInput(q)}
+                            className="rounded-full border border-indigo-200 bg-indigo-50 px-2.5 py-1 text-xs text-indigo-700 hover:bg-indigo-100"
+                          >
+                            {q}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                    <div className="flex items-center gap-2 border-t border-gray-200 bg-white p-2">
+                      <input
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            handleSend();
+                          }
+                        }}
+                        placeholder={t.inputPlaceholder}
+                        className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+                      />
+                      <button
+                        onClick={handleSend}
+                        disabled={sending || !input.trim()}
+                        className="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
+                      >
+                        {t.send}
+                      </button>
+                    </div>
+                  </>
                 )}
-                <div className="flex items-center gap-2 border-t border-gray-200 bg-white p-2">
-                  <input
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        handleSend();
-                      }
-                    }}
-                    placeholder="메시지를 입력하세요"
-                    className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
-                  />
-                  <button
-                    onClick={handleSend}
-                    disabled={sending || !input.trim()}
-                    className="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
-                  >
-                    전송
-                  </button>
-                </div>
               </>
             )}
           </div>
@@ -428,7 +471,7 @@ export default function ChatWidget() {
       {/* 플로팅 버튼 */}
       <button
         onClick={() => setOpen((v) => !v)}
-        aria-label="고객 상담 채팅"
+        aria-label={t.ariaOpen}
         className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg transition hover:scale-105"
       >
         {open ? (
@@ -445,13 +488,13 @@ export default function ChatWidget() {
   );
 }
 
-function MessageBubble({ message }: { message: ChatMessage }) {
+function MessageBubble({ message, closedLabel }: { message: ChatMessage; closedLabel: string }) {
   const isUser = message.sender_type === 'user';
   const isSystem = message.sender_type === 'system' || message.sender_type === 'bot';
   if (isSystem) {
     return (
       <div className="mx-auto max-w-[90%] rounded-lg bg-gray-100 px-3 py-2 text-center text-xs text-gray-500">
-        {message.body}
+        {message.body === CLOSED_SENTINEL ? closedLabel : message.body}
       </div>
     );
   }
