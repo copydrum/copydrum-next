@@ -15,6 +15,32 @@ export async function loadChatSettings(): Promise<ChatSettings> {
   return getSettingByKey('chat');
 }
 
+export interface BotResult {
+  success: boolean;
+  recovered?: number;
+  message?: string;
+  error?: string;
+}
+
+/** 룰 기반 결제 자동복구 봇 호출 */
+export async function runPaymentBot(params: {
+  email?: string | null;
+  userId?: string | null;
+  conversationId?: string | null;
+  guestToken?: string | null;
+}): Promise<BotResult> {
+  const res = await fetch(`${SUPABASE_URL}/functions/v1/chat-bot-recover`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', apikey: ANON_KEY, Authorization: `Bearer ${ANON_KEY}` },
+    body: JSON.stringify(params),
+  });
+  try {
+    return (await res.json()) as BotResult;
+  } catch {
+    return { success: false, error: 'request failed' };
+  }
+}
+
 // ── 게스트 로컬 식별 정보 ─────────────────────────────────────────────────────
 export interface GuestSession {
   token: string;

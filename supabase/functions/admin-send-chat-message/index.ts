@@ -47,9 +47,10 @@ serve(async (req) => {
 
     let payload: {
       conversationId?: string;
-      action?: "send" | "close" | "read";
+      action?: "send" | "close" | "read" | "block" | "unblock";
       message?: string;
       status?: string;
+      reason?: string;
     } = {};
     try {
       payload = await req.json();
@@ -65,13 +66,37 @@ serve(async (req) => {
 
     const { data: conv, error: convErr } = await service
       .from("chat_conversations")
-      .select("id")
+      .select("id, user_id, guest_email")
       .eq("id", conversationId)
       .maybeSingle();
     if (convErr) return jsonResponse(500, { error: "Failed to verify conversation" });
     if (!conv) return jsonResponse(404, { error: "Conversation not found" });
 
     const nowIso = new Date().toISOString();
+
+    if (action === "block" || action === "unblock") {
+      // 차단 식별자: 회원이면 user_id + 이메일, 게스트면 guest_email
+      let email = conv.guest_email as string | null;
+      if (conv.user_id && !email) {
+        const { data: prof } = await service.from("profiles").select("email").eq("id", conv.user_id).maybeSingle();
+        email = prof?.email ?? null;
+      }
+      if (action === "unblock") {
+        if (conv.user_id) await service.from("chat_blocks").delete().eq("user_id", conv.user_id);
+        if (email) await service.from("chat_blocks").delete().ilike("email", email);
+        return jsonResponse(200, { ok: true });
+      }
+      // block
+      await service.from("chat_blocks").insert({
+        user_id: conv.user_id ?? null,
+        email: email ?? null,
+        reason: payload.reason ?? null,
+        created_by: user.id,
+      });
+      // 차단과 동시에 대화 종료
+      await service.from("chat_conversations").update({ status: "closed", updated_at: nowIso }).eq("id", conversationId);
+      return jsonResponse(200, { ok: true });
+    }
 
     if (action === "read") {
       await service

@@ -55,6 +55,12 @@ serve(async (req) => {
       if (!name || !isEmail(email)) {
         return json(400, { success: false, error: "이름과 올바른 이메일을 입력해 주세요." });
       }
+      // 차단 확인
+      const { data: blk } = await service
+        .from("chat_blocks").select("id").ilike("email", email).limit(1);
+      if (blk && blk.length > 0) {
+        return json(403, { success: false, error: "현재 채팅을 이용할 수 없습니다. 고객센터로 문의해 주세요." });
+      }
       const token = crypto.randomUUID() + "-" + crypto.randomUUID();
 
       const { data: conv, error: convErr } = await service
@@ -93,7 +99,7 @@ serve(async (req) => {
 
     const { data: conv, error: convErr } = await service
       .from("chat_conversations")
-      .select("id, guest_token, status")
+      .select("id, guest_token, guest_email, status")
       .eq("id", conversationId)
       .maybeSingle();
     if (convErr) return json(500, { success: false, error: "조회 실패" });
@@ -105,6 +111,28 @@ serve(async (req) => {
     if (action === "send") {
       const body = String(payload.body ?? "").trim().slice(0, 2000);
       if (!body) return json(400, { success: false, error: "메시지를 입력해 주세요." });
+
+      // 차단 확인
+      if (conv.guest_email) {
+        const { data: blk } = await service
+          .from("chat_blocks").select("id").ilike("email", conv.guest_email).limit(1);
+        if (blk && blk.length > 0) {
+          return json(403, { success: false, error: "현재 채팅을 이용할 수 없습니다." });
+        }
+      }
+
+      // 레이트리밋: 최근 15초 내 고객 메시지 5건 초과 시 차단
+      const since = new Date(Date.now() - 15 * 1000).toISOString();
+      const { count: recent } = await service
+        .from("chat_messages")
+        .select("id", { count: "exact", head: true })
+        .eq("conversation_id", conversationId)
+        .eq("sender_type", "user")
+        .gt("created_at", since);
+      if ((recent ?? 0) >= 5) {
+        return json(429, { success: false, error: "잠시 후 다시 시도해 주세요." });
+      }
+
       if (conv.status === "closed") {
         await service.from("chat_conversations").update({ status: "open" }).eq("id", conversationId);
       }

@@ -16,6 +16,7 @@ import {
   guestStart,
   guestSend,
   guestFetch,
+  runPaymentBot,
   type GuestSession,
 } from '@/lib/chat/client';
 import type { ChatMessage } from '@/lib/chat/types';
@@ -37,6 +38,8 @@ export default function ChatWidget() {
   const [sending, setSending] = useState(false);
 
   const [conversationId, setConversationId] = useState<string | null>(null);
+  const [botRunning, setBotRunning] = useState(false);
+  const [offBotMessage, setOffBotMessage] = useState<string | null>(null);
   const guestSessionRef = useRef<GuestSession | null>(null);
 
   // 게스트 시작 폼
@@ -253,6 +256,45 @@ export default function ChatWidget() {
     }
   }, [offName, offEmail, offCategory, offMessage, userId]);
 
+  const handleBotLive = useCallback(async () => {
+    if (botRunning) return;
+    const session = guestSessionRef.current;
+    const email = userEmail ?? session?.email ?? null;
+    if (!email && !userId) return;
+    setBotRunning(true);
+    try {
+      await runPaymentBot({ email, userId, conversationId, guestToken: session?.token ?? null });
+      // 봇 메시지는 Realtime(로그인) 또는 폴링(게스트)으로 도착. 게스트는 즉시 한 번 더 조회.
+      if (!userId && session) {
+        const last = messages.length ? messages[messages.length - 1].created_at : null;
+        const fresh = await guestFetch(session, last);
+        if (fresh.length) appendUnique(fresh);
+      }
+    } catch {
+      /* noop */
+    } finally {
+      setBotRunning(false);
+    }
+  }, [botRunning, userEmail, userId, conversationId, messages, appendUnique]);
+
+  const handleBotOffline = useCallback(async () => {
+    const email = (offEmail || userEmail || '').trim();
+    if (!email) {
+      setOffBotMessage(t.payBotNeedEmail);
+      return;
+    }
+    setBotRunning(true);
+    setOffBotMessage(null);
+    try {
+      const r = await runPaymentBot({ email, userId });
+      setOffBotMessage(r.message ?? r.error ?? null);
+    } catch {
+      /* noop */
+    } finally {
+      setBotRunning(false);
+    }
+  }, [offEmail, userEmail, userId, t]);
+
   if (!settings || !settings.enabled) return null;
 
   const hasGuestSession = !userId && !!guestSessionRef.current;
@@ -288,6 +330,19 @@ export default function ChatWidget() {
                     <p className="mt-1 text-xs text-amber-600">{nextOpeningHint(settings)}</p>
                   )}
                 </div>
+
+                {/* 결제 자동복구 봇 (오프라인에서도 즉시 해결) */}
+                <button
+                  onClick={handleBotOffline}
+                  disabled={botRunning}
+                  className="mb-2 w-full rounded-lg border border-emerald-300 bg-emerald-50 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-100 disabled:opacity-50"
+                >
+                  {botRunning ? t.payBotRunning : `💳 ${t.payBotButton}`}
+                </button>
+                {offBotMessage && (
+                  <div className="mb-3 rounded-lg bg-emerald-50 p-3 text-xs text-emerald-800">{offBotMessage}</div>
+                )}
+
                 <div className="space-y-2">
                   <input
                     value={offName}
@@ -383,19 +438,28 @@ export default function ChatWidget() {
                   <div ref={messagesEndRef} />
                 </div>
 
-                {messages.length === 0 && (
-                  <div className="flex flex-wrap gap-1 border-t border-gray-100 bg-white px-2 pt-2">
-                    {t.quickReplies.map((q) => (
-                      <button
-                        key={q}
-                        onClick={() => setInput(q)}
-                        className="rounded-full border border-indigo-200 bg-indigo-50 px-2.5 py-1 text-xs text-indigo-700 hover:bg-indigo-100"
-                      >
-                        {q}
-                      </button>
-                    ))}
-                  </div>
-                )}
+                <div className="border-t border-gray-100 bg-white px-2 pt-2">
+                  <button
+                    onClick={handleBotLive}
+                    disabled={botRunning}
+                    className="mb-1 w-full rounded-lg border border-emerald-300 bg-emerald-50 py-1.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-100 disabled:opacity-50"
+                  >
+                    {botRunning ? t.payBotRunning : `💳 ${t.payBotButton}`}
+                  </button>
+                  {messages.length === 0 && (
+                    <div className="flex flex-wrap gap-1">
+                      {t.quickReplies.map((q) => (
+                        <button
+                          key={q}
+                          onClick={() => setInput(q)}
+                          className="rounded-full border border-indigo-200 bg-indigo-50 px-2.5 py-1 text-xs text-indigo-700 hover:bg-indigo-100"
+                        >
+                          {q}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
                 <div className="flex items-center gap-2 border-t border-gray-200 bg-white p-2">
                   <input
                     value={input}

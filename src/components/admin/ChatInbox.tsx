@@ -15,7 +15,11 @@ const QUICK_REPLIES = [
 const CONVERSATION_FIELDS =
   'id, user_id, guest_token, guest_name, guest_email, status, channel, subject, last_message_at, last_message_preview, unread_for_admin, unread_for_user, assigned_admin_id, rating, created_at, updated_at';
 
-async function callAdminChat(action: 'send' | 'close' | 'read', conversationId: string, message?: string) {
+async function callAdminChat(
+  action: 'send' | 'close' | 'read' | 'block' | 'unblock',
+  conversationId: string,
+  message?: string,
+) {
   const { data: { session } } = await supabase.auth.getSession();
   const token = session?.access_token;
   const res = await supabase.functions.invoke('admin-send-chat-message', {
@@ -35,6 +39,8 @@ export default function ChatInbox() {
   const [filter, setFilter] = useState<'all' | 'open' | 'closed'>('all');
   const [showContext, setShowContext] = useState(true);
   const [soundOn, setSoundOn] = useState(true);
+  const [blockedUserIds, setBlockedUserIds] = useState<Set<string>>(new Set());
+  const [blockedEmails, setBlockedEmails] = useState<Set<string>>(new Set());
   const endRef = useRef<HTMLDivElement | null>(null);
   const selectedIdRef = useRef<string | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -93,6 +99,47 @@ export default function ChatInbox() {
       .limit(200);
     setConversations((data ?? []) as ChatConversation[]);
   }, []);
+
+  const loadBlocks = useCallback(async () => {
+    const { data } = await supabase.from('chat_blocks').select('user_id, email');
+    const uids = new Set<string>();
+    const emails = new Set<string>();
+    (data ?? []).forEach((b: { user_id: string | null; email: string | null }) => {
+      if (b.user_id) uids.add(b.user_id);
+      if (b.email) emails.add(b.email.toLowerCase());
+    });
+    setBlockedUserIds(uids);
+    setBlockedEmails(emails);
+  }, []);
+
+  useEffect(() => {
+    loadBlocks();
+  }, [loadBlocks]);
+
+  const isConvBlocked = useCallback(
+    (c: ChatConversation | null) => {
+      if (!c) return false;
+      if (c.user_id && blockedUserIds.has(c.user_id)) return true;
+      if (c.guest_email && blockedEmails.has(c.guest_email.toLowerCase())) return true;
+      return false;
+    },
+    [blockedUserIds, blockedEmails],
+  );
+
+  const handleToggleBlock = useCallback(
+    async (c: ChatConversation) => {
+      const blocked = isConvBlocked(c);
+      if (!blocked && !confirm('이 사용자를 차단하시겠습니까? (대화도 종료됩니다)')) return;
+      try {
+        await callAdminChat(blocked ? 'unblock' : 'block', c.id);
+        await loadBlocks();
+        await loadConversations();
+      } catch {
+        alert('처리 실패');
+      }
+    },
+    [isConvBlocked, loadBlocks, loadConversations],
+  );
 
   // 대화 목록 + 실시간 갱신
   useEffect(() => {
@@ -264,6 +311,7 @@ export default function ChatInbox() {
                 </p>
                 <p className="text-xs text-gray-400">
                   {selected.guest_email || ''} {selected.user_id ? '(회원)' : '(게스트)'}
+                  {isConvBlocked(selected) && <span className="ml-1 font-semibold text-red-500">· 차단됨</span>}
                 </p>
               </div>
               <div className="flex items-center gap-2">
@@ -272,6 +320,16 @@ export default function ChatInbox() {
                   className="rounded border border-gray-300 px-3 py-1 text-xs text-gray-600 hover:bg-gray-50"
                 >
                   {showContext ? '고객정보 숨기기' : '고객정보'}
+                </button>
+                <button
+                  onClick={() => handleToggleBlock(selected)}
+                  className={`rounded border px-3 py-1 text-xs ${
+                    isConvBlocked(selected)
+                      ? 'border-gray-300 text-gray-600 hover:bg-gray-50'
+                      : 'border-red-300 text-red-600 hover:bg-red-50'
+                  }`}
+                >
+                  {isConvBlocked(selected) ? '차단 해제' : '차단'}
                 </button>
                 <button
                   onClick={handleClose}

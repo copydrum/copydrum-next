@@ -21,6 +21,9 @@ export interface ChatStrings {
   quickReplies: string[];
   ariaOpen: string;
   close: string;
+  payBotButton: string;
+  payBotRunning: string;
+  payBotNeedEmail: string;
 }
 
 const ko: ChatStrings = {
@@ -45,6 +48,9 @@ const ko: ChatStrings = {
   quickReplies: ['결제했는데 악보가 안 보여요', '다운로드가 안 돼요', '환불 문의드려요', '주문번호를 알려드릴게요'],
   ariaOpen: '고객 상담 채팅',
   close: '닫기',
+  payBotButton: '결제했는데 결제대기인가요? 자동 확인',
+  payBotRunning: '결제 확인 중...',
+  payBotNeedEmail: '결제하신 이메일을 먼저 입력해 주세요.',
 };
 
 const en: ChatStrings = {
@@ -69,6 +75,9 @@ const en: ChatStrings = {
   quickReplies: ["I paid but can't see my sheet", "I can't download", 'I have a refund question', "Here's my order number"],
   ariaOpen: 'Customer support chat',
   close: 'Close',
+  payBotButton: 'Paid but stuck as pending? Auto-check',
+  payBotRunning: 'Checking your payment…',
+  payBotNeedEmail: 'Please enter the email you paid with first.',
 };
 
 const ja: ChatStrings = {
@@ -93,6 +102,9 @@ const ja: ChatStrings = {
   quickReplies: ['支払ったのに楽譜が見えません', 'ダウンロードできません', '返金について', '注文番号をお伝えします'],
   ariaOpen: 'カスタマーサポートチャット',
   close: '閉じる',
+  payBotButton: '支払い済みなのに保留中？自動確認',
+  payBotRunning: '決済を確認中...',
+  payBotNeedEmail: 'お支払いに使用したメールを先に入力してください。',
 };
 
 const DICT: Record<string, ChatStrings> = { ko, en, ja };
