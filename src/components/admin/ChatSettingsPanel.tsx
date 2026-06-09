@@ -136,8 +136,12 @@ export default function ChatSettingsPanel({ updatedBy }: { updatedBy?: string | 
 
       {/* 문구 */}
       <div className="space-y-3">
+        <p className="rounded-lg bg-blue-50 px-3 py-2 text-xs text-blue-800">
+          아래 문구는 <strong>한국어(/ko) 사이트</strong>에 표시됩니다. 영어·일본어 등 다른 언어 사이트에는
+          동일 내용이 각 언어로 자동 번역되어 표시됩니다.
+        </p>
         <div>
-          <label className="mb-1 block text-sm font-semibold text-gray-700">환영 메시지</label>
+          <label className="mb-1 block text-sm font-semibold text-gray-700">환영 메시지 (한국어)</label>
           <textarea
             value={chat.welcomeMessage}
             onChange={(e) => update({ welcomeMessage: e.target.value })}
@@ -146,7 +150,7 @@ export default function ChatSettingsPanel({ updatedBy }: { updatedBy?: string | 
           />
         </div>
         <div>
-          <label className="mb-1 block text-sm font-semibold text-gray-700">오프라인 안내 문구</label>
+          <label className="mb-1 block text-sm font-semibold text-gray-700">오프라인 안내 문구 (한국어)</label>
           <textarea
             value={chat.offlineMessage}
             onChange={(e) => update({ offlineMessage: e.target.value })}

@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { supabase } from '@/lib/supabase';
 import { isChatOnline, nextOpeningHint } from '@/lib/chat/online';
 import { getChatStrings } from '@/lib/chat/strings';
+import { getChatWelcomeMessage, getChatOfflineMessage } from '@/lib/chat/messages';
 import type { ChatSettings } from '@/lib/settings';
 import {
   loadChatSettings,
@@ -27,6 +28,14 @@ export default function ChatWidget() {
   const { i18n } = useTranslation();
   const t = useMemo(() => getChatStrings(i18n.language), [i18n.language]);
   const [settings, setSettings] = useState<ChatSettings | null>(null);
+  const welcomeText = useMemo(
+    () => getChatWelcomeMessage(i18n.language, settings),
+    [i18n.language, settings],
+  );
+  const offlineText = useMemo(
+    () => getChatOfflineMessage(i18n.language, settings),
+    [i18n.language, settings],
+  );
   const [open, setOpen] = useState(false);
   const [online, setOnline] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
@@ -324,8 +333,8 @@ export default function ChatWidget() {
           <div className="flex flex-1 flex-col overflow-hidden bg-gray-50">
             {view === 'offline' && (
               <div className="flex flex-1 flex-col overflow-y-auto p-4">
-                <div className="mb-3 rounded-lg bg-amber-50 p-3 text-sm text-amber-800">
-                  {settings.offlineMessage}
+                <div className="mb-3 rounded-lg bg-amber-50 p-3 text-sm text-amber-800 whitespace-pre-wrap">
+                  {offlineText}
                   {nextOpeningHint(settings) && (
                     <p className="mt-1 text-xs text-amber-600">{nextOpeningHint(settings)}</p>
                   )}
@@ -398,8 +407,8 @@ export default function ChatWidget() {
 
             {view === 'live' && needsGuestStart && (
               <div className="flex flex-1 flex-col overflow-y-auto p-4">
-                <div className="mb-3 rounded-lg bg-indigo-50 p-3 text-sm text-indigo-800">
-                  {settings.welcomeMessage}
+                <div className="mb-3 rounded-lg bg-indigo-50 p-3 text-sm text-indigo-800 whitespace-pre-wrap">
+                  {welcomeText}
                 </div>
                 <p className="mb-2 text-xs text-gray-500">{t.guestStartHint}</p>
                 <div className="space-y-2">
@@ -429,8 +438,8 @@ export default function ChatWidget() {
             {view === 'live' && !needsGuestStart && (
               <>
                 <div className="flex-1 space-y-2 overflow-y-auto p-3">
-                  <div className="rounded-lg bg-indigo-50 p-3 text-sm text-indigo-800">
-                    {settings.welcomeMessage}
+                  <div className="rounded-lg bg-indigo-50 p-3 text-sm text-indigo-800 whitespace-pre-wrap">
+                    {welcomeText}
                   </div>
                   {messages.map((m) => (
                     <MessageBubble key={m.id} message={m} />
