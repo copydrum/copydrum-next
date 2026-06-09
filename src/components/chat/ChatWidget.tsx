@@ -16,15 +16,11 @@ import {
   guestStart,
   guestSend,
   guestFetch,
-  rateUserConversation,
-  guestRate,
   type GuestSession,
 } from '@/lib/chat/client';
 import type { ChatMessage } from '@/lib/chat/types';
 
 type View = 'loading' | 'live' | 'offline' | 'offline_sent';
-
-const CLOSED_SENTINEL = '__CHAT_CLOSED__';
 
 export default function ChatWidget() {
   const { i18n } = useTranslation();
@@ -41,7 +37,6 @@ export default function ChatWidget() {
   const [sending, setSending] = useState(false);
 
   const [conversationId, setConversationId] = useState<string | null>(null);
-  const [rated, setRated] = useState(false);
   const guestSessionRef = useRef<GuestSession | null>(null);
 
   // 게스트 시작 폼
@@ -213,19 +208,6 @@ export default function ChatWidget() {
     }
   }, [input, sending, userId, conversationId, appendUnique]);
 
-  const handleRate = useCallback(async (rating: number) => {
-    try {
-      if (userId && conversationId) {
-        await rateUserConversation(conversationId, rating);
-      } else if (guestSessionRef.current) {
-        await guestRate(guestSessionRef.current, rating);
-      }
-      setRated(true);
-    } catch {
-      /* noop */
-    }
-  }, [userId, conversationId]);
-
   const handleGuestStart = useCallback(async () => {
     if (!guestName.trim() || !guestEmail.trim()) return;
     setSending(true);
@@ -275,7 +257,6 @@ export default function ChatWidget() {
 
   const hasGuestSession = !userId && !!guestSessionRef.current;
   const needsGuestStart = view === 'live' && !userId && !hasGuestSession;
-  const isClosed = messages.some((m) => m.sender_type === 'system' && m.body === CLOSED_SENTINEL);
 
   return (
     <div className="fixed bottom-5 right-5 z-[9999] flex flex-col items-end">
@@ -397,71 +378,45 @@ export default function ChatWidget() {
                     {settings.welcomeMessage}
                   </div>
                   {messages.map((m) => (
-                    <MessageBubble key={m.id} message={m} closedLabel={t.closed} />
+                    <MessageBubble key={m.id} message={m} />
                   ))}
                   <div ref={messagesEndRef} />
                 </div>
 
-                {isClosed ? (
-                  <div className="border-t border-gray-200 bg-white p-3 text-center">
-                    {rated ? (
-                      <p className="text-sm text-green-600">{t.ratingThanks}</p>
-                    ) : (
-                      <>
-                        <p className="mb-2 text-xs text-gray-600">{t.ratingPrompt}</p>
-                        <div className="flex justify-center gap-1">
-                          {[1, 2, 3, 4, 5].map((n) => (
-                            <button
-                              key={n}
-                              onClick={() => handleRate(n)}
-                              aria-label={`${n}`}
-                              className="text-2xl text-amber-400 transition hover:scale-110"
-                            >
-                              ☆
-                            </button>
-                          ))}
-                        </div>
-                      </>
-                    )}
-                  </div>
-                ) : (
-                  <>
-                    {messages.length === 0 && (
-                      <div className="flex flex-wrap gap-1 border-t border-gray-100 bg-white px-2 pt-2">
-                        {t.quickReplies.map((q) => (
-                          <button
-                            key={q}
-                            onClick={() => setInput(q)}
-                            className="rounded-full border border-indigo-200 bg-indigo-50 px-2.5 py-1 text-xs text-indigo-700 hover:bg-indigo-100"
-                          >
-                            {q}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                    <div className="flex items-center gap-2 border-t border-gray-200 bg-white p-2">
-                      <input
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' && !e.shiftKey) {
-                            e.preventDefault();
-                            handleSend();
-                          }
-                        }}
-                        placeholder={t.inputPlaceholder}
-                        className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
-                      />
+                {messages.length === 0 && (
+                  <div className="flex flex-wrap gap-1 border-t border-gray-100 bg-white px-2 pt-2">
+                    {t.quickReplies.map((q) => (
                       <button
-                        onClick={handleSend}
-                        disabled={sending || !input.trim()}
-                        className="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
+                        key={q}
+                        onClick={() => setInput(q)}
+                        className="rounded-full border border-indigo-200 bg-indigo-50 px-2.5 py-1 text-xs text-indigo-700 hover:bg-indigo-100"
                       >
-                        {t.send}
+                        {q}
                       </button>
-                    </div>
-                  </>
+                    ))}
+                  </div>
                 )}
+                <div className="flex items-center gap-2 border-t border-gray-200 bg-white p-2">
+                  <input
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleSend();
+                      }
+                    }}
+                    placeholder={t.inputPlaceholder}
+                    className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+                  />
+                  <button
+                    onClick={handleSend}
+                    disabled={sending || !input.trim()}
+                    className="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
+                  >
+                    {t.send}
+                  </button>
+                </div>
               </>
             )}
           </div>
@@ -488,13 +443,13 @@ export default function ChatWidget() {
   );
 }
 
-function MessageBubble({ message, closedLabel }: { message: ChatMessage; closedLabel: string }) {
+function MessageBubble({ message }: { message: ChatMessage }) {
   const isUser = message.sender_type === 'user';
   const isSystem = message.sender_type === 'system' || message.sender_type === 'bot';
   if (isSystem) {
     return (
       <div className="mx-auto max-w-[90%] rounded-lg bg-gray-100 px-3 py-2 text-center text-xs text-gray-500">
-        {message.body === CLOSED_SENTINEL ? closedLabel : message.body}
+        {message.body}
       </div>
     );
   }

@@ -19,11 +19,8 @@ export interface ChatStrings {
   catRefund: string;
   catEtc: string;
   quickReplies: string[];
-  ratingPrompt: string;
-  ratingThanks: string;
   ariaOpen: string;
   close: string;
-  closed: string;
 }
 
 const ko: ChatStrings = {
@@ -46,11 +43,8 @@ const ko: ChatStrings = {
   catRefund: '환불 문의',
   catEtc: '기타',
   quickReplies: ['결제했는데 악보가 안 보여요', '다운로드가 안 돼요', '환불 문의드려요', '주문번호를 알려드릴게요'],
-  ratingPrompt: '상담은 어떠셨나요? 만족도를 평가해 주세요.',
-  ratingThanks: '평가해 주셔서 감사합니다!',
   ariaOpen: '고객 상담 채팅',
   close: '닫기',
-  closed: '상담이 종료되었습니다.',
 };
 
 const en: ChatStrings = {
@@ -73,11 +67,8 @@ const en: ChatStrings = {
   catRefund: 'Refund',
   catEtc: 'Other',
   quickReplies: ["I paid but can't see my sheet", "I can't download", 'I have a refund question', "Here's my order number"],
-  ratingPrompt: 'How was your support experience? Please rate it.',
-  ratingThanks: 'Thank you for your feedback!',
   ariaOpen: 'Customer support chat',
   close: 'Close',
-  closed: 'This chat has been closed.',
 };
 
 const ja: ChatStrings = {
@@ -100,11 +91,8 @@ const ja: ChatStrings = {
   catRefund: '返金',
   catEtc: 'その他',
   quickReplies: ['支払ったのに楽譜が見えません', 'ダウンロードできません', '返金について', '注文番号をお伝えします'],
-  ratingPrompt: 'サポートはいかがでしたか？評価をお願いします。',
-  ratingThanks: 'ご評価ありがとうございます！',
   ariaOpen: 'カスタマーサポートチャット',
   close: '閉じる',
-  closed: 'チャットが終了しました。',
 };
 
 const DICT: Record<string, ChatStrings> = { ko, en, ja };

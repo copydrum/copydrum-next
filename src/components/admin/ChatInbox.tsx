@@ -15,8 +15,6 @@ const QUICK_REPLIES = [
 const CONVERSATION_FIELDS =
   'id, user_id, guest_token, guest_name, guest_email, status, channel, subject, last_message_at, last_message_preview, unread_for_admin, unread_for_user, assigned_admin_id, rating, created_at, updated_at';
 
-const CLOSED_SENTINEL = '__CHAT_CLOSED__';
-
 async function callAdminChat(action: 'send' | 'close' | 'read', conversationId: string, message?: string) {
   const { data: { session } } = await supabase.auth.getSession();
   const token = session?.access_token;
@@ -266,7 +264,6 @@ export default function ChatInbox() {
                 </p>
                 <p className="text-xs text-gray-400">
                   {selected.guest_email || ''} {selected.user_id ? '(회원)' : '(게스트)'}
-                  {selected.rating ? ` · 만족도 ${'★'.repeat(selected.rating)}` : ''}
                 </p>
               </div>
               <div className="flex items-center gap-2">
@@ -297,7 +294,7 @@ export default function ChatInbox() {
                           : 'mx-auto bg-gray-100 text-gray-500'
                     }`}
                   >
-                    {m.body === CLOSED_SENTINEL ? '— 상담 종료 —' : m.body}
+                    {m.body}
                     <div className={`mt-1 text-[10px] ${m.sender_type === 'admin' ? 'text-indigo-200' : 'text-gray-400'}`}>
                       {new Date(m.created_at).toLocaleTimeString('ko-KR')}
                     </div>

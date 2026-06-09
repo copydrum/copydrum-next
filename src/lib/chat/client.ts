@@ -112,13 +112,6 @@ export async function sendUserMessage(
   return data as ChatMessage;
 }
 
-export async function rateUserConversation(conversationId: string, rating: number): Promise<void> {
-  await supabase
-    .from('chat_conversations')
-    .update({ rating: Math.round(rating), updated_at: new Date().toISOString() })
-    .eq('id', conversationId);
-}
-
 /** 로그인 사용자: 해당 대화의 신규 메시지를 Realtime 으로 구독 */
 export function subscribeToConversation(
   conversationId: string,
@@ -200,12 +193,4 @@ export async function guestFetch(
     since: sinceIso ?? null,
   });
   return data.messages ?? [];
-}
-
-export async function guestRate(session: GuestSession, rating: number): Promise<void> {
-  await callGuestFn('rate', {
-    token: session.token,
-    conversationId: session.conversationId,
-    rating,
-  });
 }

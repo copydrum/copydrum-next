@@ -82,15 +82,9 @@ serve(async (req) => {
     }
 
     if (action === "close") {
-      // 종료 안내 + 만족도 평가 유도를 위한 시스템 메시지(센티넬). 위젯/인박스에서 현지화 렌더.
-      await service.from("chat_messages").insert({
-        conversation_id: conversationId,
-        sender_type: "system",
-        body: "__CHAT_CLOSED__",
-      });
       await service
         .from("chat_conversations")
-        .update({ status: "closed", unread_for_user: 1, updated_at: nowIso })
+        .update({ status: "closed", updated_at: nowIso })
         .eq("id", conversationId);
       return jsonResponse(200, { ok: true });
     }
