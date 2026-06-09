@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { supabase } from '@/lib/supabase';
 import { isChatOnline, nextOpeningHint } from '@/lib/chat/online';
 import { getChatStrings } from '@/lib/chat/strings';
-import { getChatWelcomeMessage, getChatOfflineMessage } from '@/lib/chat/messages';
+import { getChatWelcomeMessage, getChatOfflineMessage, getPayBotButtonLabel } from '@/lib/chat/messages';
 import type { ChatSettings } from '@/lib/settings';
 import {
   loadChatSettings,
@@ -36,6 +36,7 @@ export default function ChatWidget() {
     () => getChatOfflineMessage(i18n.language, settings),
     [i18n.language, settings],
   );
+  const payBotLabel = useMemo(() => getPayBotButtonLabel(i18n.language), [i18n.language]);
   const [open, setOpen] = useState(false);
   const [online, setOnline] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
@@ -346,7 +347,7 @@ export default function ChatWidget() {
                   disabled={botRunning}
                   className="mb-2 w-full rounded-lg border border-emerald-300 bg-emerald-50 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-100 disabled:opacity-50"
                 >
-                  {botRunning ? t.payBotRunning : `💳 ${t.payBotButton}`}
+                  {botRunning ? t.payBotRunning : payBotLabel}
                 </button>
                 {offBotMessage && (
                   <div className="mb-3 rounded-lg bg-emerald-50 p-3 text-xs text-emerald-800">{offBotMessage}</div>
@@ -453,7 +454,7 @@ export default function ChatWidget() {
                     disabled={botRunning}
                     className="mb-1 w-full rounded-lg border border-emerald-300 bg-emerald-50 py-1.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-100 disabled:opacity-50"
                   >
-                    {botRunning ? t.payBotRunning : `💳 ${t.payBotButton}`}
+                    {botRunning ? t.payBotRunning : payBotLabel}
                   </button>
                   {messages.length === 0 && (
                     <div className="flex flex-wrap gap-1">

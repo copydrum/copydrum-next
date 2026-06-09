@@ -107,6 +107,27 @@ Küresel saat farkı nedeniyle anında yanıt veremeyebiliriz. Mesajınızla bir
 Через глобальні часові пояси ми можемо не відповісти одразу. Залиште повідомлення з e-mail та назвою придбаних нот — опрацюємо в пріоритеті на початку робочого дня. Ваш платіж надійно зафіксовано, зачекайте трохи! :)`,
 };
 
+/** 결제 자동확인 버튼 문구 */
+const PAY_BOT_BUTTON: Record<string, string> = {
+  ko: '결제 후 악보가 안 보인다면? (이 버튼을 클릭해주세요)',
+  en: "Can't see your sheet after payment? (Please click this button)",
+  ja: 'お支払い後に楽譜が表示されませんか？（このボタンをクリックしてください）',
+  'zh-CN': '付款后看不到乐谱？（请点击此按钮）',
+  'zh-TW': '付款後看不到樂譜？（請點擊此按鈕）',
+  de: 'Partitur nach der Zahlung nicht sichtbar? (Bitte klicken Sie auf diese Schaltfläche)',
+  fr: 'La partition n\'apparaît pas après le paiement ? (Cliquez sur ce bouton)',
+  es: '¿No ves la partitura después del pago? (Haz clic en este botón)',
+  vi: 'Không thấy sheet sau khi thanh toán? (Vui lòng nhấn nút này)',
+  th: 'ไม่เห็นโน้ตหลังชำระเงิน? (กรุณาคลิกปุ่มนี้)',
+  hi: 'भुगतान के बाद शीट नहीं दिख रही? (कृपया इस बटन पर क्लिक करें)',
+  id: 'Partitur tidak muncul setelah pembayaran? (Silakan klik tombol ini)',
+  pt: 'Não vê a partitura após o pagamento? (Clique neste botão)',
+  ru: 'Не видите ноты после оплаты? (Нажмите эту кнопку)',
+  it: 'Non vedi lo spartito dopo il pagamento? (Clicca questo pulsante)',
+  tr: 'Ödemeden sonra nota görünmüyor mu? (Lütfen bu düğmeye tıklayın)',
+  uk: 'Не бачите ноти після оплати? (Натисніть цю кнопку)',
+};
+
 function pickLocale(map: Record<string, string>, locale: string): string {
   if (map[locale]) return map[locale];
   const base = locale.split('-')[0];
@@ -128,4 +149,9 @@ export function getChatOfflineMessage(locale: string, settings?: ChatSettings | 
     return settings.offlineMessage.trim();
   }
   return pickLocale(OFFLINE, locale);
+}
+
+/** 결제 자동확인 버튼 문구 */
+export function getPayBotButtonLabel(locale: string): string {
+  return pickLocale(PAY_BOT_BUTTON, locale);
 }
