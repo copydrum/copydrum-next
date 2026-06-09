@@ -20,6 +20,13 @@ import type { ChatMessage } from '@/lib/chat/types';
 
 type View = 'loading' | 'live' | 'offline' | 'offline_sent';
 
+const QUICK_REPLIES = [
+  '결제했는데 악보가 안 보여요',
+  '다운로드가 안 돼요',
+  '환불 문의드려요',
+  '주문번호를 알려드릴게요',
+];
+
 export default function ChatWidget() {
   const [settings, setSettings] = useState<ChatSettings | null>(null);
   const [open, setOpen] = useState(false);
@@ -378,6 +385,19 @@ export default function ChatWidget() {
                   ))}
                   <div ref={messagesEndRef} />
                 </div>
+                {messages.length === 0 && (
+                  <div className="flex flex-wrap gap-1 border-t border-gray-100 bg-white px-2 pt-2">
+                    {QUICK_REPLIES.map((q) => (
+                      <button
+                        key={q}
+                        onClick={() => setInput(q)}
+                        className="rounded-full border border-indigo-200 bg-indigo-50 px-2.5 py-1 text-xs text-indigo-700 hover:bg-indigo-100"
+                      >
+                        {q}
+                      </button>
+                    ))}
+                  </div>
+                )}
                 <div className="flex items-center gap-2 border-t border-gray-200 bg-white p-2">
                   <input
                     value={input}

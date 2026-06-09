@@ -3,6 +3,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import type { ChatConversation, ChatMessage } from '@/lib/chat/types';
+import ChatCustomerContext from './ChatCustomerContext';
+
+const QUICK_REPLIES = [
+  '안녕하세요, CopyDrum입니다. 무엇을 도와드릴까요?',
+  '결제 확인 후 바로 처리해 드리겠습니다. 잠시만 기다려 주세요.',
+  '결제가 정상 완료되어 다운로드 가능하도록 처리했습니다. 마이페이지에서 확인해 주세요.',
+  '확인해 주셔서 감사합니다. 추가로 궁금하신 점 있으시면 말씀해 주세요.',
+];
 
 const CONVERSATION_FIELDS =
   'id, user_id, guest_token, guest_name, guest_email, status, channel, subject, last_message_at, last_message_preview, unread_for_admin, unread_for_user, assigned_admin_id, rating, created_at, updated_at';
@@ -25,6 +33,7 @@ export default function ChatInbox() {
   const [reply, setReply] = useState('');
   const [sending, setSending] = useState(false);
   const [filter, setFilter] = useState<'all' | 'open' | 'closed'>('all');
+  const [showContext, setShowContext] = useState(true);
   const endRef = useRef<HTMLDivElement | null>(null);
 
   const loadConversations = useCallback(async () => {
@@ -180,12 +189,20 @@ export default function ChatInbox() {
                   {selected.guest_email || ''} {selected.user_id ? '(회원)' : '(게스트)'}
                 </p>
               </div>
-              <button
-                onClick={handleClose}
-                className="rounded border border-gray-300 px-3 py-1 text-xs text-gray-600 hover:bg-gray-50"
-              >
-                대화 종료
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setShowContext((v) => !v)}
+                  className="rounded border border-gray-300 px-3 py-1 text-xs text-gray-600 hover:bg-gray-50"
+                >
+                  {showContext ? '고객정보 숨기기' : '고객정보'}
+                </button>
+                <button
+                  onClick={handleClose}
+                  className="rounded border border-gray-300 px-3 py-1 text-xs text-gray-600 hover:bg-gray-50"
+                >
+                  대화 종료
+                </button>
+              </div>
             </div>
 
             <div className="flex-1 space-y-2 overflow-y-auto bg-gray-50 p-3">
@@ -210,7 +227,19 @@ export default function ChatInbox() {
               <div ref={endRef} />
             </div>
 
-            <div className="flex items-center gap-2 border-t border-gray-200 p-2">
+            <div className="flex flex-wrap gap-1 border-t border-gray-200 px-2 pt-2">
+              {QUICK_REPLIES.map((q, i) => (
+                <button
+                  key={i}
+                  onClick={() => setReply(q)}
+                  className="rounded-full border border-gray-200 bg-gray-50 px-2 py-1 text-[11px] text-gray-600 hover:bg-gray-100"
+                  title={q}
+                >
+                  {q.length > 18 ? q.slice(0, 18) + '…' : q}
+                </button>
+              ))}
+            </div>
+            <div className="flex items-center gap-2 p-2">
               <input
                 value={reply}
                 onChange={(e) => setReply(e.target.value)}
@@ -234,6 +263,15 @@ export default function ChatInbox() {
           </>
         )}
       </div>
+
+      {/* 우측: 고객/주문 컨텍스트 */}
+      {selected && showContext && (
+        <ChatCustomerContext
+          key={selected.id}
+          userId={selected.user_id}
+          email={selected.guest_email}
+        />
+      )}
     </div>
   );
 }
