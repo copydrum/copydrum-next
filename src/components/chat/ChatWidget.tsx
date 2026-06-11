@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '@/lib/supabase';
 import { isChatOnline } from '@/lib/chat/online';
@@ -29,8 +30,12 @@ import type { ChatMessage } from '@/lib/chat/types';
 
 type View = 'loading' | 'live' | 'offline' | 'offline_sent';
 
+const FLOATING_GAP = 12; // 구매 바와 채팅 버튼 사이 여백(px)
+const DEFAULT_BOTTOM = 20; // bottom-5 기본 위치(px)
+
 export default function ChatWidget() {
   const { i18n } = useTranslation();
+  const pathname = usePathname();
   const t = useMemo(() => getChatStrings(i18n.language), [i18n.language]);
   const [settings, setSettings] = useState<ChatSettings | null>(null);
   const welcomeText = useMemo(
@@ -47,6 +52,8 @@ export default function ChatWidget() {
     [i18n.language, settings],
   );
   const [open, setOpen] = useState(false);
+  // 모바일 구매 바와 겹치지 않도록 동적으로 계산되는 하단 오프셋(px)
+  const [bottomOffset, setBottomOffset] = useState(DEFAULT_BOTTOM);
   const [online, setOnline] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
@@ -116,6 +123,51 @@ export default function ChatWidget() {
     const t = setInterval(() => setOnline(isChatOnline(settings)), 60_000);
     return () => clearInterval(t);
   }, [settings]);
+
+  // 상황 인지형 위치: 모바일 하단 구매 바가 보이면 채팅 버튼을 그 위로 자동 이동
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const measure = () => {
+      const bar = document.querySelector<HTMLElement>('[data-mobile-purchase-bar]');
+      if (bar) {
+        const rect = bar.getBoundingClientRect();
+        // lg 이상에서는 구매 바가 display:none 이라 height 가 0 → 기본 위치 유지
+        if (rect.height > 0 && rect.bottom > 0) {
+          const fromBottom = window.innerHeight - rect.top + FLOATING_GAP;
+          setBottomOffset(Math.max(DEFAULT_BOTTOM, Math.round(fromBottom)));
+          return;
+        }
+      }
+      setBottomOffset(DEFAULT_BOTTOM);
+    };
+
+    measure();
+
+    let rafId = 0;
+    const scheduleMeasure = () => {
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(measure);
+    };
+
+    window.addEventListener('resize', scheduleMeasure);
+    const observer = new MutationObserver(scheduleMeasure);
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    // 구매 바가 데이터 로드 후 비동기로 렌더되는 경우를 대비해 내비게이션 직후 재측정
+    const timers = [
+      window.setTimeout(measure, 150),
+      window.setTimeout(measure, 500),
+      window.setTimeout(measure, 1200),
+    ];
+
+    return () => {
+      window.removeEventListener('resize', scheduleMeasure);
+      observer.disconnect();
+      cancelAnimationFrame(rafId);
+      timers.forEach((id) => window.clearTimeout(id));
+    };
+  }, [pathname]);
 
   const scrollToBottom = useCallback(() => {
     requestAnimationFrame(() => {
@@ -363,9 +415,12 @@ export default function ChatWidget() {
   const needsGuestStart = view === 'live' && !userId && !hasGuestSession;
 
   return (
-    <div className="fixed bottom-5 right-5 z-[9999] flex flex-col items-end">
+    <div
+      className="fixed right-5 z-[9999] flex flex-col items-end transition-[bottom] duration-200 ease-out"
+      style={{ bottom: bottomOffset }}
+    >
       {open && (
-        <div className="mb-3 flex h-[520px] w-[360px] max-w-[calc(100vw-2.5rem)] flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl">
+        <div className="mb-3 flex h-[520px] max-h-[calc(100vh-7rem)] w-[360px] max-w-[calc(100vw-2.5rem)] flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl">
           {/* 헤더 */}
           <div className="flex items-center justify-between bg-gradient-to-r from-indigo-600 to-violet-600 px-4 py-3 text-white">
             <div>

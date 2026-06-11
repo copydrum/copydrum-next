@@ -1179,7 +1179,7 @@ export default function SheetDetailPage() {
 
       {/* === Mobile: 하단 고정 구매 바 === */}
       {sheet && (
-        <div className="lg:hidden fixed bottom-14 left-0 right-0 z-40 bg-white border-t border-gray-200 shadow-[0_-4px_12px_rgba(0,0,0,0.08)]">
+        <div data-mobile-purchase-bar className="lg:hidden fixed bottom-14 left-0 right-0 z-40 bg-white border-t border-gray-200 shadow-[0_-4px_12px_rgba(0,0,0,0.08)]">
           <div className="flex items-center gap-3 px-4 py-2.5">
             <div className="flex-shrink-0">
               <span className="text-lg font-bold text-blue-600">{formatCurrency(displayPrice)}</span>

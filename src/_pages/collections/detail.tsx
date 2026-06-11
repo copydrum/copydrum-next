@@ -771,7 +771,7 @@ export default function CollectionDetailClient({ slug }: CollectionDetailClientP
       </div>
 
       {/* Mobile Fixed Bottom Bar - 스크롤해도 항상 하단에 구매 버튼 표시 */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-[0_-4px_12px_rgba(0,0,0,0.1)] z-50 px-4 py-3">
+      <div data-mobile-purchase-bar className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-[0_-4px_12px_rgba(0,0,0,0.1)] z-50 px-4 py-3">
         <div className="flex items-center gap-3">
           {/* Price Info */}
           <div className="flex-1 min-w-0">

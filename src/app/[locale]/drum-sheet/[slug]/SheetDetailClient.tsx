@@ -979,7 +979,7 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
 
       {/* === Mobile: 하단 고정 구매 바 (2단 레이아웃) === */}
       {sheet && (
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 shadow-[0_-4px_12px_rgba(0,0,0,0.08)]">
+        <div data-mobile-purchase-bar className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 shadow-[0_-4px_12px_rgba(0,0,0,0.08)]">
           <div className="flex flex-col">
             {isFreeSheet ? (
               /* 무료 악보: 바로 다운로드 버튼 */
