@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '@/lib/supabase';
+import { removeLocaleFromPathname } from '@/lib/localeUrl';
 import { isChatOnline } from '@/lib/chat/online';
 import { getChatStrings } from '@/lib/chat/strings';
 import {
@@ -33,6 +34,14 @@ type View = 'loading' | 'live' | 'offline' | 'offline_sent';
 const FLOATING_GAP = 12; // 구매 바와 채팅 버튼 사이 여백(px)
 const DEFAULT_BOTTOM = 20; // bottom-5 기본 위치(px)
 
+function isMobilePurchaseFlowPage(pathname: string): boolean {
+  const path = removeLocaleFromPathname(pathname);
+  if (path === '/cart' || path.startsWith('/cart/')) return true;
+  if (path.startsWith('/drum-sheet/')) return true;
+  if (path.startsWith('/sheet-detail/')) return true;
+  return false;
+}
+
 export default function ChatWidget() {
   const { i18n } = useTranslation();
   const pathname = usePathname();
@@ -52,6 +61,7 @@ export default function ChatWidget() {
     [i18n.language, settings],
   );
   const [open, setOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   // 모바일 구매 바와 겹치지 않도록 동적으로 계산되는 하단 오프셋(px)
   const [bottomOffset, setBottomOffset] = useState(DEFAULT_BOTTOM);
   const [online, setOnline] = useState(false);
@@ -123,6 +133,16 @@ export default function ChatWidget() {
     const t = setInterval(() => setOnline(isChatOnline(settings)), 60_000);
     return () => clearInterval(t);
   }, [settings]);
+
+  // 모바일 여부 (Tailwind md 미만: 767px 이하)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const mq = window.matchMedia('(max-width: 767px)');
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
+  }, []);
 
   // 상황 인지형 위치: 모바일 하단 구매 바가 보이면 채팅 버튼을 그 위로 자동 이동
   useEffect(() => {
@@ -410,6 +430,9 @@ export default function ChatWidget() {
   }, [offEmail, userEmail, userId, t]);
 
   if (!settings || !settings.enabled) return null;
+
+  // 모바일: 장바구니·상품 상세에서는 가격/구매 UI를 가리지 않도록 숨김
+  if (isMobile && isMobilePurchaseFlowPage(pathname)) return null;
 
   const hasGuestSession = !userId && !!guestSessionRef.current;
   const needsGuestStart = view === 'live' && !userId && !hasGuestSession;
