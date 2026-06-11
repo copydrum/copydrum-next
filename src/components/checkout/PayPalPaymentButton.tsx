@@ -21,6 +21,46 @@ interface PayPalPaymentButtonProps {
   compact?: boolean;
 }
 
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// PayPal/PortOne 결제 실패 사유 분류
+// → 원문 영어 에러를 사용자 친화적 메시지로 변환하고, 재시도 가능 여부를 판별
+//
+// 분석 근거(최근 1개월 결제내역):
+//   - "Payer has not yet approved" (승인 미완료): 승인 단계 미완료 → 버튼 재클릭으로 회복 가능
+//   - "instrument ... declined" (카드 거절): 발급사 거절 → 다른 수단 안내
+//   - 사용자 취소: 단순 재시도 안내
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+export type PayPalFailCategory =
+  | 'not_approved'
+  | 'instrument_declined'
+  | 'user_cancel'
+  | 'generic';
+
+export function classifyPayPalFailure(rawMessage: string): PayPalFailCategory {
+  const msg = (rawMessage || '').toLowerCase();
+  if (
+    msg.includes('not yet approved') ||
+    msg.includes('has not yet approved') ||
+    (msg.includes('rel') && msg.includes('approve'))
+  ) {
+    return 'not_approved';
+  }
+  if (msg.includes('declined by the processor') || msg.includes('instrument presented') || msg.includes('declined')) {
+    return 'instrument_declined';
+  }
+  if (
+    msg.includes('취소') ||
+    msg.includes('cancel') ||
+    msg.includes('popup') ||
+    msg.includes('closed') ||
+    msg.includes('user_close') ||
+    msg.includes('window closed')
+  ) {
+    return 'user_cancel';
+  }
+  return 'generic';
+}
+
 export default function PayPalPaymentButton({
   orderId,
   amount,
@@ -33,12 +73,76 @@ export default function PayPalPaymentButton({
   const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [failCategory, setFailCategory] = useState<PayPalFailCategory | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const user = useAuthStore((state) => state.user);
   const paymentIdRef = useRef<string>('');
   const loadedRef = useRef(false);
   const dbOrderIdRef = useRef<string>(orderId);
   const isProcessingRef = useRef(false); // 중복 결제 방지
+
+  // 실패 사유 → 사용자 친화적 안내 메시지 (i18n, 기본값 한국어)
+  const friendlyMessageFor = useCallback(
+    (category: PayPalFailCategory): string => {
+      switch (category) {
+        case 'not_approved':
+          return t(
+            'checkout.paypalError.notApproved',
+            'PayPal 승인이 완료되지 않았습니다. 아래 버튼을 다시 눌러 PayPal 창에서 결제 승인까지 완료해 주세요.',
+          );
+        case 'instrument_declined':
+          return t(
+            'checkout.paypalError.declined',
+            '카드사에서 결제가 거절되었습니다. 다른 카드 또는 PayPal 잔액으로 다시 시도해 주세요.',
+          );
+        case 'user_cancel':
+          return t(
+            'checkout.paypalError.cancelled',
+            '결제가 취소되었습니다. 다시 결제하시려면 아래 버튼을 눌러 주세요.',
+          );
+        default:
+          return t(
+            'checkout.paypalError.generic',
+            '결제를 완료하지 못했습니다. 잠시 후 아래 버튼을 다시 눌러 시도해 주세요.',
+          );
+      }
+    },
+    [t],
+  );
+
+  // 결제 실패 모니터링 비콘 (4순위) — 실패해도 결제 흐름에 영향 주지 않도록 fire-and-forget
+  const reportPaymentFailure = useCallback(
+    (payload: {
+      category: PayPalFailCategory;
+      rawMessage: string;
+      code?: string;
+      paymentId?: string;
+      orderId?: string;
+      amount?: number;
+    }) => {
+      try {
+        const body = JSON.stringify({
+          provider: 'paypal',
+          ...payload,
+          path: typeof window !== 'undefined' ? window.location.pathname : undefined,
+          userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : undefined,
+        });
+        if (typeof navigator !== 'undefined' && navigator.sendBeacon) {
+          navigator.sendBeacon('/api/payments/failure-log', new Blob([body], { type: 'application/json' }));
+        } else {
+          fetch('/api/payments/failure-log', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body,
+            keepalive: true,
+          }).catch(() => {});
+        }
+      } catch (e) {
+        console.warn('[PayPal-SDK] 실패 로그 전송 실패(무시):', e);
+      }
+    },
+    [],
+  );
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // 🟢 PortOne V2 SDK PayPal SPB 방식으로 결제 버튼 렌더링
@@ -59,6 +163,7 @@ export default function PayPalPaymentButton({
     loadedRef.current = true;
     setLoading(true);
     setError(null);
+    setFailCategory(null);
 
     try {
       const storeId = process.env.NEXT_PUBLIC_PORTONE_STORE_ID!;
@@ -313,11 +418,34 @@ export default function PayPalPaymentButton({
         // ━━━ 결제 실패 콜백 ━━━
         onPaymentFail: (err: any) => {
           console.error('[PayPal-SDK] ❌ onPaymentFail', err);
-          const errorMessage = err?.message || 'PayPal 결제가 실패했습니다.';
-          console.warn('[PayPal-SDK] 결제 실패:', errorMessage);
+          const rawMessage = err?.message || 'PayPal 결제가 실패했습니다.';
+          const category = classifyPayPalFailure(rawMessage);
+          console.warn('[PayPal-SDK] 결제 실패:', { rawMessage, category, code: err?.code });
+
+          // 실패 모니터링 비콘 전송 (4순위: 에러코드별 집계용)
+          reportPaymentFailure({
+            category,
+            rawMessage,
+            code: err?.code,
+            paymentId: paymentIdRef.current,
+            orderId: dbOrderIdRef.current,
+            amount,
+          });
+
           setIsProcessing(false);
           isProcessingRef.current = false;
-          onError(new Error(errorMessage));
+
+          // 사용자 친화적 메시지로 변환
+          const friendly = friendlyMessageFor(category);
+          setFailCategory(category);
+          setError(friendly);
+
+          // ⚠️ 재시도 시 "승인 안 된 stale PayPal Order"를 다시 캡처하면 또 실패하므로
+          //    버튼을 새 paymentId/Order로 재렌더링할 수 있도록 로드 플래그를 초기화한다.
+          loadedRef.current = false;
+
+          // 모든 onPaymentFail 케이스는 화면 내 재시도 UI로 처리하므로
+          // 상위로 alert 를 띄우지 않는다. (사용자를 결제 화면에 머무르게 함)
         },
       });
 
@@ -336,6 +464,40 @@ export default function PayPalPaymentButton({
   useEffect(() => {
     loadPayPalButton();
   }, [loadPayPalButton]);
+
+  const handleRetry = useCallback(() => {
+    loadedRef.current = false;
+    setError(null);
+    setFailCategory(null);
+    loadPayPalButton();
+  }, [loadPayPalButton]);
+
+  // 실패 사유별 안내 + 재시도 버튼 (compact / full 공용)
+  const renderErrorBlock = () => {
+    if (!error) return null;
+    const isDeclined = failCategory === 'instrument_declined';
+    return (
+      <div className="w-full rounded-xl border border-red-200 bg-red-50 p-4 text-center">
+        <i className="ri-error-warning-line text-2xl text-red-500"></i>
+        <p className="mt-1 text-sm text-red-700">{error}</p>
+        {isDeclined && (
+          <p className="mt-1 text-xs text-red-500">
+            {t(
+              'checkout.paypalError.declinedHint',
+              'PayPal 결제창에서 다른 카드로 바꾸거나 PayPal 잔액으로 결제해 보세요. 카드 한도·해외결제 차단 여부도 확인해 주세요.',
+            )}
+          </p>
+        )}
+        <button
+          onClick={handleRetry}
+          className="mt-3 inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+        >
+          <i className="ri-refresh-line"></i>
+          {t('checkout.retryPayment', 'PayPal로 다시 결제하기')}
+        </button>
+      </div>
+    );
+  };
 
   // ━━━ 컴팩트 모드: OnePageCheckout에서 사용 ━━━
   if (compact) {
@@ -364,21 +526,8 @@ export default function PayPalPaymentButton({
           </div>
         )}
 
-        {/* 에러 상태 */}
-        {error && (
-          <div className="w-full py-3 px-4 bg-red-50 rounded-xl text-center">
-            <p className="text-red-500 text-sm mb-1">{error}</p>
-            <button
-              onClick={() => {
-                loadedRef.current = false;
-                loadPayPalButton();
-              }}
-              className="text-sm underline text-blue-600 hover:text-blue-800"
-            >
-              {t('common.retry', '재시도')}
-            </button>
-          </div>
-        )}
+        {/* 에러 상태 (사유별 안내 + 재시도) */}
+        {error && renderErrorBlock()}
 
         {/* 🟢 포트원 PayPal SPB 버튼이 렌더링되는 컨테이너 */}
         {/* PortOne SDK가 class="portone-ui-container"를 찾아 PayPal 버튼을 렌더링 */}
@@ -422,21 +571,8 @@ export default function PayPalPaymentButton({
           </div>
         )}
 
-        {/* 에러 상태 */}
-        {error && (
-          <div className="text-center py-4">
-            <p className="text-red-500 text-sm mb-2">{error}</p>
-            <button
-              onClick={() => {
-                loadedRef.current = false;
-                loadPayPalButton();
-              }}
-              className="text-sm underline text-blue-600 hover:text-blue-800"
-            >
-              {t('common.retry', '재시도')}
-            </button>
-          </div>
-        )}
+        {/* 에러 상태 (사유별 안내 + 재시도) */}
+        {error && renderErrorBlock()}
 
         {/* 🟢 포트원 PayPal SPB 버튼이 렌더링되는 컨테이너 */}
         <div

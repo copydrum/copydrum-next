@@ -30,6 +30,14 @@
   "paymentSuccess": "결제 완료!",
   "paymentFailed": "결제 실패",
   "paymentError": "결제 중 오류가 발생했습니다",
+  "retryPayment": "PayPal로 다시 결제하기",
+  "paypalError": {
+    "notApproved": "PayPal 승인이 완료되지 않았습니다. 아래 버튼을 다시 눌러 PayPal 창에서 결제 승인까지 완료해 주세요.",
+    "declined": "카드사에서 결제가 거절되었습니다. 다른 카드 또는 PayPal 잔액으로 다시 시도해 주세요.",
+    "declinedHint": "PayPal 결제창에서 다른 카드로 바꾸거나 PayPal 잔액으로 결제해 보세요. 카드 한도·해외결제 차단 여부도 확인해 주세요.",
+    "cancelled": "결제가 취소되었습니다. 다시 결제하시려면 아래 버튼을 눌러 주세요.",
+    "generic": "결제를 완료하지 못했습니다. 잠시 후 아래 버튼을 다시 눌러 시도해 주세요."
+  },
   "invalidAmount": "유효하지 않은 금액",
   "noItemsSelected": "선택된 상품이 없습니다",
   "confirmPayment": "결제 확인",

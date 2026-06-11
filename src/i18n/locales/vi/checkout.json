@@ -30,6 +30,14 @@
   "paymentSuccess": "Thanh toán thành công!",
   "paymentFailed": "Thanh toán thất bại",
   "paymentError": "Đã xảy ra lỗi trong quá trình thanh toán",
+  "retryPayment": "Thanh toán lại bằng PayPal",
+  "paypalError": {
+    "notApproved": "Thanh toán PayPal của bạn chưa được phê duyệt. Vui lòng nhấp lại vào nút bên dưới và hoàn tất phê duyệt trong cửa sổ PayPal.",
+    "declined": "Thẻ của bạn đã bị từ chối. Vui lòng thử thẻ khác hoặc dùng số dư PayPal của bạn.",
+    "declinedHint": "Trong cửa sổ PayPal, hãy thử thẻ khác hoặc thanh toán bằng số dư PayPal. Đồng thời kiểm tra hạn mức thẻ hoặc việc chặn thanh toán quốc tế.",
+    "cancelled": "Thanh toán đã bị hủy. Để thanh toán lại, vui lòng nhấp vào nút bên dưới.",
+    "generic": "Chúng tôi không thể hoàn tất thanh toán. Vui lòng nhấp vào nút bên dưới để thử lại."
+  },
   "invalidAmount": "Số tiền không hợp lệ",
   "noItemsSelected": "Chưa chọn sản phẩm",
   "confirmPayment": "Xác nhận thanh toán",

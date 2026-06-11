@@ -30,6 +30,14 @@
   "paymentSuccess": "Ödeme Başarılı!",
   "paymentFailed": "Ödeme Başarısız",
   "paymentError": "Ödeme sırasında bir hata oluştu",
+  "retryPayment": "PayPal ile tekrar öde",
+  "paypalError": {
+    "notApproved": "PayPal ödemeniz henüz onaylanmadı. Lütfen aşağıdaki düğmeye tekrar tıklayın ve PayPal penceresinde onayı tamamlayın.",
+    "declined": "Kartınız reddedildi. Lütfen başka bir kart veya PayPal bakiyenizi deneyin.",
+    "declinedHint": "PayPal penceresinde başka bir kart deneyin veya PayPal bakiyenizle ödeyin. Ayrıca kart limitinizi veya yurt dışı ödeme engelini kontrol edin.",
+    "cancelled": "Ödeme iptal edildi. Tekrar ödemek için lütfen aşağıdaki düğmeye tıklayın.",
+    "generic": "Ödemeyi tamamlayamadık. Tekrar denemek için lütfen aşağıdaki düğmeye tıklayın."
+  },
   "invalidAmount": "Geçersiz tutar",
   "noItemsSelected": "Ürün seçilmedi",
   "confirmPayment": "Ödemeyi Onayla",

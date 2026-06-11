@@ -30,6 +30,14 @@
   "paymentSuccess": "Płatność udana!",
   "paymentFailed": "Płatność nie powiodła się",
   "paymentError": "Wystąpił błąd podczas płatności",
+  "retryPayment": "Zapłać ponownie przez PayPal",
+  "paypalError": {
+    "notApproved": "Twoja płatność PayPal nie została jeszcze zatwierdzona. Kliknij ponownie przycisk poniżej i dokończ zatwierdzanie w oknie PayPal.",
+    "declined": "Twoja karta została odrzucona. Spróbuj użyć innej karty lub środków na koncie PayPal.",
+    "declinedHint": "W oknie PayPal spróbuj użyć innej karty lub zapłać środkami z konta PayPal. Sprawdź też limit karty lub ewentualną blokadę płatności zagranicznych.",
+    "cancelled": "Płatność została anulowana. Aby zapłacić ponownie, kliknij przycisk poniżej.",
+    "generic": "Nie udało się zrealizować płatności. Kliknij przycisk poniżej, aby spróbować ponownie."
+  },
   "invalidAmount": "Nieprawidłowa kwota",
   "noItemsSelected": "Nie wybrano produktów",
   "confirmPayment": "Potwierdź płatność",

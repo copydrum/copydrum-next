@@ -30,6 +30,14 @@
   "paymentSuccess": "お支払い完了！",
   "paymentFailed": "お支払い失敗",
   "paymentError": "お支払い中にエラーが発生しました",
+  "retryPayment": "PayPalで再度支払う",
+  "paypalError": {
+    "notApproved": "PayPalの支払いがまだ承認されていません。下のボタンをもう一度クリックし、PayPalの画面で承認まで完了してください。",
+    "declined": "カードが拒否されました。別のカードまたはPayPal残高でお試しください。",
+    "declinedHint": "PayPalの画面で別のカードに変更するか、PayPal残高でお支払いください。カードの限度額や海外決済のブロックもご確認ください。",
+    "cancelled": "支払いがキャンセルされました。もう一度支払うには、下のボタンをクリックしてください。",
+    "generic": "支払いを完了できませんでした。下のボタンをクリックして、もう一度お試しください。"
+  },
   "invalidAmount": "無効な金額",
   "noItemsSelected": "商品が選択されていません",
   "confirmPayment": "お支払い確認",

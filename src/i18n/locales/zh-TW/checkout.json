@@ -30,6 +30,14 @@
   "paymentSuccess": "付款成功！",
   "paymentFailed": "付款失敗",
   "paymentError": "付款過程中發生錯誤",
+  "retryPayment": "透過 PayPal 重新付款",
+  "paypalError": {
+    "notApproved": "您的 PayPal 付款尚未獲得核准。請再次點擊下方按鈕，並在 PayPal 視窗中完成付款核准。",
+    "declined": "您的卡片遭到拒絕。請嘗試其他卡片或使用您的 PayPal 餘額。",
+    "declinedHint": "請在 PayPal 視窗中更換其他卡片，或使用 PayPal 餘額付款。另請確認卡片額度或是否被限制海外付款。",
+    "cancelled": "付款已取消。若要重新付款，請點擊下方按鈕。",
+    "generic": "無法完成付款。請點擊下方按鈕重試。"
+  },
   "invalidAmount": "無效金額",
   "noItemsSelected": "未選擇商品",
   "confirmPayment": "確認付款",

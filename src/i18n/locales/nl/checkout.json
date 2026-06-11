@@ -30,6 +30,14 @@
   "paymentSuccess": "Betaling geslaagd!",
   "paymentFailed": "Betaling mislukt",
   "paymentError": "Er is een fout opgetreden tijdens de betaling",
+  "retryPayment": "Opnieuw betalen met PayPal",
+  "paypalError": {
+    "notApproved": "Je PayPal-betaling is nog niet goedgekeurd. Klik nogmaals op de knop hieronder en voltooi de goedkeuring in het PayPal-venster.",
+    "declined": "Je kaart is geweigerd. Probeer een andere kaart of je PayPal-saldo.",
+    "declinedHint": "Probeer in het PayPal-venster een andere kaart of betaal met je PayPal-saldo. Controleer ook je kaartlimiet of een eventuele blokkering van internationale betalingen.",
+    "cancelled": "De betaling is geannuleerd. Klik op de knop hieronder om opnieuw te betalen.",
+    "generic": "We konden de betaling niet voltooien. Klik op de knop hieronder om het opnieuw te proberen."
+  },
   "invalidAmount": "Ongeldig bedrag",
   "noItemsSelected": "Geen artikelen geselecteerd",
   "confirmPayment": "Bevestig betaling",

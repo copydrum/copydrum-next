@@ -30,6 +30,14 @@
   "paymentSuccess": "Pembayaran Berhasil!",
   "paymentFailed": "Pembayaran Gagal",
   "paymentError": "Terjadi kesalahan saat pembayaran",
+  "retryPayment": "Bayar lagi dengan PayPal",
+  "paypalError": {
+    "notApproved": "Pembayaran PayPal Anda belum disetujui. Silakan klik lagi tombol di bawah dan selesaikan persetujuan di jendela PayPal.",
+    "declined": "Kartu Anda ditolak. Silakan coba kartu lain atau gunakan saldo PayPal Anda.",
+    "declinedHint": "Di jendela PayPal, coba kartu lain atau bayar dengan saldo PayPal Anda. Periksa juga limit kartu atau kemungkinan pemblokiran pembayaran internasional.",
+    "cancelled": "Pembayaran dibatalkan. Untuk membayar lagi, silakan klik tombol di bawah.",
+    "generic": "Kami tidak dapat menyelesaikan pembayaran. Silakan klik tombol di bawah untuk mencoba lagi."
+  },
   "invalidAmount": "Jumlah tidak valid",
   "noItemsSelected": "Tidak ada item yang dipilih",
   "confirmPayment": "Konfirmasi Pembayaran",

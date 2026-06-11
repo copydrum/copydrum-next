@@ -30,6 +30,14 @@
   "paymentSuccess": "Pagamento Bem-sucedido!",
   "paymentFailed": "Pagamento Falhou",
   "paymentError": "Ocorreu um erro durante o pagamento",
+  "retryPayment": "Pagar novamente com PayPal",
+  "paypalError": {
+    "notApproved": "O seu pagamento PayPal ainda não foi aprovado. Clique novamente no botão abaixo e conclua a aprovação na janela do PayPal.",
+    "declined": "O seu cartão foi recusado. Tente outro cartão ou o seu saldo PayPal.",
+    "declinedHint": "Na janela do PayPal, tente outro cartão ou pague com o seu saldo PayPal. Verifique também o limite do cartão ou um possível bloqueio de pagamentos internacionais.",
+    "cancelled": "O pagamento foi cancelado. Para pagar novamente, clique no botão abaixo.",
+    "generic": "Não foi possível concluir o pagamento. Clique no botão abaixo para tentar novamente."
+  },
   "invalidAmount": "Valor inválido",
   "noItemsSelected": "Nenhum item selecionado",
   "confirmPayment": "Confirmar Pagamento",
