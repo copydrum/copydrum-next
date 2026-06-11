@@ -82,8 +82,14 @@ export function useBuyNow(user: User | null): UseBuyNowReturn {
     async (sheet: SheetForBuyNow) => {
       if (!user) {
         // 비로그인 시: 로그인 페이지로 보내는 대신 게스트 결제 모달을 띄운다.
+        // 바로구매하려던 상품을 함께 넘겨, 이메일 입력 후 세션이 수립되면
+        // 모달이 곧바로 주문을 생성하고 결제 페이지로 이동시키도록 한다.
         const redirectPath = window.location.pathname + window.location.search;
-        useGuestCheckoutStore.getState().open(redirectPath);
+        useGuestCheckoutStore.getState().open(redirectPath, {
+          id: sheet.id,
+          title: sheet.title,
+          price: sheet.price,
+        });
         return;
       }
       try {

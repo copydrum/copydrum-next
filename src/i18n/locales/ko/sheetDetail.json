@@ -67,7 +67,7 @@
   "favoriteError": "찜하기 처리 중 오류가 발생했습니다. 다시 시도해주세요.",
   "downloadError": "다운로드 중 오류가 발생했습니다. 다시 시도해주세요.",
   "refundPolicy": "환불 규정",
-  "refundPolicyDescription": "본 상품은 디지털 PDF 드럼 악보 파일로, 파일 다운로드 또는 열람이 이루어진 경우 환불이 불가합니다.",
+  "refundPolicyDescription": "본 상품은 디지털 PDF 드럼 악보 파일입니다. 구매일로부터 14일 이내에는 사유를 묻지 않고 전액 환불이 가능합니다. 자세한 내용은 환불 정책을 확인해 주세요.",
   "refundPolicyLink": "환불 및 제공(배송) 정책",
   "refundPolicyLinkText": "자세한 내용은",
   "refundPolicyLinkSuffix": "을 확인해 주세요.",

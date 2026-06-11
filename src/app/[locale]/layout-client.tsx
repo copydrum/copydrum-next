@@ -137,6 +137,14 @@ export default function ClientLayout({
   const pathname = usePathname();
   const isAdminPage = pathname.startsWith('/admin');
 
+  // 모바일에서 다른 페이지/상품으로 이동할 때 직전 페이지의 스크롤 위치가
+  // 유지되는 문제 방지 — 경로가 바뀌면 항상 최상단에서 새 페이지를 보여준다.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (window.innerWidth >= 768) return; // 모바일(md 미만)에서만 적용
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
   useEffect(() => {
     let isMounted = true;
 

@@ -349,26 +349,30 @@ export default function GuidePage() {
 
         <section id="terms" className="bg-white py-16 border-t border-gray-200">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-6">
-              {t('guidePage.terms.title')}
-            </h2>
-            <div className="bg-gray-50 border border-gray-200 rounded-3xl p-8 space-y-4 text-gray-700 leading-relaxed">
-              {t('guidePage.terms.content', { returnObjects: true }).map((paragraph: string, index: number) => (
-                <p key={index}>{paragraph}</p>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section id="privacy" className="bg-gray-900 py-16">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-gray-100">
-            <h2 className="text-3xl font-bold mb-6">
-              {t('guidePage.privacy.title')}
-            </h2>
-            <div className="bg-white/10 border border-white/10 rounded-3xl p-8 space-y-4 leading-relaxed">
-              {t('guidePage.privacy.content', { returnObjects: true }).map((paragraph: string, index: number) => (
-                <p key={index}>{paragraph}</p>
-              ))}
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">{t('guidePage.legalLinks.title', 'Legal & Policies')}</h2>
+            <div className="grid gap-4 sm:grid-cols-3">
+              <a
+                href="/policy/terms"
+                className="rounded-2xl border border-gray-200 bg-gray-50 p-6 hover:border-blue-200 hover:shadow-md transition-all"
+              >
+                <i className="ri-file-text-line text-2xl text-blue-600"></i>
+                <p className="mt-3 font-semibold text-gray-900">{t('footer.terms')}</p>
+              </a>
+              <a
+                id="privacy"
+                href="/policy/privacy"
+                className="rounded-2xl border border-gray-200 bg-gray-50 p-6 hover:border-blue-200 hover:shadow-md transition-all"
+              >
+                <i className="ri-shield-check-line text-2xl text-blue-600"></i>
+                <p className="mt-3 font-semibold text-gray-900">{t('footer.privacy')}</p>
+              </a>
+              <a
+                href="/policy/refund"
+                className="rounded-2xl border border-gray-200 bg-gray-50 p-6 hover:border-blue-200 hover:shadow-md transition-all"
+              >
+                <i className="ri-refund-2-line text-2xl text-blue-600"></i>
+                <p className="mt-3 font-semibold text-gray-900">{t('footer.refundPolicy')}</p>
+              </a>
             </div>
           </div>
         </section>

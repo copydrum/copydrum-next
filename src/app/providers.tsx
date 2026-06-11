@@ -8,12 +8,27 @@ import { useRouter, usePathname } from 'next/navigation';
 import GlobalDialog from '@/components/ui/GlobalDialog';
 import GuestCheckoutModal from '@/components/checkout/GuestCheckoutModal';
 
+// 비밀번호 재설정 메일의 토큰은 URL 해시(#access_token=...&type=recovery)로 전달된다.
+// Supabase 클라이언트의 detectSessionInUrl 가 비동기로 해시를 소비/제거하기 때문에,
+// useEffect 안에서 window.location.hash 를 읽으면 이미 비어있는 경우가 있다(특히 모바일).
+// 모듈 평가 시점(동기 단계)에 해시를 미리 스냅샷해 두면, 비동기로 해시가 지워져도
+// 재설정 페이지로 정확히 이동시킬 수 있다.
+const CAPTURED_RECOVERY_HASH: string = (() => {
+  if (typeof window === 'undefined') return '';
+  const hash = window.location.hash || '';
+  const isRecoveryToken = hash.includes('access_token') && hash.includes('type=recovery');
+  const isRecoveryError =
+    hash.includes('error') && (hash.includes('otp_expired') || hash.includes('access_denied'));
+  return isRecoveryToken || isRecoveryError ? hash : '';
+})();
+
 function RecoveryRedirector() {
   const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
-    const hash = window.location.hash;
+    // 모듈 로드 시 캡처한 해시를 우선 사용하고, 없으면 현재 URL 해시를 확인한다.
+    const hash = CAPTURED_RECOVERY_HASH || window.location.hash;
     const search = window.location.search;
 
     const hasConfirmationUrl = search.includes('confirmation_url');

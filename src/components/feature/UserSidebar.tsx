@@ -12,6 +12,7 @@ import { useCart } from '../../hooks/useCart';
 import { useTranslation } from 'react-i18next';
 import { getSiteCurrency } from '../../lib/currency';
 import { getUserDisplayName } from '../../utils/userDisplayName';
+import { getLocalizedUrl } from '@/lib/localeUrl';
 
 interface UserSidebarProps {
   user: User | null;
@@ -441,13 +442,13 @@ export default function UserSidebar({ user }: UserSidebarProps) {
 
                 <div className="flex space-x-2">
                   <a
-                    href="/auth/forgot-password"
+                    href={getLocalizedUrl('/auth/forgot-password', router.locale)}
                     className="flex-1 text-center py-2 px-3 text-xs text-blue-600 hover:text-blue-800 border border-blue-200 rounded-md hover:bg-blue-50 cursor-pointer"
                   >
                     {t('sidebar.findId')}
                   </a>
                   <a
-                    href="/auth/forgot-password"
+                    href={getLocalizedUrl('/auth/forgot-password', router.locale)}
                     className="flex-1 text-center py-2 px-3 text-xs text-white bg-blue-600 hover:bg-blue-700 border border-blue-600 rounded-md cursor-pointer"
                   >
                     {t('sidebar.findPassword')}

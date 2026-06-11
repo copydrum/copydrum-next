@@ -60,8 +60,8 @@ export default function Footer() {
   const companyLinks: FooterLink[] = [
     { label: t('footer.about'), href: '/company/about' },
     { label: t('footer.businessInfo'), href: '/company/business-info' },
-    { label: t('footer.terms'), href: '/guide#terms' },
-    { label: t('footer.privacy'), href: '/guide#privacy' },
+    { label: t('footer.terms'), href: '/policy/terms' },
+    { label: t('footer.privacy'), href: '/policy/privacy' },
     { label: t('footer.partnership'), href: '/company/partnership' },
   ];
 

@@ -14,13 +14,13 @@ const supportLinks = [
   { label: '이용 가이드', href: '/guide' },
   { label: '자주 묻는 질문', href: '/customer-support' },
   { label: '문의하기', href: '/customer-support?tab=contact' },
-  { label: '환불 정책', href: '/customer-support?tab=faq' },
+  { label: '환불 정책', href: '/policy/refund' },
 ];
 
 const companyLinks = [
   { label: '회사 소개', href: '/company/about' },
-  { label: '이용약관', href: '/guide#terms' },
-  { label: '개인정보처리방침', href: '/guide#privacy' },
+  { label: '이용약관', href: '/policy/terms' },
+  { label: '개인정보처리방침', href: '/policy/privacy' },
   { label: '파트너십', href: '/company/partnership' },
 ];
 
@@ -36,15 +36,14 @@ export default function BusinessInfoPage() {
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
-        {/* 카피드럼 사업자 정보 숨김 처리 (복구 시 hidden 클래스 제거) */}
-        <div className="hidden">
+        <div>
           <h1 className="text-3xl font-bold text-gray-900 mb-3">카피드럼 사업자 정보</h1>
           <p className="text-gray-600">
             카피드럼의 필수 사업자 정보 및 고객 안내 사항을 확인하실 수 있습니다.
           </p>
         </div>
 
-        <section className="hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+        <section className="rounded-2xl border border-gray-200 bg-white shadow-sm">
           <div className="divide-y divide-gray-100">
             {infoRows.map((row) => (
               <div key={row.label} className="flex flex-col sm:flex-row sm:items-center px-6 py-4">

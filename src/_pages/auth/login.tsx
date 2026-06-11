@@ -9,7 +9,7 @@ import { getSiteUrl } from '../../lib/siteUrl';
 import Footer from '../../components/common/Footer';
 import MainHeader from '../../components/common/MainHeader';
 import { useLocaleRouter } from '@/hooks/useLocaleRouter';
-import { removeLocaleFromPathname } from '@/lib/localeUrl';
+import { removeLocaleFromPathname, getLocalizedUrl } from '@/lib/localeUrl';
 
 // 이전 경로를 가져오는 헬퍼 함수
 const getRedirectPath = (): string => {
@@ -459,7 +459,7 @@ export default function Login() {
 
                   <div className="text-sm">
                     <Link 
-                      href="/auth/forgot-password"
+                      href={getLocalizedUrl('/auth/forgot-password', router.locale)}
                       className="font-medium text-blue-600 hover:text-blue-500 cursor-pointer underline"
                     >
                       {t('authLogin.form.forgotPassword')}

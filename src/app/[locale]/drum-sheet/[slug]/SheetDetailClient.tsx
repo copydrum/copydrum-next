@@ -353,13 +353,13 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
   };
 
   const handleAddToCart = async () => {
+    if (!sheet) return;
+
+    // 비회원은 로그인 없이 게스트 장바구니(localStorage)에 담는다.
     if (!user) {
-      const redirectPath = window.location.pathname + window.location.search;
-      router.push(`/auth/login?redirect=${encodeURIComponent(redirectPath)}`);
+      await addToCart(sheet.id);
       return;
     }
-
-    if (!sheet) return;
 
     try {
       const alreadyPurchased = await hasPurchasedSheet(user.id, sheet.id);

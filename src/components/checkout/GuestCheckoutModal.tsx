@@ -5,12 +5,13 @@ import { useTranslation } from 'react-i18next';
 import { supabase } from '@/lib/supabase';
 import { getSiteUrl } from '@/lib/siteUrl';
 import { useGuestCheckoutStore } from '@/stores/guestCheckoutStore';
+import { useGuestCartStore } from '@/stores/guestCartStore';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function GuestCheckoutModal() {
   const { i18n } = useTranslation();
-  const { isOpen, close } = useGuestCheckoutStore();
+  const { isOpen, close, pendingSheet, cartCheckout } = useGuestCheckoutStore();
 
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
@@ -71,18 +72,22 @@ export default function GuestCheckoutModal() {
         return;
       }
 
-      let otpErr = (
-        await supabase.auth.verifyOtp({ token_hash: json.tokenHash, type: 'magiclink' })
-      ).error;
-      if (otpErr) {
-        otpErr = (
-          await supabase.auth.verifyOtp({ token_hash: json.tokenHash, type: 'email' })
-        ).error;
+      let otpRes = await supabase.auth.verifyOtp({
+        token_hash: json.tokenHash,
+        type: 'magiclink',
+      });
+      if (otpRes.error) {
+        otpRes = await supabase.auth.verifyOtp({
+          token_hash: json.tokenHash,
+          type: 'email',
+        });
       }
-      if (otpErr) {
+      if (otpRes.error) {
         setError(text.failed);
         return;
       }
+
+      const userId = otpRes.data?.user?.id ?? null;
 
       // 비밀번호 설정 메일 (검증된 Supabase 채널)
       try {
@@ -92,6 +97,63 @@ export default function GuestCheckoutModal() {
         });
       } catch {
         /* 메일 실패해도 진행 */
+      }
+
+      // 바로구매로 진입한 경우: 세션이 수립됐으니 곧바로 주문을 생성하고
+      // 결제 페이지로 이동시킨다. (사용자가 바로구매를 다시 누를 필요가 없도록)
+      if (pendingSheet && userId) {
+        try {
+          const orderRes = await fetch('/api/orders/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              userId,
+              items: [
+                {
+                  sheetId: pendingSheet.id,
+                  title: pendingSheet.title,
+                  price: pendingSheet.price,
+                },
+              ],
+              amount: pendingSheet.price,
+              description: pendingSheet.title,
+            }),
+          });
+          const orderJson = await orderRes.json();
+          if (orderJson?.success && orderJson.orderId) {
+            window.location.href = `/payments/${orderJson.orderId}`;
+            return;
+          }
+        } catch {
+          /* 주문 생성 실패 시 아래 reload 폴백으로 진행 */
+        }
+      }
+
+      // 장바구니 결제로 진입한 경우: 비회원 장바구니(localStorage)를 DB 로 병합한 뒤
+      // 장바구니 페이지로 이동시킨다. (로그인 상태가 되어 자동으로 결제 화면으로 진행됨)
+      if (cartCheckout && userId) {
+        try {
+          const guestIds = useGuestCartStore.getState().ids;
+          if (guestIds.length > 0) {
+            const { data: existing } = await supabase
+              .from('cart_items')
+              .select('sheet_id')
+              .eq('user_id', userId);
+            const existingIds = new Set((existing || []).map((r: any) => r.sheet_id));
+            const toInsert = guestIds
+              .filter((id) => !existingIds.has(id))
+              .map((id) => ({ user_id: userId, sheet_id: id }));
+            if (toInsert.length > 0) {
+              await supabase.from('cart_items').insert(toInsert);
+            }
+            useGuestCartStore.getState().clear();
+          }
+        } catch {
+          /* 병합 실패해도 장바구니 페이지로 진행 (DB 에 남은 항목으로 결제 가능) */
+        }
+        const locale = i18n.language || 'ko';
+        window.location.href = `/${locale}/cart`;
+        return;
       }
 
       // 세션이 수립됐으므로 현재 페이지를 새로고침하면 로그인 상태로 이어서 결제 가능

@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { splitPurchasedSheetIds } from '../../lib/purchaseCheck';
 import OnePageCheckout from '@/components/checkout/OnePageCheckout';
 import type { CheckoutItem } from '@/components/checkout/OnePageCheckout';
+import { useGuestCheckoutStore } from '../../stores/guestCheckoutStore';
 
 export default function CartPageWithCheckout() {
   const { cartItems, loading, removeFromCart, removeSelectedItems, getTotalPrice } = useCart();
@@ -97,24 +98,6 @@ export default function CartPageWithCheckout() {
     autoCheckout();
   }, [loading, user, cartItems, showCheckout, t]);
 
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center" suppressHydrationWarning>
-          <h2 className="text-2xl font-bold text-gray-900 mb-4" suppressHydrationWarning>{t('loginRequired')}</h2>
-          <p className="text-gray-600" suppressHydrationWarning>{t('loginRequiredDescription')}</p>
-          <button
-            onClick={() => router.push('/auth/login')}
-            className="mt-6 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-            suppressHydrationWarning
-          >
-            {t('login', 'Login')}
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -140,6 +123,15 @@ export default function CartPageWithCheckout() {
   const handleProceedToCheckout = async () => {
     if (selectedItems.length === 0) {
       alert(t('selectItemsToPurchase'));
+      return;
+    }
+
+    // 비회원: 여기서 처음으로 이메일을 받는다.
+    // 세션이 수립되면 모달이 게스트 장바구니를 DB 로 병합한 뒤 다시 장바구니로 돌아오고,
+    // 그때 로그인 상태가 되어 자동으로 결제 화면으로 진행된다.
+    if (!user) {
+      const redirectPath = window.location.pathname + window.location.search;
+      useGuestCheckoutStore.getState().open(redirectPath, undefined, true);
       return;
     }
 
@@ -246,8 +238,8 @@ export default function CartPageWithCheckout() {
     alert(t('paymentError') + ': ' + error.message);
   };
 
-  // 체크아웃 화면 표시
-  if (showCheckout && checkoutItems.length > 0) {
+  // 체크아웃 화면 표시 (로그인 사용자 전용)
+  if (showCheckout && checkoutItems.length > 0 && user) {
     return (
       <div>
         {/* 뒤로가기 버튼 */}
