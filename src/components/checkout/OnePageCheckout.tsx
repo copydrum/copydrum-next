@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatCurrency, getSiteCurrency, convertFromKrw } from '@/lib/currency';
-import DodoPaymentForm from './DodoPaymentForm';
+import CardPaymentButton from './CardPaymentButton';
 import PayPalPaymentButton from './PayPalPaymentButton';
 import KakaoPayButton from './KakaoPayButton';
 import PointsPaymentForm from './PointsPaymentForm';
@@ -176,7 +176,7 @@ export default function OnePageCheckout({
                   </div>
 
                   <div className={''}>
-                    <DodoPaymentForm
+                    <CardPaymentButton
                       orderId={orderId}
                       amount={totalAmount}
                       orderName={items.length === 1 ? items[0].title : `${items.length} items`}

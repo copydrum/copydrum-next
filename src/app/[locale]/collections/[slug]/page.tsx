@@ -1,19 +1,23 @@
 import { Metadata } from 'next';
 import { createClient } from '@supabase/supabase-js';
-import { notFound } from 'next/navigation';
 import CollectionDetailClient from '@/_pages/collections/detail';
 import { buildCollectionDetailSeoStrings } from '@/lib/seo';
+import {
+  getLocaleFromHeaders,
+  canonicalFor,
+  buildLanguageAlternates,
+} from '@/lib/seo/hreflang';
 
 interface PageProps {
-  params: {
-    slug: string;
-  };
+  params: Promise<{ slug: string }>;
 }
 
 // Generate metadata for SEO
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  // Await params in Next.js 15+
-  const { slug } = await Promise.resolve(params);
+  const { slug } = await params;
+  const locale = await getLocaleFromHeaders();
+  const relativePath = `/collections/${slug}`;
+  const canonical = canonicalFor(locale, relativePath);
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -29,7 +33,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   // Fetch collection data
   const { data: collection } = await supabase
     .from('collections')
-    .select('id, title, description, thumbnail_url, sale_price, original_price')
+    .select('id, title, description, title_translations, description_translations, thumbnail_url, sale_price, original_price')
     .eq('slug', slug)
     .eq('is_active', true)
     .single();
@@ -40,17 +44,21 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     };
   }
 
-  const locale = 'en'; // This will be dynamic based on the route
   const seoStrings = buildCollectionDetailSeoStrings(locale, collection);
 
   return {
     title: seoStrings.title,
     description: seoStrings.description,
+    alternates: {
+      canonical,
+      languages: buildLanguageAlternates(relativePath),
+    },
     openGraph: {
       title: seoStrings.ogTitle,
       description: seoStrings.ogDescription,
       type: 'website',
-      url: seoStrings.ogUrl,
+      url: canonical,
+      siteName: 'COPYDRUM',
       images: [
         {
           url: seoStrings.ogImage,
@@ -70,10 +78,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function CollectionDetailPage({ params }: PageProps) {
-  // Await params in Next.js 15+
-  const { slug } = await Promise.resolve(params);
-
-  console.log('[Collections Server] Rendering with slug:', slug);
+  const { slug } = await params;
 
   return <CollectionDetailClient slug={slug} />;
 }

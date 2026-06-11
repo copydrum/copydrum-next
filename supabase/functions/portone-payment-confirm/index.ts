@@ -181,21 +181,33 @@ async function getPortOnePayment(
   throw new Error("Invalid payment data structure from PortOne");
 }
 
+/**
+ * 결제 금액 검증.
+ *
+ * ⚠️ 해외 통화(USD/JPY 등)는 사이트 환율 정책(1000원=$1 또는 1500원=$1)과
+ *    PortOne 최소단위 표현의 모호성 때문에 KRW로 정확히 환산하기 어렵다.
+ *    잘못된 고정환율로 비교하면 "정상 결제"를 오탐(차단)할 위험이 크므로,
+ *    여기서는 통화/단위 모호성이 없는 KRW 결제만 정확히 검증하고
+ *    해외 통화 결제는 통과시킨다.
+ *    (해외 언더프라이싱은 주문 생성 단계의 서버 측 가격 하한 검증으로 1차 차단됨)
+ *
+ * @returns true = 정상(또는 검증 생략), false = KRW 금액 불일치(차단)
+ */
 function compareAmounts(
   portoneAmount: number,
   portoneCurrency: string,
   orderAmountKRW: number
 ): boolean {
-  let portoneAmountInKRW: number;
-  if (portoneCurrency === "CURRENCY_USD" || portoneCurrency === "USD") {
-    portoneAmountInKRW = (portoneAmount / 100) * 1300; 
-  } else if (portoneCurrency === "CURRENCY_JPY" || portoneCurrency === "JPY") {
-    portoneAmountInKRW = portoneAmount * 10;
-  } else {
-    portoneAmountInKRW = portoneAmount;
+  const isKRW = portoneCurrency === "CURRENCY_KRW" || portoneCurrency === "KRW";
+  if (!isKRW) {
+    return true; // 해외 통화는 차단 검증 생략
   }
-  const tolerance = orderAmountKRW * 0.01;
-  return Math.abs(portoneAmountInKRW - orderAmountKRW) <= tolerance;
+  if (!orderAmountKRW || orderAmountKRW <= 0) {
+    return true;
+  }
+  const pgKRW = Math.round(Number(portoneAmount) || 0);
+  const tolerance = Math.max(10, Math.round(orderAmountKRW * 0.02));
+  return Math.abs(pgKRW - orderAmountKRW) <= tolerance;
 }
 
 serve(async (req) => {
@@ -644,6 +656,33 @@ serve(async (req) => {
       paymentStatus,
       orderId: order.id,
     });
+
+    // 🔒 결제 금액 검증 (KRW 결제는 PG 결제금액과 주문 총액이 일치해야 함)
+    {
+      const pgAmount = portonePayment.amount?.total ?? portonePayment.amount ?? 0;
+      const pgCurrency = portonePayment.amount?.currency ?? "CURRENCY_KRW";
+      const orderTotalKRW = Math.round(Number(order.total_amount) || 0);
+      if (!compareAmounts(pgAmount, pgCurrency, orderTotalKRW)) {
+        console.error("[portone-payment-confirm] ⛔ 결제 금액 불일치 — 주문 승인 거부:", {
+          orderId: order.id,
+          paymentId,
+          pgAmount,
+          pgCurrency,
+          orderTotalKRW,
+        });
+        return buildResponse(
+          {
+            success: false,
+            error: {
+              message: "결제 금액이 주문 금액과 일치하지 않습니다. 고객센터에 문의해 주세요.",
+              errorCode: "PAYMENT_AMOUNT_MISMATCH",
+            },
+          },
+          400,
+          origin
+        );
+      }
+    }
 
     // 가상계좌 정보 추출 및 매핑
     const va = portonePayment.virtualAccount;

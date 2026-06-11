@@ -9,6 +9,7 @@ import type { VirtualAccountInfo } from '../lib/payments';
 import type { PaymentMethod, PaymentMethodOption } from '../components/payments';
 import { processCashPurchase } from '../lib/cashPurchases';
 import { supabase } from '../lib/supabase'; // ✅ DB 직접 조회용
+import { useGuestCheckoutStore } from '../stores/guestCheckoutStore';
 
 // 은행 코드 한글 변환 맵
 const BANK_CODE_MAP: Record<string, string> = {
@@ -80,8 +81,9 @@ export function useBuyNow(user: User | null): UseBuyNowReturn {
   const handleBuyNow = useCallback(
     async (sheet: SheetForBuyNow) => {
       if (!user) {
+        // 비로그인 시: 로그인 페이지로 보내는 대신 게스트 결제 모달을 띄운다.
         const redirectPath = window.location.pathname + window.location.search;
-        router.push(`/auth/login?redirect=${encodeURIComponent(redirectPath)}`);
+        useGuestCheckoutStore.getState().open(redirectPath);
         return;
       }
       try {

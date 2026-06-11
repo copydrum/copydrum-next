@@ -18,6 +18,8 @@ import { useSiteLanguage } from '@/hooks/useSiteLanguage';
 import { useBuyNow } from '@/hooks/useBuyNow';
 import { useUserCredits } from '@/hooks/useUserCredits';
 import { sanitizeLessonDetailHtml } from '@/lib/sanitizeLessonDetailHtml';
+import RelatedSheets from './RelatedSheets';
+import ReviewSection from './ReviewSection';
 
 interface DrumSheet {
   id: string;
@@ -969,6 +971,16 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
           </div>
         </div>
       )}
+
+      {/* 리뷰/평점 */}
+      <ReviewSection sheetId={sheet.id} user={user} />
+
+      {/* 추천 악보 (같은 아티스트 → 같은 카테고리) */}
+      <RelatedSheets
+        currentSheetId={sheet.id}
+        artist={sheet.artist}
+        categoryId={sheet.category_id}
+      />
 
       {/* 모바일: 푸터 숨김 (고정 구매 바가 있으므로 불필요), 데스크톱: 푸터 표시 */}
       <div className="hidden lg:block mt-16">

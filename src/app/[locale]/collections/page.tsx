@@ -1,21 +1,31 @@
 import { Metadata } from 'next';
-import { createClient } from '@supabase/supabase-js';
 import CollectionsPageClient from '@/_pages/collections/page';
 import { buildCollectionsSeoStrings } from '@/lib/seo';
+import {
+  getLocaleFromHeaders,
+  canonicalFor,
+  buildLanguageAlternates,
+} from '@/lib/seo/hreflang';
 
 // Generate metadata for SEO
 export async function generateMetadata(): Promise<Metadata> {
-  const locale = 'en'; // This will be dynamic based on the route
+  const locale = await getLocaleFromHeaders();
   const seoStrings = buildCollectionsSeoStrings(locale);
+  const canonical = canonicalFor(locale, '/collections');
 
   return {
     title: seoStrings.title,
     description: seoStrings.description,
+    alternates: {
+      canonical,
+      languages: buildLanguageAlternates('/collections'),
+    },
     openGraph: {
       title: seoStrings.ogTitle,
       description: seoStrings.ogDescription,
       type: 'website',
-      url: seoStrings.ogUrl,
+      url: canonical,
+      siteName: 'COPYDRUM',
       images: [
         {
           url: seoStrings.ogImage,

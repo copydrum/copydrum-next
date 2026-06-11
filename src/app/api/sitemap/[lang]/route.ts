@@ -20,6 +20,27 @@ const VALID_LANGS: Record<string, boolean> = {
 
 const BASE_DOMAIN = 'https://copydrum.com';
 
+// hreflang alternate 생성을 위한 locale(URL path) ↔ hreflang(BCP-47) 매핑
+const ALT_LOCALES: { path: string; hreflang: string }[] = [
+  { path: 'en', hreflang: 'en' },
+  { path: 'ko', hreflang: 'ko' },
+  { path: 'ja', hreflang: 'ja' },
+  { path: 'zh-cn', hreflang: 'zh-Hans' },
+  { path: 'zh-tw', hreflang: 'zh-Hant' },
+  { path: 'de', hreflang: 'de' },
+  { path: 'fr', hreflang: 'fr' },
+  { path: 'es', hreflang: 'es' },
+  { path: 'vi', hreflang: 'vi' },
+  { path: 'th', hreflang: 'th' },
+  { path: 'hi', hreflang: 'hi' },
+  { path: 'id', hreflang: 'id' },
+  { path: 'pt', hreflang: 'pt' },
+  { path: 'ru', hreflang: 'ru' },
+  { path: 'it', hreflang: 'it' },
+  { path: 'tr', hreflang: 'tr' },
+  { path: 'uk', hreflang: 'uk' },
+];
+
 // 정적 페이지 목록
 const STATIC_PAGES = [
   { path: '/', priority: '1.0', changefreq: 'daily' },
@@ -38,6 +59,22 @@ function escapeXml(str: string): string {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&apos;');
+}
+
+/**
+ * 주어진 상대 경로(예: '/drum-sheet/foo')에 대해 모든 언어 버전의
+ * <xhtml:link rel="alternate" hreflang="..."> 블록을 생성한다.
+ * relativePath 는 '/' 로 시작하거나 빈 문자열(홈)이어야 한다.
+ */
+function buildAlternatesXml(relativePath: string): string {
+  let block = '';
+  for (const { path, hreflang } of ALT_LOCALES) {
+    const href = `${BASE_DOMAIN}/${path}${relativePath}`;
+    block += `    <xhtml:link rel="alternate" hreflang="${hreflang}" href="${escapeXml(href)}" />\n`;
+  }
+  // x-default → 영어
+  block += `    <xhtml:link rel="alternate" hreflang="x-default" href="${escapeXml(`${BASE_DOMAIN}/en${relativePath}`)}" />\n`;
+  return block;
 }
 
 function formatDate(dateString: string | null): string {
@@ -84,8 +121,10 @@ export async function GET(
     const loc = page.path === '/'
       ? `${baseUrl}/`
       : `${baseUrl}${page.path}`;
+    const relativePath = page.path === '/' ? '/' : page.path;
     urls += `  <url>\n`;
     urls += `    <loc>${escapeXml(loc)}</loc>\n`;
+    urls += buildAlternatesXml(relativePath);
     urls += `    <changefreq>${page.changefreq}</changefreq>\n`;
     urls += `    <priority>${page.priority}</priority>\n`;
     urls += `  </url>\n`;
@@ -114,6 +153,7 @@ export async function GET(
       for (const sheet of sheets) {
         urls += `  <url>\n`;
         urls += `    <loc>${escapeXml(baseUrl)}/drum-sheet/${escapeXml(sheet.slug)}</loc>\n`;
+        urls += buildAlternatesXml(`/drum-sheet/${sheet.slug}`);
         urls += `    <lastmod>${formatDate(sheet.updated_at)}</lastmod>\n`;
         urls += `    <changefreq>daily</changefreq>\n`;
         urls += `    <priority>0.8</priority>\n`;
@@ -159,6 +199,7 @@ export async function GET(
       for (const col of collections) {
         urls += `  <url>\n`;
         urls += `    <loc>${escapeXml(baseUrl)}/collections/${escapeXml(col.slug)}</loc>\n`;
+        urls += buildAlternatesXml(`/collections/${col.slug}`);
         urls += `    <lastmod>${formatDate(col.updated_at)}</lastmod>\n`;
         urls += `    <changefreq>weekly</changefreq>\n`;
         urls += `    <priority>0.7</priority>\n`;
@@ -171,7 +212,7 @@ export async function GET(
   }
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
 ${urls}</urlset>`;
 
   return new NextResponse(xml, {

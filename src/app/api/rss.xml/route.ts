@@ -21,13 +21,16 @@ export async function GET() {
     .order('created_at', { ascending: false })
     .limit(50);
 
+  // RSS 콘텐츠(설명)는 영어 기준이며, 글로벌 SEO 의 x-default 와 동일하게 /en locale 을 사용한다.
+  const FEED_LOCALE = 'en';
+
   const items = (sheets || [])
     .map(
       (sheet) => `
     <item>
       <title><![CDATA[${sheet.title} - ${sheet.artist}]]></title>
-      <link>https://copydrum.com/drum-sheet/${sheet.slug}</link>
-      <guid isPermaLink="true">https://copydrum.com/drum-sheet/${sheet.slug}</guid>
+      <link>https://copydrum.com/${FEED_LOCALE}/drum-sheet/${sheet.slug}</link>
+      <guid isPermaLink="true">https://copydrum.com/${FEED_LOCALE}/drum-sheet/${sheet.slug}</guid>
       <pubDate>${new Date(sheet.created_at).toUTCString()}</pubDate>
       <description><![CDATA[Drum sheet music for ${sheet.title} by ${sheet.artist}]]></description>
     </item>`
@@ -38,9 +41,9 @@ export async function GET() {
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>COPYDRUM - Drum Sheet Music</title>
-    <link>https://copydrum.com</link>
+    <link>https://copydrum.com/${FEED_LOCALE}</link>
     <description>Latest drum sheet music from COPYDRUM</description>
-    <language>ko</language>
+    <language>${FEED_LOCALE}</language>
     <atom:link href="https://copydrum.com/rss.xml" rel="self" type="application/rss+xml"/>
     ${items}
   </channel>

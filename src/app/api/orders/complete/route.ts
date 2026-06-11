@@ -1,84 +1,26 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-import { completeOrderAfterPayment } from '@/lib/payments/completeOrderAfterPayment';
-
-function createAdminClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
-  if (serviceRoleKey) {
-    return createClient(url, serviceRoleKey);
-  }
-
-  return createClient(url, anonKey);
-}
+import { NextResponse } from 'next/server';
 
 /**
- * 주문 완료 처리 API
- * POST /api/orders/complete
+ * ⚠️ DEPRECATED / DISABLED — POST /api/orders/complete
+ *
+ * 이 엔드포인트는 PG 결제 증명 없이 클라이언트가 보낸 orderId 만으로
+ * 주문을 결제 완료(paid) 처리할 수 있어 결제 우회 취약점이 있었다.
+ * (예: success 페이지 URL 파라미터만으로 무료 다운로드 가능)
+ *
+ * 정상적인 결제 완료 처리는 모두 서버 측 결제 검증을 거치는 경로로 일원화한다:
+ *  - PortOne: src/app/api/payments/portone/verify/route.ts
+ *  - PayPal:  src/app/api/payments/paypal/capture-order/route.ts
+ *  - 포인트:   src/app/api/payments/points/pay/route.ts
+ *  - 관리자 수동 확인: 관리자 패널 / admin-complete-order Edge Function
+ *
+ * 따라서 이 HTTP 엔드포인트는 비활성화한다.
  */
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
-    const { orderId, paymentMethod, transactionId, paymentConfirmedAt, paymentProvider, depositorName, metadata } = body;
-
-    if (!orderId || !paymentMethod) {
-      return NextResponse.json(
-        { success: false, error: 'orderId와 paymentMethod가 필요합니다.' },
-        { status: 400 }
-      );
-    }
-
-    const supabase = createAdminClient();
-
-    // 주문 존재 여부 확인
-    const { data: order, error: orderError } = await supabase
-      .from('orders')
-      .select('id, status, payment_status')
-      .eq('id', orderId)
-      .single();
-
-    if (orderError || !order) {
-      return NextResponse.json(
-        { success: false, error: '주문을 찾을 수 없습니다.' },
-        { status: 404 }
-      );
-    }
-
-    // 이미 완료된 주문인지 확인
-    if (order.payment_status === 'paid' || order.status === 'completed') {
-      console.log('[orders/complete] 이미 완료된 주문:', { orderId });
-      return NextResponse.json({
-        success: true,
-        message: '이미 완료된 주문입니다.',
-        orderId,
-      });
-    }
-
-    // completeOrderAfterPayment 호출 (RLS 우회를 위해 admin client 전달)
-    await completeOrderAfterPayment(orderId, paymentMethod, {
-      transactionId,
-      paymentConfirmedAt: paymentConfirmedAt || new Date().toISOString(),
-      paymentProvider,
-      depositorName,
-      metadata,
-    }, supabase);
-
-    return NextResponse.json({
-      success: true,
-      message: '주문 완료 처리되었습니다.',
-      orderId,
-    });
-  } catch (error) {
-    console.error('[orders/complete] 예외 발생:', error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: '주문 완료 처리 중 오류가 발생했습니다.',
-        details: error instanceof Error ? error.message : String(error),
-      },
-      { status: 500 }
-    );
-  }
+export async function POST() {
+  return NextResponse.json(
+    {
+      success: false,
+      error: 'This endpoint has been disabled. Orders are completed only after server-side payment verification.',
+    },
+    { status: 410 }
+  );
 }

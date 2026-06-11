@@ -45,7 +45,7 @@ export const metadata: Metadata = {
       'vi': 'https://copydrum.com/vi',
       'zh-Hans': 'https://copydrum.com/zh-cn',
       'zh-Hant': 'https://copydrum.com/zh-tw',
-      'x-default': 'https://copydrum.com',
+      'x-default': 'https://copydrum.com/en',
     },
   },
 };

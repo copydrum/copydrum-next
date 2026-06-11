@@ -42,7 +42,7 @@ const saveRedirectPath = (path: string) => {
 };
 
 export default function Login() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const router = useLocaleRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -51,6 +51,92 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [info, setInfo] = useState('');
+  const [guestEmail, setGuestEmail] = useState('');
+  const [guestLoading, setGuestLoading] = useState(false);
+
+  const isKo = i18n.language === 'ko';
+  const guestText = {
+    title: isKo ? '회원가입 없이 구매하기' : 'Buy without signing up',
+    desc: isKo
+      ? '이메일만 입력하면 바로 결제하고 다운로드할 수 있어요. 결제 후 비밀번호 설정 메일을 보내드립니다.'
+      : 'Just enter your email to pay and download right away. We’ll email you a link to set a password.',
+    placeholder: isKo ? '이메일 주소' : 'Email address',
+    button: isKo ? '게스트로 계속하기' : 'Continue as guest',
+    invalidEmail: isKo ? '유효한 이메일을 입력해 주세요.' : 'Please enter a valid email.',
+    exists: isKo
+      ? '이미 가입된 이메일입니다. 비밀번호로 로그인해 주세요.'
+      : 'This email already has an account. Please sign in with your password.',
+    failed: isKo
+      ? '게스트 결제 준비 중 오류가 발생했습니다. 다시 시도해 주세요.'
+      : 'Something went wrong preparing guest checkout. Please try again.',
+  };
+
+  const handleGuestCheckout = async () => {
+    const normalized = guestEmail.trim().toLowerCase();
+    if (!normalized || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized)) {
+      setError(guestText.invalidEmail);
+      return;
+    }
+    setGuestLoading(true);
+    setError('');
+    setInfo('');
+    try {
+      const res = await fetch('/api/guest/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: normalized }),
+      });
+      const json = await res.json();
+      if (!json.success) {
+        setError(json.error || guestText.failed);
+        return;
+      }
+      if (json.exists) {
+        setEmail(normalized);
+        setInfo(guestText.exists);
+        return;
+      }
+      let otpErr = (
+        await supabase.auth.verifyOtp({
+          token_hash: json.tokenHash,
+          type: 'magiclink',
+        })
+      ).error;
+      if (otpErr) {
+        // 일부 GoTrue 버전 호환: 'email' 타입으로 재시도
+        otpErr = (
+          await supabase.auth.verifyOtp({
+            token_hash: json.tokenHash,
+            type: 'email',
+          })
+        ).error;
+      }
+      if (otpErr) {
+        setError(guestText.failed);
+        return;
+      }
+      // 비밀번호 설정 메일 — 비밀번호 찾기와 동일한 Supabase 내장 메일 채널 사용(검증된 경로)
+      try {
+        const redirectBase = window.location.origin || getSiteUrl();
+        await supabase.auth.resetPasswordForEmail(normalized, {
+          redirectTo: `${redirectBase}/auth/reset-password`,
+        });
+      } catch {
+        // 메일 발송 실패해도 결제/다운로드는 그대로 진행
+      }
+      const redirectPath = getRedirectPath();
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('auth_redirect_path');
+        window.location.replace(`${window.location.origin}${redirectPath}`);
+      } else {
+        router.push(redirectPath);
+      }
+    } catch {
+      setError(guestText.failed);
+    } finally {
+      setGuestLoading(false);
+    }
+  };
 
   useEffect(() => {
     // 로그인 페이지 진입 시 이전 경로 저장
@@ -426,6 +512,43 @@ export default function Login() {
                   >
                     <i className="ri-kakao-talk-fill text-yellow-500 text-lg"></i>
                     <span className="ml-2">{t('authLogin.social.kakao')}</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* 게스트 결제 (회원가입 없이 구매) */}
+              <div className="mt-6 rounded-lg border border-gray-200 bg-gray-50 p-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <i className="ri-flashlight-line text-blue-600"></i>
+                  <h3 className="text-sm font-semibold text-gray-900">{guestText.title}</h3>
+                </div>
+                <p className="text-xs text-gray-500 mb-3">{guestText.desc}</p>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <input
+                    type="email"
+                    autoComplete="email"
+                    value={guestEmail}
+                    onChange={(e) => setGuestEmail(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleGuestCheckout();
+                      }
+                    }}
+                    placeholder={guestText.placeholder}
+                    className="flex-1 appearance-none px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleGuestCheckout}
+                    disabled={guestLoading}
+                    className="whitespace-nowrap inline-flex justify-center items-center py-2 px-4 border border-transparent rounded-md text-sm font-medium text-white bg-gray-900 hover:bg-black disabled:opacity-50 cursor-pointer"
+                  >
+                    {guestLoading ? (
+                      <i className="ri-loader-4-line animate-spin"></i>
+                    ) : (
+                      guestText.button
+                    )}
                   </button>
                 </div>
               </div>

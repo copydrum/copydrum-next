@@ -12,6 +12,8 @@ import { fetchUserFavorites, toggleFavorite } from '../../lib/favorites';
 import MainHeader from '../../components/common/MainHeader';
 import { processCashPurchase } from '../../lib/cashPurchases';
 import { hasPurchasedSheet } from '../../lib/purchaseCheck';
+import StarRating from '../../components/reviews/StarRating';
+import { fetchReviewStatsMap, type ReviewStatsMap } from '../../lib/reviews/reviewStats';
 import { BankTransferInfoModal, PaymentMethodSelector, InsufficientCashModal, PayPalPaymentModal } from '../../components/payments';
 import { VirtualAccountInfoModal } from '../../components/payments/VirtualAccountInfoModal';
 import type { PaymentMethod } from '../../components/payments';
@@ -64,6 +66,7 @@ const CategoriesPage: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [drumSheets, setDrumSheets] = useState<DrumSheet[]>([]);
+  const [reviewStats, setReviewStats] = useState<ReviewStatsMap>({});
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>(() => searchParams.get('category') || '');
   const [selectedSheet, setSelectedSheet] = useState<DrumSheet | null>(null);
@@ -102,6 +105,21 @@ const CategoriesPage: React.FC = () => {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // 목록의 악보들에 대한 리뷰 통계(별점) 배치 조회
+  useEffect(() => {
+    if (drumSheets.length === 0) {
+      setReviewStats({});
+      return;
+    }
+    let active = true;
+    fetchReviewStatsMap(drumSheets.map((s) => s.id)).then((stats) => {
+      if (active) setReviewStats(stats);
+    });
+    return () => {
+      active = false;
+    };
+  }, [drumSheets]);
 
   // 통합 통화 로직 적용 (locale 기반)
   const hostname = typeof window !== 'undefined' ? window.location.hostname : 'copydrum.com';
@@ -954,7 +972,9 @@ const CategoriesPage: React.FC = () => {
   };
 
   const handlePreviewOpen = (sheet: DrumSheet) => {
-    const previewUrl = sheet.preview_image_url || sheet.pdf_url;
+    // 🔒 미리보기는 preview_image_url(워터마크/모자이크 이미지)만 노출한다.
+    //   유료 원본 PDF(pdf_url)는 절대 fallback 으로 열지 않는다 (구매 전 원본 유출 방지).
+    const previewUrl = sheet.preview_image_url;
     if (!previewUrl) {
       alert(t('categoriesPage.noPreview'));
       return;
@@ -1169,6 +1189,11 @@ const CategoriesPage: React.FC = () => {
                         <div>
                           <h3 className="text-sm font-bold text-gray-900 leading-tight line-clamp-2">{sheet.title}</h3>
                           <p className="text-xs font-medium text-blue-600 mt-0.5">{sheet.artist}</p>
+                          <StarRating
+                            rating={reviewStats[sheet.id]?.avgRating ?? 0}
+                            count={reviewStats[sheet.id]?.reviewCount ?? 0}
+                            className="mt-0.5"
+                          />
                         </div>
                         <div className="mt-auto flex items-center justify-between">
                           <span className="text-sm font-semibold text-gray-700">
@@ -1219,6 +1244,10 @@ const CategoriesPage: React.FC = () => {
                       </div>
                       <p className="truncate text-xs text-gray-500">{sheet.artist}</p>
                       <p className="truncate text-xs text-gray-400">{sheet.album_name || t('categoriesPage.albumInfoNotFound')}</p>
+                      <StarRating
+                        rating={reviewStats[sheet.id]?.avgRating ?? 0}
+                        count={reviewStats[sheet.id]?.reviewCount ?? 0}
+                      />
                       <div className="pt-1 text-sm font-semibold text-blue-600">
                         {formatCurrency(displayPrice)}
                       </div>
@@ -1747,6 +1776,12 @@ const CategoriesPage: React.FC = () => {
                               {sheet.title}
                             </h3>
                             <p className="text-sm font-medium text-blue-600 mt-0.5">{sheet.artist}</p>
+                            <StarRating
+                              rating={reviewStats[sheet.id]?.avgRating ?? 0}
+                              count={reviewStats[sheet.id]?.reviewCount ?? 0}
+                              size="text-sm"
+                              className="mt-1"
+                            />
                           </div>
 
                           <div className="mt-auto flex items-center justify-between">
@@ -1833,6 +1868,10 @@ const CategoriesPage: React.FC = () => {
                                     <span className="font-semibold text-gray-700">
                                       {formatCurrency(displayPrice)}
                                     </span>
+                                    <StarRating
+                                      rating={reviewStats[sheet.id]?.avgRating ?? 0}
+                                      count={reviewStats[sheet.id]?.reviewCount ?? 0}
+                                    />
                                   </div>
                                 </div>
                               </div>

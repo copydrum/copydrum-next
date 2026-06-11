@@ -116,66 +116,158 @@ export function buildCategorySeoStrings(
 export function buildCollectionsSeoStrings(locale: string) {
   const baseUrl = 'https://copydrum.com';
 
-  const seoData: Record<string, any> = {
+  const seoData: Record<string, { title: string; description: string }> = {
     ko: {
       title: '드럼 악보 모음집 | 테마별 큐레이션 | COPYDRUM',
       description: '테마별로 엄선한 특별한 드럼 악보 컬렉션을 만나보세요. 할인 혜택과 함께 여러 곡을 한 번에 구매할 수 있습니다.',
-      ogTitle: '드럼 악보 모음집 - 테마별 특별 컬렉션',
-      ogDescription: '테마별로 큐레이션된 드럼 악보 모음집. 개별 구매보다 저렴한 가격으로 여러 곡을 한 번에!',
-      ogUrl: `${baseUrl}/collections`,
-      ogImage: `${baseUrl}/logo.png`,
     },
     en: {
       title: 'Drum Sheet Music Collections | Themed Curation | COPYDRUM',
       description: 'Discover specially curated drum sheet music collections by theme. Purchase multiple songs at once with discount benefits.',
-      ogTitle: 'Drum Sheet Music Collections - Special Themed Collections',
-      ogDescription: 'Theme-curated drum sheet music collections. Multiple songs at a lower price than individual purchases!',
-      ogUrl: `${baseUrl}/collections`,
-      ogImage: `${baseUrl}/logo.png`,
+    },
+    ja: {
+      title: 'ドラム楽譜コレクション | テーマ別キュレーション | COPYDRUM',
+      description: 'テーマごとに厳選したドラム楽譜コレクション。割引でまとめ買いできます。',
+    },
+    'zh-CN': {
+      title: '架子鼓乐谱合集 | 主题精选 | COPYDRUM',
+      description: '按主题精选的架子鼓乐谱合集，享折扣一次购买多首乐谱。',
+    },
+    'zh-TW': {
+      title: '爵士鼓樂譜合輯 | 主題精選 | COPYDRUM',
+      description: '依主題精選的爵士鼓樂譜合輯，享折扣一次購買多首樂譜。',
+    },
+    de: {
+      title: 'Schlagzeugnoten-Sammlungen | Kuratiert nach Thema | COPYDRUM',
+      description: 'Entdecke nach Themen kuratierte Schlagzeugnoten-Sammlungen. Mehrere Songs günstiger im Paket.',
+    },
+    fr: {
+      title: 'Collections de partitions de batterie | Sélection par thème | COPYDRUM',
+      description: 'Découvrez des collections de partitions de batterie sélectionnées par thème. Plusieurs morceaux à prix réduit.',
+    },
+    es: {
+      title: 'Colecciones de partituras de batería | Curadas por tema | COPYDRUM',
+      description: 'Descubre colecciones de partituras de batería curadas por tema. Varias canciones con descuento.',
+    },
+    vi: {
+      title: 'Bộ sưu tập bản nhạc trống | Tuyển chọn theo chủ đề | COPYDRUM',
+      description: 'Khám phá các bộ sưu tập bản nhạc trống được tuyển chọn theo chủ đề. Mua nhiều bài với giá ưu đãi.',
+    },
+    th: {
+      title: 'คอลเลกชันโน้ตกลอง | คัดสรรตามธีม | COPYDRUM',
+      description: 'พบกับคอลเลกชันโน้ตกลองที่คัดสรรตามธีม ซื้อหลายเพลงพร้อมส่วนลด',
+    },
+    hi: {
+      title: 'ड्रम शीट संगीत संग्रह | थीम के अनुसार | COPYDRUM',
+      description: 'थीम के अनुसार चुने गए ड्रम शीट संगीत संग्रह। छूट के साथ कई गाने एक साथ खरीदें।',
+    },
+    id: {
+      title: 'Koleksi Partitur Drum | Kurasi per Tema | COPYDRUM',
+      description: 'Temukan koleksi partitur drum pilihan per tema. Beli banyak lagu sekaligus dengan harga diskon.',
+    },
+    pt: {
+      title: 'Coleções de partituras de bateria | Curadoria por tema | COPYDRUM',
+      description: 'Descubra coleções de partituras de bateria por tema. Várias músicas de uma vez com desconto.',
+    },
+    ru: {
+      title: 'Коллекции нот для барабанов | Подборки по темам | COPYDRUM',
+      description: 'Откройте тематические коллекции нот для барабанов. Несколько композиций сразу со скидкой.',
+    },
+    it: {
+      title: 'Raccolte di spartiti per batteria | Selezione per tema | COPYDRUM',
+      description: 'Scopri raccolte di spartiti per batteria selezionate per tema. Più brani insieme a prezzo scontato.',
+    },
+    tr: {
+      title: 'Davul Notası Koleksiyonları | Temaya Göre Seçki | COPYDRUM',
+      description: 'Temaya göre seçilmiş davul notası koleksiyonlarını keşfedin. İndirimle birden çok parçayı bir arada alın.',
+    },
+    uk: {
+      title: 'Колекції нот для барабанів | Добірки за темами | COPYDRUM',
+      description: 'Відкрийте тематичні колекції нот для барабанів. Кілька композицій одразу зі знижкою.',
     },
   };
 
-  return seoData[locale] || seoData.en;
+  const picked = seoData[locale] || seoData.en;
+  return {
+    ...picked,
+    ogTitle: picked.title.replace(/\s*\|\s*COPYDRUM\s*$/, ''),
+    ogDescription: picked.description,
+    ogUrl: `${baseUrl}/collections`,
+    ogImage: `${baseUrl}/logo.png`,
+  };
+}
+
+// 모음집 상세 제목 접미사 ("드럼 악보 모음집" 상당) — 17개 언어
+const COLLECTION_SUFFIX: Record<string, string> = {
+  ko: '드럼 악보 모음집',
+  en: 'Drum Sheet Music Collection',
+  ja: 'ドラム楽譜コレクション',
+  'zh-CN': '架子鼓乐谱合集',
+  'zh-TW': '爵士鼓樂譜合輯',
+  de: 'Schlagzeugnoten-Sammlung',
+  fr: 'Collection de partitions de batterie',
+  es: 'Colección de partituras de batería',
+  vi: 'Bộ sưu tập bản nhạc trống',
+  th: 'คอลเลกชันโน้ตกลอง',
+  hi: 'ड्रम शीट संगीत संग्रह',
+  id: 'Koleksi Partitur Drum',
+  pt: 'Coleção de partituras de bateria',
+  ru: 'Коллекция нот для барабанов',
+  it: 'Raccolta di spartiti per batteria',
+  tr: 'Davul Notası Koleksiyonu',
+  uk: 'Колекція нот для барабанів',
+};
+
+function resolveLocalized(
+  translations: Record<string, string> | null | undefined,
+  locale: string,
+  fallback: string
+): string {
+  if (translations) {
+    const base = locale.split('-')[0];
+    const v = translations[locale] || translations[base];
+    if (v && v.trim()) return v.trim();
+  }
+  return fallback;
 }
 
 /**
- * Build SEO strings for collection detail page
+ * Build SEO strings for collection detail page (17개 언어 지원)
  * @param locale - The current locale
- * @param collection - The collection object
- * @returns Object with SEO metadata
+ * @param collection - The collection object (title/description + *_translations)
  */
 export function buildCollectionDetailSeoStrings(
   locale: string,
   collection: {
     title: string;
     description?: string;
+    title_translations?: Record<string, string> | null;
+    description_translations?: Record<string, string> | null;
     thumbnail_url?: string;
-    sale_price: number;
-    original_price: number;
+    sale_price?: number;
+    original_price?: number;
   }
 ) {
   const baseUrl = 'https://copydrum.com';
   const thumbnail = collection.thumbnail_url || `${baseUrl}/logo.png`;
 
-  const seoData: Record<string, any> = {
-    ko: {
-      title: `${collection.title} - 드럼 악보 모음집 | COPYDRUM`,
-      description: collection.description || `${collection.title} 드럼 악보 모음집. 테마별로 엄선한 드럼 악보를 할인가로 만나보세요.`,
-      ogTitle: `${collection.title} - 드럼 악보 모음집`,
-      ogDescription: collection.description || `${collection.title} 드럼 악보 모음집. 개별 구매보다 저렴하게!`,
-      ogUrl: `${baseUrl}/collections`,
-      ogImage: thumbnail,
-    },
-    en: {
-      title: `${collection.title} - Drum Sheet Music Collection | COPYDRUM`,
-      description: collection.description || `${collection.title} drum sheet music collection. Get specially curated drum sheets at a discounted price.`,
-      ogTitle: `${collection.title} - Drum Sheet Music Collection`,
-      ogDescription: collection.description || `${collection.title} drum sheet music collection. Cheaper than individual purchases!`,
-      ogUrl: `${baseUrl}/collections`,
-      ogImage: thumbnail,
-    },
-  };
+  const name = resolveLocalized(collection.title_translations, locale, collection.title);
+  const suffix = COLLECTION_SUFFIX[locale] || COLLECTION_SUFFIX.en;
+  const localizedDesc = resolveLocalized(
+    collection.description_translations,
+    locale,
+    collection.description || ''
+  );
+  const description = localizedDesc || `${name} - ${suffix}`;
+  const ogTitle = `${name} - ${suffix}`;
 
-  return seoData[locale] || seoData.en;
+  return {
+    title: `${name} - ${suffix} | COPYDRUM`,
+    description,
+    ogTitle,
+    ogDescription: description,
+    ogUrl: `${baseUrl}/collections`,
+    ogImage: thumbnail,
+  };
 }
 

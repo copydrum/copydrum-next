@@ -513,6 +513,49 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    // 4-1. 🔒 결제 금액 검증 (위변조/금액 불일치 차단)
+    //   통화/단위 모호성이 없는 KRW 결제는 PG 결제금액과 주문 총액이 정확히 일치해야 한다.
+    //   해외 통화(USD 등)는 환율·최소단위 모호성으로 오탐(정상 결제 차단) 위험이 커서
+    //   여기서는 차단하지 않고 경고만 기록한다. (해외 언더프라이싱은 주문 생성 단계의
+    //   서버 측 가격 하한 검증으로 1차 차단됨)
+    try {
+      const pgAmountRaw = portonePayment.amount?.total ?? portonePayment.amount ?? 0;
+      const pgCurrency = portonePayment.amount?.currency ?? 'CURRENCY_KRW';
+      const orderTotalKRW = Math.round(Number(order.total_amount) || 0);
+      const isKRW = pgCurrency === 'CURRENCY_KRW' || pgCurrency === 'KRW';
+
+      if (orderTotalKRW > 0 && isKRW) {
+        const pgKRW = Math.round(Number(pgAmountRaw) || 0);
+        const tolerance = Math.max(10, Math.round(orderTotalKRW * 0.02));
+        if (Math.abs(pgKRW - orderTotalKRW) > tolerance) {
+          console.error('[verify] ⛔ 결제 금액 불일치 — 주문 승인 거부:', {
+            orderId: order.id,
+            paymentId,
+            pgKRW,
+            orderTotalKRW,
+          });
+          return NextResponse.json(
+            {
+              success: false,
+              error: '결제 금액이 주문 금액과 일치하지 않습니다. 고객센터에 문의해 주세요.',
+              errorCode: 'PAYMENT_AMOUNT_MISMATCH',
+            },
+            { status: 400 }
+          );
+        }
+      } else if (orderTotalKRW > 0 && !isKRW) {
+        console.warn('[verify] ℹ️ 해외 통화 결제 — 금액 차단 검증 생략(경고 로깅만):', {
+          orderId: order.id,
+          paymentId,
+          pgAmount: pgAmountRaw,
+          pgCurrency,
+          orderTotalKRW,
+        });
+      }
+    } catch (amountCheckError) {
+      console.warn('[verify] 금액 검증 중 예외(검증 생략):', amountCheckError);
+    }
+
     // 5. completeOrderAfterPayment 호출 (예상 완료일 계산 및 저장 포함, 주문 상태 업데이트도 처리)
     //    ※ 여기에 도달했다는 것은 포트원 결제 상태가 확실히 PAID임을 의미함
     // ⚠️ 결제수단 결정: body > DB 기존값 > 포트원 결제수단 추론 > 기본값 'card'

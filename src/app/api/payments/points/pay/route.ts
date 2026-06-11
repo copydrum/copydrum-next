@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { calculateExpectedCompletionDate, formatDateToYMD } from '@/utils/businessDays';
 import { sendPreorderNotification } from '@/lib/email/sendPreorderNotification';
+import { getAuthenticatedUser } from '@/lib/auth/requireUser';
 
 // ✅ Service Role Key가 있으면 Admin 권한으로 RLS 우회
 function createAdminClient() {
@@ -29,7 +30,57 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // 🔒 세션 인증: 본인 계정의 포인트만 사용할 수 있다.
+    const authUser = await getAuthenticatedUser();
+    if (!authUser) {
+      return NextResponse.json(
+        { success: false, error: 'Authentication required' },
+        { status: 401 }
+      );
+    }
+    if (authUser.id !== userId) {
+      return NextResponse.json(
+        { success: false, error: 'Forbidden' },
+        { status: 403 }
+      );
+    }
+
     const supabase = createAdminClient();
+
+    // 🔒 주문 소유권 및 금액 검증: 본인 주문이고, 결제 금액이 주문 총액과 일치해야 한다.
+    const { data: orderRow, error: orderLookupError } = await supabase
+      .from('orders')
+      .select('id, user_id, total_amount, status, payment_status')
+      .eq('id', orderId)
+      .single();
+
+    if (orderLookupError || !orderRow) {
+      return NextResponse.json(
+        { success: false, error: 'Order not found' },
+        { status: 404 }
+      );
+    }
+    if (orderRow.user_id !== userId) {
+      return NextResponse.json(
+        { success: false, error: 'Forbidden' },
+        { status: 403 }
+      );
+    }
+    if (orderRow.payment_status === 'paid' || orderRow.status === 'completed') {
+      return NextResponse.json({
+        success: true,
+        message: '이미 완료된 주문입니다.',
+        orderId,
+      });
+    }
+    // 서버가 신뢰하는 주문 총액을 기준으로 결제 금액을 강제한다 (클라이언트 amount 신뢰 금지).
+    const serverAmount = Math.max(0, Math.round(Number(orderRow.total_amount) || 0));
+    if (serverAmount > 0 && Math.round(Number(amount)) !== serverAmount) {
+      return NextResponse.json(
+        { success: false, error: 'Amount mismatch' },
+        { status: 400 }
+      );
+    }
 
     // 사용자 포인트 확인
     const { data: profile, error: profileError } = await supabase
@@ -52,7 +103,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (pointsToUse < amount) {
+    if (pointsToUse < (serverAmount || amount)) {
       return NextResponse.json(
         { success: false, error: 'Points amount is less than order amount' },
         { status: 400 }

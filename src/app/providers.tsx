@@ -6,6 +6,7 @@ import { I18nextProvider } from 'react-i18next';
 import i18n from '@/i18n';
 import { useRouter, usePathname } from 'next/navigation';
 import GlobalDialog from '@/components/ui/GlobalDialog';
+import GuestCheckoutModal from '@/components/checkout/GuestCheckoutModal';
 
 function RecoveryRedirector() {
   const router = useRouter();
@@ -59,6 +60,7 @@ export function Providers({
       <I18nextProvider i18n={i18n}>
         <RecoveryRedirector />
         <GlobalDialog />
+        <GuestCheckoutModal />
         {children}
       </I18nextProvider>
     </QueryClientProvider>

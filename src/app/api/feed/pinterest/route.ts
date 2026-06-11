@@ -5,7 +5,10 @@ export const dynamic = 'force-dynamic';
 /** Vercel Pro+: 긴 피드 생성 시 타임아웃 완화 (Hobby은 플랫폼 상한 유지) */
 export const maxDuration = 60;
 
-const BASE_URL = 'https://www.copydrum.com';
+// 사이트 표준 도메인(www 미사용) + 글로벌 SEO x-default 와 동일한 /en locale 사용.
+// 피드 title/description 이 영어 기준이므로 영어 locale URL 로 연결한다.
+const BASE_URL = 'https://copydrum.com';
+const FEED_LOCALE = 'en';
 const BATCH_SIZE = 1000;
 
 /** title_en / title_translations 이 있으면 우선 사용 (없으면 프로브 후 최소 컬럼만 조회) */
@@ -141,7 +144,7 @@ function resolveFeedTitle(row: SheetFeedRow): string {
 function buildSheetLink(slug: string | null | undefined): string | null {
   const s = slug?.trim();
   if (!s) return null;
-  return `${BASE_URL}/drum-sheet/${s}`;
+  return `${BASE_URL}/${FEED_LOCALE}/drum-sheet/${s}`;
 }
 
 function resolveImageLink(
