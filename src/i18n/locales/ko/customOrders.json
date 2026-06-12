@@ -111,7 +111,28 @@
     "payPending": "결제가 처리 중입니다. 잠시 후 이 페이지를 새로고침해 주세요.",
     "payCard": "카드로 결제",
     "payKakao": "카카오페이로 결제",
-    "paySubtitleKr": "카드 또는 카카오페이로 결제하면 바로 제작이 시작됩니다."
+    "payBank": "무통장 입금",
+    "payOr": "또는",
+    "paySubtitleKr": "카드·카카오페이로 즉시 결제하거나, 무통장 입금으로 결제할 수 있습니다.",
+    "payBankTitle": "무통장 입금 안내",
+    "payBankInfoTitle": "입금 계좌 정보",
+    "payBankName": "은행",
+    "payBankAccount": "계좌번호",
+    "payBankHolder": "예금주",
+    "payBankCopy": "계좌번호 복사",
+    "payBankCopied": "계좌번호가 복사되었습니다.",
+    "payBankDepositor": "입금자명",
+    "payBankDepositorPlaceholder": "입금자명을 입력하세요",
+    "payBankDepositorNote": "회원명과 입금자가 다른 경우, 입금자명을 기입해 주세요.",
+    "payBankDepositorRequired": "입금자명을 입력해 주세요.",
+    "payBankGuide1": "입금 확인 후 관리자가 수동으로 결제를 완료 처리합니다.",
+    "payBankGuide2": "입금자명이 일치하지 않으면 확인이 지연될 수 있습니다.",
+    "payBankConfirm": "입금 신청",
+    "payBankCancel": "취소",
+    "payBankClose": "확인",
+    "payBankProcessing": "처리 중...",
+    "payBankRequested": "입금 신청이 접수되었습니다. 안내 계좌로 입금해 주세요.",
+    "payBankFailed": "입금 신청에 실패했습니다. 다시 시도해 주세요."
   }
 }
 

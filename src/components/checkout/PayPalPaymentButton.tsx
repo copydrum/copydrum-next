@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/stores/authStore';
+import { supabase } from '@/lib/supabase';
 import * as PortOne from '@portone/browser-sdk/v2';
 import { v4 as uuidv4 } from 'uuid';
 import { convertFromKrw } from '@/lib/currency';
@@ -217,6 +218,29 @@ export default function PayPalPaymentButton({
       // ─── 결제 고유 ID 생성 ───
       const newPaymentId = `pay_${uuidv4()}`;
       paymentIdRef.current = newPaymentId;
+
+      // ─── 결제 시작 전 transaction_id 선저장 ───
+      // 카드(KG이니시스)/카카오페이와 동일하게, PayPal 결제창을 띄우기 전에
+      // orders.transaction_id를 미리 채워 둔다.
+      // → 고객이 결제 후 success/verify에 도달하지 못해도(탭 종료·새로고침 등),
+      //   PortOne 웹훅과 결제 재조정 cron이 transaction_id로 이 주문을 찾아
+      //   자동 완료할 수 있다. (재조정 cron은 transaction_id가 있는 주문만 대상)
+      try {
+        const { error: preTxError } = await supabase
+          .from('orders')
+          .update({ transaction_id: newPaymentId })
+          .eq('id', dbOrderId);
+        if (preTxError) {
+          console.warn('[PayPal-SDK] ⚠️ transaction_id 선저장 실패 (계속 진행):', preTxError);
+        } else {
+          console.log('[PayPal-SDK] ✅ transaction_id 선저장 완료:', {
+            dbOrderId,
+            paymentId: newPaymentId,
+          });
+        }
+      } catch (preTxErr) {
+        console.warn('[PayPal-SDK] ⚠️ transaction_id 선저장 중 예외 (계속 진행):', preTxErr);
+      }
 
       // ─── 통화 결정 (일본 사이트: JPY, 그 외: USD) ───
       const hostname = window.location.hostname;

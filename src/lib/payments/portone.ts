@@ -580,8 +580,20 @@ export const requestInicisPayment = async (
       };
     }
 
-    // 결제 전 DB에 transaction_id 저장
-    await supabase.from('orders').update({ transaction_id: newPaymentId }).eq('id', params.orderId);
+    // 결제 전 DB에 transaction_id + 결제수단 저장
+    // (KG이니시스 카드/계좌이체/가상계좌를 결제수단으로 정확히 기록 — 관리자 표시 정합성)
+    {
+      const resolvedInicisMethod =
+        portOnePayMethod === 'VIRTUAL_ACCOUNT'
+          ? 'virtual_account'
+          : portOnePayMethod === 'TRANSFER'
+          ? 'transfer'
+          : 'card';
+      await supabase
+        .from('orders')
+        .update({ transaction_id: newPaymentId, payment_method: resolvedInicisMethod })
+        .eq('id', params.orderId);
+    }
 
     console.log('[portone-inicis] 결제 요청 시작:', requestData);
 
@@ -718,9 +730,21 @@ export async function requestPortonePayment(args: PortOnePaymentArgs): Promise<P
       locale: 'KO_KR',
     };
 
-    // 결제 전 DB에 transaction_id 저장
+    // 결제 전 DB에 transaction_id + 결제수단 저장
+    // ⚠️ payment_method를 함께 기록해야 관리자 화면에 'card'로 정확히 표시되고,
+    //    이전 시도(예: PayPal)에서 남은 stale 값이 잘못 노출되는 것을 방지한다.
+    //    (카카오페이 흐름은 이미 payment_method를 기록하지만 카드는 누락되어 있었음)
     if (args.orderId) {
-      await supabase.from('orders').update({ transaction_id: newPaymentId }).eq('id', args.orderId);
+      const resolvedMethod =
+        portOnePayMethod === 'VIRTUAL_ACCOUNT'
+          ? 'virtual_account'
+          : portOnePayMethod === 'TRANSFER'
+          ? 'transfer'
+          : 'card';
+      await supabase
+        .from('orders')
+        .update({ transaction_id: newPaymentId, payment_method: resolvedMethod })
+        .eq('id', args.orderId);
     }
 
     // 모바일 REDIRECTION 대비: sessionStorage에 orderId와 paymentId 저장
