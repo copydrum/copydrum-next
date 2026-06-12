@@ -7,6 +7,7 @@ import type { Metadata } from 'next';
 import { languages } from '@/i18n/languages';
 import { getServerDetailSeo } from '@/lib/seo/serverSeo';
 import { getSiteCurrency, convertFromKrw } from '@/lib/currency';
+import { buildDigitalOfferMerchantExtras } from '@/lib/seo/productOfferSchema';
 
 // 헬퍼 함수
 function isUUID(str: string) {
@@ -211,6 +212,13 @@ export default async function SheetDetailPage({ params }: PageProps) {
   // 리뷰 통계 (있을 때만 aggregateRating 노출 → 리치 결과 자격)
   const reviewStats = await getReviewStats(sheet.id);
 
+  const refundPolicyUrl = `${BASE_URL}/${localePath}/policy/refund`;
+  const merchantOfferExtras = buildDigitalOfferMerchantExtras(
+    offerCurrency,
+    locale,
+    refundPolicyUrl,
+  );
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@graph': [
@@ -237,10 +245,12 @@ export default async function SheetDetailPage({ params }: PageProps) {
           url: pageUrl,
           priceCurrency: offerCurrency,
           price: offerPrice,
+          itemCondition: 'https://schema.org/NewCondition',
           availability: isPreorder
             ? 'https://schema.org/PreOrder'
             : 'https://schema.org/InStock',
           seller: { '@type': 'Organization', name: 'COPYDRUM' },
+          ...merchantOfferExtras,
         },
       },
       {
