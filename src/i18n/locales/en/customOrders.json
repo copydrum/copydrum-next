@@ -18,7 +18,7 @@
     },
     "quoted": {
       "label": "Payment Pending",
-      "message": "Quote has arrived. Please make a deposit for the quoted amount to start production."
+      "message": "Your quote is ready. Complete the payment below to start production."
     },
     "payment_confirmed": {
       "label": "Payment Confirmed",
@@ -56,7 +56,8 @@
     "viewDetails": "View Details",
     "quote": "Quote",
     "checkQuote": "Check Quote",
-    "workCompleted": "Work Completed"
+    "workCompleted": "Work Completed",
+    "proposedQuote": "Proposed quote"
   },
   "alerts": {
     "downloadLimitExceeded": "You have used all download attempts. Please contact customer service.",
@@ -67,6 +68,50 @@
   "warnings": {
     "downloadLimitExceeded": "Download limit exceeded. Please contact customer service if you need additional downloads.",
     "downloadPeriodExpired": "The download period has expired. Please contact customer service."
+  },
+  "detail": {
+    "orderNumber": "Order",
+    "loginRequired": "Please sign in to view your custom order.",
+    "loadingOrder": "Loading order information...",
+    "notFound": "Order information not found.",
+    "referenceLink": "Reference Link",
+    "watchVideo": "Watch video",
+    "noLink": "No link provided.",
+    "quoteProposed": "Proposed quote",
+    "taxIncluded": "Tax included",
+    "resultTitle": "Work Result",
+    "resultDesc": "Once the work is complete, you can download the sheet music PDF below.",
+    "downloadableFiles": "{{count}} file(s) available",
+    "noFilesYet": "No files uploaded yet. We'll notify you when the work is complete.",
+    "downloadPreparing": "Preparing download...",
+    "downloadPdf": "Download PDF",
+    "downloadUsage": "Downloads {{used}}/{{limit}} used",
+    "downloadUsageUnlimited": "Downloads {{used}} used (unlimited)",
+    "noFileAvailable": "No downloadable file yet.",
+    "downloadUnavailable": "Download is not available right now.",
+    "downloadFetchFailed": "File download failed.",
+    "chatTitle": "Conversation",
+    "chatDesc": "Ask about progress and send additional requests to our team.",
+    "chatEmpty": "No messages yet. Feel free to ask a question.",
+    "me": "Me",
+    "admin": "Admin",
+    "messagePlaceholder": "Type a message for our team.",
+    "sending": "Sending...",
+    "sendMessage": "Send message",
+    "chatFooterNote": "Messages are delivered to our team in real time, and replies appear here.",
+    "sendFailed": "Failed to send message.",
+    "payTitle": "Pay your quote",
+    "paySubtitle": "Pay securely with PayPal to start production right away.",
+    "payAmount": "Amount due",
+    "payLoading": "loading...",
+    "payProcessing": "Processing payment...",
+    "payDoNotClose": "Please don't close this window.",
+    "payRetry": "Try again",
+    "payFailed": "Payment could not be completed. Please try again.",
+    "payPending": "Your payment is being processed. Please refresh this page in a moment.",
+    "payCard": "Pay by card",
+    "payKakao": "Pay with KakaoPay",
+    "paySubtitleKr": "Once you pay by card or KakaoPay, production begins right away."
   }
 }
 

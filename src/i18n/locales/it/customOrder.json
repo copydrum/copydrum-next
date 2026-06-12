@@ -11,25 +11,26 @@
     "button": "Accedi"
   },
   "pricing": {
-    "title": "Informazioni sui prezzi",
+    "title": "Prezzi per difficoltà",
     "note": "* Il prezzo finale sarà fornito come preventivo individuale dopo aver analizzato la difficoltà e la lunghezza della canzone.",
     "grades": {
       "c": {
-        "name": "Grado C",
-        "price": "$10+",
-        "description": "Canzoni K-pop, pop, adult contemporary generali sotto i 5 minuti"
+        "name": "Facile",
+        "price": "$10",
+        "description": "Pop/rock standard sotto i 5 minuti"
       },
       "b": {
-        "name": "Grado B",
-        "price": "$30+",
-        "description": "Difficoltà leggermente superiore all'intermedio o canzoni oltre i 5 minuti"
+        "name": "Standard",
+        "price": "$20–30",
+        "description": "Brani oltre i 5 minuti o più difficili del pop/rock standard"
       },
       "a": {
-        "name": "Grado A",
+        "name": "Complesso",
         "price": "$50+",
-        "description": "Canzoni di difficoltà avanzata"
+        "description": "Jazz, assoli di batteria e brani ad alta difficoltà"
       }
-    }
+    },
+    "deliveryBadge": "⚡ Consegna rapida in 1–3 giorni"
   },
   "form": {
     "title": "Modulo richiesta ordine personalizzato",

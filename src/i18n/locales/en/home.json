@@ -6,6 +6,13 @@
     "subtitle3": "Download instantly as PDF.",
     "browseButton": "Browse Sheet Music"
   },
+  "trust": {
+    "instantDownload": "Instant PDF download",
+    "securePayment": "Secure checkout",
+    "moneyBack": "14-day money-back",
+    "languages": "18 languages",
+    "paymentMethods": "PayPal & Card"
+  },
   "latestSheets": "Latest Sheets",
   "latestYoutubeSheets": "Latest YouTube Video Sheets",
   "popularSheets": "Popular Sheets",
@@ -86,32 +93,9 @@
     "favoritesLoadError": "Favorites load error:",
     "userInfoLoadError": "User info load error:",
     "favoriteToggleError": "Favorite toggle error:"
-  }
+  },
+  "lessonMaterialTitle": "Drum Lesson Materials",
+  "lessonMaterialDescription": "Grab single-page practice materials on rudiments, fills, grooves and more.",
+  "lessonMaterialBadge": "FREE",
+  "lessonMaterialViewAll": "View All Materials"
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

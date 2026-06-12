@@ -2,6 +2,7 @@
 import { useLocaleRouter } from '@/hooks/useLocaleRouter';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { preload } from 'react-dom';
 import { supabase } from '../../lib/supabase';
 import type { User } from '@supabase/supabase-js';
 import { generateDefaultThumbnail } from '../../lib/defaultThumbnail';
@@ -64,6 +65,9 @@ interface FreeLessonSheet {
 
 
 export default function Home() {
+  // LCP 개선: 최상단 히어로 배너 이미지를 우선 프리로드
+  preload('/banner1.jpg', { as: 'image', fetchPriority: 'high' });
+
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [latestSheets, setLatestSheets] = useState<DrumSheet[]>([]);
@@ -77,13 +81,21 @@ export default function Home() {
   const collectionSliderRef = useRef<HTMLDivElement>(null);
   const [freeLessonSheets, setFreeLessonSheets] = useState<FreeLessonSheet[]>([]);
   const freeLessonSliderRef = useRef<HTMLDivElement>(null);
+  // 드럼레슨 "개별 자료"(루디먼트/필인/리듬패턴/드럼테크닉/기초입문 카테고리) — 교재와 분리 노출
+  const [lessonMaterials, setLessonMaterials] = useState<FreeLessonSheet[]>([]);
+  const lessonMaterialSliderRef = useRef<HTMLDivElement>(null);
   const router = useLocaleRouter();
   const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
   const [favoriteLoadingIds, setFavoriteLoadingIds] = useState<Set<string>>(new Set());
   const { i18n, t } = useTranslation();
   const { isKoreanSite } = useSiteLanguage();
 
-  const latestGenreList = ['가요', '팝', '락', 'CCM', '트로트/성인가요', '재즈', 'J-POP', 'OST'];
+  // 글로벌 사이트(비한국어)에서 메인 레일에 노출하지 않을 한국 장르
+  const GLOBAL_HIDDEN_GENRES = ['가요', '트로트/성인가요', 'CCM', 'OST'];
+  const latestGenreListBase = ['가요', '팝', '락', 'CCM', '트로트/성인가요', '재즈', 'J-POP', 'OST'];
+  const latestGenreList = isKoreanSite
+    ? latestGenreListBase
+    : latestGenreListBase.filter((g) => !GLOBAL_HIDDEN_GENRES.includes(g));
 
   const loadLatestSheets = useCallback(async (genreId?: string) => {
     try {
@@ -244,87 +256,27 @@ export default function Home() {
     }
 
     try {
-      // 1. 순위가 지정된 악보 먼저 가져오기
-      // 우선 drum_sheet_categories에서 읽기 (최신 방식)
-      let rankedSheets: any[] = [];
-      
-      const { data: categoryRanks, error: categoryError } = await supabase
-        .from('drum_sheet_categories')
-        .select(`
-          popularity_rank,
-          sheet:drum_sheets (
-            id,
-            title,
-            artist,
-            price,
-            thumbnail_url,
-            youtube_url,
-            category_id,
-            created_at,
-            slug,
-            view_count_total,
-            view_count_7d
-          )
-        `)
-        .eq('category_id', selectedGenre)
-        .not('popularity_rank', 'is', null)
-        .gte('popularity_rank', 1)
-        .lte('popularity_rank', 10)
-        .order('popularity_rank', { ascending: true });
+      // 자동 인기 정렬: 선택된 장르의 활성 악보 전체를 구매수·조회수 점수로 정렬해 상위 10개를 노출.
+      // 관리자가 수동으로 순위를 입력하지 않아도 데이터 기반으로 자동 갱신된다.
+      const { data: genreSheets, error: genreError } = await supabase
+        .from('drum_sheets')
+        .select('id, title, artist, price, thumbnail_url, youtube_url, category_id, created_at, slug, view_count_total, view_count_7d')
+        .eq('is_active', true)
+        .eq('category_id', selectedGenre);
 
-      if (categoryError) {
-        console.warn('drum_sheet_categories 로드 실패:', categoryError);
-      } else if (categoryRanks && categoryRanks.length > 0) {
-        // drum_sheet_categories에서 데이터가 있으면 사용
-        rankedSheets = categoryRanks
-          .map((row: any) => ({
-            ...row.sheet,
-            popularity_rank: row.popularity_rank,
-          }))
-          .filter((sheet: any) => sheet && sheet.id);
-      } else {
-        // drum_sheet_categories에 데이터가 없으면 drum_sheets.popularity_rank를 fallback으로 사용
-        const { data: sheetRanks, error: sheetError } = await supabase
-          .from('drum_sheets')
-          .select('id, title, artist, price, thumbnail_url, youtube_url, category_id, created_at, popularity_rank, slug, view_count_total, view_count_7d')
-          .eq('is_active', true)
-          .eq('category_id', selectedGenre)
-          .not('popularity_rank', 'is', null)
-          .gte('popularity_rank', 1)
-          .lte('popularity_rank', 10)
-          .order('popularity_rank', { ascending: true });
+      if (genreError) throw genreError;
 
-        if (sheetError) {
-          console.warn('drum_sheets.popularity_rank 로드 실패:', sheetError);
-        } else if (sheetRanks) {
-          rankedSheets = sheetRanks;
-        }
+      if (!genreSheets || genreSheets.length === 0) {
+        setPopularSheets([]);
+        return;
       }
 
-      // 2. 순위가 지정된 악보가 10개 미만이면 나머지는 기존 방식으로 채움
-      const rankedCount = rankedSheets?.length || 0;
-      let remainingSheets: typeof rankedSheets = [];
+      const sheetIds = genreSheets.map((sheet) => sheet.id);
 
-      if (rankedCount < 10) {
-        // 순위가 지정되지 않은 악보들 가져오기 (drum_sheets 의 사전 집계 컬럼 활용)
-        const { data: unrankedSheets, error: unrankedError } = await supabase
-          .from('drum_sheets')
-          .select('id, title, artist, price, thumbnail_url, youtube_url, category_id, created_at, slug, view_count_total, view_count_7d')
-          .eq('is_active', true)
-          .eq('category_id', selectedGenre)
-          .or('popularity_rank.is.null,popularity_rank.lt.1,popularity_rank.gt.10');
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-        if (unrankedError) throw unrankedError;
-
-        if (unrankedSheets && unrankedSheets.length > 0) {
-          // 구매수/조회수 기반 정렬
-          const sheetIds = unrankedSheets.map(sheet => sheet.id);
-
-          const sevenDaysAgo = new Date();
-          sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-
-      // 구매수만 order_items 에서 조회 (idx_order_items_drum_sheet_id 인덱스 사용).
-      // 조회수는 drum_sheets.view_count_total / view_count_7d 컬럼에서 직접 읽음.
+      // 구매수는 order_items(완료 주문)에서 집계, 조회수는 drum_sheets 사전 집계 컬럼 사용
       const { data: allOrderItems, error: orderItemsError } = await supabase
         .from('order_items')
         .select(`
@@ -339,12 +291,11 @@ export default function Home() {
         .in('drum_sheet_id', sheetIds)
         .eq('orders.status', 'completed');
 
-      // 클라이언트 그룹핑
-      const purchaseCountMap = new Map<string, number>(); // 전체 기간 구매수
-      const recentPurchaseCountMap = new Map<string, number>(); // 최근 7일 구매수
+      const purchaseCountMap = new Map<string, number>();
+      const recentPurchaseCountMap = new Map<string, number>();
 
       if (allOrderItems && !orderItemsError) {
-        allOrderItems.forEach(item => {
+        allOrderItems.forEach((item) => {
           if (item.drum_sheet_id) {
             purchaseCountMap.set(
               item.drum_sheet_id,
@@ -362,13 +313,13 @@ export default function Home() {
         });
       }
 
-      // 인기도 점수 계산: 최근 데이터에 더 높은 가중치
+      // 인기도 점수: 최근 데이터에 더 높은 가중치
       const recentPurchaseWeight = 2.0;
       const totalPurchaseWeight = 1.0;
       const recentViewWeight = 0.2;
       const totalViewWeight = 0.1;
 
-      const sheetsWithScores = unrankedSheets.map(sheet => {
+      const sheetsWithScores = genreSheets.map((sheet) => {
         const totalPurchaseCount = purchaseCountMap.get(sheet.id) || 0;
         const recentPurchaseCount = recentPurchaseCountMap.get(sheet.id) || 0;
         const totalViewCount = sheet.view_count_total ?? 0;
@@ -386,61 +337,41 @@ export default function Home() {
           recentPurchaseCount,
           totalViewCount,
           recentViewCount,
-          score
+          score,
         };
       });
 
-      // 8. 점수 기준으로 정렬 (내림차순)
-      // 동점일 경우: 최근 구매수 > 전체 구매수 > 최근 조회수 > 전체 조회수 > 최신순
+      // 점수 내림차순 정렬. 동점 시: 최근 구매수 > 전체 구매수 > 최근 조회수 > 전체 조회수 > 최신순
       sheetsWithScores.sort((a, b) => {
-        // 점수가 다르면 점수 기준으로 정렬
         if (Math.abs(b.score - a.score) > 0.001) {
           return b.score - a.score;
         }
-
-        // 동점일 경우 보조 기준 사용
-        // 1. 최근 구매수 비교
         if (b.recentPurchaseCount !== a.recentPurchaseCount) {
           return b.recentPurchaseCount - a.recentPurchaseCount;
         }
-        // 2. 전체 구매수 비교
         if (b.totalPurchaseCount !== a.totalPurchaseCount) {
           return b.totalPurchaseCount - a.totalPurchaseCount;
         }
-        // 3. 최근 조회수 비교
         if (b.recentViewCount !== a.recentViewCount) {
           return b.recentViewCount - a.recentViewCount;
         }
-        // 4. 전체 조회수 비교
         if (b.totalViewCount !== a.totalViewCount) {
           return b.totalViewCount - a.totalViewCount;
         }
-        // 5. 모든 지표가 같으면 최신순
         return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
       });
 
-          // 9. 상위 N개만 선택 (순위 지정된 곡이 10개 미만이면 나머지 자리 채움)
-          const remainingCount = 10 - rankedCount;
-          const topUnrankedSheets = sheetsWithScores.slice(0, remainingCount).map(({
-            totalPurchaseCount,
-            recentPurchaseCount,
-            totalViewCount,
-            recentViewCount,
-            score,
-            view_count_total,
-            view_count_7d,
-            ...sheet
-          }) => sheet);
-
-          remainingSheets = topUnrankedSheets;
-        }
-      }
-
-      // 3. 최종 순위: 순위 지정된 곡들 + 순위 미지정 곡들
-      const finalSheets = [
-        ...(rankedSheets || []).map(({ popularity_rank, view_count_total, view_count_7d, ...sheet }) => sheet),
-        ...remainingSheets
-      ].slice(0, 10);
+      // 상위 10개 선택 후 보조 계산 필드 제거
+      const finalSheets = sheetsWithScores.slice(0, 10).map(({
+        totalPurchaseCount,
+        recentPurchaseCount,
+        totalViewCount,
+        recentViewCount,
+        score,
+        view_count_total,
+        view_count_7d,
+        ...sheet
+      }) => sheet);
 
       setPopularSheets(finalSheets);
     } catch (error) {
@@ -534,15 +465,17 @@ export default function Home() {
       // 한국 사이트는 기존 categories 순서 사용, 글로벌 사이트는 새로운 순서 사용
       const sortedCategories = isKoreanSite
         ? categories
-        : [...categories].sort((a, b) => {
-            const indexA = globalGenreOrder.indexOf(a.name);
-            const indexB = globalGenreOrder.indexOf(b.name);
-            // 순서에 없는 항목은 끝으로
-            if (indexA === -1 && indexB === -1) return 0;
-            if (indexA === -1) return 1;
-            if (indexB === -1) return -1;
-            return indexA - indexB;
-          });
+        : [...categories]
+            .filter((c) => !GLOBAL_HIDDEN_GENRES.includes(c.name))
+            .sort((a, b) => {
+              const indexA = globalGenreOrder.indexOf(a.name);
+              const indexB = globalGenreOrder.indexOf(b.name);
+              // 순서에 없는 항목은 끝으로
+              if (indexA === -1 && indexB === -1) return 0;
+              if (indexA === -1) return 1;
+              if (indexB === -1) return -1;
+              return indexA - indexB;
+            });
       
       // 첫 번째 장르 자동 선택
       if (sortedCategories.length > 0) {
@@ -607,12 +540,53 @@ export default function Home() {
         .eq('category_id', lessonCategory.id)
         .eq('is_active', true)
         .order('created_at', { ascending: false })
-        .limit(8);
+        .limit(12);
 
       if (sheetsError) throw sheetsError;
-      setFreeLessonSheets(sheets || []);
+      // 무료 자료를 먼저 노출(free-first), 같은 그룹 내에서는 최신순
+      const sorted = (sheets || []).slice().sort((a: any, b: any) => {
+        const aFree = (a.price ?? 0) <= 0 ? 0 : 1;
+        const bFree = (b.price ?? 0) <= 0 ? 0 : 1;
+        if (aFree !== bFree) return aFree - bFree;
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      });
+      setFreeLessonSheets(sorted);
     } catch (error) {
       console.error('Free lesson sheets load error:', error);
+    }
+  }, []);
+
+  // 드럼레슨 개별 자료 로드: 유형 카테고리(루디먼트/필인/리듬패턴/드럼테크닉/기초입문)에 직접 속한 악보
+  const loadLessonMaterials = useCallback(async () => {
+    try {
+      const MATERIAL_TYPE_NAMES = ['루디먼트', '필인', '리듬패턴', '드럼테크닉', '기초/입문'];
+      const { data: typeCats, error: catError } = await supabase
+        .from('categories')
+        .select('id, name')
+        .in('name', MATERIAL_TYPE_NAMES);
+
+      if (catError || !typeCats || typeCats.length === 0) return;
+
+      const typeIds = typeCats.map((c: any) => c.id);
+      const { data: sheets, error: sheetsError } = await supabase
+        .from('drum_sheets')
+        .select('id, title, title_translations, artist, difficulty, thumbnail_url, youtube_url, pdf_url, slug, created_at, price, page_count, categories ( name )')
+        .in('category_id', typeIds)
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+        .limit(12);
+
+      if (sheetsError) throw sheetsError;
+      // 무료 자료 먼저(free-first), 같은 그룹 내 최신순
+      const sorted = (sheets || []).slice().sort((a: any, b: any) => {
+        const aFree = (a.price ?? 0) <= 0 ? 0 : 1;
+        const bFree = (b.price ?? 0) <= 0 ? 0 : 1;
+        if (aFree !== bFree) return aFree - bFree;
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      });
+      setLessonMaterials(sorted);
+    } catch (error) {
+      console.error('Lesson materials load error:', error);
     }
   }, []);
 
@@ -627,6 +601,10 @@ export default function Home() {
   useEffect(() => {
     loadFreeLessonSheets();
   }, [loadFreeLessonSheets]);
+
+  useEffect(() => {
+    loadLessonMaterials();
+  }, [loadLessonMaterials]);
 
   // Collections slider helpers
   const getCollectionLocalizedTitle = (collection: HomeCollection) => {
@@ -831,6 +809,92 @@ export default function Home() {
         <MainHeader user={user} />
       </div>
 
+      {/* Hero Section - 최상단 (가치 제안) */}
+      <div>
+        <section
+          className="relative bg-cover bg-center bg-no-repeat h-[280px] sm:h-[320px] md:h-[380px] lg:h-[400px] bg-gray-900 overflow-hidden"
+          style={{
+            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/banner1.jpg')`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat'
+          }}
+        >
+          <div className="absolute inset-0 flex items-center">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+              {/* Mobile Version */}
+              <div className="max-w-xl md:hidden text-center space-y-3">
+                <h2 className="text-2xl sm:text-3xl font-bold text-white leading-tight">
+                  {t('home.banner.title').split('\n').map((line, idx) => (
+                    <span key={idx}>
+                      {line}
+                      {idx < t('home.banner.title').split('\n').length - 1 && <br />}
+                    </span>
+                  ))}
+                </h2>
+                <div className="text-white text-sm sm:text-base leading-relaxed space-y-1">
+                  <p>{t('home.banner.subtitle1')}</p>
+                  <p>{t('home.banner.subtitle2')}</p>
+                  <p>{t('home.banner.subtitle3')}</p>
+                </div>
+                <button
+                  onClick={() => router.push('/categories')}
+                  className="inline-flex items-center justify-center bg-gradient-to-r from-blue-600 to-purple-600 text-white px-5 py-2.5 sm:px-6 sm:py-3 rounded-full hover:from-blue-700 hover:to-purple-700 font-semibold whitespace-nowrap cursor-pointer transition-all duration-300 shadow-lg text-sm sm:text-base"
+                >
+                  {t('home.banner.browseButton')}
+                </button>
+              </div>
+              {/* PC Version */}
+              <div className="hidden md:block max-w-2xl text-left space-y-4">
+                <h2 className="text-4xl font-bold text-white leading-tight">
+                  {t('home.banner.title').split('\n').map((line, idx) => (
+                    <span key={idx}>
+                      {line}
+                      {idx < t('home.banner.title').split('\n').length - 1 && <br />}
+                    </span>
+                  ))}
+                </h2>
+                <div className="text-white text-lg leading-relaxed space-y-1">
+                  <p>{t('home.banner.subtitle1')}</p>
+                  <p>{t('home.banner.subtitle2')}</p>
+                  <p>{t('home.banner.subtitle3')}</p>
+                </div>
+                <button
+                  onClick={() => router.push('/categories')}
+                  className="inline-flex items-center justify-center bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2.5 rounded-full hover:from-blue-700 hover:to-purple-700 font-semibold whitespace-nowrap cursor-pointer transition-all duration-300 shadow-lg"
+                >
+                  {t('home.banner.browseButton')}
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Trust strip - 신뢰 신호 (즉시 다운로드·안전 결제·환불 보장·다국어) */}
+        <div className="border-b border-gray-100 bg-gray-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div className="grid grid-cols-2 gap-y-3 gap-x-2 md:grid-cols-4">
+              <div className="flex items-center justify-center gap-1.5 text-gray-700">
+                <i className="ri-download-cloud-2-line text-lg text-blue-600"></i>
+                <span className="text-xs sm:text-sm font-medium">{t('home.trust.instantDownload')}</span>
+              </div>
+              <div className="flex items-center justify-center gap-1.5 text-gray-700">
+                <i className="ri-shield-check-line text-lg text-emerald-600"></i>
+                <span className="text-xs sm:text-sm font-medium">{t('home.trust.securePayment')}</span>
+              </div>
+              <div className="flex items-center justify-center gap-1.5 text-gray-700">
+                <i className="ri-refund-2-line text-lg text-amber-600"></i>
+                <span className="text-xs sm:text-sm font-medium">{t('home.trust.moneyBack')}</span>
+              </div>
+              <div className="flex items-center justify-center gap-1.5 text-gray-700">
+                <i className="ri-global-line text-lg text-purple-600"></i>
+                <span className="text-xs sm:text-sm font-medium">{t('home.trust.languages')}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Main Content */}
       <div className="px-4 pb-8 pt-6 sm:px-6 lg:px-8 ">
         {/* Latest Sheets - 최상단에 배치 */}
@@ -1011,6 +1075,329 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        {/* Drum Lesson Materials Section (개별 자료) — 교재와 분리 노출, 무료 유입 */}
+        {lessonMaterials.length > 0 && (
+          <section className="py-8 md:py-16">
+            <div className="max-w-7xl mx-auto">
+              <div className="mb-5 md:mb-8 flex items-center justify-between">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="text-2xl md:text-3xl font-bold text-gray-900">{t('home.lessonMaterialTitle')}</h3>
+                    <span className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-[10px] md:text-xs font-bold px-2 py-0.5 rounded-full">
+                      {t('home.lessonMaterialBadge')}
+                    </span>
+                  </div>
+                  <p className="hidden md:block text-gray-500 mt-1">{t('home.lessonMaterialDescription')}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => router.push('/free-sheets?tab=materials')}
+                  className="text-sm text-gray-500 hover:text-gray-700 hidden md:inline-flex items-center gap-1 whitespace-nowrap"
+                >
+                  {t('home.lessonMaterialViewAll')} &gt;
+                </button>
+              </div>
+
+              {/* Mobile: horizontal scroll */}
+              <div className="md:hidden">
+                <div
+                  ref={lessonMaterialSliderRef}
+                  className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4"
+                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                >
+                  {lessonMaterials.map((sheet) => {
+                    const price = Math.max(0, sheet.price ?? 0);
+                    const isFree = price === 0;
+                    return (
+                      <div key={sheet.id} className="flex-shrink-0 w-[44%] snap-start">
+                        <button
+                          type="button"
+                          onClick={() => router.push(`/drum-sheet/${sheet.slug}`)}
+                          className="block w-full text-left bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+                        >
+                          <div className="relative aspect-[3/4] bg-gradient-to-br from-emerald-50 to-teal-50 overflow-hidden">
+                            <img
+                              src={sheet.thumbnail_url || generateDefaultThumbnail(600, 800)}
+                              alt={getFreeLessonSheetTitle(sheet)}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                const img = e.target as HTMLImageElement;
+                                img.src = generateDefaultThumbnail(600, 800);
+                              }}
+                            />
+                            <span className="absolute top-2 left-2 bg-white/95 text-teal-700 text-[10px] font-bold tracking-wider px-2 py-0.5 rounded-md shadow-sm">
+                              PDF
+                            </span>
+                            {isFree && (
+                              <span className="absolute top-2 right-2 bg-emerald-500 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md shadow-sm">
+                                {t('freeSheets.price.free')}
+                              </span>
+                            )}
+                          </div>
+                          <div className="p-3">
+                            <h4 className="font-bold text-gray-900 text-sm line-clamp-2 leading-snug mb-1">
+                              {getFreeLessonSheetTitle(sheet)}
+                            </h4>
+                            <p className="text-[11px] text-gray-500 line-clamp-1 mb-2">{sheet.categories?.name ?? sheet.artist}</p>
+                            <div className="text-base font-extrabold text-gray-900">
+                              {isFree ? t('freeSheets.price.free') : formatCurrency(price)}
+                            </div>
+                          </div>
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="mt-3 flex justify-center">
+                  <button
+                    type="button"
+                    onClick={() => router.push('/free-sheets?tab=materials')}
+                    className="inline-flex items-center justify-center gap-1.5 px-6 py-2.5 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-sm font-semibold shadow-sm hover:from-emerald-600 hover:to-teal-600 transition-all"
+                  >
+                    <i className="ri-music-2-line text-sm"></i>
+                    {t('home.lessonMaterialViewAll')}
+                  </button>
+                </div>
+              </div>
+
+              {/* PC: 4-column grid */}
+              <div className="hidden md:block">
+                <div className="grid grid-cols-4 gap-6">
+                  {lessonMaterials.slice(0, 8).map((sheet) => {
+                    const price = Math.max(0, sheet.price ?? 0);
+                    const isFree = price === 0;
+                    return (
+                      <button
+                        key={sheet.id}
+                        type="button"
+                        onClick={() => router.push(`/drum-sheet/${sheet.slug}`)}
+                        className="text-left bg-white rounded-2xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+                      >
+                        <div className="relative aspect-[3/4] bg-gradient-to-br from-emerald-50 to-teal-50 overflow-hidden">
+                          <img
+                            src={sheet.thumbnail_url || generateDefaultThumbnail(600, 800)}
+                            alt={getFreeLessonSheetTitle(sheet)}
+                            className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                            onError={(e) => {
+                              const img = e.target as HTMLImageElement;
+                              img.src = generateDefaultThumbnail(600, 800);
+                            }}
+                          />
+                          <span className="absolute top-3 left-3 bg-white/95 text-teal-700 text-[11px] font-bold tracking-wider px-2 py-0.5 rounded-md shadow-sm">
+                            PDF
+                          </span>
+                          {isFree && (
+                            <span className="absolute top-10 left-3 bg-emerald-500 text-white text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md shadow-sm">
+                              {t('freeSheets.price.free')}
+                            </span>
+                          )}
+                          {sheet.difficulty && (
+                            <span className={`absolute top-3 right-3 text-[11px] font-semibold px-2 py-0.5 rounded-full ${getFreeLessonDifficultyColor(sheet.difficulty)}`}>
+                              {getFreeLessonDifficultyLabel(sheet.difficulty)}
+                            </span>
+                          )}
+                        </div>
+                        <div className="p-4">
+                          <h4 className="font-bold text-gray-900 text-sm line-clamp-2 leading-snug mb-1 hover:text-teal-600 transition-colors">
+                            {getFreeLessonSheetTitle(sheet)}
+                          </h4>
+                          <p className="text-xs text-gray-500 line-clamp-1 mb-3">{sheet.categories?.name ?? sheet.artist}</p>
+                          <div className="text-lg font-extrabold text-gray-900">
+                            {isFree ? t('freeSheets.price.free') : formatCurrency(price)}
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="mt-8 flex justify-center">
+                  <button
+                    type="button"
+                    onClick={() => router.push('/free-sheets?tab=materials')}
+                    className="inline-flex items-center justify-center gap-2 px-8 py-3 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-semibold shadow-md hover:from-emerald-600 hover:to-teal-600 transition-all cursor-pointer"
+                  >
+                    <i className="ri-music-2-line"></i>
+                    {t('home.lessonMaterialViewAll')}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Drum Lesson Books Section (책표지형 카드) — 무료/레슨 상위 노출 */}
+        {freeLessonSheets.length > 0 && (
+          <section className="py-8 md:py-16">
+            <div className="max-w-7xl mx-auto">
+              {/* Section Header */}
+              <div className="mb-5 md:mb-8 flex items-center justify-between">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="text-2xl md:text-3xl font-bold text-gray-900">{t('home.freeLessonTitle')}</h3>
+                    <span className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[10px] md:text-xs font-bold px-2 py-0.5 rounded-full">
+                      {t('home.freeLessonBadge')}
+                    </span>
+                  </div>
+                  <p className="hidden md:block text-gray-500 mt-1">{t('home.freeLessonDescription')}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => router.push('/free-sheets?tab=books')}
+                  className="text-sm text-gray-500 hover:text-gray-700 hidden md:inline-flex items-center gap-1 whitespace-nowrap"
+                >
+                  {t('home.freeLessonViewAll')} &gt;
+                </button>
+              </div>
+
+              {/* ===== Mobile: horizontal scroll book covers ===== */}
+              <div className="md:hidden">
+                <div
+                  ref={freeLessonSliderRef}
+                  className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4"
+                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                >
+                  {freeLessonSheets.map((sheet) => {
+                    const price = Math.max(0, sheet.price ?? 0);
+                    const isFree = price === 0;
+                    return (
+                      <div
+                        key={sheet.id}
+                        className="flex-shrink-0 w-[44%] snap-start"
+                      >
+                        <button
+                          type="button"
+                          onClick={() => router.push(`/drum-sheet/${sheet.slug}`)}
+                          className="block w-full text-left bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+                        >
+                          {/* Book Cover (3:4 portrait) */}
+                          <div className="relative aspect-[3/4] bg-gradient-to-br from-amber-50 to-orange-50 overflow-hidden">
+                            <img
+                              src={sheet.thumbnail_url || generateDefaultThumbnail(600, 800)}
+                              alt={getFreeLessonSheetTitle(sheet)}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                const img = e.target as HTMLImageElement;
+                                img.src = generateDefaultThumbnail(600, 800);
+                              }}
+                            />
+                            {/* PDF badge */}
+                            <span className="absolute top-2 left-2 bg-white/95 text-orange-700 text-[10px] font-bold tracking-wider px-2 py-0.5 rounded-md shadow-sm">
+                              PDF
+                            </span>
+                            {/* FREE badge */}
+                            {isFree && (
+                              <span className="absolute top-2 right-2 bg-emerald-500 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md shadow-sm">
+                                {t('freeSheets.price.free')}
+                              </span>
+                            )}
+                            {/* Page count */}
+                            {sheet.page_count ? (
+                              <span className="absolute bottom-2 left-2 bg-black/60 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full backdrop-blur-sm">
+                                {sheet.page_count}p
+                              </span>
+                            ) : null}
+                          </div>
+                          {/* Content */}
+                          <div className="p-3">
+                            <h4 className="font-bold text-gray-900 text-sm line-clamp-2 leading-snug mb-1">
+                              {getFreeLessonSheetTitle(sheet)}
+                            </h4>
+                            <p className="text-[11px] text-gray-500 line-clamp-1 mb-2">{sheet.artist}</p>
+                            <div className="text-base font-extrabold text-gray-900">
+                              {isFree ? t('freeSheets.price.free') : formatCurrency(price)}
+                            </div>
+                          </div>
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+                {/* Mobile: View All button */}
+                <div className="mt-3 flex justify-center">
+                  <button
+                    type="button"
+                    onClick={() => router.push('/free-sheets?tab=books')}
+                    className="inline-flex items-center justify-center gap-1.5 px-6 py-2.5 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-white text-sm font-semibold shadow-sm hover:from-amber-600 hover:to-orange-600 transition-all"
+                  >
+                    <i className="ri-book-2-line text-sm"></i>
+                    {t('home.freeLessonViewAll')}
+                  </button>
+                </div>
+              </div>
+
+              {/* ===== PC: 4-column book grid ===== */}
+              <div className="hidden md:block">
+                <div className="grid grid-cols-4 gap-6">
+                  {freeLessonSheets.slice(0, 8).map((sheet) => {
+                    const price = Math.max(0, sheet.price ?? 0);
+                    const isFree = price === 0;
+                    return (
+                      <button
+                        key={sheet.id}
+                        type="button"
+                        onClick={() => router.push(`/drum-sheet/${sheet.slug}`)}
+                        className="text-left bg-white rounded-2xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+                      >
+                        {/* Book Cover (3:4 portrait) */}
+                        <div className="relative aspect-[3/4] bg-gradient-to-br from-amber-50 to-orange-50 overflow-hidden">
+                          <img
+                            src={sheet.thumbnail_url || generateDefaultThumbnail(600, 800)}
+                            alt={getFreeLessonSheetTitle(sheet)}
+                            className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                            onError={(e) => {
+                              const img = e.target as HTMLImageElement;
+                              img.src = generateDefaultThumbnail(600, 800);
+                            }}
+                          />
+                          <span className="absolute top-3 left-3 bg-white/95 text-orange-700 text-[11px] font-bold tracking-wider px-2 py-0.5 rounded-md shadow-sm">
+                            PDF
+                          </span>
+                          {isFree && (
+                            <span className="absolute top-10 left-3 bg-emerald-500 text-white text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md shadow-sm">
+                              {t('freeSheets.price.free')}
+                            </span>
+                          )}
+                          {sheet.page_count ? (
+                            <span className="absolute bottom-3 left-3 bg-black/60 text-white text-[11px] font-semibold px-2.5 py-0.5 rounded-full backdrop-blur-sm">
+                              {sheet.page_count}p
+                            </span>
+                          ) : null}
+                          {sheet.difficulty && (
+                            <span className={`absolute top-3 right-3 text-[11px] font-semibold px-2 py-0.5 rounded-full ${getFreeLessonDifficultyColor(sheet.difficulty)}`}>
+                              {getFreeLessonDifficultyLabel(sheet.difficulty)}
+                            </span>
+                          )}
+                        </div>
+                        {/* Content */}
+                        <div className="p-4">
+                          <h4 className="font-bold text-gray-900 text-sm line-clamp-2 leading-snug mb-1 hover:text-orange-600 transition-colors">
+                            {getFreeLessonSheetTitle(sheet)}
+                          </h4>
+                          <p className="text-xs text-gray-500 line-clamp-1 mb-3">{sheet.artist}</p>
+                          <div className="text-lg font-extrabold text-gray-900">
+                            {isFree ? t('freeSheets.price.free') : formatCurrency(price)}
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+                {/* PC: View All Button */}
+                <div className="mt-8 flex justify-center">
+                  <button
+                    type="button"
+                    onClick={() => router.push('/free-sheets?tab=books')}
+                    className="inline-flex items-center justify-center gap-2 px-8 py-3 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold shadow-md hover:from-amber-600 hover:to-orange-600 transition-all cursor-pointer"
+                  >
+                    <i className="ri-book-2-line"></i>
+                    {t('home.freeLessonViewAll')}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* Latest YouTube Sheets - 최신 유튜브 영상악보 */}
         {youtubeLatestSheets.length > 0 && (
@@ -1230,15 +1617,17 @@ export default function Home() {
                   // 한국 사이트는 기존 categories 순서 사용, 글로벌 사이트는 새로운 순서 사용
                   const sortedCategories = isKoreanSite
                     ? categories
-                    : [...categories].sort((a, b) => {
-                        const indexA = globalGenreOrder.indexOf(a.name);
-                        const indexB = globalGenreOrder.indexOf(b.name);
-                        // 순서에 없는 항목은 끝으로
-                        if (indexA === -1 && indexB === -1) return 0;
-                        if (indexA === -1) return 1;
-                        if (indexB === -1) return -1;
-                        return indexA - indexB;
-                      });
+                    : [...categories]
+                        .filter((c) => !GLOBAL_HIDDEN_GENRES.includes(c.name))
+                        .sort((a, b) => {
+                          const indexA = globalGenreOrder.indexOf(a.name);
+                          const indexB = globalGenreOrder.indexOf(b.name);
+                          // 순서에 없는 항목은 끝으로
+                          if (indexA === -1 && indexB === -1) return 0;
+                          if (indexA === -1) return 1;
+                          if (indexB === -1) return -1;
+                          return indexA - indexB;
+                        });
 
                   return sortedCategories.map((category) => {
                     // ✅ 장르 이름을 번역하는 함수 (Sheet Detail Page와 동일한 로직)
@@ -1445,168 +1834,6 @@ export default function Home() {
             </div>
           </div>
         </section>
-
-        {/* Drum Lesson Books Section (책표지형 카드) */}
-        {freeLessonSheets.length > 0 && (
-          <section className="py-8 md:py-16">
-            <div className="max-w-7xl mx-auto">
-              {/* Section Header */}
-              <div className="mb-5 md:mb-8 flex items-center justify-between">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="text-2xl md:text-3xl font-bold text-gray-900">{t('home.freeLessonTitle')}</h3>
-                    <span className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[10px] md:text-xs font-bold px-2 py-0.5 rounded-full">
-                      {t('home.freeLessonBadge')}
-                    </span>
-                  </div>
-                  <p className="hidden md:block text-gray-500 mt-1">{t('home.freeLessonDescription')}</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => router.push('/free-sheets')}
-                  className="text-sm text-gray-500 hover:text-gray-700 hidden md:inline-flex items-center gap-1 whitespace-nowrap"
-                >
-                  {t('home.freeLessonViewAll')} &gt;
-                </button>
-              </div>
-
-              {/* ===== Mobile: horizontal scroll book covers ===== */}
-              <div className="md:hidden">
-                <div
-                  ref={freeLessonSliderRef}
-                  className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4"
-                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-                >
-                  {freeLessonSheets.map((sheet) => {
-                    const price = Math.max(0, sheet.price ?? 0);
-                    const isFree = price === 0;
-                    return (
-                      <div
-                        key={sheet.id}
-                        className="flex-shrink-0 w-[44%] snap-start"
-                      >
-                        <button
-                          type="button"
-                          onClick={() => router.push(`/drum-sheet/${sheet.slug}`)}
-                          className="block w-full text-left bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-lg transition-shadow"
-                        >
-                          {/* Book Cover (3:4 portrait) */}
-                          <div className="relative aspect-[3/4] bg-gradient-to-br from-amber-50 to-orange-50 overflow-hidden">
-                            <img
-                              src={sheet.thumbnail_url || generateDefaultThumbnail(600, 800)}
-                              alt={getFreeLessonSheetTitle(sheet)}
-                              className="w-full h-full object-cover"
-                              onError={(e) => {
-                                const img = e.target as HTMLImageElement;
-                                img.src = generateDefaultThumbnail(600, 800);
-                              }}
-                            />
-                            {/* PDF badge */}
-                            <span className="absolute top-2 left-2 bg-white/95 text-orange-700 text-[10px] font-bold tracking-wider px-2 py-0.5 rounded-md shadow-sm">
-                              PDF
-                            </span>
-                            {/* Page count */}
-                            {sheet.page_count ? (
-                              <span className="absolute bottom-2 left-2 bg-black/60 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full backdrop-blur-sm">
-                                {sheet.page_count}p
-                              </span>
-                            ) : null}
-                          </div>
-                          {/* Content */}
-                          <div className="p-3">
-                            <h4 className="font-bold text-gray-900 text-sm line-clamp-2 leading-snug mb-1">
-                              {getFreeLessonSheetTitle(sheet)}
-                            </h4>
-                            <p className="text-[11px] text-gray-500 line-clamp-1 mb-2">{sheet.artist}</p>
-                            <div className="text-base font-extrabold text-gray-900">
-                              {isFree ? t('freeSheets.price.free') : formatCurrency(price)}
-                            </div>
-                          </div>
-                        </button>
-                      </div>
-                    );
-                  })}
-                </div>
-                {/* Mobile: View All button */}
-                <div className="mt-3 flex justify-center">
-                  <button
-                    type="button"
-                    onClick={() => router.push('/free-sheets')}
-                    className="inline-flex items-center justify-center gap-1.5 px-6 py-2.5 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-white text-sm font-semibold shadow-sm hover:from-amber-600 hover:to-orange-600 transition-all"
-                  >
-                    <i className="ri-book-2-line text-sm"></i>
-                    {t('home.freeLessonViewAll')}
-                  </button>
-                </div>
-              </div>
-
-              {/* ===== PC: 4-column book grid ===== */}
-              <div className="hidden md:block">
-                <div className="grid grid-cols-4 gap-6">
-                  {freeLessonSheets.slice(0, 8).map((sheet) => {
-                    const price = Math.max(0, sheet.price ?? 0);
-                    const isFree = price === 0;
-                    return (
-                      <button
-                        key={sheet.id}
-                        type="button"
-                        onClick={() => router.push(`/drum-sheet/${sheet.slug}`)}
-                        className="text-left bg-white rounded-2xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
-                      >
-                        {/* Book Cover (3:4 portrait) */}
-                        <div className="relative aspect-[3/4] bg-gradient-to-br from-amber-50 to-orange-50 overflow-hidden">
-                          <img
-                            src={sheet.thumbnail_url || generateDefaultThumbnail(600, 800)}
-                            alt={getFreeLessonSheetTitle(sheet)}
-                            className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-                            onError={(e) => {
-                              const img = e.target as HTMLImageElement;
-                              img.src = generateDefaultThumbnail(600, 800);
-                            }}
-                          />
-                          <span className="absolute top-3 left-3 bg-white/95 text-orange-700 text-[11px] font-bold tracking-wider px-2 py-0.5 rounded-md shadow-sm">
-                            PDF
-                          </span>
-                          {sheet.page_count ? (
-                            <span className="absolute bottom-3 left-3 bg-black/60 text-white text-[11px] font-semibold px-2.5 py-0.5 rounded-full backdrop-blur-sm">
-                              {sheet.page_count}p
-                            </span>
-                          ) : null}
-                          {sheet.difficulty && (
-                            <span className={`absolute top-3 right-3 text-[11px] font-semibold px-2 py-0.5 rounded-full ${getFreeLessonDifficultyColor(sheet.difficulty)}`}>
-                              {getFreeLessonDifficultyLabel(sheet.difficulty)}
-                            </span>
-                          )}
-                        </div>
-                        {/* Content */}
-                        <div className="p-4">
-                          <h4 className="font-bold text-gray-900 text-sm line-clamp-2 leading-snug mb-1 hover:text-orange-600 transition-colors">
-                            {getFreeLessonSheetTitle(sheet)}
-                          </h4>
-                          <p className="text-xs text-gray-500 line-clamp-1 mb-3">{sheet.artist}</p>
-                          <div className="text-lg font-extrabold text-gray-900">
-                            {isFree ? t('freeSheets.price.free') : formatCurrency(price)}
-                          </div>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-                {/* PC: View All Button */}
-                <div className="mt-8 flex justify-center">
-                  <button
-                    type="button"
-                    onClick={() => router.push('/free-sheets')}
-                    className="inline-flex items-center justify-center gap-2 px-8 py-3 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold shadow-md hover:from-amber-600 hover:to-orange-600 transition-all cursor-pointer"
-                  >
-                    <i className="ri-book-2-line"></i>
-                    {t('home.freeLessonViewAll')}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </section>
-        )}
 
         {/* Collections Section */}
         {collections.length > 0 && (
@@ -1865,7 +2092,7 @@ export default function Home() {
                 </span>
               </div>
               <button
-                onClick={() => router.push('/free-sheets')}
+                onClick={() => router.push('/free-sheets?tab=books')}
                 className="inline-flex items-center gap-2 bg-white text-orange-600 px-6 py-3 sm:px-8 sm:py-3.5 rounded-full hover:bg-orange-50 font-bold text-base sm:text-lg whitespace-nowrap cursor-pointer transition-all duration-300 shadow-lg active:scale-95"
               >
                 <i className="ri-book-2-line"></i>
@@ -1904,68 +2131,6 @@ export default function Home() {
             >
               {t('home.customOrderCTAButton')}
             </button>
-          </div>
-        </section>
-      </div>
-
-      {/* Hero Section - 최하단으로 이동 */}
-      <div>
-        <section
-          className="relative bg-cover bg-center bg-no-repeat h-[280px] sm:h-[320px] md:h-[380px] lg:h-[400px] bg-gray-900 overflow-hidden"
-          style={{
-            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/banner1.jpg')`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat'
-          }}
-        >
-          <div className="absolute inset-0 flex items-center">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-              {/* Mobile Version */}
-              <div className="max-w-xl md:hidden text-center space-y-3">
-                <h2 className="text-2xl sm:text-3xl font-bold text-white leading-tight">
-                  {t('home.banner.title').split('\n').map((line, idx) => (
-                    <span key={idx}>
-                      {line}
-                      {idx < t('home.banner.title').split('\n').length - 1 && <br />}
-                    </span>
-                  ))}
-                </h2>
-                <div className="text-white text-sm sm:text-base leading-relaxed space-y-1">
-                  <p>{t('home.banner.subtitle1')}</p>
-                  <p>{t('home.banner.subtitle2')}</p>
-                  <p>{t('home.banner.subtitle3')}</p>
-                </div>
-                <button
-                  onClick={() => window.location.href = '/categories'}
-                  className="inline-flex items-center justify-center bg-gradient-to-r from-blue-600 to-purple-600 text-white px-5 py-2.5 sm:px-6 sm:py-3 rounded-full hover:from-blue-700 hover:to-purple-700 font-semibold whitespace-nowrap cursor-pointer transition-all duration-300 shadow-lg text-sm sm:text-base"
-                >
-                  {t('home.banner.browseButton')}
-                </button>
-              </div>
-              {/* PC Version */}
-              <div className="hidden md:block max-w-2xl text-left space-y-4">
-                <h2 className="text-4xl font-bold text-white leading-tight">
-                  {t('home.banner.title').split('\n').map((line, idx) => (
-                    <span key={idx}>
-                      {line}
-                      {idx < t('home.banner.title').split('\n').length - 1 && <br />}
-                    </span>
-                  ))}
-                </h2>
-                <div className="text-white text-lg leading-relaxed space-y-1">
-                  <p>{t('home.banner.subtitle1')}</p>
-                  <p>{t('home.banner.subtitle2')}</p>
-                  <p>{t('home.banner.subtitle3')}</p>
-                </div>
-                <button
-                  onClick={() => window.location.href = '/categories'}
-                  className="inline-flex items-center justify-center bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2.5 rounded-full hover:from-blue-700 hover:to-purple-700 font-semibold whitespace-nowrap cursor-pointer transition-all duration-300 shadow-lg"
-                >
-                  {t('home.banner.browseButton')}
-                </button>
-              </div>
-            </div>
           </div>
         </section>
       </div>

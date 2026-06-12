@@ -91,5 +91,7 @@
   "loginRequired": "Silakan masuk untuk melanjutkan.",
   "favoriteError": "Terjadi kesalahan saat memproses favorit. Silakan coba lagi.",
   "addedToCart": "Berhasil ditambahkan ke keranjang!",
-  "viewDetails": "Lihat Detail"
+  "viewDetails": "Lihat Detail",
+  "customOrderCta": "Tidak menemukan lagu yang Anda inginkan?",
+  "customOrderCtaButton": "Minta transkripsi khusus"
 }

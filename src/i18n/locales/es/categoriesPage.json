@@ -91,5 +91,7 @@
   "loginRequired": "Por favor, inicie sesión para continuar.",
   "favoriteError": "Ocurrió un error al procesar los favoritos. Por favor, inténtelo de nuevo.",
   "addedToCart": "¡Añadido al carrito exitosamente!",
-  "viewDetails": "Ver Detalles"
+  "viewDetails": "Ver Detalles",
+  "customOrderCta": "¿No encuentras la canción que buscas?",
+  "customOrderCtaButton": "Solicitar transcripción personalizada"
 }

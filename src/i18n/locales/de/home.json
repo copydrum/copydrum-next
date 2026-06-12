@@ -86,5 +86,9 @@
     "favoritesLoadError": "Fehler beim Laden der Favoriten:",
     "userInfoLoadError": "Fehler beim Laden der Benutzerinformationen:",
     "favoriteToggleError": "Fehler bei der Favoriten-Umschaltung:"
-  }
+  },
+  "lessonMaterialTitle": "Schlagzeug-Lernmaterialien",
+  "lessonMaterialDescription": "Hol dir einseitige Übungsmaterialien zu Rudiments, Fills, Grooves und mehr.",
+  "lessonMaterialBadge": "GRATIS",
+  "lessonMaterialViewAll": "Alle Materialien ansehen"
 }

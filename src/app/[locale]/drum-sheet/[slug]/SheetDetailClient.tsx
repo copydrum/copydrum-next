@@ -20,6 +20,7 @@ import { useUserCredits } from '@/hooks/useUserCredits';
 import { sanitizeLessonDetailHtml } from '@/lib/sanitizeLessonDetailHtml';
 import RelatedSheets from './RelatedSheets';
 import ReviewSection from './ReviewSection';
+import { generateDefaultThumbnail } from '@/lib/defaultThumbnail';
 
 interface DrumSheet {
   id: string;
@@ -400,14 +401,13 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
     if (sheet.preview_image_url) {
       return sheet.preview_image_url;
     }
-    const prompt = `Professional drum sheet music notation page with clear black musical notes on white paper background, drum symbols and rhythmic patterns, clean layout, high quality music manuscript paper, readable notation symbols, minimalist design, no text overlays, studio lighting`;
-    return `https://readdy.ai/api/search-image?query=${encodeURIComponent(prompt)}&width=600&height=800&seq=preview-${sheet.id}&orientation=portrait`;
+    // 외부 서비스(readdy.ai) 의존 제거 → 로컬 SVG 플레이스홀더
+    return generateDefaultThumbnail(600, 800);
   };
 
   const handlePreviewImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
     const img = e.target as HTMLImageElement;
-    const fallbackPrompt = `Clean white paper with black musical notes, drum notation symbols, simple music sheet design, high contrast, professional quality`;
-    img.src = `https://readdy.ai/api/search-image?query=${encodeURIComponent(fallbackPrompt)}&width=600&height=800&seq=fallback-${Date.now()}&orientation=portrait`;
+    img.src = generateDefaultThumbnail(600, 800);
   };
 
   const extractVideoId = (url: string): string => {
@@ -436,6 +436,41 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
             <ArrowLeft className="w-4 h-4" />
             <span>{t('sheetDetail.backToCategories')}</span>
           </button>
+
+          {/* Breadcrumb (Home > 장르/레슨 > 곡) */}
+          <nav aria-label="Breadcrumb" className="mt-2">
+            <ol className="flex items-center gap-1.5 text-xs sm:text-sm text-gray-500 flex-wrap">
+              <li>
+                <button
+                  type="button"
+                  onClick={() => router.push('/')}
+                  className="hover:text-gray-800 transition-colors"
+                >
+                  {t('common.breadcrumb.home')}
+                </button>
+              </li>
+              <li aria-hidden="true" className="text-gray-300">/</li>
+              <li>
+                <button
+                  type="button"
+                  onClick={() =>
+                    router.push(
+                      isLessonBook
+                        ? '/free-sheets'
+                        : `/categories${sheet.category_id ? `?category=${sheet.category_id}` : ''}`,
+                    )
+                  }
+                  className="hover:text-gray-800 transition-colors"
+                >
+                  {isLessonBook ? t('sidebar.nav.drumLesson') : getCategoryName(sheet.categories?.name)}
+                </button>
+              </li>
+              <li aria-hidden="true" className="text-gray-300">/</li>
+              <li className="text-gray-700 font-medium truncate max-w-[55vw] sm:max-w-xs" aria-current="page">
+                {displaySheetTitle}
+              </li>
+            </ol>
+          </nav>
         </div>
 
         {/* Main Content */}
@@ -450,16 +485,16 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
                   <img
                     src={
                       isYouTubeCategory
-                        ? (sheet.thumbnail_url || (sheet.youtube_url ? `https://i.ytimg.com/vi/${extractVideoId(sheet.youtube_url)}/hq720.jpg` : `https://readdy.ai/api/search-image?query=drum%20solo%20performance%20youtube%20thumbnail&width=1280&height=720&seq=${sheet.id}&orientation=landscape`))
-                        : (sheet.thumbnail_url || `https://readdy.ai/api/search-image?query=drum%20sheet%20music%20${encodeURIComponent(displaySheetTitle)}%20album%20cover%20modern%20minimalist&width=600&height=600&seq=${sheet.id}&orientation=square`)
+                        ? (sheet.thumbnail_url || (sheet.youtube_url ? `https://i.ytimg.com/vi/${extractVideoId(sheet.youtube_url)}/hq720.jpg` : generateDefaultThumbnail(1280, 720)))
+                        : (sheet.thumbnail_url || generateDefaultThumbnail(600, 600))
                     }
                     alt={`${displaySheetTitle} - ${sheet.artist}`}
                     className="w-full h-full object-cover"
                     onError={(e) => {
                       const img = e.target as HTMLImageElement;
                       img.src = isYouTubeCategory
-                        ? `https://readdy.ai/api/search-image?query=drum%20performance%20modern%20minimalist%20design&width=1280&height=720&seq=fallback-${Date.now()}&orientation=landscape`
-                        : `https://readdy.ai/api/search-image?query=drum%20music%20album%20cover%20modern%20minimalist%20design&width=600&height=600&seq=fallback-${Date.now()}&orientation=square`;
+                        ? generateDefaultThumbnail(1280, 720)
+                        : generateDefaultThumbnail(600, 600);
                     }}
                   />
                   {isYouTubeCategory && sheet.youtube_url && (
@@ -601,8 +636,8 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
               {displayDescription && (
                 <div className="lg:hidden bg-white border border-gray-200 rounded-lg p-6">
                   <h3 className="font-semibold text-gray-900 mb-3">{t('sheetDetail.description', '상세 설명')}</h3>
-                  <div className="prose prose-sm max-w-none text-gray-700 leading-relaxed whitespace-pre-line">
-                    {displayDescription}
+                  <div className="text-gray-700 leading-relaxed">
+                    <LessonBookDetailBody raw={displayDescription} />
                   </div>
                 </div>
               )}
@@ -786,12 +821,34 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
                 )}
               </div>
 
+              {/* 신뢰·결제 배지 (구매 전환) */}
+              <div className="rounded-lg border border-gray-100 bg-gray-50 p-4">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="flex items-center gap-2 text-gray-700">
+                    <i className="ri-shield-check-line text-lg text-emerald-600"></i>
+                    <span className="text-sm font-medium">{t('home.trust.securePayment')}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-gray-700">
+                    <i className="ri-refund-2-line text-lg text-amber-600"></i>
+                    <span className="text-sm font-medium">{t('home.trust.moneyBack')}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-gray-700">
+                    <i className="ri-download-cloud-2-line text-lg text-blue-600"></i>
+                    <span className="text-sm font-medium">{t('home.trust.instantDownload')}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-gray-700">
+                    <i className="ri-bank-card-line text-lg text-indigo-600"></i>
+                    <span className="text-sm font-medium">{t('home.trust.paymentMethods')}</span>
+                  </div>
+                </div>
+              </div>
+
               {/* 데스크톱 전용: 상세 설명 */}
               {displayDescription && (
                 <div className="bg-white border border-gray-200 rounded-lg p-6">
                   <h3 className="font-semibold text-gray-900 mb-3">{t('sheetDetail.description', '상세 설명')}</h3>
-                  <div className="prose prose-sm max-w-none text-gray-700 leading-relaxed whitespace-pre-line">
-                    {displayDescription}
+                  <div className="text-gray-700 leading-relaxed">
+                    <LessonBookDetailBody raw={displayDescription} />
                   </div>
                 </div>
               )}
@@ -982,6 +1039,25 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
         categoryId={sheet.category_id}
       />
 
+      {/* 주문제작 CTA — 원하는 곡/버전이 없을 때 요청 유도 */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+        <div className="rounded-2xl border border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50 p-6 text-center sm:p-8">
+          <h3 className="text-lg font-bold text-gray-900 sm:text-xl">
+            {t('sheetDetail.customOrderCta')}
+          </h3>
+          <p className="mt-2 text-sm text-gray-600">
+            {t('sheetDetail.customOrderCtaDesc')}
+          </p>
+          <button
+            onClick={() => router.push('/custom-order')}
+            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-3 text-sm font-semibold text-white hover:bg-blue-700"
+          >
+            <i className="ri-edit-line" />
+            {t('sheetDetail.customOrderCtaButton')}
+          </button>
+        </div>
+      </section>
+
       {/* 모바일: 푸터 숨김 (고정 구매 바가 있으므로 불필요), 데스크톱: 푸터 표시 */}
       <div className="hidden lg:block mt-16">
         <Footer />
@@ -993,6 +1069,12 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
       {sheet && (
         <div data-mobile-purchase-bar className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 shadow-[0_-4px_12px_rgba(0,0,0,0.08)]">
           <div className="flex flex-col">
+            {/* 신뢰 배지 (구매 바 상단) */}
+            <div className="flex items-center justify-center gap-3 border-b border-gray-100 px-4 py-1.5 text-[11px] text-gray-500">
+              <span className="flex items-center gap-1"><i className="ri-shield-check-line text-emerald-600"></i>{t('home.trust.securePayment')}</span>
+              <span className="flex items-center gap-1"><i className="ri-refund-2-line text-amber-600"></i>{t('home.trust.moneyBack')}</span>
+              <span className="flex items-center gap-1"><i className="ri-download-cloud-2-line text-blue-600"></i>{t('home.trust.instantDownload')}</span>
+            </div>
             {isFreeSheet ? (
               /* 무료 악보: 바로 다운로드 버튼 */
               <div className="flex items-center gap-3 px-4 py-3">

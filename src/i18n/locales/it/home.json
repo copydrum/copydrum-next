@@ -86,5 +86,9 @@
     "favoritesLoadError": "Errore nel caricamento dei preferiti:",
     "userInfoLoadError": "Errore nel caricamento delle informazioni utente:",
     "favoriteToggleError": "Errore nel toggle preferito:"
-  }
+  },
+  "lessonMaterialTitle": "Materiali per lezioni di batteria",
+  "lessonMaterialDescription": "Scarica materiali di pratica di una pagina su rudimenti, fill, groove e altro.",
+  "lessonMaterialBadge": "GRATIS",
+  "lessonMaterialViewAll": "Vedi tutti i materiali"
 }

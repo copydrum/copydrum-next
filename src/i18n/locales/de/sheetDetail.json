@@ -82,5 +82,8 @@
   "preorderNotice": {
     "title": "📦 Hinweis zu Vorbestellungsprodukt",
     "description": "Dieses Notenblatt ist ein Vorbestellungsprodukt. Die Transkriptionsarbeit beginnt sofort nach Zahlung, und wir werden sie so schnell wie möglich abschließen. Sobald die Arbeit abgeschlossen ist, können Sie sie sofort von Meiner Seite (Kaufhistorie) herunterladen, und Sie können auch den Fortschrittsstatus in Echtzeit überprüfen."
-  }
+  },
+  "customOrderCta": "Sie suchen ein anderes Lied oder eine andere Version?",
+  "customOrderCtaDesc": "Unser Team erstellt eine individuelle Schlagzeug-Transkription für jedes gewünschte Lied.",
+  "customOrderCtaButton": "Individuelle Transkription anfragen"
 }

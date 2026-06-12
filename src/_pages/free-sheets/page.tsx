@@ -1,5 +1,6 @@
 'use client';
 import { useLocaleRouter } from '@/hooks/useLocaleRouter';
+import { useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { User } from '@supabase/supabase-js';
 import { Loader2, Search, ChevronLeft, ChevronRight, ShoppingCart, Zap } from 'lucide-react';
@@ -15,6 +16,7 @@ import { languageDomainMap } from '../../config/languageDomainMap';
 import { useCart } from '../../hooks/useCart';
 import { hasPurchasedSheet } from '../../lib/purchaseCheck';
 import { getSiteCurrency, convertFromKrw, formatCurrency as formatCurrencyUtil } from '../../lib/currency';
+import { logFreeSheetDownload } from '../../lib/logFreeSheetDownload';
 
 interface SupabaseLessonBookRow {
   id: string;
@@ -46,7 +48,17 @@ interface LessonBook {
   price: number;
   salesType: string | null;
   youtubeUrl: string | null;
+  types: string[];
 }
+
+// 레슨 유형(서브카테고리). name = DB 카테고리명, key = freeSheets.categories.* i18n 키
+const LESSON_TYPES: { name: string; key: string }[] = [
+  { name: '루디먼트', key: 'rudiment' },
+  { name: '필인', key: 'fillIn' },
+  { name: '리듬패턴', key: 'rhythmPattern' },
+  { name: '드럼테크닉', key: 'drumTechnique' },
+  { name: '기초/입문', key: 'beginnerBasics' },
+];
 
 const SHEET_SELECT_FIELDS = `
   id,
@@ -109,16 +121,32 @@ const ITEMS_PER_PAGE = 12;
 const LessonBooksPage = () => {
   const [user, setUser] = useState<User | null>(null);
   const [books, setBooks] = useState<LessonBook[]>([]);
+  const [materials, setMaterials] = useState<LessonBook[]>([]);
+  const [activeTab, setActiveTab] = useState<'materials' | 'books'>('books');
+  const tabResolvedRef = useRef(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOption, setSortOption] = useState<'latest' | 'title' | 'difficulty' | 'priceLow' | 'priceHigh'>('latest');
+  const [freeOnly, setFreeOnly] = useState(false);
+  const [selectedType, setSelectedType] = useState<string>('');
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
   const [favoriteLoadingIds, setFavoriteLoadingIds] = useState<Set<string>>(new Set());
   const [currentPage, setCurrentPage] = useState(1);
   const router = useLocaleRouter();
+  const searchParams = useSearchParams();
   const { t, i18n } = useTranslation();
   const contentRef = useRef<HTMLElement>(null);
+
+  // URL ?tab=materials|books 로 초기 탭 결정 (명시되면 자동전환 비활성)
+  useEffect(() => {
+    const tabParam = searchParams?.get('tab');
+    if (tabParam === 'materials' || tabParam === 'books') {
+      setActiveTab(tabParam);
+      tabResolvedRef.current = true;
+    }
+  }, [searchParams]);
 
   const getLessonBookListTitle = useCallback(
     (book: LessonBook) => {
@@ -220,7 +248,32 @@ const LessonBooksPage = () => {
         price: Math.max(0, sheet.price ?? 0),
         salesType: sheet.sales_type ?? 'INSTANT',
         youtubeUrl: sheet.youtube_url ?? null,
+        types: [],
       }));
+
+      // 각 교재의 유형(서브카테고리) 태그를 junction에서 조회해 부착
+      const ids = mapped.map((b) => b.id);
+      if (ids.length > 0) {
+        const knownTypeNames = new Set(LESSON_TYPES.map((tp) => tp.name));
+        const { data: typeRows } = await supabase
+          .from('drum_sheet_categories')
+          .select('sheet_id, categories ( name )')
+          .in('sheet_id', ids);
+
+        if (typeRows) {
+          const typeMap = new Map<string, string[]>();
+          for (const row of typeRows as any[]) {
+            const name = row?.categories?.name as string | undefined;
+            if (!name || !knownTypeNames.has(name)) continue;
+            const arr = typeMap.get(row.sheet_id) ?? [];
+            arr.push(name);
+            typeMap.set(row.sheet_id, arr);
+          }
+          for (const book of mapped) {
+            book.types = typeMap.get(book.id) ?? [];
+          }
+        }
+      }
 
       setBooks(mapped);
     } catch (error) {
@@ -229,6 +282,61 @@ const LessonBooksPage = () => {
       setBooks([]);
     } finally {
       setLoading(false);
+    }
+  }, [t]);
+
+  // 드럼레슨 "개별 자료": 유형 카테고리(루디먼트/필인/리듬패턴/드럼테크닉/기초입문)에 직접 속한 악보
+  const loadMaterials = useCallback(async () => {
+    try {
+      const typeNames = LESSON_TYPES.map((tp) => tp.name);
+      const { data: typeCats, error: typeCatError } = await supabase
+        .from('categories')
+        .select('id, name')
+        .in('name', typeNames);
+
+      if (typeCatError || !typeCats || typeCats.length === 0) {
+        setMaterials([]);
+        return;
+      }
+
+      const idToName = new Map<string, string>(typeCats.map((c: any) => [c.id, c.name]));
+      const typeIds = typeCats.map((c: any) => c.id);
+
+      const { data: rows, error: rowsError } = await supabase
+        .from('drum_sheets')
+        .select(SHEET_SELECT_FIELDS + ', category_id')
+        .in('category_id', typeIds)
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
+
+      if (rowsError) {
+        console.error(t('freeSheets.console.primarySheetsError'), rowsError);
+        setMaterials([]);
+        return;
+      }
+
+      const mapped: LessonBook[] = ((rows ?? []) as Array<SupabaseLessonBookRow & { category_id: string }>).map((sheet) => ({
+        id: sheet.id,
+        title: sheet.title,
+        titleTranslations: sheet.title_translations ?? null,
+        artist: sheet.artist,
+        difficulty: sheet.difficulty,
+        createdAt: sheet.created_at,
+        thumbnailUrl: sheet.thumbnail_url || generateDefaultThumbnail(800, 1067),
+        pdfUrl: sheet.pdf_url,
+        pageCount: sheet.page_count,
+        slug: sheet.slug,
+        price: Math.max(0, sheet.price ?? 0),
+        salesType: sheet.sales_type ?? 'INSTANT',
+        youtubeUrl: sheet.youtube_url ?? null,
+        // 자료는 자신이 속한 유형 카테고리명을 type으로 부여 → 유형 필터 탭과 호환
+        types: idToName.has(sheet.category_id) ? [idToName.get(sheet.category_id) as string] : [],
+      }));
+
+      setMaterials(mapped);
+    } catch (error) {
+      console.error(t('freeSheets.console.generalError'), error);
+      setMaterials([]);
     }
   }, [t]);
 
@@ -257,7 +365,8 @@ const LessonBooksPage = () => {
     };
     init();
     loadBooks();
-  }, [loadBooks]);
+    loadMaterials();
+  }, [loadBooks, loadMaterials]);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -318,14 +427,62 @@ const LessonBooksPage = () => {
     router.push(`/drum-sheet/${book.slug}`);
   };
 
+  // 무료 자료: 로그인·결제 없이 즉시 다운로드 (목록 카드에서 원클릭)
+  const handleFreeDownload = async (book: LessonBook) => {
+    if (!book.pdfUrl) {
+      alert(t('freeSheets.errors.pdfNotReady'));
+      return;
+    }
+    setDownloadingId(book.id);
+    try {
+      logFreeSheetDownload({ sheetId: book.id, userId: user?.id, downloadSource: 'free-sheets-page' });
+      const response = await fetch(book.pdfUrl);
+      const blob = await response.blob();
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `${book.title} - ${book.artist}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(link.href);
+    } catch (error) {
+      console.error('Free download error:', error);
+      alert(t('freeSheets.errors.pdfNotReady'));
+    } finally {
+      setDownloadingId(null);
+    }
+  };
+
   const handleViewDetail = (book: LessonBook) => {
     router.push(`/drum-sheet/${book.slug}`);
   };
 
+  // 현재 탭에 해당하는 목록 (자료 또는 교재)
+  const activeList = activeTab === 'materials' ? materials : books;
+  const showTabs = materials.length > 0 && books.length > 0;
+
+  // 명시적 tab 파라미터가 없을 때, 로드 결과에 따라 기본 탭 1회 자동 결정
+  useEffect(() => {
+    if (tabResolvedRef.current) return;
+    if (loading) return;
+    if (materials.length > 0 && books.length === 0) {
+      setActiveTab('materials');
+    } else {
+      setActiveTab('books');
+    }
+    tabResolvedRef.current = true;
+  }, [loading, materials.length, books.length]);
+
+  // 탭 전환 시 유형 하위필터/페이지 초기화
+  useEffect(() => {
+    setSelectedType('');
+    setCurrentPage(1);
+  }, [activeTab]);
+
   const filteredBooks = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
 
-    let result = books.filter((book) => {
+    let result = activeList.filter((book) => {
       if (!term) return true;
       const enTitle = (book.titleTranslations?.en || '').toLowerCase();
       const haystack = `${book.title} ${enTitle} ${book.artist}`.toLowerCase();
@@ -335,6 +492,14 @@ const LessonBooksPage = () => {
       const termNoSpace = term.replace(/\s+/g, '');
       return titleNoSpace.includes(termNoSpace) || artistNoSpace.includes(termNoSpace);
     });
+
+    if (freeOnly) {
+      result = result.filter((book) => !book.price || book.price <= 0);
+    }
+
+    if (selectedType) {
+      result = result.filter((book) => book.types.includes(selectedType));
+    }
 
     switch (sortOption) {
       case 'title':
@@ -358,11 +523,17 @@ const LessonBooksPage = () => {
         break;
     }
     return result;
-  }, [searchTerm, sortOption, books]);
+  }, [searchTerm, sortOption, freeOnly, selectedType, activeList]);
+
+  // 자료가 1개 이상 있는 유형만 탭으로 노출 (빈 탭 자동 숨김)
+  const availableTypes = useMemo(
+    () => LESSON_TYPES.filter((tp) => activeList.some((b) => b.types.includes(tp.name))),
+    [activeList],
+  );
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, sortOption]);
+  }, [searchTerm, sortOption, freeOnly, selectedType]);
 
   const totalPages = Math.max(1, Math.ceil(filteredBooks.length / ITEMS_PER_PAGE));
   const paginatedBooks = useMemo(() => {
@@ -437,6 +608,36 @@ const LessonBooksPage = () => {
       {/* Filters & Content */}
       <section ref={contentRef} className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-6">
+          {/* 상위 탭: 자료 / 교재 (둘 다 데이터가 있을 때만 노출) */}
+          {!loading && showTabs && (
+            <div className="flex w-full gap-2 rounded-2xl bg-gray-100 p-1.5 sm:w-auto sm:self-start">
+              <button
+                type="button"
+                onClick={() => setActiveTab('materials')}
+                className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold transition-colors sm:flex-none ${
+                  activeTab === 'materials'
+                    ? 'bg-white text-emerald-700 shadow-sm'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <i className="ri-music-2-line text-base" />
+                {t('freeSheets.tabs.materials')}
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('books')}
+                className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold transition-colors sm:flex-none ${
+                  activeTab === 'books'
+                    ? 'bg-white text-orange-700 shadow-sm'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <i className="ri-book-2-line text-base" />
+                {t('freeSheets.tabs.books')}
+              </button>
+            </div>
+          )}
+
           {/* Search & Sort */}
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="relative w-full md:w-96">
@@ -449,6 +650,19 @@ const LessonBooksPage = () => {
               />
             </div>
             <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setFreeOnly((prev) => !prev)}
+                aria-pressed={freeOnly}
+                className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-semibold transition-colors ${
+                  freeOnly
+                    ? 'border-emerald-500 bg-emerald-50 text-emerald-700'
+                    : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'
+                }`}
+              >
+                <i className={`ri-price-tag-3-${freeOnly ? 'fill' : 'line'} text-base`} />
+                {t('freeSheets.price.free')}
+              </button>
               <label className="text-sm font-medium text-gray-500" htmlFor="sort">
                 {t('freeSheets.sort.label')}
               </label>
@@ -467,10 +681,43 @@ const LessonBooksPage = () => {
             </div>
           </div>
 
+          {/* Type Filter Tabs (자료가 있는 유형만 노출) */}
+          {!loading && availableTypes.length > 0 && (
+            <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0" style={{ scrollbarWidth: 'none' }}>
+              <div className="flex gap-2 pb-1">
+                <button
+                  type="button"
+                  onClick={() => setSelectedType('')}
+                  className={`flex-shrink-0 rounded-full px-4 py-1.5 text-sm font-semibold whitespace-nowrap transition-colors ${
+                    selectedType === ''
+                      ? 'bg-orange-600 text-white'
+                      : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
+                  }`}
+                >
+                  {t('freeSheets.categories.all')}
+                </button>
+                {availableTypes.map((tp) => (
+                  <button
+                    key={tp.name}
+                    type="button"
+                    onClick={() => setSelectedType(tp.name)}
+                    className={`flex-shrink-0 rounded-full px-4 py-1.5 text-sm font-semibold whitespace-nowrap transition-colors ${
+                      selectedType === tp.name
+                        ? 'bg-orange-600 text-white'
+                        : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
+                    }`}
+                  >
+                    {t(`freeSheets.categories.${tp.key}`)}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Results Info */}
           {!loading && (
             <div className="text-sm text-gray-500">
-              {filteredBooks.length}{i18n.language === 'ko' ? '권' : ' results'}
+              {filteredBooks.length}{i18n.language === 'ko' ? (activeTab === 'books' ? '권' : '개') : ' results'}
             </div>
           )}
 
@@ -500,6 +747,8 @@ const LessonBooksPage = () => {
                 const isFav = favoriteIds.has(book.id);
                 const isFavLoading = favoriteLoadingIds.has(book.id);
                 const inCart = isInCart(book.id);
+                const isFree = !book.price || book.price <= 0;
+                const isDownloading = downloadingId === book.id;
 
                 return (
                   <div
@@ -533,6 +782,13 @@ const LessonBooksPage = () => {
                       <span className="absolute left-3 top-3 z-10 rounded-md bg-white/95 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-orange-700 shadow-sm">
                         PDF
                       </span>
+
+                      {/* FREE Badge */}
+                      {isFree && (
+                        <span className="absolute left-3 top-9 z-10 rounded-md bg-emerald-500 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm">
+                          {t('freeSheets.price.free')}
+                        </span>
+                      )}
                     </button>
 
                     {/* Favorite Button */}
@@ -585,29 +841,49 @@ const LessonBooksPage = () => {
 
                       {/* Action Buttons */}
                       <div className="mt-auto flex gap-2 pt-2">
-                        <button
-                          type="button"
-                          onClick={() => handleAddToCart(book)}
-                          disabled={inCart}
-                          className={`flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-semibold transition-colors ${
-                            inCart
-                              ? 'border-gray-200 bg-gray-100 text-gray-500 cursor-default'
-                              : 'border-orange-200 bg-orange-50 text-orange-700 hover:bg-orange-100 active:bg-orange-200'
-                          }`}
-                          aria-label={t('freeSheets.actions.addToCart')}
-                        >
-                          <ShoppingCart className="h-4 w-4" />
-                          <span className="hidden sm:inline">{t('freeSheets.actions.addToCart')}</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleBuyNow(book)}
-                          className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-orange-600 to-rose-600 px-3 py-2 text-xs font-semibold text-white shadow-sm transition-colors hover:from-orange-700 hover:to-rose-700 active:from-orange-800 active:to-rose-800"
-                          aria-label={t('freeSheets.actions.buyNow')}
-                        >
-                          <Zap className="h-4 w-4" />
-                          <span className="hidden sm:inline">{t('freeSheets.actions.buyNow')}</span>
-                        </button>
+                        {isFree ? (
+                          /* 무료: 로그인·결제 없이 원클릭 다운로드 */
+                          <button
+                            type="button"
+                            onClick={() => handleFreeDownload(book)}
+                            disabled={isDownloading}
+                            className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-3 py-2 text-xs font-semibold text-white shadow-sm transition-colors hover:from-emerald-700 hover:to-teal-700 active:from-emerald-800 active:to-teal-800 disabled:opacity-60"
+                            aria-label={t('freeSheets.mobile.freeDownload')}
+                          >
+                            {isDownloading ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <i className="ri-download-2-line text-base" />
+                            )}
+                            <span>{t('freeSheets.mobile.freeDownload')}</span>
+                          </button>
+                        ) : (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => handleAddToCart(book)}
+                              disabled={inCart}
+                              className={`flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-semibold transition-colors ${
+                                inCart
+                                  ? 'border-gray-200 bg-gray-100 text-gray-500 cursor-default'
+                                  : 'border-orange-200 bg-orange-50 text-orange-700 hover:bg-orange-100 active:bg-orange-200'
+                              }`}
+                              aria-label={t('freeSheets.actions.addToCart')}
+                            >
+                              <ShoppingCart className="h-4 w-4" />
+                              <span className="hidden sm:inline">{t('freeSheets.actions.addToCart')}</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleBuyNow(book)}
+                              className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-orange-600 to-rose-600 px-3 py-2 text-xs font-semibold text-white shadow-sm transition-colors hover:from-orange-700 hover:to-rose-700 active:from-orange-800 active:to-rose-800"
+                              aria-label={t('freeSheets.actions.buyNow')}
+                            >
+                              <Zap className="h-4 w-4" />
+                              <span className="hidden sm:inline">{t('freeSheets.actions.buyNow')}</span>
+                            </button>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>

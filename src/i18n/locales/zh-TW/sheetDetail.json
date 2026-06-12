@@ -82,5 +82,8 @@
   "preorderNotice": {
     "title": "📦 預購商品通知",
     "description": "本樂譜為預購商品。付款完成後將立即開始製作，我們會盡快完成。製作完成後，您可以在我的頁面（購買記錄）中立即下載，也可以查看即時進度狀態。"
-  }
+  },
+  "customOrderCta": "想要不同的歌曲或版本？",
+  "customOrderCtaDesc": "無論您想要什麼歌曲，我們的團隊都能為您客製鼓譜。",
+  "customOrderCtaButton": "申請客製編譜"
 }

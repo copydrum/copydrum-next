@@ -3,14 +3,10 @@ import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../stores/authStore';
 import { useTranslation } from 'react-i18next';
 import { getSiteCurrency, convertFromKrw, formatCurrency as formatCurrencyUtil } from '../../lib/currency';
+import CustomOrderPayPalButton from './CustomOrderPayPalButton';
+import CustomOrderKoreanPayButton from './CustomOrderKoreanPayButton';
 
 type StatusValue = 'pending' | 'quoted' | 'payment_confirmed' | 'in_progress' | 'completed';
-
-interface StatusMeta {
-  label: string;
-  badgeClass: string;
-  description: string;
-}
 
 interface OrderDetail {
   id: string;
@@ -44,39 +40,19 @@ interface CustomOrderDetailProps {
   orderId: string;
 }
 
-const STATUS_META: Record<StatusValue, StatusMeta> = {
-  pending: {
-    label: '견적중',
-    badgeClass: 'bg-amber-100 text-amber-700 border border-amber-200',
-    description: '견적 검토 중입니다. 요청 내용을 확인하고 있습니다.',
-  },
-  quoted: {
-    label: '결제대기',
-    badgeClass: 'bg-sky-100 text-sky-700 border border-sky-200',
-    description: '입금 대기 중입니다. 안내된 견적을 확인하고 결제를 진행해주세요.',
-  },
-  payment_confirmed: {
-    label: '입금확인',
-    badgeClass: 'bg-emerald-100 text-emerald-700 border border-emerald-200',
-    description: '입금이 확인되었습니다. 제작 일정이 곧 안내됩니다.',
-  },
-  in_progress: {
-    label: '작업중',
-    badgeClass: 'bg-indigo-100 text-indigo-700 border border-indigo-200',
-    description: '악보 제작 중입니다. 완료되는 대로 알림을 드립니다.',
-  },
-  completed: {
-    label: '작업완료',
-    badgeClass: 'bg-purple-100 text-purple-700 border border-purple-200',
-    description: '제작이 완료되었습니다. 아래에서 악보를 다운로드할 수 있습니다.',
-  },
+const STATUS_BADGE: Record<StatusValue, string> = {
+  pending: 'bg-amber-100 text-amber-700 border border-amber-200',
+  quoted: 'bg-sky-100 text-sky-700 border border-sky-200',
+  payment_confirmed: 'bg-emerald-100 text-emerald-700 border border-emerald-200',
+  in_progress: 'bg-indigo-100 text-indigo-700 border border-indigo-200',
+  completed: 'bg-purple-100 text-purple-700 border border-purple-200',
 };
 
-const formatDateTime = (value: string | null | undefined) => {
+const formatDateTime = (value: string | null | undefined, localeTag = 'en-US') => {
   if (!value) return '-';
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return '-';
-  return date.toLocaleString('ko-KR');
+  return date.toLocaleString(localeTag);
 };
 
 const normalizeCompletedFiles = (order: Pick<OrderDetail, 'completed_pdf_url' | 'completed_pdf_filename'>) => {
@@ -121,6 +97,7 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
   // 통화 결정 (locale 기반)
   const hostname = typeof window !== 'undefined' ? window.location.hostname : 'copydrum.com';
   const currency = useMemo(() => getSiteCurrency(hostname, i18n.language), [hostname, i18n.language]);
+  const localeTag = i18n.language === 'ko' ? 'ko-KR' : 'en-US';
   
   const formatCurrency = useCallback(
     (value: number) => {
@@ -176,7 +153,7 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
       }
 
       if (!data) {
-        throw new Error('해당 주문을 찾을 수 없습니다.');
+        throw new Error(t('customOrders.detail.notFound'));
       }
 
       setOrder(data as OrderDetail);
@@ -194,11 +171,11 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
       setMessages((messagesData ?? []) as Message[]);
     } catch (fetchError: any) {
       console.error('주문제작 상세 로드 실패:', fetchError);
-      setError(fetchError?.message ?? '주문 정보를 불러오지 못했습니다.');
+      setError(fetchError?.message ?? t('customOrders.detail.notFound'));
     } finally {
       setLoading(false);
     }
-  }, [orderId, user]);
+  }, [orderId, user, t]);
 
   useEffect(() => {
     if (user) {
@@ -207,9 +184,13 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
   }, [loadDetail, user]);
 
   const statusMeta = useMemo(() => {
-    if (!order) return STATUS_META.pending;
-    return STATUS_META[order.status] ?? STATUS_META.pending;
-  }, [order]);
+    const status: StatusValue = order?.status ?? 'pending';
+    return {
+      label: t(`customOrders.status.${status}.label`),
+      description: t(`customOrders.status.${status}.message`),
+      badgeClass: STATUS_BADGE[status] ?? STATUS_BADGE.pending,
+    };
+  }, [order, t]);
 
   const refreshMessages = useCallback(async () => {
     const { data, error: messageError } = await supabase
@@ -250,7 +231,7 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
       await refreshMessages();
     } catch (sendError: any) {
       console.error('메시지 전송 실패:', sendError);
-      alert(sendError?.message ?? '메시지를 전송하지 못했습니다.');
+      alert(sendError?.message ?? t('customOrders.detail.sendFailed'));
     } finally {
       setIsSendingMessage(false);
     }
@@ -279,25 +260,25 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
 
   const downloadRestrictionMessage = useMemo(() => {
     if (!order) return '';
-    if (completedFiles.length === 0) return '아직 다운로드 가능한 파일이 없습니다.';
+    if (completedFiles.length === 0) return t('customOrders.detail.noFileAvailable');
 
     const downloadLimit = order.max_download_count;
     const usedCount = order.download_count ?? 0;
     const hasLimit = typeof downloadLimit === 'number' && downloadLimit > 0;
     if (hasLimit && usedCount >= downloadLimit) {
-      return '다운로드 횟수를 모두 사용하셨습니다. 추가 다운로드가 필요하시면 고객센터에 문의해주세요.';
+      return t('customOrders.warnings.downloadLimitExceeded');
     }
 
     if (order.download_expires_at) {
       const now = new Date();
       const expires = new Date(order.download_expires_at);
       if (!Number.isNaN(expires.getTime()) && now > expires) {
-        return '다운로드 가능 기간이 만료되었습니다. 고객센터에 문의해주세요.';
+        return t('customOrders.warnings.downloadPeriodExpired');
       }
     }
 
     return '';
-  }, [completedFiles.length, order]);
+  }, [completedFiles.length, order, t]);
 
   const downloadUsageText = useMemo(() => {
     if (!order) return '';
@@ -305,15 +286,15 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
     const usedCount = order.download_count ?? 0;
     const limit = order.max_download_count;
     if (typeof limit === 'number' && limit > 0) {
-      return `다운로드 ${usedCount}/${limit}회 사용`;
+      return t('customOrders.detail.downloadUsage', { used: usedCount, limit });
     }
-    return `다운로드 ${usedCount}회 사용 (무제한)`;
-  }, [order]);
+    return t('customOrders.detail.downloadUsageUnlimited', { used: usedCount });
+  }, [order, t]);
 
   const handleDownload = async (fileUrl: string, fileName: string, fileIndex: number) => {
     if (!order || !user) return;
     if (!canDownload) {
-      const message = downloadRestrictionMessage || '현재는 다운로드할 수 없습니다.';
+      const message = downloadRestrictionMessage || t('customOrders.detail.downloadUnavailable');
       alert(message);
       return;
     }
@@ -349,7 +330,7 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
         // PC: Fetch blob to force download with correct filename
         const response = await fetch(fileUrl);
         if (!response.ok) {
-          throw new Error('파일 다운로드에 실패했습니다.');
+          throw new Error(t('customOrders.detail.downloadFetchFailed'));
         }
 
         const blob = await response.blob();
@@ -368,7 +349,7 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = fileName || `${order.song_title}_${fileIndex + 1}_악보.pdf`;
+        link.download = fileName || `${order.song_title}_${fileIndex + 1}_${t('customOrders.order.sheetMusicSuffix')}.pdf`;
         document.body.appendChild(link);
         link.click();
         window.URL.revokeObjectURL(url);
@@ -385,7 +366,7 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
       }
     } catch (downloadError: any) {
       console.error('다운로드 실패:', downloadError);
-      alert(downloadError?.message ?? '다운로드 중 오류가 발생했습니다.');
+      alert(downloadError?.message ?? t('customOrders.alerts.downloadFailed'));
     } finally {
       setDownloadingFileKey(null);
     }
@@ -394,7 +375,7 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
   if (!user) {
     return (
       <div className="rounded-xl border border-gray-200 bg-white p-8 text-center">
-        <p className="text-sm text-gray-500">주문제작 내역을 확인하려면 로그인해주세요.</p>
+        <p className="text-sm text-gray-500">{t('customOrders.detail.loginRequired')}</p>
       </div>
     );
   }
@@ -403,7 +384,7 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
     return (
       <div className="rounded-xl border border-gray-200 bg-white p-12 text-center">
         <div className="mx-auto h-10 w-10 rounded-full border-b-2 border-blue-600 animate-spin" />
-        <p className="mt-3 text-sm text-gray-500">주문 정보를 불러오는 중입니다...</p>
+        <p className="mt-3 text-sm text-gray-500">{t('customOrders.detail.loadingOrder')}</p>
       </div>
     );
   }
@@ -411,7 +392,7 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
   if (error || !order) {
     return (
       <div className="rounded-xl border border-red-200 bg-red-50 p-8 text-center text-red-600">
-        {error ?? '주문 정보를 찾을 수 없습니다.'}
+        {error ?? t('customOrders.detail.notFound')}
       </div>
     );
   }
@@ -421,7 +402,7 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
       <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
-            <p className="text-xs text-gray-400">주문 번호</p>
+            <p className="text-xs text-gray-400">{t('customOrders.detail.orderNumber')}</p>
             <h2 className="mt-1 text-2xl font-bold text-gray-900">{order.song_title}</h2>
             <p className="text-sm text-gray-600">{order.artist}</p>
           </div>
@@ -436,27 +417,27 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           <div>
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-              신청일
+              {t('customOrders.order.applicationDate')}
             </p>
-            <p className="mt-1 text-sm text-gray-700">{formatDateTime(order.created_at)}</p>
+            <p className="mt-1 text-sm text-gray-700">{formatDateTime(order.created_at, localeTag)}</p>
           </div>
           <div>
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-              최근 업데이트
+              {t('customOrders.order.recentUpdate')}
             </p>
-            <p className="mt-1 text-sm text-gray-700">{formatDateTime(order.updated_at)}</p>
+            <p className="mt-1 text-sm text-gray-700">{formatDateTime(order.updated_at, localeTag)}</p>
           </div>
           <div>
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-              요청사항
+              {t('customOrders.order.requirements')}
             </p>
             <p className="mt-1 whitespace-pre-wrap text-sm text-gray-700">
-              {order.requirements?.trim() || '작성된 요청사항이 없습니다.'}
+              {order.requirements?.trim() || t('customOrders.order.noRequirements')}
             </p>
           </div>
           <div>
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-              참고 링크
+              {t('customOrders.detail.referenceLink')}
             </p>
             {order.song_url ? (
               <a
@@ -465,10 +446,10 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
                 rel="noopener noreferrer"
                 className="mt-1 inline-flex items-center gap-1 text-sm text-blue-600 hover:underline"
               >
-                영상 바로가기 <i className="ri-external-link-line" />
+                {t('customOrders.detail.watchVideo')} <i className="ri-external-link-line" />
               </a>
             ) : (
-              <p className="mt-1 text-sm text-gray-500">등록된 링크가 없습니다.</p>
+              <p className="mt-1 text-sm text-gray-500">{t('customOrders.detail.noLink')}</p>
             )}
           </div>
         </div>
@@ -482,18 +463,67 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
               <p className="font-semibold">{t('customOrders.order.proposedQuote', '제안된 견적 금액')}</p>
               <p className="text-xs">
                 {order.locale && order.locale !== 'ko'
-                  ? `$${order.estimated_price} (Tax included)`
-                  : `${formatCurrency(order.estimated_price)} (부가세 포함)`}
+                  ? `$${order.estimated_price} (${t('customOrders.detail.taxIncluded')})`
+                  : `${formatCurrency(order.estimated_price)} (${t('customOrders.detail.taxIncluded')})`}
               </p>
             </div>
           </div>
         )}
+
+        {/* 견적 결제 (글로벌 주문: PayPal) — 견적 완료 & USD 견적일 때만 노출 */}
+        {order.status === 'quoted' &&
+          typeof order.estimated_price === 'number' &&
+          order.estimated_price > 0 &&
+          order.locale != null &&
+          order.locale !== 'ko' && (
+            <div className="mt-4 rounded-xl border border-blue-100 bg-blue-50/60 p-5">
+              <div className="mb-3 flex items-center justify-between">
+                <h3 className="text-base font-semibold text-gray-900">{t('customOrders.detail.payTitle')}</h3>
+                <span className="text-sm font-bold text-blue-700">
+                  {t('customOrders.detail.payAmount')}: ${order.estimated_price}
+                </span>
+              </div>
+              <p className="mb-4 text-xs text-gray-600">{t('customOrders.detail.paySubtitle')}</p>
+              <CustomOrderPayPalButton
+                customOrderId={order.id}
+                amountUSD={order.estimated_price}
+                songTitle={order.song_title}
+                onConfirmed={() => {
+                  void loadDetail();
+                }}
+              />
+            </div>
+          )}
+
+        {/* 견적 결제 (한국 주문: 카드 / 카카오페이) — 견적 완료 & 한국 주문일 때만 노출 */}
+        {order.status === 'quoted' &&
+          typeof order.estimated_price === 'number' &&
+          order.estimated_price > 0 &&
+          (order.locale == null || order.locale === 'ko') && (
+            <div className="mt-4 rounded-xl border border-blue-100 bg-blue-50/60 p-5">
+              <div className="mb-3 flex items-center justify-between">
+                <h3 className="text-base font-semibold text-gray-900">{t('customOrders.detail.payTitle')}</h3>
+                <span className="text-sm font-bold text-blue-700">
+                  {t('customOrders.detail.payAmount')}: {formatCurrency(order.estimated_price)}
+                </span>
+              </div>
+              <p className="mb-4 text-xs text-gray-600">{t('customOrders.detail.paySubtitleKr')}</p>
+              <CustomOrderKoreanPayButton
+                customOrderId={order.id}
+                amountKRW={order.estimated_price}
+                songTitle={order.song_title}
+                onConfirmed={() => {
+                  void loadDetail();
+                }}
+              />
+            </div>
+          )}
       </section>
 
       <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-        <h3 className="text-lg font-semibold text-gray-900">작업 결과</h3>
+        <h3 className="text-lg font-semibold text-gray-900">{t('customOrders.detail.resultTitle')}</h3>
         <p className="mt-1 text-sm text-gray-500">
-          작업이 완료되면 아래에서 악보 PDF 파일을 다운로드할 수 있습니다.
+          {t('customOrders.detail.resultDesc')}
         </p>
 
         {completedFiles.length > 0 ? (
@@ -501,10 +531,10 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
             <div className="flex flex-col gap-3">
               <div>
                 <p className="text-sm font-semibold text-purple-800">
-                  다운로드 가능한 파일 {completedFiles.length}개
+                  {t('customOrders.detail.downloadableFiles', { count: completedFiles.length })}
                 </p>
                 <p className="text-xs text-purple-700">
-                  {downloadUsageText} · 만료일 {formatDateTime(order.download_expires_at)}
+                  {downloadUsageText} · {t('customOrders.order.expiryDate')} {formatDateTime(order.download_expires_at, localeTag)}
                 </p>
                 {downloadRestrictionMessage && !canDownload ? (
                   <p className="mt-2 text-xs text-red-600">{downloadRestrictionMessage}</p>
@@ -521,7 +551,7 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
                       className="flex flex-col gap-2 rounded-md bg-white/80 px-3 py-2 md:flex-row md:items-center md:justify-between"
                     >
                       <p className="text-sm text-purple-800">
-                        {index + 1}. {file.filename || `완성된 악보_${index + 1}.pdf`}
+                        {index + 1}. {file.filename || `${t('customOrders.order.completedSheet')}_${index + 1}.pdf`}
                       </p>
                       <button
                         type="button"
@@ -529,7 +559,7 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
                         disabled={!canDownload || isDownloading}
                         className="inline-flex items-center justify-center rounded-md bg-purple-600 px-4 py-2 text-sm font-semibold text-white hover:bg-purple-700 disabled:bg-purple-300"
                       >
-                        {isDownloading ? '다운로드 준비 중...' : 'PDF 다운로드'}
+                        {isDownloading ? t('customOrders.detail.downloadPreparing') : t('customOrders.detail.downloadPdf')}
                       </button>
                     </div>
                   );
@@ -539,23 +569,23 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
           </div>
         ) : (
           <div className="mt-4 rounded-lg border border-dashed border-gray-300 px-4 py-6 text-center text-sm text-gray-500">
-            아직 업로드된 파일이 없습니다. 작업이 완료되면 알림을 드립니다.
+            {t('customOrders.detail.noFilesYet')}
           </div>
         )}
       </section>
 
       <section className="flex flex-col rounded-2xl border border-gray-200 bg-white shadow-sm">
         <header className="border-b border-gray-200 px-6 py-4">
-          <h3 className="text-lg font-semibold text-gray-900">대화 내역</h3>
+          <h3 className="text-lg font-semibold text-gray-900">{t('customOrders.detail.chatTitle')}</h3>
           <p className="text-xs text-gray-500">
-            관리자와의 대화를 통해 진행 상황을 문의하고 추가 요청을 전달할 수 있습니다.
+            {t('customOrders.detail.chatDesc')}
           </p>
         </header>
 
         <div className="max-h-[420px] flex-1 overflow-y-auto px-6 py-4">
           {messages.length === 0 ? (
             <div className="flex h-full items-center justify-center text-sm text-gray-500">
-              아직 대화가 없습니다. 궁금한 내용을 문의해보세요.
+              {t('customOrders.detail.chatEmpty')}
             </div>
           ) : (
             <div className="space-y-3">
@@ -573,8 +603,8 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
                         }`}
                     >
                       <div className="flex items-center gap-2 text-xs opacity-80">
-                        <span>{isCustomer ? '나' : '관리자'}</span>
-                        <span>{formatDateTime(message.created_at)}</span>
+                        <span>{isCustomer ? t('customOrders.detail.me') : t('customOrders.detail.admin')}</span>
+                        <span>{formatDateTime(message.created_at, localeTag)}</span>
                       </div>
                       <p className="mt-1 whitespace-pre-wrap">{message.message}</p>
                     </div>
@@ -589,7 +619,7 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
           <form className="flex flex-col gap-3 md:flex-row" onSubmit={handleSendMessage}>
             <textarea
               className="min-h-[100px] flex-1 resize-none rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              placeholder="관리자에게 전달할 메시지를 입력하세요."
+              placeholder={t('customOrders.detail.messagePlaceholder')}
               value={messageInput}
               onChange={(event) => setMessageInput(event.target.value)}
             />
@@ -598,11 +628,11 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
               disabled={!messageInput.trim() || isSendingMessage}
               className="inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:bg-blue-300"
             >
-              {isSendingMessage ? '전송 중...' : '메시지 보내기'}
+              {isSendingMessage ? t('customOrders.detail.sending') : t('customOrders.detail.sendMessage')}
             </button>
           </form>
           <p className="mt-2 text-xs text-gray-500">
-            메시지는 관리자에게 실시간으로 전달되며, 답변은 이곳에서 확인할 수 있습니다.
+            {t('customOrders.detail.chatFooterNote')}
           </p>
         </footer>
       </section>

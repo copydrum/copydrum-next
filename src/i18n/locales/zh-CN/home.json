@@ -86,5 +86,9 @@
     "favoritesLoadError": "收藏加载错误：",
     "userInfoLoadError": "用户信息加载错误：",
     "favoriteToggleError": "收藏切换错误："
-  }
+  },
+  "lessonMaterialTitle": "架子鼓教学素材",
+  "lessonMaterialDescription": "免费获取基本功、过门、节奏型等单页练习素材。",
+  "lessonMaterialBadge": "FREE",
+  "lessonMaterialViewAll": "查看全部素材"
 }

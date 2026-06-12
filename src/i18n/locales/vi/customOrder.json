@@ -11,25 +11,26 @@
     "button": "Đăng nhập"
   },
   "pricing": {
-    "title": "Thông tin giá",
+    "title": "Giá theo độ khó",
     "note": "* Giá cuối cùng sẽ được cung cấp dưới dạng báo giá riêng sau khi phân tích độ khó và độ dài của bài hát.",
     "grades": {
       "c": {
-        "name": "Hạng C",
-        "price": "$10+",
-        "description": "K-pop, pop, adult contemporary chung dưới 5 phút"
+        "name": "Dễ",
+        "price": "$10",
+        "description": "Pop/rock thông thường dưới 5 phút"
       },
       "b": {
-        "name": "Hạng B",
-        "price": "$30+",
-        "description": "Độ khó hơi cao hơn trung cấp hoặc bài hát trên 5 phút"
+        "name": "Tiêu chuẩn",
+        "price": "$20–30",
+        "description": "Bài hát trên 5 phút hoặc khó hơn pop/rock thông thường"
       },
       "a": {
-        "name": "Hạng A",
+        "name": "Phức tạp",
         "price": "$50+",
-        "description": "Bài hát độ khó nâng cao"
+        "description": "Jazz, solo trống và các bài hát có độ khó cao"
       }
-    }
+    },
+    "deliveryBadge": "⚡ Hoàn thành nhanh trong 1–3 ngày"
   },
   "form": {
     "title": "Biểu mẫu yêu cầu đặt hàng tùy chỉnh",

@@ -6,6 +6,7 @@ import SheetDetailClient from './SheetDetailClient';
 import type { Metadata } from 'next';
 import { languages } from '@/i18n/languages';
 import { getServerDetailSeo } from '@/lib/seo/serverSeo';
+import { getSiteCurrency, convertFromKrw } from '@/lib/currency';
 
 // 헬퍼 함수
 function isUUID(str: string) {
@@ -200,6 +201,13 @@ export default async function SheetDetailPage({ params }: PageProps) {
   const isPreorder = sheet.sales_type === 'PREORDER';
   const price = Math.max(0, Math.round(Number(sheet.price) || 0));
 
+  // JSON-LD 가격은 해당 로케일의 실제 표시 통화/금액과 일치시켜야 한다 (KRW 하드코딩 금지)
+  const offerCurrency = getSiteCurrency(undefined, locale);
+  const offerPrice =
+    offerCurrency === 'KRW'
+      ? price
+      : Number(convertFromKrw(price, offerCurrency, locale).toFixed(2));
+
   // 리뷰 통계 (있을 때만 aggregateRating 노출 → 리치 결과 자격)
   const reviewStats = await getReviewStats(sheet.id);
 
@@ -227,8 +235,8 @@ export default async function SheetDetailPage({ params }: PageProps) {
         offers: {
           '@type': 'Offer',
           url: pageUrl,
-          priceCurrency: 'KRW',
-          price: price,
+          priceCurrency: offerCurrency,
+          price: offerPrice,
           availability: isPreorder
             ? 'https://schema.org/PreOrder'
             : 'https://schema.org/InStock',

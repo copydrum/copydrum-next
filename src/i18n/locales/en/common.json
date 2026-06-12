@@ -1,5 +1,8 @@
 {
   "badge_preorder": "Pre-order",
+  "breadcrumb": {
+    "home": "Home"
+  },
   "payment": {
     "failed": "Payment failed. Please check your card balance or status and try again.",
     "pending": "Payment approval is pending. It will be automatically updated when processing is complete.",

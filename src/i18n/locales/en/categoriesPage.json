@@ -8,6 +8,8 @@
   "noSearchResults": "No search results found.",
   "noSheets": "No sheet music available.",
   "tryDifferentSearch": "Try a different search term or filter.",
+  "customOrderCta": "Can't find the song you want?",
+  "customOrderCtaButton": "Request a custom transcription",
   "albumInfoNotAvailable": "Album information not available",
   "albumInfoNotFound": "No album information",
   "albumLabel": "Album",

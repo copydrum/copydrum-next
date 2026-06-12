@@ -179,22 +179,12 @@ const CategoriesPage: React.FC = () => {
 
     // UUID면 그대로 반환
     if (isUUID(slugOrId)) {
-      console.log('✅ UUID detected:', slugOrId);
       return slugOrId;
     }
 
     // slug로 카테고리 찾기
-    console.log('🔍 Looking for slug:', slugOrId, 'in', categories.length, 'categories');
     const category = categories.find(cat => cat.slug === slugOrId);
-
-    if (category) {
-      console.log('✅ Found category:', category.name, '→ ID:', category.id);
-      return category.id;
-    } else {
-      console.warn('⚠️ Category not found for slug:', slugOrId);
-      console.log('Available slugs:', categories.map(c => c.slug));
-      return null;
-    }
+    return category ? category.id : null;
   }, [categories]);
 
   const updateQueryParams = useCallback(
@@ -609,7 +599,6 @@ const CategoriesPage: React.FC = () => {
         setDrumSheets(normalizeSheets(data || []));
       } else {
         // selectedCategory가 slug 또는 UUID일 수 있으므로 ID로 변환
-        console.log('📂 Loading sheets for category:', selectedCategory);
         const categoryId = getCategoryId(selectedCategory);
 
         if (!categoryId) {
@@ -620,8 +609,6 @@ const CategoriesPage: React.FC = () => {
           setLoading(false);
           return;
         }
-
-        console.log('✅ Querying sheets with category_id:', categoryId);
 
         // 두 개의 쿼리를 병렬 실행하여 URL 길이 초과 문제 방지
         // (기존: id.in.(수백 개 UUID) → URL Too Long 400 에러 발생)
@@ -676,7 +663,6 @@ const CategoriesPage: React.FC = () => {
           .sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
           .slice(0, CATEGORY_FETCH_LIMIT);
 
-        console.log('📊 Fetched sheets:', mergedData.length);
         if (fetchId !== fetchIdRef.current) return;
         const normalized = normalizeSheets(mergedData);
         setDrumSheets(normalized.slice(0, ITEMS_PER_PAGE_YOUTUBE * MAX_CATEGORY_PAGES));
@@ -1120,6 +1106,14 @@ const CategoriesPage: React.FC = () => {
               <div className="py-16 text-center text-gray-500">
                 <i className="ri-file-music-line mb-4 text-4xl text-gray-300" />
                 <p className="font-semibold text-gray-600">{t('categoriesPage.noSearchResults')}</p>
+                <p className="mt-4 text-sm text-gray-500">{t('categoriesPage.customOrderCta')}</p>
+                <button
+                  onClick={() => router.push('/custom-order')}
+                  className="mt-3 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
+                >
+                  <i className="ri-edit-line" />
+                  {t('categoriesPage.customOrderCtaButton')}
+                </button>
               </div>
             )}
 
@@ -2065,6 +2059,14 @@ const CategoriesPage: React.FC = () => {
               <i className="ri-file-music-line text-gray-300 w-16 h-16 mx-auto mb-4"></i>
               <h3 className="text-lg font-medium text-gray-900 mb-2">{t('categoriesPage.noSearchResults')}</h3>
               <p className="text-gray-600">{t('categoriesPage.tryDifferentSearch')}</p>
+              <p className="mt-5 text-sm text-gray-500">{t('categoriesPage.customOrderCta')}</p>
+              <button
+                onClick={() => router.push('/custom-order')}
+                className="mt-3 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
+              >
+                <i className="ri-edit-line" />
+                {t('categoriesPage.customOrderCtaButton')}
+              </button>
             </div>
           )}
         </div>

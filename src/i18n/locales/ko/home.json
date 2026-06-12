@@ -6,6 +6,13 @@
     "subtitle3": "PDF로 바로 다운로드하세요.",
     "browseButton": "악보 둘러보기"
   },
+  "trust": {
+    "instantDownload": "즉시 PDF 다운로드",
+    "securePayment": "안전한 결제",
+    "moneyBack": "14일 환불 보장",
+    "languages": "18개 언어 지원",
+    "paymentMethods": "PayPal · 카드"
+  },
   "latestSheets": "최신 악보",
   "latestYoutubeSheets": "최신 유튜브 영상악보",
   "popularSheets": "인기 악보",
@@ -86,32 +93,9 @@
     "favoritesLoadError": "찜 목록 로드 오류:",
     "userInfoLoadError": "사용자 정보 로드 오류:",
     "favoriteToggleError": "찜하기 처리 오류:"
-  }
+  },
+  "lessonMaterialTitle": "드럼레슨 자료",
+  "lessonMaterialDescription": "루디먼트·필인·리듬패턴 등 한 장짜리 연습 자료를 무료로 받아보세요.",
+  "lessonMaterialBadge": "FREE",
+  "lessonMaterialViewAll": "자료 전체 보기"
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -10,6 +10,7 @@ import {
   convertFromKrw,
   formatCurrency as formatCurrencyUtil,
 } from '@/lib/currency';
+import { generateDefaultThumbnail } from '@/lib/defaultThumbnail';
 import StarRating from '@/components/reviews/StarRating';
 import { fetchReviewStatsMap, type ReviewStatsMap } from '@/lib/reviews/reviewStats';
 
@@ -68,6 +69,8 @@ export default function RelatedSheets({
           .eq('artist', artist)
           .neq('id', currentSheetId)
           .not('slug', 'is', null)
+          .order('view_count_total', { ascending: false, nullsFirst: false })
+          .order('created_at', { ascending: false })
           .limit(MAX_ITEMS);
         for (const row of (data as RelatedSheet[]) || []) {
           if (row.slug) collected.set(row.id, row);
@@ -83,6 +86,8 @@ export default function RelatedSheets({
           .eq('category_id', categoryId)
           .neq('id', currentSheetId)
           .not('slug', 'is', null)
+          .order('view_count_total', { ascending: false, nullsFirst: false })
+          .order('created_at', { ascending: false })
           .limit(MAX_ITEMS * 2);
         for (const row of (data as RelatedSheet[]) || []) {
           if (collected.size >= MAX_ITEMS) break;
@@ -139,7 +144,7 @@ export default function RelatedSheets({
                 src={
                   s.thumbnail_url ||
                   s.preview_image_url ||
-                  `https://readdy.ai/api/search-image?query=drum%20sheet%20music%20album%20cover%20minimalist&width=400&height=400&seq=${s.id}&orientation=square`
+                  generateDefaultThumbnail(400, 400)
                 }
                 alt={`${displayTitle(s)} - ${s.artist}`}
                 loading="lazy"

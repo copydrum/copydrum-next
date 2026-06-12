@@ -325,7 +325,7 @@ export default function MainHeader({ user }: MainHeaderProps) {
           })}
           {/* Drum Lesson Menu */}
           <button
-            onClick={() => router.push('/free-sheets')}
+            onClick={() => router.push('/free-sheets?tab=books')}
             className={`font-semibold text-lg whitespace-nowrap cursor-pointer transition-all duration-200 ${
               removeLocaleFromPathname(pathname).startsWith('/free-sheets')
                 ? 'text-purple-300 underline'

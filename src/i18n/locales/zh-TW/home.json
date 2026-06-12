@@ -86,5 +86,9 @@
     "favoritesLoadError": "我的最愛載入錯誤：",
     "userInfoLoadError": "使用者資訊載入錯誤：",
     "favoriteToggleError": "我的最愛切換錯誤："
-  }
+  },
+  "lessonMaterialTitle": "爵士鼓教學素材",
+  "lessonMaterialDescription": "免費取得基本功、過門、節奏型等單頁練習素材。",
+  "lessonMaterialBadge": "FREE",
+  "lessonMaterialViewAll": "查看全部素材"
 }

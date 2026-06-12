@@ -91,5 +91,7 @@
   "loginRequired": "請登入以繼續。",
   "favoriteError": "處理我的最愛時發生錯誤。請再試一次。",
   "addedToCart": "已成功加入購物車！",
-  "viewDetails": "查看詳情"
+  "viewDetails": "查看詳情",
+  "customOrderCta": "找不到想要的歌曲？",
+  "customOrderCtaButton": "申請客製編譜"
 }

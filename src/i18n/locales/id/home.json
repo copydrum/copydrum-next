@@ -86,5 +86,9 @@
     "favoritesLoadError": "Kesalahan memuat favorit:",
     "userInfoLoadError": "Kesalahan memuat informasi pengguna:",
     "favoriteToggleError": "Kesalahan toggle favorit:"
-  }
+  },
+  "lessonMaterialTitle": "Materi Pelajaran Drum",
+  "lessonMaterialDescription": "Dapatkan materi latihan satu halaman tentang rudiment, fill, groove, dan lainnya.",
+  "lessonMaterialBadge": "GRATIS",
+  "lessonMaterialViewAll": "Lihat Semua Materi"
 }

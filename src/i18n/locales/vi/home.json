@@ -86,5 +86,9 @@
     "favoritesLoadError": "Lỗi tải yêu thích:",
     "userInfoLoadError": "Lỗi tải thông tin người dùng:",
     "favoriteToggleError": "Lỗi chuyển đổi yêu thích:"
-  }
+  },
+  "lessonMaterialTitle": "Tài liệu học trống",
+  "lessonMaterialDescription": "Nhận tài liệu luyện tập một trang về rudiment, fill, groove và hơn thế nữa.",
+  "lessonMaterialBadge": "MIỄN PHÍ",
+  "lessonMaterialViewAll": "Xem tất cả tài liệu"
 }

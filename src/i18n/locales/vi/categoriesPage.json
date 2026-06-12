@@ -91,5 +91,7 @@
   "loginRequired": "Vui lòng đăng nhập để tiếp tục.",
   "favoriteError": "Đã xảy ra lỗi khi xử lý yêu thích. Vui lòng thử lại.",
   "addedToCart": "Đã thêm vào giỏ hàng thành công!",
-  "viewDetails": "Xem Chi Tiết"
+  "viewDetails": "Xem Chi Tiết",
+  "customOrderCta": "Không tìm thấy bài hát bạn muốn?",
+  "customOrderCtaButton": "Yêu cầu ký âm tùy chỉnh"
 }

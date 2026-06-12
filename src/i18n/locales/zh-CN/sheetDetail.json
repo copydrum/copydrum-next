@@ -82,5 +82,8 @@
   "preorderNotice": {
     "title": "📦 预购商品通知",
     "description": "本乐谱为预购商品。付款完成后将立即开始制作，我们会尽快完成。制作完成后，您可以在我的页面（购买历史）中立即下载，也可以查看实时进度状态。"
-  }
+  },
+  "customOrderCta": "想要不同的歌曲或版本？",
+  "customOrderCtaDesc": "无论您想要什么歌曲，我们的团队都能为您定制鼓谱。",
+  "customOrderCtaButton": "申请定制打谱"
 }

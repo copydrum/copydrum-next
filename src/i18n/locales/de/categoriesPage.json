@@ -91,5 +91,7 @@
   "loginRequired": "Bitte melden Sie sich an, um fortzufahren.",
   "favoriteError": "Beim Verarbeiten der Favoriten ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
   "addedToCart": "Erfolgreich in den Warenkorb hinzugefügt!",
-  "viewDetails": "Details anzeigen"
+  "viewDetails": "Details anzeigen",
+  "customOrderCta": "Das gewünschte Lied nicht gefunden?",
+  "customOrderCtaButton": "Individuelle Transkription anfragen"
 }

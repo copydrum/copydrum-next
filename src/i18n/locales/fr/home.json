@@ -86,5 +86,9 @@
     "favoritesLoadError": "Erreur de chargement des favoris :",
     "userInfoLoadError": "Erreur de chargement des informations utilisateur :",
     "favoriteToggleError": "Erreur de basculement des favoris :"
-  }
+  },
+  "lessonMaterialTitle": "Supports de cours de batterie",
+  "lessonMaterialDescription": "Obtenez des supports de pratique d'une page sur les rudiments, fills, grooves et plus.",
+  "lessonMaterialBadge": "GRATUIT",
+  "lessonMaterialViewAll": "Voir tous les supports"
 }

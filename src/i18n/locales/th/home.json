@@ -86,5 +86,9 @@
     "favoritesLoadError": "ข้อผิดพลาดการโหลดรายการโปรด:",
     "userInfoLoadError": "ข้อผิดพลาดการโหลดข้อมูลผู้ใช้:",
     "favoriteToggleError": "ข้อผิดพลาดการสลับรายการโปรด:"
-  }
+  },
+  "lessonMaterialTitle": "สื่อการเรียนกลอง",
+  "lessonMaterialDescription": "รับสื่อฝึกซ้อมหน้าเดียวเกี่ยวกับรูดิเมนต์ ฟิลล์ จังหวะ และอื่นๆ ฟรี",
+  "lessonMaterialBadge": "ฟรี",
+  "lessonMaterialViewAll": "ดูสื่อทั้งหมด"
 }

@@ -82,5 +82,8 @@
     "title": "📦 Avviso Prodotto in Pre-ordine",
     "description": "Questa partitura è un prodotto in pre-ordine. Il lavoro di trascrizione inizia immediatamente dopo il pagamento, e lo completeremo il più rapidamente possibile. Una volta completato il lavoro, puoi scaricarlo immediatamente da La Mia Pagina (Cronologia Acquisti), e puoi anche verificare lo stato di avanzamento in tempo reale."
   },
-  "tableOfContents": "Indice"
+  "tableOfContents": "Indice",
+  "customOrderCta": "Cerchi un'altra canzone o versione?",
+  "customOrderCtaDesc": "Il nostro team può creare una trascrizione di batteria personalizzata per qualsiasi canzone desideri.",
+  "customOrderCtaButton": "Richiedi una trascrizione personalizzata"
 }

@@ -1,6 +1,10 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../lib/supabase';
 import { pdfjsLib } from '../../lib/pdfClient';
+import RichTextEditor from './RichTextEditor';
+
+// 레슨 유형(서브카테고리) — 글로벌 /free-sheets 유형 필터 탭과 1:1 매칭
+const LESSON_TYPE_OPTIONS = ['루디먼트', '필인', '리듬패턴', '드럼테크닉', '기초/입문'];
 
 // ─── Types ───────────────────────────────────────────
 interface LessonBookSheet {
@@ -23,6 +27,8 @@ interface LessonBookSheet {
   preview_pdf_page?: number | null;
   is_active: boolean;
   created_at: string;
+  /** 레슨 유형(서브카테고리) 이름. junction에서 파생 */
+  lesson_type?: string;
 }
 
 interface BookFormData {
@@ -41,6 +47,7 @@ interface BookFormData {
   detail_page_en: string;   // 상세(영문) → table_of_contents_translations.en
   /** PDF에서 모자이크 미리보기로 쓸 페이지 번호 (1 = 첫 페이지) */
   preview_pdf_page: number;
+  lesson_type: string;      // 레슨 유형(서브카테고리). '' = 선택 안 함
   pdf_file: File | null;
 }
 
@@ -59,6 +66,7 @@ const createEmptyForm = (): BookFormData => ({
   detail_page_ko: '',
   detail_page_en: '',
   preview_pdf_page: 1,
+  lesson_type: '',
   pdf_file: null,
 });
 
@@ -147,6 +155,7 @@ async function uploadMosaicPreviewFromPdfPage(
 // ─── Component ───────────────────────────────────────
 export default function DrumLessonManagement() {
   const [lessonCategoryId, setLessonCategoryId] = useState<string | null>(null);
+  const [typeCategoryMap, setTypeCategoryMap] = useState<Record<string, string>>({});
   const [books, setBooks] = useState<LessonBookSheet[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -187,7 +196,18 @@ export default function DrumLessonManagement() {
         return;
       }
 
-      // 2. 드럼레슨 카테고리에 속한 교재 로드 (서브카테고리 미사용)
+      // 1-b. 레슨 유형(서브카테고리) 카테고리 ID 맵 로드
+      const { data: typeCats } = await supabase
+        .from('categories')
+        .select('id, name')
+        .in('name', LESSON_TYPE_OPTIONS);
+      const typeMap: Record<string, string> = {};
+      (typeCats || []).forEach((c: any) => {
+        if (c?.name && c?.id) typeMap[c.name] = c.id;
+      });
+      setTypeCategoryMap(typeMap);
+
+      // 2. 드럼레슨 카테고리에 속한 교재 로드
       const { data: list, error } = await supabase
         .from('drum_sheets')
         .select('*')
@@ -195,7 +215,22 @@ export default function DrumLessonManagement() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setBooks((list || []) as LessonBookSheet[]);
+
+      // 2-b. 각 교재의 유형(junction) 파생
+      const bookIds = (list || []).map((b: any) => b.id);
+      const typeBySheet: Record<string, string> = {};
+      if (bookIds.length > 0) {
+        const { data: jrows } = await supabase
+          .from('drum_sheet_categories')
+          .select('sheet_id, categories ( name )')
+          .in('sheet_id', bookIds);
+        (jrows || []).forEach((r: any) => {
+          const nm = r?.categories?.name;
+          if (nm && LESSON_TYPE_OPTIONS.includes(nm)) typeBySheet[r.sheet_id] = nm;
+        });
+      }
+      const withType = (list || []).map((b: any) => ({ ...b, lesson_type: typeBySheet[b.id] || '' }));
+      setBooks(withType as LessonBookSheet[]);
     } catch (error) {
       console.error('드럼레슨 교재 데이터 로드 오류:', error);
     } finally {
@@ -206,6 +241,31 @@ export default function DrumLessonManagement() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  // ── 레슨 유형 카테고리 ID 보장 (없으면 생성) ──
+  const ensureTypeCategoryId = async (name: string): Promise<string | null> => {
+    if (!name) return null;
+    if (typeCategoryMap[name]) return typeCategoryMap[name];
+    const { data: existing } = await supabase
+      .from('categories')
+      .select('id')
+      .eq('name', name)
+      .maybeSingle();
+    if (existing?.id) {
+      setTypeCategoryMap((prev) => ({ ...prev, [name]: existing.id }));
+      return existing.id;
+    }
+    const { data: created } = await supabase
+      .from('categories')
+      .insert({ name, description: `${name} 레슨 유형` })
+      .select('id')
+      .single();
+    if (created?.id) {
+      setTypeCategoryMap((prev) => ({ ...prev, [name]: created.id }));
+      return created.id;
+    }
+    return null;
+  };
 
   // ── YouTube Thumbnail ──
   const fetchYoutubeThumbnail = (url: string, setter: (url: string) => void) => {
@@ -425,11 +485,23 @@ export default function DrumLessonManagement() {
       }
       insertData.slug = slug;
 
-      const { error: insertError } = await supabase
+      const { data: inserted, error: insertError } = await supabase
         .from('drum_sheets')
-        .insert(insertData);
+        .insert(insertData)
+        .select('id')
+        .single();
 
       if (insertError) throw insertError;
+
+      // 레슨 유형(서브카테고리) junction 연결
+      if (form.lesson_type && inserted?.id) {
+        const typeCatId = await ensureTypeCategoryId(form.lesson_type);
+        if (typeCatId) {
+          await supabase
+            .from('drum_sheet_categories')
+            .insert({ sheet_id: inserted.id, category_id: typeCatId });
+        }
+      }
 
       alert('드럼레슨 교재가 등록되었습니다!');
       setShowAddBook(false);
@@ -463,6 +535,7 @@ export default function DrumLessonManagement() {
       detail_page_en: detailEn,
       pdf_file: null,
       preview_pdf_page: book.preview_pdf_page != null && book.preview_pdf_page > 0 ? book.preview_pdf_page : 1,
+      lesson_type: book.lesson_type || '',
     });
   };
 
@@ -507,6 +580,24 @@ export default function DrumLessonManagement() {
         .update(updateData)
         .eq('id', editingBook.id);
       if (updateError) throw updateError;
+
+      // 레슨 유형(서브카테고리) junction 재설정: 기존 유형 링크 제거 후 재삽입
+      const typeIds = Object.values(typeCategoryMap);
+      if (typeIds.length > 0) {
+        await supabase
+          .from('drum_sheet_categories')
+          .delete()
+          .eq('sheet_id', editingBook.id)
+          .in('category_id', typeIds);
+      }
+      if (editForm.lesson_type) {
+        const typeCatId = await ensureTypeCategoryId(editForm.lesson_type);
+        if (typeCatId) {
+          await supabase
+            .from('drum_sheet_categories')
+            .insert({ sheet_id: editingBook.id, category_id: typeCatId });
+        }
+      }
 
       alert('수정 완료!');
       setEditingBook(null);
@@ -846,46 +937,6 @@ function BookFormModal({
   onYoutubeAutoFillThumb,
 }: BookFormModalProps) {
   const isAdd = mode === 'add';
-  const taKoRef = useRef<HTMLTextAreaElement>(null);
-  const taEnRef = useRef<HTMLTextAreaElement>(null);
-  const [detailImgBusy, setDetailImgBusy] = useState<'ko' | 'en' | null>(null);
-
-  const insertDetailSnippet = (field: 'detail_page_ko' | 'detail_page_en', snippet: string) => {
-    const ref = field === 'detail_page_ko' ? taKoRef : taEnRef;
-    const el = ref.current;
-    if (el) {
-      const start = el.selectionStart;
-      const end = el.selectionEnd;
-      const text = form[field];
-      const next = text.slice(0, start) + snippet + text.slice(end);
-      setForm({ ...form, [field]: next });
-      requestAnimationFrame(() => {
-        el.focus();
-        const pos = start + snippet.length;
-        el.setSelectionRange(pos, pos);
-      });
-      return;
-    }
-    setForm({ ...form, [field]: form[field] + snippet });
-  };
-
-  const handleDetailImagePick = async (
-    field: 'detail_page_ko' | 'detail_page_en',
-    file: File | undefined,
-  ) => {
-    if (!file) return;
-    setDetailImgBusy(field === 'detail_page_ko' ? 'ko' : 'en');
-    try {
-      const url = await onLessonDetailImageUpload(file);
-      const tag = `\n<img src="${url}" alt="" class="max-w-full h-auto rounded-lg my-3 block" />\n`;
-      insertDetailSnippet(field, tag);
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : '이미지 업로드 실패';
-      alert(msg);
-    } finally {
-      setDetailImgBusy(null);
-    }
-  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -978,6 +1029,28 @@ function BookFormModal({
                   <option value="고급">고급</option>
                 </select>
               </div>
+            </div>
+
+            {/* 레슨 유형 (글로벌 사이트 유형 필터) */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                레슨 유형{' '}
+                <span className="text-xs font-normal text-gray-500">
+                  (글로벌 사이트 Rudiments/Fills/… 필터에 사용 · 선택 사항)
+                </span>
+              </label>
+              <select
+                value={form.lesson_type}
+                onChange={(e) => setForm({ ...form, lesson_type: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+              >
+                <option value="">선택 안 함</option>
+                {LESSON_TYPE_OPTIONS.map((name) => (
+                  <option key={name} value={name}>
+                    {name}
+                  </option>
+                ))}
+              </select>
             </div>
 
             {/* 책 표지 (썸네일) */}
@@ -1102,41 +1175,22 @@ function BookFormModal({
               </div>
             </div>
 
-            {/* 상세페이지(한/영): 텍스트 + 이미지 삽입 */}
+            {/* 상세페이지(한/영): 리치 에디터 (굵게/제목/리스트/링크/이미지/YouTube) */}
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   상세페이지 (한국어){' '}
                   <span className="text-xs font-normal text-gray-500">
-                    한국어 사이트에서만 표시 · 줄바꿈 유지 · HTML 및 이미지 삽입 가능
+                    한국어 사이트에서만 표시 · 굵게/제목/목록/이미지/YouTube 삽입 가능
                   </span>
                 </label>
-                <textarea
-                  ref={taKoRef}
+                <RichTextEditor
                   value={form.detail_page_ko}
-                  onChange={(e) => setForm({ ...form, detail_page_ko: e.target.value })}
-                  placeholder={`예시:\n1장. 기초 그립과 자세\n또는 <p>문단</p> + 이미지 업로드로 <img> 삽입`}
-                  rows={8}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 text-sm font-mono leading-6 whitespace-pre-wrap"
+                  onChange={(html) => setForm({ ...form, detail_page_ko: html })}
+                  onImageUpload={onLessonDetailImageUpload}
+                  placeholder="예: 1장. 기초 그립과 자세 … (이미지/영상 삽입 가능)"
+                  minHeight={220}
                 />
-                <div className="mt-1 flex flex-wrap items-center gap-2">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    disabled={detailImgBusy === 'ko'}
-                    onChange={(e) => {
-                      const f = e.target.files?.[0];
-                      void handleDetailImagePick('detail_page_ko', f);
-                      e.target.value = '';
-                    }}
-                    className="text-xs"
-                  />
-                  {detailImgBusy === 'ko' && (
-                    <span className="text-xs text-orange-600 flex items-center gap-1">
-                      <i className="ri-loader-4-line animate-spin" /> 업로드 중…
-                    </span>
-                  )}
-                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -1145,32 +1199,13 @@ function BookFormModal({
                     한국어 제외 언어에 표시 · 비우면 한국어 상세를 대신 표시
                   </span>
                 </label>
-                <textarea
-                  ref={taEnRef}
+                <RichTextEditor
                   value={form.detail_page_en}
-                  onChange={(e) => setForm({ ...form, detail_page_en: e.target.value })}
-                  placeholder="Chapter 1… or HTML with images"
-                  rows={8}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 text-sm font-mono leading-6 whitespace-pre-wrap"
+                  onChange={(html) => setForm({ ...form, detail_page_en: html })}
+                  onImageUpload={onLessonDetailImageUpload}
+                  placeholder="e.g. Chapter 1 … (images / video supported)"
+                  minHeight={220}
                 />
-                <div className="mt-1 flex flex-wrap items-center gap-2">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    disabled={detailImgBusy === 'en'}
-                    onChange={(e) => {
-                      const f = e.target.files?.[0];
-                      void handleDetailImagePick('detail_page_en', f);
-                      e.target.value = '';
-                    }}
-                    className="text-xs"
-                  />
-                  {detailImgBusy === 'en' && (
-                    <span className="text-xs text-orange-600 flex items-center gap-1">
-                      <i className="ri-loader-4-line animate-spin" /> 업로드 중…
-                    </span>
-                  )}
-                </div>
               </div>
             </div>
 

@@ -82,5 +82,8 @@
   "preorderNotice": {
     "title": "📦 Avis sur le Produit en Précommande",
     "description": "Cette partition est un produit en précommande. Le travail de transcription commence immédiatement après le paiement, et nous le terminerons le plus rapidement possible. Une fois le travail terminé, vous pouvez le télécharger immédiatement depuis Ma Page (Historique des Achats), et vous pouvez également vérifier le statut de progression en temps réel."
-  }
+  },
+  "customOrderCta": "Vous cherchez une autre chanson ou version ?",
+  "customOrderCtaDesc": "Notre équipe peut créer une transcription de batterie sur mesure pour n'importe quelle chanson.",
+  "customOrderCtaButton": "Demander une transcription personnalisée"
 }

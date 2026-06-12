@@ -86,5 +86,9 @@
     "favoritesLoadError": "पसंदीदा लोड त्रुटि:",
     "userInfoLoadError": "उपयोगकर्ता जानकारी लोड त्रुटि:",
     "favoriteToggleError": "पसंदीदा टॉगल त्रुटि:"
-  }
+  },
+  "lessonMaterialTitle": "ड्रम लेसन सामग्री",
+  "lessonMaterialDescription": "रूडिमेंट्स, फिल्स, ग्रूव्स और अधिक पर एक-पृष्ठ अभ्यास सामग्री मुफ़्त पाएं।",
+  "lessonMaterialBadge": "मुफ़्त",
+  "lessonMaterialViewAll": "सभी सामग्री देखें"
 }

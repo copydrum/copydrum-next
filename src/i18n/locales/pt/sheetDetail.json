@@ -82,5 +82,8 @@
   "preorderNotice": {
     "title": "📦 Aviso de Produto de Pré-encomenda",
     "description": "Esta partitura é um produto de pré-encomenda. O trabalho de transcrição começa imediatamente após o pagamento, e completaremos o mais rápido possível. Uma vez concluído o trabalho, você pode baixá-lo imediatamente da Minha Página (Histórico de Compras), e também pode verificar o status de progresso em tempo real."
-  }
+  },
+  "customOrderCta": "Procura outra música ou versão?",
+  "customOrderCtaDesc": "Nossa equipe pode criar uma transcrição de bateria personalizada para qualquer música que você quiser.",
+  "customOrderCtaButton": "Solicitar transcrição personalizada"
 }

@@ -91,5 +91,7 @@
   "loginRequired": "Devam etmek için lütfen giriş yapın.",
   "favoriteError": "Favoriler işlenirken bir hata oluştu. Lütfen tekrar deneyin.",
   "addedToCart": "Sepete başarıyla eklendi!",
-  "viewDetails": "Detayları Gör"
+  "viewDetails": "Detayları Gör",
+  "customOrderCta": "Aradığınız şarkıyı bulamadınız mı?",
+  "customOrderCtaButton": "Özel transkripsiyon talep et"
 }

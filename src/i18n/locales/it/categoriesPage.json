@@ -91,5 +91,7 @@
   "loginRequired": "Accedi per continuare.",
   "favoriteError": "Si è verificato un errore durante l'elaborazione dei preferiti. Riprova.",
   "addedToCart": "Aggiunto al carrello con successo!",
-  "viewDetails": "Visualizza Dettagli"
+  "viewDetails": "Visualizza Dettagli",
+  "customOrderCta": "Non trovi la canzone che cerchi?",
+  "customOrderCtaButton": "Richiedi una trascrizione personalizzata"
 }

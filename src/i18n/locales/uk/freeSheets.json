@@ -85,5 +85,9 @@
     "favoriteToggleError": "Favorite toggle error:",
     "userLoadError": "Failed to load user information:",
     "youtubeUrlParseError": "YouTube URL parse error:"
+  },
+  "tabs": {
+    "materials": "Матеріали",
+    "books": "Підручники"
   }
 }

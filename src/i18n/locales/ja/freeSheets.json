@@ -85,5 +85,9 @@
     "favoriteToggleError": "お気に入り切り替えエラー:",
     "userLoadError": "ユーザー情報の読み込みに失敗しました:",
     "youtubeUrlParseError": "YouTube URL 解析失敗:"
+  },
+  "tabs": {
+    "materials": "レッスン資料",
+    "books": "レッスン教材"
   }
 }

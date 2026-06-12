@@ -86,5 +86,9 @@
     "favoritesLoadError": "Erro ao carregar favoritos:",
     "userInfoLoadError": "Erro ao carregar informações do usuário:",
     "favoriteToggleError": "Erro na alternância de favorito:"
-  }
+  },
+  "lessonMaterialTitle": "Materiais de aulas de bateria",
+  "lessonMaterialDescription": "Baixe materiais de prática de uma página sobre rudimentos, viradas, grooves e mais.",
+  "lessonMaterialBadge": "GRÁTIS",
+  "lessonMaterialViewAll": "Ver todos os materiais"
 }

@@ -82,5 +82,8 @@
     "title": "📦 Pemberitahuan Produk Pre-order",
     "description": "Partitur ini adalah produk pre-order. Pekerjaan transkripsi dimulai segera setelah pembayaran selesai, dan kami akan menyelesaikannya secepat mungkin. Setelah pekerjaan selesai, Anda dapat mengunduhnya segera dari Halaman Saya (Riwayat Pembelian), dan Anda juga dapat memeriksa status kemajuan secara real-time."
   },
-  "tableOfContents": "Daftar isi"
+  "tableOfContents": "Daftar isi",
+  "customOrderCta": "Ingin lagu atau versi yang berbeda?",
+  "customOrderCtaDesc": "Tim kami dapat membuat transkripsi drum khusus untuk lagu apa pun yang Anda inginkan.",
+  "customOrderCtaButton": "Minta transkripsi khusus"
 }

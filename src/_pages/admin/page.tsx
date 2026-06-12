@@ -16,6 +16,8 @@ import CustomOrderDetail from '../../components/admin/CustomOrderDetail';
 import MarketingSettings from '../../components/admin/MarketingSettings';
 import MarketingStatus from '../../components/admin/MarketingStatus';
 import DrumLessonManagement from '../../components/admin/DrumLessonManagement';
+import RichTextEditor from '../../components/admin/RichTextEditor';
+import DashboardTab from '../../components/admin/DashboardTab';
 import ChatInbox from '../../components/admin/ChatInbox';
 import ChatSettingsPanel from '../../components/admin/ChatSettingsPanel';
 import {
@@ -1330,6 +1332,11 @@ const AdminPage: React.FC = () => {
     pdf_url: '',
     preview_image_url: ''
   });
+  // 악보 상세설명(리치 HTML) — newSheet/editingSheetData 객체 리터럴을 건드리지 않도록 별도 상태로 관리
+  const [newSheetDescKo, setNewSheetDescKo] = useState('');
+  const [newSheetDescEn, setNewSheetDescEn] = useState('');
+  const [editSheetDescKo, setEditSheetDescKo] = useState('');
+  const [editSheetDescEn, setEditSheetDescEn] = useState('');
   const [selectedSheetIds, setSelectedSheetIds] = useState<string[]>([]);
   const [showBulkEditModal, setShowBulkEditModal] = useState(false);
   const [bulkEditData, setBulkEditData] = useState({
@@ -5306,6 +5313,30 @@ const AdminPage: React.FC = () => {
     }
   };
 
+  // 악보 상세설명 리치 에디터용 이미지 업로드 (drum-sheets 버킷)
+  const uploadSheetDescriptionImage = async (file: File): Promise<string> => {
+    const fileExt = file.name.split('.').pop() || 'jpg';
+    const fileName = `sheet_desc_${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+    const filePath = `sheet-detail-images/${fileName}`;
+    const { error: uploadError } = await supabase.storage
+      .from('drum-sheets')
+      .upload(filePath, file, { contentType: file.type || 'image/jpeg', upsert: false });
+    if (uploadError) throw uploadError;
+    const { data: urlData } = supabase.storage.from('drum-sheets').getPublicUrl(filePath);
+    return urlData.publicUrl;
+  };
+
+  // ko/en 리치 HTML → drum_sheets.description 에 저장할 JSON 문자열(또는 null)
+  const buildSheetDescription = (ko: string, en: string): string | null => {
+    const k = ko.trim();
+    const e = en.trim();
+    if (!k && !e) return null;
+    const obj: Record<string, string> = {};
+    if (k) obj.ko = k;
+    if (e) obj.en = e;
+    return JSON.stringify(obj);
+  };
+
   const handleAddSheet = async () => {
     if (!newSheet.title || !newSheet.artist || newSheet.category_ids.length === 0) {
       alert('제목, 아티스트, 카테고리는 필수입니다.');
@@ -5387,6 +5418,10 @@ const AdminPage: React.FC = () => {
       }
       if (newSheet.youtube_url) {
         insertData.youtube_url = newSheet.youtube_url.trim();
+      }
+      const newDescription = buildSheetDescription(newSheetDescKo, newSheetDescEn);
+      if (newDescription) {
+        insertData.description = newDescription;
       }
 
       // difficulty 값 최종 확인 및 로깅
@@ -5519,6 +5554,8 @@ const AdminPage: React.FC = () => {
         pdf_url: '',
         youtube_url: ''
       });
+      setNewSheetDescKo('');
+      setNewSheetDescEn('');
       loadSheets();
     } catch (error: any) {
       console.error('악보 추가 오류:', error);
@@ -6868,358 +6905,29 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
   const pendingInquiryCount = customerInquiries.filter((inquiry) => inquiry.status === 'pending').length;
   // 렌더링 함수들
   const renderDashboard = () => {
-    const periodOptions: Array<{ value: DashboardAnalyticsPeriod; label: string }> = [
-      { value: 'daily', label: '오늘' },
-      { value: 'weekly', label: '최근 7일' },
-      { value: 'monthly', label: '최근 한달' },
-    ];
-    type AnalyticsCard = {
-      title: string;
-      value: number;
-      change: number;
-      icon: string;
-      iconClassName: string;
-      description: string;
-      formatter?: (value: number) => string;
-    };
-    const metrics = dashboardAnalyticsData?.metrics;
-    const periodDescription = dashboardAnalyticsPeriod === 'daily' ? '어제 대비'
-      : dashboardAnalyticsPeriod === 'weekly' ? '이전 7일 대비'
-      : '이전 한달 대비';
-    const cards: AnalyticsCard[] = [
-      {
-        title: '방문자 수',
-        value: metrics?.totalVisitors ?? 0,
-        change: metrics?.visitorsChangePct ?? 0,
-        icon: 'ri-group-line',
-        iconClassName: 'bg-blue-100 text-blue-600',
-        description: periodDescription,
-        formatter: (value) => `${value.toLocaleString('ko-KR')}명`,
-      },
-      {
-        title: '페이지뷰',
-        value: metrics?.totalPageViews ?? 0,
-        change: metrics?.pageViewsChangePct ?? 0,
-        icon: 'ri-eye-line',
-        iconClassName: 'bg-sky-100 text-sky-600',
-        description: periodDescription,
-        formatter: (value) => `${value.toLocaleString('ko-KR')}`,
-      },
-      {
-        title: '매출',
-        value: metrics?.totalRevenue ?? 0,
-        change: metrics?.revenueChangePct ?? 0,
-        icon: 'ri-money-dollar-circle-line',
-        iconClassName: 'bg-purple-100 text-purple-600',
-        description: periodDescription,
-        formatter: (value) => formatCurrency(value),
-      },
-      {
-        title: '신규 가입자',
-        value: metrics?.totalNewUsers ?? 0,
-        change: metrics?.newUsersChangePct ?? 0,
-        icon: 'ri-user-add-line',
-        iconClassName: 'bg-emerald-100 text-emerald-600',
-        description: periodDescription,
-        formatter: (value) => `${value.toLocaleString('ko-KR')}명`,
-      },
-    ];
-    const hasAnalytics = Boolean(dashboardAnalyticsData);
-    const chartData = dashboardAnalyticsData?.series ?? [];
-    const isInitialLoading = dashboardAnalyticsLoading && !hasAnalytics;
-    const isUpdating = dashboardAnalyticsLoading && hasAnalytics;
-    const tooltipFormatter = (value: number | string, name: string) => {
-      const numericValue = typeof value === 'number' ? value : Number(value);
-      if (name === '매출') {
-        return [`₩${numericValue.toLocaleString('ko-KR')}`, name];
-      }
-      return [`${numericValue.toLocaleString('ko-KR')}명`, name];
-    };
-
     return (
-      <div className="space-y-6">
-        <section className="space-y-6 rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">방문 · 매출 · 가입 지표</h2>
-              <p className="text-sm text-gray-500">오늘, 최근 7일, 최근 한달 지표를 확인하세요.</p>
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              {periodOptions.map((option) => (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() => setDashboardAnalyticsPeriod(option.value)}
-                  className={`rounded-full px-4 py-2 text-sm font-medium transition ${dashboardAnalyticsPeriod === option.value
-                    ? 'bg-blue-600 text-white shadow-sm'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                >
-                  {option.label}
-                </button>
-              ))}
-              <button
-                type="button"
-                onClick={() => {
-                  void loadDashboardAnalytics(dashboardAnalyticsPeriod);
-                }}
-                className="inline-flex items-center gap-2 rounded-full border border-gray-300 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100"
-              >
-                <i className="ri-refresh-line"></i>
-                새로고침
-              </button>
-            </div>
-          </div>
-          {dashboardAnalyticsError ? (
-            <div className="rounded-lg border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <span>데이터를 불러오는 중 오류가 발생했습니다: {dashboardAnalyticsError}</span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    void loadDashboardAnalytics(dashboardAnalyticsPeriod);
-                  }}
-                  className="inline-flex items-center gap-2 rounded-lg border border-rose-300 px-3 py-2 text-sm font-semibold text-rose-700 hover:bg-rose-100"
-                >
-                  <i className="ri-refresh-line"></i>
-                  다시 시도
-                </button>
-              </div>
-            </div>
-          ) : (
-            <>
-              <div>
-                {isInitialLoading ? (
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                    {Array.from({ length: 4 }).map((_, index) => (
-                      <div
-                        key={`analytics-skeleton-${index}`}
-                        className="h-28 animate-pulse rounded-xl border border-gray-100 bg-gray-50"
-                      />
-                    ))}
-                  </div>
-                ) : !hasAnalytics ? (
-                  <div className="rounded-xl border border-gray-100 bg-gray-50 p-6 text-sm text-gray-500">
-                    데이터를 불러오는 중입니다...
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                    {cards.map((card) => {
-                      const displayValue = card.formatter
-                        ? card.formatter(card.value)
-                        : card.value.toLocaleString('ko-KR');
-                      return (
-                        <div key={card.title} className="rounded-xl border border-gray-100 p-5 shadow-sm">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <p className="text-sm font-medium text-gray-600">{card.title}</p>
-                              <p className="mt-2 text-2xl font-bold text-gray-900">{displayValue}</p>
-                            </div>
-                            <div className={`flex h-12 w-12 items-center justify-center rounded-lg ${card.iconClassName}`}>
-                              <i className={`${card.icon} text-xl`}></i>
-                            </div>
-                          </div>
-                          <div className="mt-4 flex items-center gap-2 text-xs">
-                            <span
-                              className={`inline-flex items-center rounded-full px-2.5 py-1 font-semibold ${getChangeBadgeClassName(
-                                card.change
-                              )}`}
-                            >
-                              {formatPercentChange(card.change)}
-                            </span>
-                            <span className="text-gray-400">{card.description}</span>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-
-              <div className="grid grid-cols-1 gap-6">
-                {/* 기간별 분석 테이블 */}
-                <div className="relative">
-                    <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                      {dashboardAnalyticsPeriod === 'daily' ? '오늘 상세' : dashboardAnalyticsPeriod === 'weekly' ? '최근 7일 상세' : '최근 한달 상세'}
-                    </h3>
-                    {isInitialLoading ? (
-                      <div className="flex h-full items-center justify-center">
-                        <div className="h-24 w-full max-w-md animate-pulse rounded-xl bg-gray-100" />
-                      </div>
-                    ) : !hasAnalytics ? (
-                      <div className="flex h-full items-center justify-center text-sm text-gray-500">
-                        데이터를 불러오는 중입니다...
-                      </div>
-                    ) : chartData.length === 0 ? (
-                      <div className="flex h-full items-center justify-center rounded-lg bg-gray-50 text-sm text-gray-500">
-                        선택한 기간의 데이터가 없습니다.
-                      </div>
-                    ) : (
-                      <div className="overflow-auto max-h-[480px]">
-                        <table className="w-full text-sm">
-                          <thead className="bg-gray-50 sticky top-0">
-                            <tr>
-                              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">일자</th>
-                              <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">주문수</th>
-                              <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">매출액</th>
-                              <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">방문자</th>
-                              <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">가입</th>
-                              <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">문의</th>
-                            </tr>
-                          </thead>
-                          <tbody className="bg-white divide-y divide-gray-200">
-                            {chartData.slice().reverse().map((data, index) => (
-                              <tr key={index} className="hover:bg-gray-50">
-                                <td className="px-3 py-2 whitespace-nowrap text-gray-900">{data.label}</td>
-                                <td className="px-3 py-2 whitespace-nowrap text-right text-gray-900">{data.orderCount}</td>
-                                <td className="px-3 py-2 whitespace-nowrap text-right text-gray-900">{data.revenue.toLocaleString()}원</td>
-                                <td className="px-3 py-2 whitespace-nowrap text-right text-gray-900">{data.visitors}</td>
-                                <td className="px-3 py-2 whitespace-nowrap text-right text-gray-900">{data.newUsers}</td>
-                                <td className="px-3 py-2 whitespace-nowrap text-right text-gray-900">{data.inquiryCount}</td>
-                              </tr>
-                            ))}
-                            {/* 합계행 (오늘=1행이므로 합계 불필요, 7일/한달만 표시) */}
-                            {chartData.length > 1 && (
-                              <tr className="bg-blue-50 font-semibold sticky bottom-0">
-                                <td className="px-3 py-2 whitespace-nowrap text-gray-900">
-                                  {dashboardAnalyticsPeriod === 'weekly' ? '최근 7일 합계' : '최근 한달 합계'}
-                                </td>
-                                <td className="px-3 py-2 whitespace-nowrap text-right text-gray-900">
-                                  {chartData.reduce((sum, d) => sum + d.orderCount, 0)}건
-                                </td>
-                                <td className="px-3 py-2 whitespace-nowrap text-right text-gray-900">
-                                  {chartData.reduce((sum, d) => sum + d.revenue, 0).toLocaleString()}원
-                                </td>
-                                <td className="px-3 py-2 whitespace-nowrap text-right text-gray-900">
-                                  {chartData.reduce((sum, d) => sum + d.visitors, 0)}명
-                                </td>
-                                <td className="px-3 py-2 whitespace-nowrap text-right text-gray-900">
-                                  {chartData.reduce((sum, d) => sum + d.newUsers, 0)}명
-                                </td>
-                                <td className="px-3 py-2 whitespace-nowrap text-right text-gray-900">
-                                  {chartData.reduce((sum, d) => sum + d.inquiryCount, 0)}건
-                                </td>
-                              </tr>
-                            )}
-                          </tbody>
-                        </table>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-              </div>
-            </>
-          )}
-        </section>
-
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <div className="bg-white rounded-xl border border-blue-100 shadow-sm p-6">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-sm font-semibold text-blue-600">맞춤 제작 진행</p>
-                <h3 className="mt-2 text-3xl font-bold text-gray-900">
-                  {activeCustomOrderCount.toLocaleString('ko-KR')}건
-                </h3>
-                <p className="mt-1 text-xs text-gray-500">
-                  신규 확인 필요 {pendingCustomOrderCount.toLocaleString('ko-KR')}건 포함
-                </p>
-              </div>
-              <div className="rounded-full bg-blue-100 p-3 text-blue-600">
-                <i className="ri-draft-line text-xl"></i>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => setActiveMenu('custom-orders')}
-              className="mt-5 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
-            >
-              주문 제작 관리로 가기
-              <i className="ri-arrow-right-line"></i>
-            </button>
-          </div>
-
-          <div className="bg-white rounded-xl border border-purple-100 shadow-sm p-6">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-sm font-semibold text-purple-600">1:1 문의</p>
-                <h3 className="mt-2 text-3xl font-bold text-gray-900">
-                  {totalInquiryCount.toLocaleString('ko-KR')}건
-                </h3>
-                <p className="mt-1 text-xs text-gray-500">
-                  미처리 문의 {pendingInquiryCount.toLocaleString('ko-KR')}건
-                </p>
-              </div>
-              <div className="rounded-full bg-purple-100 p-3 text-purple-600">
-                <i className="ri-customer-service-2-line text-xl"></i>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => setActiveMenu('inquiries')}
-              className="mt-5 inline-flex items-center gap-2 rounded-lg bg-purple-600 px-4 py-2 text-sm font-semibold text-white hover:bg-purple-700"
-            >
-              문의 관리로 가기
-              <i className="ri-arrow-right-line"></i>
-            </button>
-          </div>
-        </div>
-
-        {/* 최근 활동 */}
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-            <div className="p-6 border-b border-gray-100">
-              <h3 className="text-lg font-semibold text-gray-900">최근 주문</h3>
-            </div>
-            <div className="p-6">
-              <div className="space-y-4">
-                {orders.slice(0, 5).map((order) => (
-                  <div key={order.id} className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium text-gray-900">{order.profiles?.name}</p>
-                      <p className="text-sm text-gray-500">{order.profiles?.email}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-medium text-gray-900">₩{order.total_amount.toLocaleString()}</p>
-                      <p className="text-sm text-gray-500">{new Date(order.created_at).toLocaleDateString()}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-            <div className="p-6 border-b border-gray-100">
-              <h3 className="text-lg font-semibold text-gray-900">최근 맞춤 제작 요청</h3>
-            </div>
-            <div className="p-6">
-              <div className="space-y-4">
-                {customOrders.slice(0, 5).map((order) => (
-                  <div key={order.id} className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium text-gray-900">{order.song_title}</p>
-                      <p className="text-sm text-gray-500">{order.artist}</p>
-                    </div>
-                    <div className="text-right">
-                      <span
-                        className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                          CUSTOM_ORDER_STATUS_META[order.status as CustomOrderStatus]?.className ?? 'bg-gray-100 text-gray-700'
-                        }`}
-                      >
-                        {CUSTOM_ORDER_STATUS_META[order.status as CustomOrderStatus]?.label ?? order.status}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <DashboardTab
+        period={dashboardAnalyticsPeriod}
+        onPeriodChange={setDashboardAnalyticsPeriod}
+        onRefresh={() => {
+          void loadDashboardAnalytics(dashboardAnalyticsPeriod);
+        }}
+        data={dashboardAnalyticsData}
+        loading={dashboardAnalyticsLoading}
+        error={dashboardAnalyticsError}
+        formatCurrency={formatCurrency}
+        activeCustomOrderCount={activeCustomOrderCount}
+        pendingCustomOrderCount={pendingCustomOrderCount}
+        totalInquiryCount={totalInquiryCount}
+        pendingInquiryCount={pendingInquiryCount}
+        onNavigate={setActiveMenu}
+        recentOrders={orders}
+        recentCustomOrders={customOrders}
+        statusMeta={CUSTOM_ORDER_STATUS_META as Record<string, { label: string; className: string }>}
+      />
     );
   };
+
   const renderCashManagement = () => {
     const historyTotalPages = Math.max(1, Math.ceil(cashHistoryTotal / cashHistoryPageSize));
 
@@ -8352,6 +8060,29 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
                                 pdf_url: (sheet as any).pdf_url || '',
                                 preview_image_url: (sheet as any).preview_image_url || ''
                               });
+
+                              // 기존 상세설명(JSON 또는 텍스트) → ko/en 리치 에디터 상태로 복원
+                              let descKo = '';
+                              let descEn = '';
+                              const rawDesc = (sheet as any).description;
+                              if (rawDesc) {
+                                try {
+                                  const obj =
+                                    typeof rawDesc === 'string' && rawDesc.trim().startsWith('{')
+                                      ? JSON.parse(rawDesc)
+                                      : rawDesc;
+                                  if (obj && typeof obj === 'object') {
+                                    descKo = obj.ko || '';
+                                    descEn = obj.en || '';
+                                  } else if (typeof obj === 'string') {
+                                    descKo = obj;
+                                  }
+                                } catch {
+                                  if (typeof rawDesc === 'string') descKo = rawDesc;
+                                }
+                              }
+                              setEditSheetDescKo(descKo);
+                              setEditSheetDescEn(descEn);
                             }}
                             className="text-blue-600 hover:text-blue-900 transition-colors"
                           >
@@ -9055,6 +8786,40 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
                     </p>
                   )}
                 </div>
+
+                {/* 상세설명 (리치 에디터: 굵게/제목/목록/링크/이미지/YouTube) */}
+                <div className="space-y-4 rounded-lg border border-gray-200 bg-gray-50/50 p-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      상세설명 (한국어){' '}
+                      <span className="text-xs font-normal text-gray-500">
+                        한국어 사이트에 표시 · 굵게/제목/목록/이미지/YouTube 삽입 가능 · 선택
+                      </span>
+                    </label>
+                    <RichTextEditor
+                      value={newSheetDescKo}
+                      onChange={setNewSheetDescKo}
+                      onImageUpload={uploadSheetDescriptionImage}
+                      placeholder="곡 소개, 연주 포인트, 난이도 안내 등을 자유롭게 작성하세요."
+                      minHeight={180}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      상세설명 (영문){' '}
+                      <span className="text-xs font-normal text-gray-500">
+                        한국어 제외 언어에 표시 · 비우면 한국어 설명을 대신 표시
+                      </span>
+                    </label>
+                    <RichTextEditor
+                      value={newSheetDescEn}
+                      onChange={setNewSheetDescEn}
+                      onImageUpload={uploadSheetDescriptionImage}
+                      placeholder="Song intro, playing tips, difficulty notes, etc."
+                      minHeight={180}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
             <div className="flex justify-end space-x-3 mt-6 pt-4 border-t border-gray-200 flex-shrink-0">
@@ -9077,6 +8842,8 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
                     pdf_url: '',
                     youtube_url: ''
                   });
+                  setNewSheetDescKo('');
+                  setNewSheetDescEn('');
                   setIsLoadingSpotify(false);
                   setIsUploadingPdf(false);
                 }}
@@ -9458,6 +9225,40 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
                   <span className="text-sm font-medium text-gray-700">활성 상태</span>
                 </label>
               </div>
+
+              {/* 상세설명 (리치 에디터) */}
+              <div className="space-y-4 rounded-lg border border-gray-200 bg-gray-50/50 p-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    상세설명 (한국어){' '}
+                    <span className="text-xs font-normal text-gray-500">
+                      한국어 사이트에 표시 · 굵게/제목/목록/이미지/YouTube 삽입 가능
+                    </span>
+                  </label>
+                  <RichTextEditor
+                    value={editSheetDescKo}
+                    onChange={setEditSheetDescKo}
+                    onImageUpload={uploadSheetDescriptionImage}
+                    placeholder="곡 소개, 연주 포인트, 난이도 안내 등을 자유롭게 작성하세요."
+                    minHeight={180}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    상세설명 (영문){' '}
+                    <span className="text-xs font-normal text-gray-500">
+                      한국어 제외 언어에 표시 · 비우면 한국어 설명을 대신 표시
+                    </span>
+                  </label>
+                  <RichTextEditor
+                    value={editSheetDescEn}
+                    onChange={setEditSheetDescEn}
+                    onImageUpload={uploadSheetDescriptionImage}
+                    placeholder="Song intro, playing tips, difficulty notes, etc."
+                    minHeight={180}
+                  />
+                </div>
+              </div>
             </div>
 
             <div className="flex justify-end space-x-3 mt-6 border-t border-gray-200 pt-4">
@@ -9540,6 +9341,9 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
                     if (editingSheetData.youtube_url) {
                       updateData.youtube_url = editingSheetData.youtube_url;
                     }
+
+                    // 상세설명(리치 HTML) 업데이트 — 비우면 null 로 초기화
+                    updateData.description = buildSheetDescription(editSheetDescKo, editSheetDescEn);
 
                     // PDF URL 업데이트
                     if (editingSheetData.pdf_url) {
@@ -14792,8 +14596,19 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
         <div className="space-y-2">
           <h2 className="text-2xl font-bold text-gray-900">인기곡 순위 관리</h2>
           <p className="text-gray-500">
-            장르별로 인기곡 순위를 1-10위까지 지정할 수 있습니다. 지정된 순위는 메인 페이지의 인기곡 섹션에 표시됩니다.
+            장르별 인기곡은 이제 <strong>조회수·판매량을 기반으로 자동 정렬</strong>되어 메인 페이지에 노출됩니다. 별도의 수동 지정 없이도 데이터에 따라 매일 갱신됩니다.
           </p>
+        </div>
+
+        <div className="flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+          <i className="ri-magic-line mt-0.5 text-lg text-emerald-600"></i>
+          <div className="text-sm text-emerald-800">
+            <p className="font-semibold">자동 정렬이 적용 중입니다</p>
+            <p className="mt-1 text-emerald-700">
+              메인 페이지 인기곡 섹션은 최근 7일 구매·전체 구매·조회수 점수로 상위 10곡을 자동 선정합니다.
+              아래 수동 순위 도구는 <strong>선택 사항(레거시)</strong>이며, 현재 메인 노출에는 사용되지 않습니다.
+            </p>
+          </div>
         </div>
 
         {/* 장르 탭 */}

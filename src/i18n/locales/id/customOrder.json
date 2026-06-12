@@ -11,25 +11,26 @@
     "button": "Masuk"
   },
   "pricing": {
-    "title": "Informasi Harga",
+    "title": "Harga berdasarkan tingkat kesulitan",
     "note": "* Harga akhir akan diberikan sebagai penawaran individual setelah menganalisis kesulitan dan panjang lagu.",
     "grades": {
       "c": {
-        "name": "Kelas C",
-        "price": "$10+",
-        "description": "K-pop umum, pop, lagu adult contemporary di bawah 5 menit"
+        "name": "Mudah",
+        "price": "$10",
+        "description": "Pop/rock biasa di bawah 5 menit"
       },
       "b": {
-        "name": "Kelas B",
-        "price": "$30+",
-        "description": "Sedikit lebih tinggi dari tingkat kesulitan menengah atau lagu lebih dari 5 menit"
+        "name": "Standar",
+        "price": "$20–30",
+        "description": "Lagu lebih dari 5 menit atau lebih sulit dari pop/rock biasa"
       },
       "a": {
-        "name": "Kelas A",
+        "name": "Kompleks",
         "price": "$50+",
-        "description": "Lagu dengan tingkat kesulitan lanjutan"
+        "description": "Jazz, solo drum, dan lagu dengan tingkat kesulitan tinggi"
       }
-    }
+    },
+    "deliveryBadge": "⚡ Pengerjaan cepat 1–3 hari"
   },
   "form": {
     "title": "Formulir Permintaan Pesanan Kustom",

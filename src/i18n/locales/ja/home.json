@@ -86,5 +86,9 @@
     "favoritesLoadError": "お気に入り読み込みエラー:",
     "userInfoLoadError": "ユーザー情報読み込みエラー:",
     "favoriteToggleError": "お気に入り切り替えエラー:"
-  }
+  },
+  "lessonMaterialTitle": "ドラムレッスン資料",
+  "lessonMaterialDescription": "ルーディメンツ・フィル・リズムパターンなど1枚物の練習資料を無料で。",
+  "lessonMaterialBadge": "FREE",
+  "lessonMaterialViewAll": "資料をすべて見る"
 }

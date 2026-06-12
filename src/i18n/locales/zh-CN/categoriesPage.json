@@ -91,5 +91,7 @@
   "loginRequired": "请登录以继续。",
   "favoriteError": "处理收藏时发生错误。请重试。",
   "addedToCart": "已成功加入购物车！",
-  "viewDetails": "查看详情"
+  "viewDetails": "查看详情",
+  "customOrderCta": "找不到想要的歌曲？",
+  "customOrderCtaButton": "申请定制打谱"
 }

@@ -11,25 +11,26 @@
     "button": "登入"
   },
   "pricing": {
-    "title": "價格資訊",
+    "title": "依難度定價",
     "note": "* 最終價格將在分析歌曲的難度和長度後作為個別報價提供。",
     "grades": {
       "c": {
-        "name": "C 級",
-        "price": "$10+",
-        "description": "一般 K-pop、流行、成人當代歌曲，5 分鐘以下"
+        "name": "簡單",
+        "price": "$10",
+        "description": "5 分鐘以內的一般流行/搖滾"
       },
       "b": {
-        "name": "B 級",
-        "price": "$30+",
-        "description": "略高於中級難度或超過 5 分鐘的歌曲"
+        "name": "標準",
+        "price": "$20–30",
+        "description": "超過 5 分鐘的曲目，或難度高於一般流行/搖滾"
       },
       "a": {
-        "name": "A 級",
+        "name": "高難度",
         "price": "$50+",
-        "description": "進階難度歌曲"
+        "description": "爵士、鼓獨奏等高難度曲目"
       }
-    }
+    },
+    "deliveryBadge": "⚡ 1–3 天快速製作"
   },
   "form": {
     "title": "客製訂單請求表單",

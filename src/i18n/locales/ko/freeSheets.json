@@ -85,5 +85,9 @@
     "favoriteToggleError": "찜하기 처리 오류:",
     "userLoadError": "사용자 정보를 불러오지 못했습니다:",
     "youtubeUrlParseError": "유튜브 URL 파싱 실패:"
+  },
+  "tabs": {
+    "materials": "드럼레슨 자료",
+    "books": "드럼레슨 교재"
   }
 }

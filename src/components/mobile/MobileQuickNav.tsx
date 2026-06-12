@@ -28,7 +28,7 @@ export default function MobileQuickNav() {
   const pathWithoutLocale = removeLocaleFromPathname(pathname);
 
   return (
-    <nav className="md:hidden fixed top-[180px] left-0 right-0 z-40 bg-white border-b border-gray-200">
+    <nav className="md:hidden fixed top-[140px] left-0 right-0 z-40 bg-white border-b border-gray-200">
       <div
         className="flex gap-2 px-3 py-2 overflow-x-auto mobile-quick-nav-scroll"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}

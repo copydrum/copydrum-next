@@ -144,13 +144,13 @@ export default function MobileHeader({
         </div>
       </div>
 
-      {/* 하단: 언어 선택 (우측 정렬) + 검색창 */}
-      <div className="px-4 pb-3 space-y-2" suppressHydrationWarning>
-        <div className="flex justify-end">
+      {/* 하단: 언어 선택 + 검색창 (한 줄로 합쳐 헤더 높이 절약) */}
+      <div className="flex items-center gap-2 px-4 pb-3" suppressHydrationWarning>
+        <div className="flex-shrink-0">
           <LanguageSelector variant="mobile" />
         </div>
         {/* 모바일 검색창 */}
-        <div className="relative">
+        <div className="relative flex-1">
           <input
             ref={searchInputRef}
             type="text"
