@@ -269,21 +269,104 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 참고용 로그: transaction_id가 이미 있는 pending 주문이 있는지 확인 (재활용은 하지 않지만 모니터링)
-    const { count: inflightCount } = await supabase
+    // ============================================================
+    // 🛡️ 중복결제 가드
+    //   동일 사용자 + 동일 상품 구성으로 이미 "결제가 시도된(transaction_id 있는)" pending 주문이
+    //   있고, 그 결제가 PortOne에서 이미 PAID라면 → 새 주문을 만들지 않고 기존 주문을 그대로
+    //   완료 처리한 뒤 그 주문을 반환한다. (무한로딩 등으로 1차 결제 완료를 인지하지 못한 사용자가
+    //   다른 수단으로 재결제하여 중복 결제되는 것을 차단)
+    //
+    //   ⚠️ best-effort: PortOne 조회 실패/지연 시에는 기존 동작(새 주문 생성)으로 폴백하여
+    //      결제 흐름 자체를 막지 않는다. (PAY_PENDING은 PayPal 비동기 시나리오이므로 통과)
+    // ============================================================
+    const { data: inflightOrders } = await supabase
       .from('orders')
-      .select('id', { count: 'exact', head: true })
+      .select(`
+        id,
+        order_number,
+        transaction_id,
+        payment_method,
+        total_amount,
+        order_items ( drum_sheet_id )
+      `)
       .eq('user_id', userId)
       .eq('status', 'pending')
       .eq('total_amount', amount)
-      .not('transaction_id', 'is', null);
+      .not('transaction_id', 'is', null)
+      .order('created_at', { ascending: false });
 
-    if (inflightCount && inflightCount > 0) {
-      console.log('[create-order] ℹ️ 동일 금액의 in-flight 결제 주문 발견 — 재활용하지 않고 새 주문 생성:', {
+    const sameItemsInflight = (inflightOrders || []).filter((o: any) => {
+      const ids = (o.order_items || [])
+        .map((it: any) => it.drum_sheet_id)
+        .filter(Boolean)
+        .sort();
+      return (
+        ids.length === requestedSheetIds.length &&
+        ids.every((id: string, idx: number) => id === requestedSheetIds[idx])
+      );
+    });
+
+    if (sameItemsInflight.length > 0) {
+      const portoneApiKey = process.env.PORTONE_API_KEY;
+      if (portoneApiKey) {
+        for (const inflight of sameItemsInflight) {
+          try {
+            const { getPortOnePaymentSnapshot } = await import('@/lib/payments/portoneStatus');
+            const snap = await getPortOnePaymentSnapshot(
+              inflight.transaction_id as string,
+              portoneApiKey,
+            );
+
+            if (snap && snap.status === 'PAID') {
+              console.warn('[create-order] 🛑 중복결제 차단 — 동일 상품의 기존 결제가 이미 PAID:', {
+                userId,
+                existingOrderId: inflight.id,
+                existingOrderNumber: inflight.order_number,
+                transactionId: inflight.transaction_id,
+              });
+
+              // 기존 주문을 완료 처리(아직 pending이면) 후 그 주문으로 안내
+              try {
+                const { completeOrderAfterPayment } = await import(
+                  '@/lib/payments/completeOrderAfterPayment'
+                );
+                await completeOrderAfterPayment(
+                  inflight.id,
+                  (inflight.payment_method || 'card') as any,
+                  {
+                    transactionId: inflight.transaction_id as string,
+                    paymentConfirmedAt: new Date().toISOString(),
+                    paymentProvider: 'portone-dedupe',
+                  },
+                  supabase,
+                );
+              } catch (completeErr) {
+                console.error('[create-order] 기존 PAID 주문 완료 처리 실패(무시하고 안내):', completeErr);
+              }
+
+              return NextResponse.json({
+                success: true,
+                orderId: inflight.id,
+                orderNumber: inflight.order_number,
+                reused: true,
+                alreadyPaid: true, // 클라이언트가 success 페이지로 보낼 수 있도록 표시
+              });
+            }
+          } catch (snapErr) {
+            // 조회 실패 → best-effort 폴백 (아래에서 새 주문 생성)
+            console.warn('[create-order] in-flight 결제 상태 조회 실패(새 주문으로 폴백):', {
+              existingOrderId: inflight.id,
+              error: snapErr instanceof Error ? snapErr.message : String(snapErr),
+            });
+          }
+        }
+      }
+
+      console.log('[create-order] ℹ️ 동일 상품의 in-flight 결제 주문 발견(미완료) — 새 주문 생성 진행:', {
         userId,
         amount,
-        inflightCount,
-        note: '1차 결제 PAY_PENDING 진행 중에 2차 결제 시도 시나리오',
+        inflightCount: sameItemsInflight.length,
+        note: 'PAY_PENDING(PayPal 비동기 등) 또는 PortOne 조회 불가 시 정상 폴백',
       });
     }
 

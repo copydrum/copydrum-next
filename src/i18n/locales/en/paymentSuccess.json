@@ -39,7 +39,7 @@
   "methodPaypal": "PayPal Payment",
   "methodDodo": "Card Payment",
   "pendingTitle": "Processing your payment",
-  "pendingMessage": "PayPal is finalizing your payment. Please wait a moment.",
+  "pendingMessage": "Your payment is being finalized. Please wait a moment.",
   "pendingNote": "This usually takes 30 seconds to 2 minutes and completes automatically. Please do not close this page.",
   "pendingDoNotPayAgain": "Your payment is already submitted — please do not pay again.",
   "pendingCheckingStatus": "Checking payment status...",

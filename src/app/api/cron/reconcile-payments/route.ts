@@ -132,6 +132,44 @@ function isAmountValid(pgAmount: number, pgCurrency: string, orderTotalKRW: numb
   return Math.abs(Math.round(pgAmount) - orderTotalKRW) <= tolerance;
 }
 
+// 동일 상품 구성(drum_sheet_id 집합)을 정렬된 키 문자열로 변환
+function itemSetKey(sheetIds: (string | null | undefined)[]): string {
+  return [...new Set(sheetIds.filter(Boolean) as string[])].sort().join('|');
+}
+
+// 중복결제 의심 여부 판단:
+//   같은 사용자가 "이미 완료(paid/completed)된 주문"과 동일한 상품 구성의 주문을
+//   결제 직후 무한로딩 등으로 인지하지 못하고 다른 수단으로 재결제한 케이스를 감지한다.
+//   → 자동 완료하면 동일 악보가 중복 구매로 떠버리므로, 크론에서는 자동 완료하지 않고
+//     관리자 검토 대상으로 남긴다. (PG 환불은 관리자가 수동 처리)
+async function findDuplicateCompletedOrder(
+  supabase: SupabaseClient,
+  userId: string,
+  currentOrderId: string,
+  itemKey: string,
+  sinceIso: string,
+): Promise<string | null> {
+  if (!itemKey) return null;
+
+  const { data: siblings, error } = await supabase
+    .from('orders')
+    .select('id, status, payment_status, order_items ( drum_sheet_id )')
+    .eq('user_id', userId)
+    .neq('id', currentOrderId)
+    .gte('created_at', sinceIso)
+    .or('status.eq.completed,payment_status.eq.paid');
+
+  if (error || !siblings) return null;
+
+  for (const sib of siblings) {
+    const sibKey = itemSetKey((sib.order_items || []).map((it: any) => it.drum_sheet_id));
+    if (sibKey && sibKey === itemKey) {
+      return sib.id as string;
+    }
+  }
+  return null;
+}
+
 async function handleReconcile(request: NextRequest) {
   // ── 인증 ──
   const cronSecret = process.env.CRON_SECRET;
@@ -156,7 +194,7 @@ async function handleReconcile(request: NextRequest) {
   // 재조정 후보 조회: pending + transaction_id 있음 + 최근 생성
   const { data: candidates, error: queryError } = await supabase
     .from('orders')
-    .select('id, order_number, status, payment_status, payment_method, transaction_id, total_amount, created_at')
+    .select('id, order_number, status, payment_status, payment_method, transaction_id, total_amount, created_at, user_id, metadata, order_items ( drum_sheet_id )')
     .eq('status', 'pending')
     .not('transaction_id', 'is', null)
     .gte('created_at', sinceIso)
@@ -199,6 +237,12 @@ async function handleReconcile(request: NextRequest) {
       continue;
     }
 
+    // 이미 중복결제 의심으로 플래그된 주문은 재처리하지 않음 (관리자 검토 대기)
+    if ((order.metadata as Record<string, unknown> | null)?.reconcile_duplicate_suspected) {
+      result.skipped++;
+      continue;
+    }
+
     const paymentId = order.transaction_id as string;
 
     try {
@@ -221,6 +265,50 @@ async function handleReconcile(request: NextRequest) {
           result.skipped++;
           result.details.push({ orderId: order.id, action: 'amount_mismatch' });
           continue;
+        }
+
+        // 🛡️ 중복결제 가드: 동일 사용자가 같은 상품 구성으로 이미 완료한 주문이 있으면
+        //   크론이 자동 완료하지 않는다. (무한로딩 후 재결제로 발생한 중복을 자동으로
+        //   살려내 중복 구매를 만들지 않도록 — 관리자 수동 검토/환불 대상으로 남김)
+        const itemKey = itemSetKey((order.order_items || []).map((it: any) => it.drum_sheet_id));
+        if (order.user_id && itemKey) {
+          const dupOrderId = await findDuplicateCompletedOrder(
+            supabase,
+            order.user_id as string,
+            order.id as string,
+            itemKey,
+            sinceIso,
+          );
+          if (dupOrderId) {
+            console.warn('[reconcile-payments] ⚠️ 중복결제 의심 — 자동 완료 보류(관리자 검토 필요):', {
+              orderId: order.id,
+              orderNumber: order.order_number,
+              duplicateOf: dupOrderId,
+              paymentId,
+            });
+            // 다음 주기에 반복 스캔/로그를 막기 위해 metadata에 플래그만 남긴다(상태는 pending 유지).
+            await supabase
+              .from('orders')
+              .update({
+                metadata: {
+                  ...((order.metadata as Record<string, unknown> | null) || {}),
+                  reconcile_duplicate_suspected: true,
+                  reconcile_duplicate_of: dupOrderId,
+                  reconcile_flagged_at: new Date().toISOString(),
+                },
+                updated_at: new Date().toISOString(),
+              })
+              .eq('id', order.id);
+
+            result.skipped++;
+            result.details.push({
+              orderId: order.id,
+              orderNumber: order.order_number,
+              action: 'duplicate_suspected',
+              duplicateOf: dupOrderId,
+            });
+            continue;
+          }
         }
 
         const resolvedMethod = inferPaymentMethod(pg, order.payment_method);

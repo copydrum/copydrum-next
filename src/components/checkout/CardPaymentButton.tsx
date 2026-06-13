@@ -88,6 +88,14 @@ export default function CardPaymentButton({
         }
 
         dbOrderId = createResult.orderId;
+
+        // 🛑 중복결제 가드: 동일 상품의 기존 결제가 이미 완료(PAID)된 경우
+        //   재결제하지 않고 기존 주문의 성공 화면으로 바로 이동시킨다.
+        if (createResult.alreadyPaid) {
+          console.warn('[PortOne] 동일 상품 기존 결제가 이미 완료됨 — 재결제 차단, 성공 화면으로 이동');
+          onSuccess('', dbOrderId);
+          return;
+        }
       }
 
       // 2단계: PortOne 카드 결제 요청

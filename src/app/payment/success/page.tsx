@@ -14,12 +14,17 @@ import {
 } from '@/utils/downloadHelpers';
 import { generateDefaultThumbnail } from '@/lib/defaultThumbnail';
 
-// PayPal pending 폴링 설정
-// PortOne PayPal 결제는 PAY_PENDING 상태에서 PAID로 전환되는 데
-// 보통 30초~2분, 드물게 5분 이상 걸릴 수 있음.
-// 페이지에 머무는 동안 주기적으로 verify를 다시 호출하여 자동 완료 처리.
+// 결제 PENDING 폴링 설정
+// PortOne 결제는 결제 직후 PG 상태가 잠시 PAY_PENDING/READY일 수 있고
+// (PayPal은 30초~수분, 카카오페이/카드도 모바일 리다이렉트·정산 지연 시 수 초~수십 초),
+// 페이지에 머무는 동안 주기적으로 verify를 다시 호출하여 자동 완료 처리한다.
 const PAYPAL_POLL_INTERVAL_MS = 5000; // 5초마다 폴링
 const PAYPAL_POLL_MAX_DURATION_MS = 10 * 60 * 1000; // 최대 10분
+
+// PENDING 자동 폴링 대상 결제수단
+// → 외부 PG(PortOne) 즉시/비동기 결제만 폴링한다.
+//   무통장입금·가상계좌(입금 대기)·포인트(즉시 서버 처리)는 폴링 대상이 아님.
+const POLLABLE_METHODS = new Set(['paypal', 'card', 'inicis', 'kakaopay', 'transfer']);
 
 interface Order {
   id: string;
@@ -186,14 +191,17 @@ export default function PaymentSuccessPage() {
             if (updatedOrderData) {
               setOrder(updatedOrderData);
 
-              // PayPal이 여전히 pending이면 폴링 시작
+              // 결제가 여전히 pending이면 폴링 시작
               // (verify가 200 + pending:true를 반환했거나, DB 상태가 여전히 pending인 경우)
+              // → PayPal뿐 아니라 카카오페이/카드/이니시스/계좌이체도 포함.
+              //   결제 직후 PG 상태가 잠깐 PAY_PENDING/READY인 경우 자동으로 따라잡아
+              //   "무한로딩"처럼 멈추지 않도록 한다.
               if (
-                actualMethod === 'paypal' &&
+                POLLABLE_METHODS.has(actualMethod) &&
                 updatedOrderData.status !== 'completed' &&
                 updatedOrderData.payment_status !== 'paid'
               ) {
-                console.log('[payment-success] ⏳ PayPal 결제 PENDING 상태 — 자동 폴링 시작');
+                console.log('[payment-success] ⏳ 결제 PENDING 상태 — 자동 폴링 시작:', actualMethod);
                 setPollingPending(true);
                 pollStartedAtRef.current = Date.now();
               }
@@ -289,7 +297,9 @@ export default function PaymentSuccessPage() {
             body: JSON.stringify({
               paymentId: paymentIdForVerify,
               orderId: order.id,
-              paymentMethod: 'paypal',
+              // 실제 결제수단을 전달 (없으면 DB 기존값/카드 폴백).
+              // 'paypal' 하드코딩 시 카카오페이/카드가 잘못 기록될 수 있어 수정.
+              paymentMethod: order.payment_method || 'card',
             }),
           });
 
@@ -520,9 +530,9 @@ export default function PaymentSuccessPage() {
     );
   }
 
-  // ━━━ PayPal 결제 대기 중 UI ━━━
-  // PortOne API에서 PayPal 상태가 아직 PAY_PENDING인 경우, 자동 폴링하면서
-  // "처리 중" 화면을 표시. 폴링이 완료되면 아래의 정상 success UI로 자동 전환.
+  // ━━━ 결제 대기 중 UI ━━━
+  // PortOne 결제 상태가 아직 PAY_PENDING/READY인 경우(PayPal·카카오페이·카드 등),
+  // 자동 폴링하면서 "처리 중" 화면을 표시. 폴링이 완료되면 아래의 정상 success UI로 자동 전환.
   if (isPendingPayment) {
     const isTakingTooLong = pollElapsedSec >= 120; // 2분 이상 경과 시 추가 안내
     return (
@@ -537,7 +547,7 @@ export default function PaymentSuccessPage() {
           </h1>
 
           <p className="text-gray-700 mb-4" suppressHydrationWarning>
-            {t('paymentSuccess.pendingMessage', 'PayPal에서 결제를 최종 확인하고 있습니다. 잠시만 기다려 주세요.')}
+            {t('paymentSuccess.pendingMessage', '결제를 최종 확인하고 있습니다. 잠시만 기다려 주세요.')}
           </p>
 
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4 text-left">
