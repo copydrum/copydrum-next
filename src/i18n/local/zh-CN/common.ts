@@ -129,7 +129,7 @@ export default {
   'footer.address': '地址：世宗市 南世宗路 454 江南第一大厦 8层 836号',
   'footer.contactInfo': '联系方式：070-7570-0028 (工作时间电话联系困难，请使用1:1询问或KakaoTalk聊天。)',
   'footer.email': '电子邮件：copydrum@hanmail.net',
-  'footer.contactInfoGlobal': '如有任何疑问，请通过"我的页面"中的"1:1询问"提交。',
+  'footer.contactInfoGlobal': '联系方式：070-7570-0028 (营业时间内电话支持有限。请使用屏幕右下角的聊天图标。)',
   'footer.copyright': '© {{year}} CopyDrum. 版权所有。',
   'footer.globalService': '全球服务 | 英语 / 日语 / 越南语 / 法语 / 德语 / 西班牙语 / 葡萄牙语',
 

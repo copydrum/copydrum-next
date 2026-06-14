@@ -3,7 +3,7 @@ import { useLocaleRouter } from '@/hooks/useLocaleRouter';
 import { useRouter, usePathname } from 'next/navigation';
 import { useCallback, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { isGlobalSiteHost, isKoreanSiteHost } from '../../config/hostType';
+import { isGlobalSiteHost } from '../../config/hostType';
 
 interface FooterLink {
   label: string;
@@ -17,28 +17,16 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
   const pathname = usePathname();
   const [isGlobalSite, setIsGlobalSite] = useState<boolean>(false);
-  const [isKoreanSite, setIsKoreanSite] = useState<boolean>(false);
-  const isJapaneseSite = i18n.language === 'ja';
 
   // 호스트 타입을 컴포넌트 마운트 시 한 번만 계산
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setIsGlobalSite(isGlobalSiteHost(window.location.host));
-      setIsKoreanSite(isKoreanSiteHost(window.location.host));
     }
   }, []);
 
-  // 일본어 사이트에서 責任者 항목 확인 로그
-  useEffect(() => {
-    if (isJapaneseSite) {
-      console.log('[Footer] 일본어 사이트 감지 - 特定商取引法に基づく表記 섹션 표시');
-      console.log('[Footer] 責任者: キム・ジュンウ');
-      console.log('[Footer] i18n.language:', i18n.language);
-      if (typeof window !== 'undefined') {
-        console.log('[Footer] hostname:', window.location.hostname);
-      }
-    }
-  }, [isJapaneseSite, i18n.language]);
+  const isKoreanLanguage =
+    i18n.language === 'ko' || i18n.language.startsWith('ko-');
 
   // 카테고리 링크 (i18n 사용)
   const categoryLinks: FooterLink[] = [
@@ -162,70 +150,35 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-gray-800 mt-10 pt-8">
-          {isJapaneseSite ? (
-            // 일본 사이트 전용: 특정商取引法에 기반한 표기
-            <div className="text-sm text-gray-400 space-y-3">
-              {/* 특정상거래법 표기 숨김 처리 (복구 시 hidden 클래스 제거) */}
-              <h3 className="hidden text-base font-semibold text-white mb-4">【特定商取引法に基づく表記】</h3>
-              <div className="hidden space-y-2">
-                <p><span className="font-medium">販売業者：</span>株式会社KG Inicis Japan</p>
-                <p><span className="font-medium">責任者：</span>キム・ジュンウ</p>
-                <p><span className="font-medium">住所：</span>東京都新宿区新宿２丁目１番１０号</p>
-                <p><span className="font-medium">電話番号：</span>03-6825-5531</p>
-                <p><span className="font-medium">ホームページ：</span>https://jp.copydrum.com</p>
-                <p><span className="font-medium">サイト名：</span>CopyDrum</p>
-              </div>
-              <div className="space-y-2">
-                <p><span className="font-medium">メールアドレス：</span>copydrum@hanmail.net</p>
-              </div>
-              <div className="hidden mt-4 space-y-2">
-                <p><span className="font-medium">商品の販売価格：</span>商品ごとに表示</p>
-                <p><span className="font-medium">商品以外の必要料金：</span>決済手数料</p>
-                <p><span className="font-medium">支払い方法：</span>クレジットカード / PayPal</p>
-                <p><span className="font-medium">支払い時期：</span>決済時に確定</p>
-                <p><span className="font-medium">商品の引渡時期：</span>決済完了後、即時にダウンロードが可能です。</p>
-              </div>
-              <div className="hidden mt-4 space-y-2">
-                <p><span className="font-medium">返品・交換：</span></p>
-                <p className="pl-4">デジタル商品の性質上、返品・交換には応じられません。</p>
-                <p className="pl-4">データ破損等がございましたら、お問い合わせにてご連絡ください。</p>
-              </div>
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div className="text-sm text-gray-400 space-y-2 flex-1">
+              <p>{t('footer.companyInfo')}</p>
+              <p>{t('footer.telecomLicense')}</p>
+              <p>{t('footer.address')}</p>
+              {isKoreanLanguage ? (
+                <>
+                  <p>{t('footer.contactInfo')}</p>
+                  <p>{t('footer.email')}</p>
+                </>
+              ) : (
+                <>
+                  <p>{t('footer.contactInfoGlobal')}</p>
+                  <p>{t('footer.email')}</p>
+                </>
+              )}
               <div className="mt-8 pt-8 border-t border-gray-800 text-center text-gray-400 text-sm">
                 <p>{t('footer.copyright', { year: new Date().getFullYear() })}</p>
-              </div>
-            </div>
-          ) : (
-            // 기존 회사 정보 블록 (한국어/영어/기타 언어 사이트)
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-              <div className="text-sm text-gray-400 space-y-2 flex-1">
-                <p>{t('footer.companyInfo')}</p>
-                <p>{t('footer.telecomLicense')}</p>
-                <p>{t('footer.address')}</p>
-                {isKoreanSite ? (
-                  <>
-                    <p>{t('footer.contactInfo')}</p>
-                    <p>{t('footer.email')}</p>
-                  </>
-                ) : (
-                  <>
-                    <p>{t('footer.contactInfoGlobal')}</p>
-                    <p>{t('footer.email')}</p>
-                  </>
+                {isGlobalSite && (
+                  <p className="mt-2 text-xs text-gray-500">
+                    {t('footer.globalService')}
+                  </p>
                 )}
-                <div className="mt-8 pt-8 border-t border-gray-800 text-center text-gray-400 text-sm">
-                  <p>{t('footer.copyright', { year: new Date().getFullYear() })}</p>
-                  {isGlobalSite && (
-                    <p className="mt-2 text-xs text-gray-500">
-                      {t('footer.globalService')}
-                    </p>
-                  )}
-                </div>
-              </div>
-              <div className="flex-shrink-0">
-                <img src="/komca.jpg" alt="KOMCA" className="h-16 w-auto" />
               </div>
             </div>
-          )}
+            <div className="flex-shrink-0">
+              <img src="/komca.jpg" alt="KOMCA" className="h-16 w-auto" />
+            </div>
+          </div>
         </div>
       </div>
     </footer>

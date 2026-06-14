@@ -129,7 +129,7 @@ export default {
   'footer.address': 'Alamat: 836, 8F, Gangnam Jeil Tower, 454 Namsejong-ro, Sejong',
   'footer.contactInfo': 'Kontak: 070-7570-0028 (Silakan gunakan permintaan 1:1 atau chat KakaoTalk karena kontak telepon sulit selama jam kerja.)',
   'footer.email': 'Email: copydrum@hanmail.net',
-  'footer.contactInfoGlobal': 'Jika Anda memiliki pertanyaan, kirimkan melalui "Permintaan 1:1" di Halaman Saya.',
+  'footer.contactInfoGlobal': 'Kontak: 070-7570-0028 (Dukungan telepon terbatas selama jam kerja. Silakan gunakan ikon obrolan di sudut kanan bawah layar.)',
   'footer.copyright': '© {{year}} CopyDrum. Hak cipta dilindungi.',
   'footer.globalService': 'Layanan global | Inggris / Jepang / Vietnam / Prancis / Jerman / Spanyol / Portugis',
 

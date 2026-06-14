@@ -129,7 +129,7 @@ export default {
   'footer.address': 'Indirizzo: 836, 8F, Gangnam Jeil Tower, 454 Namsejong-ro, Sejong',
   'footer.contactInfo': 'Contatto: 070-7570-0028 (Si prega di utilizzare la richiesta 1:1 o la chat KakaoTalk poiché il contatto telefonico è difficile durante l\'orario lavorativo.)',
   'footer.email': 'E-mail: copydrum@hanmail.net',
-  'footer.contactInfoGlobal': 'Se hai domande, inviale tramite "Richiesta 1:1" nella Mia Pagina.',
+  'footer.contactInfoGlobal': 'Contatto: 070-7570-0028 (Il supporto telefonico è limitato durante l\'orario lavorativo. Utilizzare l\'icona della chat nell\'angolo in basso a destra dello schermo.)',
   'footer.copyright': '© {{year}} CopyDrum. Tutti i diritti riservati.',
   'footer.globalService': 'Servizio globale | Inglese / Giapponese / Vietnamita / Francese / Tedesco / Spagnolo / Portoghese',
 
