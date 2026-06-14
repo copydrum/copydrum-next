@@ -52,7 +52,7 @@ const RefundPolicyPage: React.FC = () => {
               통해서도 환불을 요청하실 수 있습니다.
             </p>
             <p>
-              이메일: <a href="mailto:support@copydrum.com">support@copydrum.com</a>
+              이메일: <a href="mailto:copydrum@hanmail.net">copydrum@hanmail.net</a>
             </p>
 
             <h2>3. 환불 처리 기간</h2>
@@ -70,7 +70,7 @@ const RefundPolicyPage: React.FC = () => {
 
             <h2>5. 문의</h2>
             <p>
-              환불 및 주문 관련 문의는 <a href="mailto:support@copydrum.com">support@copydrum.com</a>{' '}
+              환불 및 주문 관련 문의는 <a href="mailto:copydrum@hanmail.net">copydrum@hanmail.net</a>{' '}
               으로 연락 주시면 신속히 도와드리겠습니다.
             </p>
           </>
@@ -99,7 +99,7 @@ const RefundPolicyPage: React.FC = () => {
               receipt.
             </p>
             <p>
-              Email: <a href="mailto:support@copydrum.com">support@copydrum.com</a>
+              Email: <a href="mailto:copydrum@hanmail.net">copydrum@hanmail.net</a>
             </p>
 
             <h2>3. Processing Time</h2>
@@ -120,7 +120,7 @@ const RefundPolicyPage: React.FC = () => {
             <h2>5. Contact</h2>
             <p>
               For any refund or order inquiry, contact{' '}
-              <a href="mailto:support@copydrum.com">support@copydrum.com</a> and we will be glad to
+              <a href="mailto:copydrum@hanmail.net">copydrum@hanmail.net</a> and we will be glad to
               help.
             </p>
           </>

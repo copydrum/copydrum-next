@@ -99,7 +99,7 @@ const TermsPage: React.FC = () => {
               <li>주소: 세종특별자치시 남세종로 454, 강남제일타워 8층 836호</li>
               <li>연락처: 070-7570-0028</li>
               <li>
-                이메일: <a href="mailto:support@copydrum.com">support@copydrum.com</a>
+                이메일: <a href="mailto:copydrum@hanmail.net">copydrum@hanmail.net</a>
               </li>
             </ul>
           </>
@@ -178,7 +178,7 @@ const TermsPage: React.FC = () => {
               </li>
               <li>Phone: +82-70-7570-0028</li>
               <li>
-                Email: <a href="mailto:support@copydrum.com">support@copydrum.com</a>
+                Email: <a href="mailto:copydrum@hanmail.net">copydrum@hanmail.net</a>
               </li>
             </ul>
           </>

@@ -80,7 +80,7 @@ const PrivacyPage: React.FC = () => {
             <h2>7. 문의</h2>
             <p>
               개인정보 보호 관련 문의는{' '}
-              <a href="mailto:support@copydrum.com">support@copydrum.com</a> 으로 연락 주시기 바랍니다.
+              <a href="mailto:copydrum@hanmail.net">copydrum@hanmail.net</a> 으로 연락 주시기 바랍니다.
             </p>
           </>
         ) : (
@@ -138,7 +138,7 @@ const PrivacyPage: React.FC = () => {
             <h2>7. Contact</h2>
             <p>
               For privacy-related inquiries, please contact{' '}
-              <a href="mailto:support@copydrum.com">support@copydrum.com</a>.
+              <a href="mailto:copydrum@hanmail.net">copydrum@hanmail.net</a>.
             </p>
           </>
         )}
