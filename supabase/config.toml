@@ -9,3 +9,11 @@ entrypoint = "./functions/payments-paypal-create/index.ts"
 # Specifies static files to be bundled with the function. Supports glob patterns.
 # For example, if you want to serve static HTML pages in your function:
 # static_files = [ "./functions/payments-paypal-create/*.html" ]
+
+# PortOne 웹훅 수신 함수. 포트원 서버가 외부에서 직접 호출하므로 Supabase JWT가 없다.
+# 게이트웨이 JWT 검증을 끄지 않으면 모든 웹훅이 401로 차단되어 결제가 pending으로 멈춘다.
+# (위변조 방지는 함수 내부의 Standard Webhooks 서명 검증 + PortOne API 재조회로 처리)
+[functions.portone-webhook]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/portone-webhook/index.ts"
