@@ -21,7 +21,7 @@ const PrivacyPage: React.FC = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const updated = '2026-06-11';
+  const updated = '2026-06-17';
 
   return (
     <div className="min-h-screen bg-white">
@@ -54,9 +54,10 @@ const PrivacyPage: React.FC = () => {
 
             <h2>3. 결제 처리 및 제3자 제공</h2>
             <p>
-              결제는 Paddle, PayPal 등 신뢰할 수 있는 결제대행사를 통해 처리되며, 결제 진행에 필요한
-              최소한의 정보가 해당 업체에 제공됩니다. 당사는 법령에 근거하거나 고객님의 사전 동의가 있는
-              경우를 제외하고 개인정보를 제3자에게 제공하지 않습니다.
+              결제는 포트원(PortOne)을 통해 연동된 KG이니시스, 카카오페이, PayPal 및 Lemon Squeezy 등
+              신뢰할 수 있는 결제대행사를 통해 처리되며, 결제 진행에 필요한 최소한의 정보가 해당
+              업체에 제공됩니다. 당사는 법령에 근거하거나 고객님의 사전 동의가 있는 경우를 제외하고
+              개인정보를 제3자에게 제공하지 않습니다.
             </p>
 
             <h2>4. 보관 및 보호</h2>
@@ -110,10 +111,11 @@ const PrivacyPage: React.FC = () => {
 
             <h2>3. Payment Processing and Third Parties</h2>
             <p>
-              Payments are processed through trusted payment providers such as Paddle and PayPal, and
-              the minimum information required to complete payment is shared with them. We do not
-              share your personal information with third parties except as required by law or with
-              your prior consent.
+              Payments are processed through trusted payment providers such as KG Inicis, Kakao Pay,
+              PayPal, and Lemon Squeezy, some of which are integrated via PortOne. The minimum
+              information required to complete payment is shared with them. We do not share your
+              personal information with third parties except as required by law or with your prior
+              consent.
             </p>
 
             <h2>4. Storage and Protection</h2>

@@ -665,21 +665,6 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
                 </div>
               )}
 
-              {/* 6. 모바일: 환불 규정 */}
-              <div className="lg:hidden bg-gray-50 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-3">{t('sheetDetail.refundPolicy')}</h3>
-                <p className="text-sm text-gray-700 mb-2">
-                  {t('sheetDetail.refundPolicyDescription')}
-                </p>
-                <p className="text-sm text-gray-700">
-                  {t('sheetDetail.refundPolicyLinkText')}{' '}
-                  <a href="/policy/refund" className="text-blue-600 hover:text-blue-800 underline">
-                    {t('sheetDetail.refundPolicyLink')}
-                  </a>
-                  {t('sheetDetail.refundPolicyLinkSuffix')}
-                </p>
-              </div>
-
               {/* 유튜브 링크 버튼 */}
               {sheet.youtube_url && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-4">
@@ -1000,18 +985,6 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
             </div>
           )}
 
-          {/* 환불 규정 안내 블록 - 데스크톱 전용 */}
-          <div className="hidden lg:block bg-gray-50 rounded-lg p-6 mt-8">
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">{t('sheetDetail.refundPolicy')}</h3>
-            <p className="text-sm text-gray-700 mb-2">{t('sheetDetail.refundPolicyDescription')}</p>
-            <p className="text-sm text-gray-700">
-              {t('sheetDetail.refundPolicyLinkText')}{' '}
-              <a href="/policy/refund" className="text-blue-600 hover:text-blue-800 underline">
-                {t('sheetDetail.refundPolicyLink')}
-              </a>
-              {t('sheetDetail.refundPolicyLinkSuffix')}
-            </p>
-          </div>
         </div>
       </div>
 

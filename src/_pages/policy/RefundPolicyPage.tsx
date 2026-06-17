@@ -21,7 +21,7 @@ const RefundPolicyPage: React.FC = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const updated = '2026-06-11';
+  const updated = '2026-06-17';
 
   return (
     <div className="min-h-screen bg-white">
@@ -47,9 +47,10 @@ const RefundPolicyPage: React.FC = () => {
 
             <h2>2. 환불 신청 방법</h2>
             <p>
-              아래 이메일로 주문 번호(또는 결제에 사용한 이메일)와 함께 환불을 요청해 주세요. 결제를
-              Paddle(당사의 공식 결제 대행/판매자)을 통해 진행하신 경우 Paddle 영수증의 안내 링크를
-              통해서도 환불을 요청하실 수 있습니다.
+              아래 이메일로 주문 번호(또는 결제에 사용한 이메일)와 함께 환불을 요청해 주세요. Lemon
+              Squeezy를 통해 결제하신 경우 Lemon Squeezy 영수증 또는 구매 확인 메일의 안내를 통해서도
+              환불을 요청하실 수 있습니다. PayPal, KG이니시스, 카카오페이 등 그 외 결제 수단으로
+              결제하신 경우에도 동일한 이메일로 문의해 주시면 안내해 드립니다.
             </p>
             <p>
               이메일: <a href="mailto:copydrum@hanmail.net">copydrum@hanmail.net</a>
@@ -94,9 +95,11 @@ const RefundPolicyPage: React.FC = () => {
             <h2>2. How to Request a Refund</h2>
             <p>
               Email us at the address below with your order number (or the email address used at
-              checkout). If your payment was processed through Paddle (our authorized reseller and
-              Merchant of Record), you can also request a refund using the link on your Paddle
-              receipt.
+              checkout). If your payment was processed through Lemon Squeezy (our Merchant of Record
+              for certain international transactions), you may also request a refund using the
+              instructions on your Lemon Squeezy receipt or order confirmation email. For payments
+              made via PayPal, KG Inicis, Kakao Pay, or other methods, contact us at the same email
+              and we will guide you through the process.
             </p>
             <p>
               Email: <a href="mailto:copydrum@hanmail.net">copydrum@hanmail.net</a>

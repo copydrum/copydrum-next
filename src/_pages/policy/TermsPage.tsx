@@ -21,7 +21,7 @@ const TermsPage: React.FC = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const updated = '2026-06-11';
+  const updated = '2026-06-17';
 
   return (
     <div className="min-h-screen bg-white">
@@ -62,9 +62,11 @@ const TermsPage: React.FC = () => {
 
             <h2>4. 결제 및 가격</h2>
             <p>
-              가격은 사이트에 표시된 통화 기준으로 청구됩니다. 결제는 Paddle, PayPal 등 당사가 지정한
-              결제 수단을 통해 처리됩니다. Paddle을 통한 결제의 경우 Paddle.com이 판매자(Merchant of
-              Record)로서 거래를 처리합니다.
+              가격은 사이트에 표시된 통화 기준으로 청구됩니다. 결제는 당사가 지정한 결제 수단을 통해
+              처리됩니다. 한국에서는 KG이니시스(신용카드 등), 카카오페이 등이, 해외에서는 PayPal 등이
+              제공될 수 있으며, 일부는 포트원(PortOne)을 통해 연동됩니다. 해외 거래 중 Lemon Squeezy를
+              통해 결제하는 경우 Lemon Squeezy가 판매자(Merchant of Record)로서 거래를 처리할 수
+              있습니다.
             </p>
 
             <h2>5. 환불</h2>
@@ -140,8 +142,11 @@ const TermsPage: React.FC = () => {
             <h2>4. Payments and Pricing</h2>
             <p>
               Prices are charged in the currency displayed on the site. Payments are processed
-              through the payment methods we designate, such as Paddle and PayPal. For payments made
-              through Paddle, Paddle.com acts as the Merchant of Record for the transaction.
+              through the payment methods we designate. In Korea, these may include KG Inicis (credit
+              cards, etc.) and Kakao Pay; internationally, PayPal and other methods may be
+              available. Some methods are integrated via PortOne. For certain international
+              transactions processed through Lemon Squeezy, Lemon Squeezy may act as the Merchant of
+              Record.
             </p>
 
             <h2>5. Refunds</h2>
