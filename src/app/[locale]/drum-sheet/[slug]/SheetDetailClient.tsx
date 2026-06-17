@@ -156,6 +156,9 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
     if (!categoryName) return '';
     if (i18n.language === 'ko') return categoryName;
 
+    if (categoryName === '악보집') return t('sheetBooks.title');
+    if (categoryName === '드럼레슨') return t('freeSheets.categories.drumLesson');
+
     if (i18n.language === 'en') {
       const categoryMap: Record<string, string> = {
         '가요': t('categoriesPage.categories.kpop'),

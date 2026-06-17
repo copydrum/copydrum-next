@@ -86,6 +86,9 @@ export default function SheetDetailPage() {
       return categoryName;
     }
 
+    if (categoryName === '악보집') return t('sheetBooks.title');
+    if (categoryName === '드럼레슨') return t('freeSheets.categories.drumLesson');
+
     // ✅ 영어 사이트: 기존 로직 유지
     if (i18n.language === 'en') {
       const categoryMap: Record<string, string> = {
