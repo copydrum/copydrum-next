@@ -16,7 +16,7 @@ interface CustomOrderPayPalButtonProps {
 // 주문제작 견적 결제 전용 PayPal(PAYPAL_SPB) 버튼.
 // 시트 구매용 PayPalPaymentButton 과 분리되어 있으며, 결제 성공 시
 // 전용 검증 엔드포인트(/api/payments/portone/verify-custom-order)로 PAID + 금액 대조 후
-// custom_orders.status 를 payment_confirmed 로 전이시킨다.
+// custom_orders.status 를 in_progress 로 전이시킨다.
 export default function CustomOrderPayPalButton({
   customOrderId,
   amountUSD,

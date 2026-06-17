@@ -117,15 +117,22 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
 
   const isYouTubeCategory = sheet.categories?.name === '드럼솔로' || sheet.categories?.name === '드럼커버';
 
+  const isSheetBook = sheet.categories?.name === '악보집';
+
   // 드럼레슨 교재(=드럼레슨 카테고리) 여부 판정 (목차 표시 등 UI 분기용)
   const isLessonBook =
     sheet.categories?.name === '드럼레슨' ||
-    (typeof sheet.table_of_contents === 'string' && sheet.table_of_contents.trim().length > 0) ||
-    (typeof sheet.table_of_contents_translations?.en === 'string' &&
+    (!isSheetBook &&
+      typeof sheet.table_of_contents === 'string' &&
+      sheet.table_of_contents.trim().length > 0) ||
+    (!isSheetBook &&
+      typeof sheet.table_of_contents_translations?.en === 'string' &&
       sheet.table_of_contents_translations.en.trim().length > 0);
 
+  const isBookProduct = isLessonBook || isSheetBook;
+
   const displaySheetTitle =
-    isLessonBook && i18n.language !== 'ko'
+    isBookProduct && i18n.language !== 'ko'
       ? (sheet.title_translations?.en?.trim() || sheet.title)
       : sheet.title;
 
@@ -455,14 +462,20 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
                   type="button"
                   onClick={() =>
                     router.push(
-                      isLessonBook
-                        ? '/free-sheets'
-                        : `/categories${sheet.category_id ? `?category=${sheet.category_id}` : ''}`,
+                      isSheetBook
+                        ? '/sheet-books'
+                        : isLessonBook
+                          ? '/free-sheets'
+                          : `/categories${sheet.category_id ? `?category=${sheet.category_id}` : ''}`,
                     )
                   }
                   className="hover:text-gray-800 transition-colors"
                 >
-                  {isLessonBook ? t('sidebar.nav.drumLesson') : getCategoryName(sheet.categories?.name)}
+                  {isSheetBook
+                    ? t('sheetBooks.title')
+                    : isLessonBook
+                      ? t('sidebar.nav.drumLesson')
+                      : getCategoryName(sheet.categories?.name)}
                 </button>
               </li>
               <li aria-hidden="true" className="text-gray-300">/</li>
@@ -479,14 +492,22 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12">
             {/* 왼쪽: 앨범 썸네일 + 모바일 곡 정보 */}
             <div className="space-y-6">
-              {/* 1. 썸네일 (드럼솔로/드럼커버: 16:9, 일반: 정사각형) */}
+              {/* 1. 썸네일 (드럼솔로/드럼커버: 16:9, 드럼레슨 교재: 3:4, 일반: 정사각형) */}
               <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
-                <div className={`${isYouTubeCategory ? 'aspect-video' : 'aspect-square'} bg-gray-50 relative group`}>
+                <div
+                  className={`${
+                    isYouTubeCategory
+                      ? 'aspect-video'
+                      : isBookProduct
+                        ? 'aspect-[3/4]'
+                        : 'aspect-square'
+                  } bg-gray-50 relative group`}
+                >
                   <img
                     src={
                       isYouTubeCategory
                         ? (sheet.thumbnail_url || (sheet.youtube_url ? `https://i.ytimg.com/vi/${extractVideoId(sheet.youtube_url)}/hq720.jpg` : generateDefaultThumbnail(1280, 720)))
-                        : (sheet.thumbnail_url || generateDefaultThumbnail(600, 600))
+                        : (sheet.thumbnail_url || generateDefaultThumbnail(600, isBookProduct ? 800 : 600))
                     }
                     alt={`${displaySheetTitle} - ${sheet.artist}`}
                     className="w-full h-full object-cover"
@@ -494,7 +515,9 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
                       const img = e.target as HTMLImageElement;
                       img.src = isYouTubeCategory
                         ? generateDefaultThumbnail(1280, 720)
-                        : generateDefaultThumbnail(600, 600);
+                        : isBookProduct
+                          ? generateDefaultThumbnail(600, 800)
+                          : generateDefaultThumbnail(600, 600);
                     }}
                   />
                   {isYouTubeCategory && sheet.youtube_url && (
@@ -921,7 +944,7 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
           )}
 
           {/* 드럼레슨 교재 상세(목차) — 한국어/그 외 언어별 본문 */}
-          {isLessonBook && lessonDetailToShow.length > 0 && (
+          {isBookProduct && lessonDetailToShow.length > 0 && (
             <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden mt-8">
               <div className="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-amber-50 to-orange-50">
                 <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
@@ -945,7 +968,7 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
                   <svg className="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
                   </svg>
-                  <span>{isLessonBook ? t('freeSheets.actions.viewYoutubeLesson') : t('sheetDetail.performanceVideo')}</span>
+                  <span>{isBookProduct ? t('freeSheets.actions.viewYoutubeLesson') : t('sheetDetail.performanceVideo')}</span>
                 </h3>
               </div>
               <div className="p-4 sm:p-6">

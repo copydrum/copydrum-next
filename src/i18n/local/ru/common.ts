@@ -24,6 +24,7 @@ export default {
   'nav.eventSale': 'Распродажа',
   'nav.collections': 'Коллекции',
   'nav.drumLesson': 'Учебники по Барабанам',
+  'nav.sheetBooks': 'Сборники нот',
   'nav.freeSheets': 'Бесплатные ноты',
   'nav.customerSupport': 'Поддержка клиентов',
   'nav.company.about': 'О нас',

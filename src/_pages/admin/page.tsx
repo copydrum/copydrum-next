@@ -16,6 +16,7 @@ import CustomOrderDetail from '../../components/admin/CustomOrderDetail';
 import MarketingSettings from '../../components/admin/MarketingSettings';
 import MarketingStatus from '../../components/admin/MarketingStatus';
 import DrumLessonManagement from '../../components/admin/DrumLessonManagement';
+import SheetBookManagement from '../../components/admin/SheetBookManagement';
 import RichTextEditor from '../../components/admin/RichTextEditor';
 import DashboardTab from '../../components/admin/DashboardTab';
 import ChatInbox from '../../components/admin/ChatInbox';
@@ -614,6 +615,17 @@ const CUSTOM_ORDER_STATUS_META: Record<CustomOrderStatus, { label: string; class
     description: '주문이 취소되었습니다.',
   },
 };
+
+const CUSTOM_ORDER_ADMIN_FILTER_STATUSES: CustomOrderStatus[] = [
+  'pending',
+  'quoted',
+  'in_progress',
+  'completed',
+  'cancelled',
+];
+
+const getCustomOrderDisplayStatus = (status: CustomOrderStatus): CustomOrderStatus =>
+  status === 'payment_confirmed' ? 'in_progress' : status;
 
 type SiteSettingsMeta = {
   updatedAt: string;
@@ -6890,7 +6902,9 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
       (order.profiles?.name?.toLowerCase().includes(keyword) ?? false);
 
     const matchesStatus =
-      customOrderStatusFilter === 'all' || order.status === customOrderStatusFilter;
+      customOrderStatusFilter === 'all' ||
+      order.status === customOrderStatusFilter ||
+      (customOrderStatusFilter === 'in_progress' && order.status === 'payment_confirmed');
 
     return matchesSearch && matchesStatus;
   });
@@ -11990,9 +12004,9 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
             className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="all">전체 상태</option>
-            {Object.entries(CUSTOM_ORDER_STATUS_META).map(([value, meta]) => (
+            {CUSTOM_ORDER_ADMIN_FILTER_STATUSES.map((value) => (
               <option key={value} value={value}>
-                {meta.label}
+                {CUSTOM_ORDER_STATUS_META[value].label}
               </option>
             ))}
           </select>
@@ -12041,7 +12055,9 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
                 </tr>
               ) : (
                 filteredCustomOrders.map((order) => {
-                  const meta = CUSTOM_ORDER_STATUS_META[order.status] ?? CUSTOM_ORDER_STATUS_META.pending;
+                  const meta =
+                    CUSTOM_ORDER_STATUS_META[getCustomOrderDisplayStatus(order.status)] ??
+                    CUSTOM_ORDER_STATUS_META.pending;
                   return (
                     <tr key={order.id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4">
@@ -13062,7 +13078,7 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
     };
 
     const getCustomOrderStatusLabel = (status: string) =>
-      CUSTOM_ORDER_STATUS_META[status as CustomOrderStatus]?.label ?? status;
+      CUSTOM_ORDER_STATUS_META[getCustomOrderDisplayStatus(status as CustomOrderStatus)]?.label ?? status;
 
     const pieColors = [
       '#2563eb',
@@ -14908,6 +14924,8 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
         return renderMarketing();
       case 'drum-lessons':
         return <DrumLessonManagement />;
+      case 'sheet-books':
+        return <SheetBookManagement />;
       case 'popularity':
         return renderPopularityManagement();
       default:
@@ -15001,6 +15019,15 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
           >
             <i className="ri-book-2-line w-5 h-5"></i>
             <span className="text-sm md:text-base">드럼레슨 교재 관리</span>
+          </button>
+
+          <button
+            onClick={() => handleMenuClick('sheet-books')}
+            className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-left transition-colors ${activeMenu === 'sheet-books' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100'
+              }`}
+          >
+            <i className="ri-book-mark-line w-5 h-5"></i>
+            <span className="text-sm md:text-base">악보집 관리</span>
           </button>
 
           <button
@@ -15178,7 +15205,8 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
                     activeMenu === 'member-list' ? '회원 관리' :
                       activeMenu === 'sheets' ? '악보 관리' :
                         activeMenu === 'drum-lessons' ? '드럼레슨 교재 관리' :
-                          activeMenu === 'categories' ? '카테고리 관리' :
+                          activeMenu === 'sheet-books' ? '악보집 관리' :
+                            activeMenu === 'categories' ? '카테고리 관리' :
                             activeMenu === 'collections' ? '악보모음집 관리' :
                               activeMenu === 'event-discounts' ? '이벤트 할인악보 관리' :
                                 activeMenu === 'orders' ? '주문 관리' :

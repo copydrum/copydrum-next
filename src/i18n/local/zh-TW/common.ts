@@ -24,6 +24,7 @@ export default {
   'nav.eventSale': '活動促銷',
   'nav.collections': '合集',
   'nav.drumLesson': '爵士鼓教材',
+  'nav.sheetBooks': '樂譜集',
   'nav.freeSheets': '免費樂譜',
   'nav.customerSupport': '客戶支援',
   'nav.company.about': '關於我們',

@@ -23,7 +23,7 @@ type Method = 'card' | 'kakaopay';
 // 주문제작 견적 결제 전용 한국 결제 버튼(KG이니시스 카드 / 카카오페이 / 무통장 입금).
 // 시트 구매 결제 함수(requestPortonePayment 등)와 달리 orders 테이블을 전혀 건드리지 않으며,
 // PC(IFRAME) 콜백 또는 모바일(REDIRECTION) 리턴 페이지에서
-// /api/payments/portone/verify-custom-order 로 검증 후 custom_orders 를 payment_confirmed 로 전이한다.
+// /api/payments/portone/verify-custom-order 로 검증 후 custom_orders 를 in_progress 로 전이한다.
 export default function CustomOrderKoreanPayButton({
   customOrderId,
   amountKRW,

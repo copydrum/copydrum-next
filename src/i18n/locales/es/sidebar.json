@@ -7,7 +7,8 @@
     "logout": "Cerrar Sesión",
     "login": "Iniciar Sesión",
     "collections": "Colecciones",
-    "drumLesson": "Libros de Lecciones de Batería"
+    "drumLesson": "Libros de Lecciones de Batería",
+    "sheetBooks": "Libros de Partituras"
   },
   "header": {
     "signup": "Registrarse",
@@ -97,4 +98,3 @@
   "migrationNotice1": "Si eres un miembro existente, es posible que necesites restablecer tu contraseña.",
   "migrationNotice2": "Por favor, restablécelo a través de Buscar Contraseña."
 }
-

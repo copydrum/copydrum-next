@@ -24,6 +24,7 @@ export default {
   'nav.eventSale': 'Vente événement',
   'nav.collections': 'Collections',
   'nav.drumLesson': 'Manuels de Cours de Batterie',
+  'nav.sheetBooks': 'Recueils de Partitions',
   'nav.freeSheets': 'Partitions gratuites',
   'nav.customerSupport': 'Support client',
   'nav.company.about': 'À propos',

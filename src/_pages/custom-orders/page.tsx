@@ -95,6 +95,9 @@ const CustomOrdersPage = () => {
     },
   }), [t]);
 
+  const getOrderStatusMeta = (status: string) =>
+    STATUS_META[status === 'payment_confirmed' ? 'in_progress' : status] ?? STATUS_META.pending;
+
   useEffect(() => {
     if (user) {
       fetchOrders();
@@ -219,7 +222,7 @@ const CustomOrdersPage = () => {
           ) : (
             <div className="space-y-6">
               {orders.map((order) => {
-                const meta = STATUS_META[order.status] ?? STATUS_META.pending;
+                const meta = getOrderStatusMeta(order.status);
                 const maxDownload = order.max_download_count ?? 5;
                 const usedCount = order.download_count ?? 0;
                 const downloadExpiresAt = order.download_expires_at

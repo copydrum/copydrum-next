@@ -7,7 +7,8 @@
     "logout": "Đăng Xuất",
     "login": "Đăng Nhập",
     "collections": "Bộ Sưu Tập",
-    "drumLesson": "Giáo Trình Học Trống"
+    "drumLesson": "Giáo Trình Học Trống",
+    "sheetBooks": "Sách Nhạc"
   },
   "header": {
     "signup": "Đăng Ký",
@@ -97,4 +98,3 @@
   "migrationNotice1": "Nếu bạn là thành viên hiện có, bạn có thể cần đặt lại mật khẩu.",
   "migrationNotice2": "Vui lòng đặt lại thông qua Tìm Mật Khẩu."
 }
-

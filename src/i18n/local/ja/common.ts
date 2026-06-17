@@ -24,6 +24,7 @@ export default {
   'nav.eventSale': 'イベントセール',
   'nav.collections': 'コレクション',
   'nav.drumLesson': 'ドラムレッスン教材',
+  'nav.sheetBooks': '楽譜集',
   'nav.freeSheets': '無料楽譜',
   'nav.customerSupport': 'カスタマーサポート',
   'nav.company.about': '会社概要',

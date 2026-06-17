@@ -24,6 +24,7 @@ export default {
   'nav.eventSale': 'Etkinlik İndirimi',
   'nav.collections': 'Koleksiyonlar',
   'nav.drumLesson': 'Davul Dersi Kitapları',
+  'nav.sheetBooks': 'Nota Kitapları',
   'nav.freeSheets': 'Ücretsiz Notalar',
   'nav.customerSupport': 'Müşteri Desteği',
   'nav.company.about': 'Hakkımızda',

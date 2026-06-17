@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
+import { COLLECTIONS_PUBLIC_ENABLED } from '@/config/featureFlags';
 
 /**
  * 언어별 Sitemap - /sitemap/{lang}.xml
@@ -47,6 +48,7 @@ const STATIC_PAGES = [
   { path: '/categories', priority: '0.9', changefreq: 'daily' },
   { path: '/collections', priority: '0.9', changefreq: 'weekly' },
   { path: '/free-sheets', priority: '0.7', changefreq: 'weekly' },
+  { path: '/sheet-books', priority: '0.8', changefreq: 'weekly' },
   { path: '/guide', priority: '0.6', changefreq: 'monthly' },
   { path: '/policy/refund', priority: '0.5', changefreq: 'monthly' },
   { path: '/company/about', priority: '0.5', changefreq: 'monthly' },
@@ -118,6 +120,7 @@ export async function GET(
 
   // ─── 1. 정적 페이지 ───
   for (const page of STATIC_PAGES) {
+    if (!COLLECTIONS_PUBLIC_ENABLED && page.path === '/collections') continue;
     const loc = page.path === '/'
       ? `${baseUrl}/`
       : `${baseUrl}${page.path}`;
@@ -179,6 +182,7 @@ export async function GET(
     }
 
     // ─── 4. 컬렉션 (Collections) ───
+    if (COLLECTIONS_PUBLIC_ENABLED) {
     offset = 0;
     hasMore = true;
 
@@ -208,6 +212,7 @@ export async function GET(
 
       offset += collections.length;
       hasMore = collections.length === BATCH_SIZE;
+    }
     }
   }
 

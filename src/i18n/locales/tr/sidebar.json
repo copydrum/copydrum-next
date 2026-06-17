@@ -78,6 +78,8 @@
     "resetSent": "Şifre sıfırlama e-postası gönderildi. Lütfen e-postanızı kontrol edin."
   },
   "migrationNotice1": "Mevcut bir üyeyseniz, şifrenizi sıfırlamanız gerekebilir.",
-  "migrationNotice2": "Lütfen Şifre Bul üzerinden sıfırlayın."
+  "migrationNotice2": "Lütfen Şifre Bul üzerinden sıfırlayın.",
+  "nav": {
+    "sheetBooks": "Nota Kitapları"
+  }
 }
-

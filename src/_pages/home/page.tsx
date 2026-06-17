@@ -14,6 +14,12 @@ import { getSiteCurrency, convertFromKrw, formatCurrency as formatCurrencyUtil }
 import { useSiteLanguage } from '../../hooks/useSiteLanguage';
 import Seo from '../../components/Seo';
 import { languageDomainMap } from '../../config/languageDomainMap';
+import { COLLECTIONS_PUBLIC_ENABLED } from '@/config/featureFlags';
+import {
+  SHEET_BOOK_GENRE_I18N_KEYS,
+  SHEET_BOOK_GENRE_NAMES,
+  SHEET_BOOK_MAIN_CATEGORY_NAME,
+} from '@/lib/sheetBookCategories';
 interface DrumSheet {
   id: string;
   title: string;
@@ -63,6 +69,18 @@ interface FreeLessonSheet {
   categories?: { name: string } | null;
 }
 
+interface HomeSheetBook {
+  id: string;
+  title: string;
+  title_translations?: Record<string, string> | null;
+  artist: string;
+  thumbnail_url: string | null;
+  slug: string;
+  price: number | null;
+  page_count: number | null;
+  genres: string[];
+}
+
 
 export default function Home() {
   // LCP 개선: 최상단 히어로 배너 이미지를 우선 프리로드
@@ -84,6 +102,8 @@ export default function Home() {
   // 드럼레슨 "개별 자료"(루디먼트/필인/리듬패턴/드럼테크닉/기초입문 카테고리) — 교재와 분리 노출
   const [lessonMaterials, setLessonMaterials] = useState<FreeLessonSheet[]>([]);
   const lessonMaterialSliderRef = useRef<HTMLDivElement>(null);
+  const [sheetBooks, setSheetBooks] = useState<HomeSheetBook[]>([]);
+  const sheetBookSliderRef = useRef<HTMLDivElement>(null);
   const router = useLocaleRouter();
   const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
   const [favoriteLoadingIds, setFavoriteLoadingIds] = useState<Set<string>>(new Set());
@@ -225,7 +245,7 @@ export default function Home() {
       const genreOrder = ['가요', '팝', '락', 'CCM', '트로트/성인가요', '재즈', 'J-POP', 'OST', '드럼솔로', '드럼커버'];
 
       // Filter out drum lesson category and non-genre categories
-      const excludedCategories = ['드럼레슨', '루디먼트', '드럼테크닉', '기초/입문', '리듬패턴', '필인'];
+      const excludedCategories = ['드럼레슨', '악보집', '루디먼트', '드럼테크닉', '기초/입문', '리듬패턴', '필인'];
       const filteredCategories = (data || []).filter(cat => !excludedCategories.includes(cat.name));
 
       // Sort by genre order
@@ -493,6 +513,10 @@ export default function Home() {
   }, [loadPopularSheets, selectedGenre]);
 
   const loadCollections = useCallback(async () => {
+    if (!COLLECTIONS_PUBLIC_ENABLED) {
+      setCollections([]);
+      return;
+    }
     try {
       const { data: collectionsData, error: collectionsError } = await supabase
         .from('collections')
@@ -590,6 +614,64 @@ export default function Home() {
     }
   }, []);
 
+  const loadSheetBooks = useCallback(async () => {
+    try {
+      const { data: mainCategory, error: catError } = await supabase
+        .from('categories')
+        .select('id')
+        .eq('name', SHEET_BOOK_MAIN_CATEGORY_NAME)
+        .maybeSingle();
+
+      if (catError || !mainCategory) return;
+
+      const { data: sheets, error: sheetsError } = await supabase
+        .from('drum_sheets')
+        .select('id, title, title_translations, artist, thumbnail_url, slug, created_at, price, page_count')
+        .eq('category_id', mainCategory.id)
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+        .limit(12);
+
+      if (sheetsError) throw sheetsError;
+
+      const rows = sheets || [];
+      const ids = rows.map((s: { id: string }) => s.id);
+      const genreMap = new Map<string, string[]>();
+
+      if (ids.length > 0) {
+        const known = new Set<string>(SHEET_BOOK_GENRE_NAMES);
+        const { data: typeRows } = await supabase
+          .from('drum_sheet_categories')
+          .select('sheet_id, categories ( name )')
+          .in('sheet_id', ids);
+
+        for (const row of typeRows ?? []) {
+          const name = (row as { categories?: { name?: string } }).categories?.name;
+          if (!name || !known.has(name)) continue;
+          const arr = genreMap.get(row.sheet_id) ?? [];
+          arr.push(name);
+          genreMap.set(row.sheet_id, arr);
+        }
+      }
+
+      setSheetBooks(
+        rows.map((sheet: any) => ({
+          id: sheet.id,
+          title: sheet.title,
+          title_translations: sheet.title_translations ?? null,
+          artist: sheet.artist,
+          thumbnail_url: sheet.thumbnail_url,
+          slug: sheet.slug,
+          price: sheet.price,
+          page_count: sheet.page_count,
+          genres: genreMap.get(sheet.id) ?? [],
+        })),
+      );
+    } catch (error) {
+      console.error('Sheet books load error:', error);
+    }
+  }, []);
+
   useEffect(() => {
     loadFavorites();
   }, [loadFavorites]);
@@ -606,6 +688,10 @@ export default function Home() {
     loadLessonMaterials();
   }, [loadLessonMaterials]);
 
+  useEffect(() => {
+    loadSheetBooks();
+  }, [loadSheetBooks]);
+
   // Collections slider helpers
   const getCollectionLocalizedTitle = (collection: HomeCollection) => {
     if (i18n.language === 'ko') return collection.title;
@@ -620,6 +706,18 @@ export default function Home() {
     if (i18n.language === 'ko') return sheet.title;
     const en = sheet.title_translations?.en?.trim();
     return en || sheet.title;
+  };
+
+  const getSheetBookTitle = (book: HomeSheetBook) => {
+    if (i18n.language === 'ko') return book.title;
+    const en = book.title_translations?.en?.trim();
+    return en || book.title;
+  };
+
+  const getSheetBookGenreLabel = (genreName: string) => {
+    if (i18n.language === 'ko') return genreName;
+    const key = SHEET_BOOK_GENRE_I18N_KEYS[genreName as keyof typeof SHEET_BOOK_GENRE_I18N_KEYS];
+    return key ? t(`categoriesPage.categories.${key}`) : genreName;
   };
 
   const getCollectionLocalizedDescription = (collection: HomeCollection) => {
@@ -1399,6 +1497,161 @@ export default function Home() {
           </section>
         )}
 
+        {/* Sheet Books Section — 드럼레슨 교재 바로 아래 */}
+        {sheetBooks.length > 0 && (
+          <section className="py-8 md:py-16">
+            <div className="max-w-7xl mx-auto">
+              <div className="mb-5 md:mb-8 flex items-center justify-between">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="text-2xl md:text-3xl font-bold text-gray-900">{t('sheetBooks.title')}</h3>
+                    <span className="bg-gradient-to-r from-indigo-500 to-violet-500 text-white text-[10px] md:text-xs font-bold px-2 py-0.5 rounded-full">
+                      {t('sheetBooks.badge')}
+                    </span>
+                  </div>
+                  <p className="hidden md:block text-gray-500 mt-1">{t('sheetBooks.description')}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => router.push('/sheet-books')}
+                  className="text-sm text-gray-500 hover:text-gray-700 hidden md:inline-flex items-center gap-1 whitespace-nowrap"
+                >
+                  {t('sheetBooks.actions.viewAll')} &gt;
+                </button>
+              </div>
+
+              <div className="md:hidden">
+                <div
+                  ref={sheetBookSliderRef}
+                  className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4"
+                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                >
+                  {sheetBooks.map((book) => {
+                    const price = Math.max(0, book.price ?? 0);
+                    const isFree = price === 0;
+                    const primaryGenre = book.genres[0];
+                    return (
+                      <div key={book.id} className="flex-shrink-0 w-[44%] snap-start">
+                        <button
+                          type="button"
+                          onClick={() => router.push(`/drum-sheet/${book.slug}`)}
+                          className="block w-full text-left bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+                        >
+                          <div className="relative aspect-[3/4] bg-gradient-to-br from-indigo-50 to-violet-50 overflow-hidden">
+                            <img
+                              src={book.thumbnail_url || generateDefaultThumbnail(600, 800)}
+                              alt={getSheetBookTitle(book)}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                const img = e.target as HTMLImageElement;
+                                img.src = generateDefaultThumbnail(600, 800);
+                              }}
+                            />
+                            <span className="absolute top-2 left-2 bg-white/95 text-indigo-700 text-[10px] font-bold tracking-wider px-2 py-0.5 rounded-md shadow-sm">
+                              PDF
+                            </span>
+                            {primaryGenre && (
+                              <span className="absolute top-2 right-2 bg-indigo-600/90 text-white text-[10px] font-semibold px-2 py-0.5 rounded-md shadow-sm">
+                                {getSheetBookGenreLabel(primaryGenre)}
+                              </span>
+                            )}
+                            {book.page_count ? (
+                              <span className="absolute bottom-2 left-2 bg-black/60 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full backdrop-blur-sm">
+                                {book.page_count}p
+                              </span>
+                            ) : null}
+                          </div>
+                          <div className="p-3">
+                            <h4 className="font-bold text-gray-900 text-sm line-clamp-2 leading-snug mb-1">
+                              {getSheetBookTitle(book)}
+                            </h4>
+                            <p className="text-[11px] text-gray-500 line-clamp-1 mb-2">{book.artist}</p>
+                            <div className="text-base font-extrabold text-gray-900">
+                              {isFree ? t('sheetBooks.price.free') : formatCurrency(price)}
+                            </div>
+                          </div>
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="mt-3 flex justify-center">
+                  <button
+                    type="button"
+                    onClick={() => router.push('/sheet-books')}
+                    className="inline-flex items-center justify-center gap-1.5 px-6 py-2.5 rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 text-white text-sm font-semibold shadow-sm hover:from-indigo-600 hover:to-violet-600 transition-all"
+                  >
+                    <i className="ri-book-mark-line text-sm"></i>
+                    {t('sheetBooks.actions.viewAll')}
+                  </button>
+                </div>
+              </div>
+
+              <div className="hidden md:block">
+                <div className="grid grid-cols-4 gap-6">
+                  {sheetBooks.slice(0, 8).map((book) => {
+                    const price = Math.max(0, book.price ?? 0);
+                    const isFree = price === 0;
+                    const primaryGenre = book.genres[0];
+                    return (
+                      <button
+                        key={book.id}
+                        type="button"
+                        onClick={() => router.push(`/drum-sheet/${book.slug}`)}
+                        className="text-left bg-white rounded-2xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+                      >
+                        <div className="relative aspect-[3/4] bg-gradient-to-br from-indigo-50 to-violet-50 overflow-hidden">
+                          <img
+                            src={book.thumbnail_url || generateDefaultThumbnail(600, 800)}
+                            alt={getSheetBookTitle(book)}
+                            className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                            onError={(e) => {
+                              const img = e.target as HTMLImageElement;
+                              img.src = generateDefaultThumbnail(600, 800);
+                            }}
+                          />
+                          <span className="absolute top-3 left-3 bg-white/95 text-indigo-700 text-[11px] font-bold tracking-wider px-2 py-0.5 rounded-md shadow-sm">
+                            PDF
+                          </span>
+                          {primaryGenre && (
+                            <span className="absolute top-3 right-3 bg-indigo-600/90 text-white text-[11px] font-semibold px-2 py-0.5 rounded-md shadow-sm">
+                              {getSheetBookGenreLabel(primaryGenre)}
+                            </span>
+                          )}
+                          {book.page_count ? (
+                            <span className="absolute bottom-3 left-3 bg-black/60 text-white text-[11px] font-semibold px-2.5 py-0.5 rounded-full backdrop-blur-sm">
+                              {book.page_count}p
+                            </span>
+                          ) : null}
+                        </div>
+                        <div className="p-4">
+                          <h4 className="font-bold text-gray-900 text-sm line-clamp-2 leading-snug mb-1 hover:text-indigo-600 transition-colors">
+                            {getSheetBookTitle(book)}
+                          </h4>
+                          <p className="text-xs text-gray-500 line-clamp-1 mb-3">{book.artist}</p>
+                          <div className="text-lg font-extrabold text-gray-900">
+                            {isFree ? t('sheetBooks.price.free') : formatCurrency(price)}
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="mt-8 flex justify-center">
+                  <button
+                    type="button"
+                    onClick={() => router.push('/sheet-books')}
+                    className="inline-flex items-center justify-center gap-2 px-8 py-3 rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 text-white font-semibold shadow-md hover:from-indigo-600 hover:to-violet-600 transition-all cursor-pointer"
+                  >
+                    <i className="ri-book-mark-line"></i>
+                    {t('sheetBooks.actions.viewAll')}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
         {/* Latest YouTube Sheets - 최신 유튜브 영상악보 */}
         {youtubeLatestSheets.length > 0 && (
           <section className="py-6 md:py-12">
@@ -1836,7 +2089,7 @@ export default function Home() {
         </section>
 
         {/* Collections Section */}
-        {collections.length > 0 && (
+        {COLLECTIONS_PUBLIC_ENABLED && collections.length > 0 && (
           <section className="py-6 md:py-16">
             <div className="max-w-7xl mx-auto">
               {/* Section Header */}

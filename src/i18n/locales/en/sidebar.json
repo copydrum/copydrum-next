@@ -7,7 +7,8 @@
     "logout": "Logout",
     "login": "Login",
     "collections": "Collections",
-    "drumLesson": "Drum Lesson Books"
+    "drumLesson": "Drum Lesson Books",
+    "sheetBooks": "Sheet Books"
   },
   "header": {
     "signup": "Sign Up",
@@ -97,4 +98,3 @@
   "migrationNotice1": "If you are an existing member, you may need to reset your password.",
   "migrationNotice2": "Please reset it through Find Password."
 }
-

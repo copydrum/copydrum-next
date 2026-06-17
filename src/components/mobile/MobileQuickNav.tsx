@@ -4,6 +4,7 @@ import { useLocaleRouter } from '@/hooks/useLocaleRouter';
 import { usePathname } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { removeLocaleFromPathname } from '@/lib/localeUrl';
+import { COLLECTIONS_PUBLIC_ENABLED } from '@/config/featureFlags';
 
 interface QuickNavItem {
   key: string;
@@ -17,6 +18,7 @@ const quickNavItems: QuickNavItem[] = [
   { key: 'categories', labelKey: 'nav.categories', href: '/categories', icon: 'ri-apps-line' },
   { key: 'collections', labelKey: 'nav.collections', href: '/collections', icon: 'ri-stack-line' },
   { key: 'lesson', labelKey: 'nav.drumLesson', href: '/free-sheets', icon: 'ri-book-2-line' },
+  { key: 'sheetBooks', labelKey: 'nav.sheetBooks', href: '/sheet-books', icon: 'ri-book-mark-line' },
   { key: 'customOrder', labelKey: 'nav.customOrder', href: '/custom-order', icon: 'ri-edit-line' },
 ];
 
@@ -33,7 +35,7 @@ export default function MobileQuickNav() {
         className="flex gap-2 px-3 py-2 overflow-x-auto mobile-quick-nav-scroll"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
       >
-        {quickNavItems.map((item) => {
+        {quickNavItems.filter((item) => COLLECTIONS_PUBLIC_ENABLED || item.key !== 'collections').map((item) => {
           const isActive =
             item.key === 'home'
               ? pathWithoutLocale === '/' || pathWithoutLocale === ''

@@ -7,7 +7,8 @@
     "logout": "ログアウト",
     "login": "ログイン",
     "collections": "コレクション",
-    "drumLesson": "ドラムレッスン教材"
+    "drumLesson": "ドラムレッスン教材",
+    "sheetBooks": "楽譜集"
   },
   "header": {
     "signup": "会員登録",
@@ -97,4 +98,3 @@
   "migrationNotice1": "既存の会員の場合は、パスワードのリセットが必要な場合があります。",
   "migrationNotice2": "パスワードを探すからリセットしてください。"
 }
-

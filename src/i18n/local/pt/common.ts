@@ -24,6 +24,7 @@ export default {
   'nav.eventSale': 'Venda de Eventos',
   'nav.collections': 'Coleções',
   'nav.drumLesson': 'Livros de Aulas de Bateria',
+  'nav.sheetBooks': 'Livros de Partituras',
   'nav.freeSheets': 'Partituras Grátis',
   'nav.customerSupport': 'Suporte ao Cliente',
   'nav.company.about': 'Sobre Nós',

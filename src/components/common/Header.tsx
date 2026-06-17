@@ -7,6 +7,7 @@ import type { User } from '@supabase/supabase-js';
 import LanguageSelector from './LanguageSelector';
 import { useLocaleRouter } from '@/hooks/useLocaleRouter';
 import { getLocaleFromPathname } from '@/lib/localeUrl';
+import { COLLECTIONS_PUBLIC_ENABLED } from '@/config/featureFlags';
 
 interface HeaderProps {
   user?: User | null;
@@ -183,13 +184,15 @@ export default function Header({ user: propUser }: HeaderProps) {
           >
             {t('nav.categories')}
           </button>
-          <button
-            onClick={() => router.push('/collections')}
-            className={`font-semibold text-lg whitespace-nowrap cursor-pointer transition-colors duration-200 ${isActive('/collections') ? 'text-white' : 'text-white hover:text-blue-200'
-              }`}
-          >
-            {t('nav.collections')}
-          </button>
+          {COLLECTIONS_PUBLIC_ENABLED && (
+            <button
+              onClick={() => router.push('/collections')}
+              className={`font-semibold text-lg whitespace-nowrap cursor-pointer transition-colors duration-200 ${isActive('/collections') ? 'text-white' : 'text-white hover:text-blue-200'
+                }`}
+            >
+              {t('nav.collections')}
+            </button>
+          )}
           <button
             onClick={() => router.push(customOrderLink)}
             className={`font-semibold text-lg whitespace-nowrap cursor-pointer transition-colors duration-200 ${isCustomOrderActive() ? 'text-white' : 'text-white hover:text-blue-200'

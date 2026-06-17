@@ -7,7 +7,8 @@
     "logout": "Abmelden",
     "login": "Anmelden",
     "collections": "Sammlungen",
-    "drumLesson": "Schlagzeug-Lehrbücher"
+    "drumLesson": "Schlagzeug-Lehrbücher",
+    "sheetBooks": "Notenhefte"
   },
   "header": {
     "signup": "Registrieren",
@@ -97,4 +98,3 @@
   "migrationNotice1": "Wenn Sie ein bestehendes Mitglied sind, müssen Sie möglicherweise Ihr Passwort zurücksetzen.",
   "migrationNotice2": "Bitte setzen Sie es über Passwort Finden zurück."
 }
-

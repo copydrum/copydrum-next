@@ -24,6 +24,7 @@ export default {
   'nav.eventSale': 'โปรโมชั่น',
   'nav.collections': 'คอลเลกชัน',
   'nav.drumLesson': 'ตำราเรียนกลอง',
+  'nav.sheetBooks': 'หนังสือโน้ต',
   'nav.freeSheets': 'โน้ตฟรี',
   'nav.customerSupport': 'ฝ่ายบริการลูกค้า',
   'nav.company.about': 'เกี่ยวกับเรา',

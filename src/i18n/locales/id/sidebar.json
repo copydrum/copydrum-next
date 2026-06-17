@@ -7,7 +7,8 @@
     "logout": "Keluar",
     "login": "Masuk",
     "collections": "Koleksi",
-    "drumLesson": "Buku Pelajaran Drum"
+    "drumLesson": "Buku Pelajaran Drum",
+    "sheetBooks": "Buku Not Balok"
   },
   "header": {
     "signup": "Daftar",
@@ -97,4 +98,3 @@
   "migrationNotice1": "Jika Anda adalah anggota yang sudah ada, Anda mungkin perlu mereset kata sandi Anda.",
   "migrationNotice2": "Silakan reset melalui Cari Kata Sandi."
 }
-

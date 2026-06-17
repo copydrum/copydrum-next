@@ -24,6 +24,7 @@ export default {
   'nav.eventSale': 'Event Sale',
   'nav.collections': 'Collections',
   'nav.drumLesson': 'Drum Lesson Books',
+  'nav.sheetBooks': 'Sheet Books',
   'nav.freeSheets': 'Free Sheets',
   'nav.customerSupport': 'Customer Support',
   'nav.company.about': 'About Us',

@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 
 // 주문제작(custom_orders) 견적 결제 전용 검증 엔드포인트.
 // 시트 구매용 /verify 와 달리 orders/order_items/purchases/다운로드 발급 로직과 완전히 분리되어 있고,
-// 결제가 PAID 로 확인되고 금액이 견적가와 일치할 때만 custom_orders.status 를 'payment_confirmed' 로 올린다.
+// 결제가 PAID 로 확인되고 금액이 견적가와 일치할 때만 custom_orders.status 를 'in_progress' 로 올린다.
 
 function createAdminClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -191,10 +191,10 @@ export async function POST(request: NextRequest) {
       console.warn('[verify-custom-order] ℹ️ 알 수 없는 통화 — 금액 대조 생략(경고만):', { customOrderId, pgAmountRaw, pgCurrency });
     }
 
-    // 4) 결제 확인 → custom_orders.status 업데이트
+    // 4) 결제 확인 → custom_orders.status 업데이트 (결제 후 바로 작업중)
     const { error: updateError } = await supabase
       .from('custom_orders')
-      .update({ status: 'payment_confirmed', updated_at: new Date().toISOString() })
+      .update({ status: 'in_progress', updated_at: new Date().toISOString() })
       .eq('id', customOrderId)
       .eq('status', 'quoted'); // 경합 방지: quoted 일 때만 전이
 

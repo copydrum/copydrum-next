@@ -208,6 +208,13 @@ export default function PayPalPaymentButton({
             orderNumber: createResult.orderNumber,
             reused: createResult.reused,
           });
+
+          // 동일 상품의 기존 결제가 이미 PAID — 재결제·새 주문 없이 성공 화면으로
+          if (createResult.alreadyPaid) {
+            console.warn('[PayPal-SDK] 동일 상품 기존 결제가 이미 완료됨 — 성공 화면으로 이동');
+            onSuccess('', dbOrderId);
+            return;
+          }
         } else {
           console.warn('[PayPal-SDK] ⚠️ 주문 생성 실패, 기존 orderId 사용:', createResult.error);
         }
@@ -375,6 +382,10 @@ export default function PayPalPaymentButton({
                   // ✅ 결제 검증 성공 → 주문 completed
                   console.log('[PayPal-SDK] ✅ 서버 검증 성공 (주문 completed):', verifyResult);
                   verifySuccess = true;
+                  // transaction_id 소유 주문이 클라이언트 orderId와 다를 수 있음
+                  if (verifyResult.order?.id) {
+                    dbOrderIdRef.current = verifyResult.order.id;
+                  }
                   break;
                 }
 

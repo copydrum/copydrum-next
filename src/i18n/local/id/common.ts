@@ -24,6 +24,7 @@ export default {
   'nav.eventSale': 'Obral Acara',
   'nav.collections': 'Koleksi',
   'nav.drumLesson': 'Buku Pelajaran Drum',
+  'nav.sheetBooks': 'Buku Not Balok',
   'nav.freeSheets': 'Partitur Gratis',
   'nav.customerSupport': 'Dukungan Pelanggan',
   'nav.company.about': 'Tentang Kami',

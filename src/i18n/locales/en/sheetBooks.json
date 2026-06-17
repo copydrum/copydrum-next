@@ -1,0 +1,44 @@
+{
+  "badge": "PDF Sheet Books",
+  "title": "Sheet Books",
+  "description": "Browse curated drum sheet music books in a single PDF. Purchase once and download one complete PDF file.",
+  "features": {
+    "singlePdf": "One PDF download",
+    "genreCurated": "Curated by genre",
+    "lifetimeAccess": "Lifetime access & re-download"
+  },
+  "genres": {
+    "all": "All"
+  },
+  "search": {
+    "placeholder": "Search by title or editor"
+  },
+  "sort": {
+    "label": "Sort",
+    "latest": "Newest",
+    "title": "Title",
+    "priceLow": "Price: Low to High",
+    "priceHigh": "Price: High to Low"
+  },
+  "loading": "Loading sheet books...",
+  "empty": {
+    "title": "No sheet books match your filters.",
+    "description": "Try a different search or check back later."
+  },
+  "actions": {
+    "viewDetail": "View details",
+    "viewAll": "View all sheet books",
+    "addToCart": "Add to cart",
+    "buyNow": "Buy now"
+  },
+  "price": {
+    "free": "Free"
+  },
+  "errors": {
+    "categoryLoadError": "Failed to load sheet book category.",
+    "categoryNotFound": "Sheet book category is not set up yet.",
+    "sheetsLoadError": "Failed to load sheet books.",
+    "generalError": "An error occurred while loading sheet books."
+  },
+  "results": "{{count}} books"
+}

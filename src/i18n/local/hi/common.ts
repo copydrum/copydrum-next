@@ -24,6 +24,7 @@ export default {
   'nav.eventSale': 'इवेंट सेल',
   'nav.collections': 'संग्रह',
   'nav.drumLesson': 'ड्रम पाठ पुस्तकें',
+  'nav.sheetBooks': 'शीट बुक्स',
   'nav.freeSheets': 'मुफ्त शीट',
   'nav.customerSupport': 'ग्राहक सहायता',
   'nav.company.about': 'हमारे बारे में',

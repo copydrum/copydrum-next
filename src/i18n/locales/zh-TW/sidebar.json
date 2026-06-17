@@ -7,7 +7,8 @@
     "logout": "登出",
     "login": "登入",
     "collections": "合集",
-    "drumLesson": "爵士鼓教材"
+    "drumLesson": "爵士鼓教材",
+    "sheetBooks": "樂譜集"
   },
   "header": {
     "signup": "註冊",
@@ -97,4 +98,3 @@
   "migrationNotice1": "如果您是現有會員，可能需要重設密碼。",
   "migrationNotice2": "請透過尋找密碼進行重設。"
 }
-

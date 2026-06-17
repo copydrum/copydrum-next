@@ -184,7 +184,9 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
   }, [loadDetail, user]);
 
   const statusMeta = useMemo(() => {
-    const status: StatusValue = order?.status ?? 'pending';
+    const rawStatus = order?.status ?? 'pending';
+    const status: StatusValue =
+      rawStatus === 'payment_confirmed' ? 'in_progress' : rawStatus;
     return {
       label: t(`customOrders.status.${status}.label`),
       description: t(`customOrders.status.${status}.message`),

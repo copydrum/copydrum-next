@@ -1,0 +1,44 @@
+{
+  "badge": "PDF 악보집",
+  "title": "악보집",
+  "description": "여러 곡이 한 권으로 담긴 PDF 드럼 악보집을 만나보세요. 결제 후 PDF 파일 1개로 바로 다운로드할 수 있습니다.",
+  "features": {
+    "singlePdf": "PDF 1개 통합 다운로드",
+    "genreCurated": "장르별 엄선 모음",
+    "lifetimeAccess": "평생 소장·재다운로드"
+  },
+  "genres": {
+    "all": "전체"
+  },
+  "search": {
+    "placeholder": "악보집 제목, 편저로 검색"
+  },
+  "sort": {
+    "label": "정렬",
+    "latest": "최신순",
+    "title": "제목순",
+    "priceLow": "낮은 가격순",
+    "priceHigh": "높은 가격순"
+  },
+  "loading": "악보집을 불러오는 중입니다...",
+  "empty": {
+    "title": "조건에 맞는 악보집이 없습니다.",
+    "description": "검색어를 변경하거나 잠시 후 다시 확인해 주세요."
+  },
+  "actions": {
+    "viewDetail": "악보집 자세히 보기",
+    "viewAll": "악보집 모두 보기",
+    "addToCart": "장바구니",
+    "buyNow": "바로구매"
+  },
+  "price": {
+    "free": "무료"
+  },
+  "errors": {
+    "categoryLoadError": "악보집 정보를 불러오지 못했습니다.",
+    "categoryNotFound": "악보집 카테고리가 아직 준비되지 않았습니다.",
+    "sheetsLoadError": "악보집 목록을 불러오지 못했습니다.",
+    "generalError": "악보집을 불러오는 중 오류가 발생했습니다."
+  },
+  "results": "{{count}}권"
+}

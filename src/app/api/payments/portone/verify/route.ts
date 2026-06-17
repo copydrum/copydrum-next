@@ -297,56 +297,103 @@ export async function POST(request: NextRequest) {
       amount: portonePayment.amount,
     });
 
-    // ─── 주문 조회 시작 ───
-    let order: any = null;
-
-    // 1. 주문 정보 조회 (orderId가 있으면 먼저 조회)
-    // UUID 형식 검증 (DB의 id 컬럼이 UUID 타입이므로 non-UUID 전달 시 PostgreSQL 에러 발생)
+    // ─── 주문 조회 (paymentId 소유권 우선) ───
+    // PayPal 재시도 시 클라이언트 orderId(C86KMX)와 실제 결제 소유 주문(AHCT56)이
+    // 달라질 수 있으므로, transaction_id(paymentId) 매칭을 최우선한다.
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    const isValidUUID = orderId ? uuidRegex.test(orderId) : false;
+    let order: any = null;
+    let orderByTx: any = null;
+    let orderByClient: any = null;
 
-    if (orderId && isValidUUID) {
-      const { data: orderData, error: orderError } = await supabase
+    const { data: txOrder, error: txLookupError } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('transaction_id', paymentId)
+      .maybeSingle();
+
+    if (txLookupError) {
+      console.error('[verify] ❌ transaction_id로 주문 조회 실패:', {
+        error: txLookupError,
+        paymentId,
+      });
+    } else if (txOrder) {
+      orderByTx = txOrder;
+      console.log('[verify] ✅ transaction_id로 주문 조회 성공:', txOrder.id);
+    }
+
+    if (orderId && uuidRegex.test(orderId)) {
+      const { data: clientOrder, error: clientError } = await supabase
         .from('orders')
         .select('*')
         .eq('id', orderId)
-        .single();
+        .maybeSingle();
 
-      if (orderError) {
-        console.error('[verify] ❌ 주문 조회 실패 (orderId:', orderId, '):', {
-          error: orderError,
-          code: orderError.code,
-          message: orderError.message,
-          details: orderError.details,
-          hint: orderError.hint,
+      if (clientError) {
+        console.error('[verify] ❌ orderId로 주문 조회 실패:', {
+          error: clientError,
+          orderId,
         });
-      } else if (orderData) {
-        order = orderData;
-        console.log('[verify] ✅ 주문 조회 성공 (orderId:', orderId, ')');
+      } else if (clientOrder) {
+        orderByClient = clientOrder;
+        console.log('[verify] ✅ orderId로 주문 조회 성공:', orderId);
       }
-    } else if (orderId && !isValidUUID) {
+    } else if (orderId && !uuidRegex.test(orderId)) {
       console.warn('[verify] ⚠️ orderId가 UUID 형식이 아님, 건너뜀:', orderId);
     }
 
-    // 2. 주문이 없으면 transaction_id로 조회 시도
-    if (!order) {
-      console.log('[verify] 주문이 없음, transaction_id로 조회 시도:', paymentId);
-      const { data: orderByTxId, error: txError } = await supabase
-        .from('orders')
-        .select('*')
-        .eq('transaction_id', paymentId)
-        .maybeSingle();
-
-      if (txError) {
-        console.error('[verify] ❌ transaction_id로 주문 조회 실패:', {
-          error: txError,
-          code: txError.code,
-          message: txError.message,
-        });
-      } else if (orderByTxId) {
-        order = orderByTxId;
-        console.log('[verify] ✅ transaction_id로 주문 조회 성공');
+    if (orderByTx) {
+      if (orderByClient && orderByClient.id !== orderByTx.id) {
+        console.warn(
+          '[verify] 🛡️ 클라이언트 orderId와 paymentId 소유 주문 불일치 — transaction_id 주문으로 완료:',
+          {
+            clientOrderId: orderByClient.id,
+            clientOrderNumber: orderByClient.order_number,
+            paymentOwnerOrderId: orderByTx.id,
+            paymentOwnerOrderNumber: orderByTx.order_number,
+            paymentId,
+          },
+        );
       }
+      order = orderByTx;
+    } else if (orderByClient) {
+      const clientTx = orderByClient.transaction_id as string | null;
+      if (!clientTx || clientTx === paymentId) {
+        order = orderByClient;
+      } else {
+        console.warn(
+          '[verify] 🛡️ 클라이언트 주문이 다른 transaction_id를 보유 — 이 결제로 완료하지 않음:',
+          {
+            clientOrderId: orderByClient.id,
+            clientTransactionId: clientTx,
+            paymentId,
+          },
+        );
+        order = null;
+      }
+    }
+
+    // 동일 paymentId로 이미 완료된 주문이 있으면 그 주문만 성공 처리 (이중 매출 방지)
+    const { data: alreadyPaidOrder } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('transaction_id', paymentId)
+      .or('status.eq.completed,payment_status.eq.paid')
+      .maybeSingle();
+
+    if (alreadyPaidOrder) {
+      if (order && order.id !== alreadyPaidOrder.id) {
+        console.warn('[verify] 🛡️ 결제가 이미 다른 주문에 반영됨 — 중복 완료 차단:', {
+          attemptedOrderId: order.id,
+          paidOrderId: alreadyPaidOrder.id,
+          paymentId,
+        });
+      }
+      console.log('[verify] ✅ 이미 완료된 결제(멱등):', alreadyPaidOrder.id);
+      return NextResponse.json({
+        success: true,
+        message: '이미 처리된 주문입니다.',
+        order: alreadyPaidOrder,
+      });
     }
 
     // 3. 주문이 여전히 없으면 포트원 결제 정보로 주문 생성 시도 (Lazy Creation)

@@ -352,6 +352,25 @@ export async function POST(request: NextRequest) {
                 alreadyPaid: true, // 클라이언트가 success 페이지로 보낼 수 있도록 표시
               });
             }
+
+            // PayPal 등 비동기 결제: PAY_PENDING 중이면 같은 주문을 재활용 (새 pending 주문 난립 방지)
+            const INFLIGHT_PENDING = ['PENDING', 'READY', 'PAY_PENDING'];
+            if (snap && INFLIGHT_PENDING.includes(snap.status)) {
+              console.log('[create-order] ♻️ in-flight 결제 처리 중 — 기존 주문 재활용:', {
+                userId,
+                existingOrderId: inflight.id,
+                existingOrderNumber: inflight.order_number,
+                transactionId: inflight.transaction_id,
+                portoneStatus: snap.status,
+              });
+              return NextResponse.json({
+                success: true,
+                orderId: inflight.id,
+                orderNumber: inflight.order_number,
+                reused: true,
+                inflightPending: true,
+              });
+            }
           } catch (snapErr) {
             // 조회 실패 → best-effort 폴백 (아래에서 새 주문 생성)
             console.warn('[create-order] in-flight 결제 상태 조회 실패(새 주문으로 폴백):', {

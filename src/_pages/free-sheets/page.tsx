@@ -879,8 +879,8 @@ const LessonBooksPage = () => {
                               className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-orange-600 to-rose-600 px-3 py-2 text-xs font-semibold text-white shadow-sm transition-colors hover:from-orange-700 hover:to-rose-700 active:from-orange-800 active:to-rose-800"
                               aria-label={t('freeSheets.actions.buyNow')}
                             >
-                              <Zap className="h-4 w-4" />
-                              <span className="hidden sm:inline">{t('freeSheets.actions.buyNow')}</span>
+                              <Zap className="h-4 w-4 shrink-0" />
+                              <span>{t('freeSheets.actions.buyNow')}</span>
                             </button>
                           </>
                         )}

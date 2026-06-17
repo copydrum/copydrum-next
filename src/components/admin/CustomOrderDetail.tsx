@@ -51,10 +51,12 @@ interface CustomOrderDetailProps {
   onUpdated?: () => void;
 }
 
+const normalizeAdminSelectableStatus = (status: string): StatusOptionValue =>
+  status === 'payment_confirmed' ? 'in_progress' : (status as StatusOptionValue);
+
 const STATUS_OPTIONS: StatusOption[] = [
   { value: 'pending', label: '견적중', description: '견적 검토 중입니다' },
   { value: 'quoted', label: '결제대기', description: '입금 대기 중입니다' },
-  { value: 'payment_confirmed', label: '입금확인', description: '입금이 확인되었습니다' },
   { value: 'in_progress', label: '작업중', description: '악보 제작 중입니다' },
   { value: 'completed', label: '작업완료', description: '제작이 완료되었습니다' },
   { value: 'cancelled', label: '취소됨', description: '주문이 취소되었습니다' },
@@ -68,7 +70,7 @@ const formatDateTime = (value: string | null | undefined) => {
 };
 
 const getStatusMeta = (status: StatusOptionValue) => {
-  return STATUS_OPTIONS.find((option) => option.value === status) ?? STATUS_OPTIONS[0];
+  return STATUS_OPTIONS.find((option) => option.value === normalizeAdminSelectableStatus(status)) ?? STATUS_OPTIONS[0];
 };
 
 const normalizeCompletedFiles = (order: Pick<OrderDetail, 'completed_pdf_url' | 'completed_pdf_filename'>) => {
@@ -158,7 +160,7 @@ export default function CustomOrderDetail({ orderId, onClose, onUpdated }: Custo
       }
 
       setOrder(data as OrderDetail);
-      setSelectedStatus((data.status as StatusOptionValue) ?? 'pending');
+      setSelectedStatus(normalizeAdminSelectableStatus(data.status ?? 'pending'));
       setEstimatedPrice(
         typeof data.estimated_price === 'number' ? data.estimated_price.toString() : ''
       );
@@ -515,7 +517,10 @@ export default function CustomOrderDetail({ orderId, onClose, onUpdated }: Custo
                     </select>
                     <button
                       onClick={handleStatusChange}
-                      disabled={selectedStatus === order.status || isSavingStatus}
+                      disabled={
+                        normalizeAdminSelectableStatus(selectedStatus) ===
+                          normalizeAdminSelectableStatus(order.status) || isSavingStatus
+                      }
                       className="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:bg-blue-300"
                     >
                       변경

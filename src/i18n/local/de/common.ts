@@ -24,6 +24,7 @@ export default {
   'nav.eventSale': 'Veranstaltungsverkauf',
   'nav.collections': 'Sammlungen',
   'nav.drumLesson': 'Schlagzeug-Lehrbücher',
+  'nav.sheetBooks': 'Notenhefte',
   'nav.freeSheets': 'Kostenlose Noten',
   'nav.customerSupport': 'Kundensupport',
   'nav.company.about': 'Über uns',

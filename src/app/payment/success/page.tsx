@@ -181,11 +181,30 @@ export default function PaymentSuccessPage() {
               return;
             }
 
+            // verify가 실제 완료한 주문이 URL orderId와 다르면 올바른 주문으로 이동
+            const resolvedOrderId =
+              verifyResult?.success && verifyResult?.order?.id
+                ? verifyResult.order.id
+                : orderId;
+
+            if (resolvedOrderId !== orderId) {
+              console.log('[payment-success] 결제 소유 주문으로 리다이렉트:', {
+                urlOrderId: orderId,
+                resolvedOrderId,
+              });
+              const params = new URLSearchParams();
+              params.set('orderId', resolvedOrderId);
+              if (actualMethod) params.set('method', actualMethod);
+              if (paymentIdForVerify) params.set('paymentId', paymentIdForVerify);
+              router.replace(`/payment/success?${params.toString()}`);
+              return;
+            }
+
             // 업데이트된 주문 정보 재조회
             const { data: updatedOrderData } = await supabase
               .from('orders')
               .select('*')
-              .eq('id', orderId)
+              .eq('id', resolvedOrderId)
               .single();
 
             if (updatedOrderData) {

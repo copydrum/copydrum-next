@@ -24,6 +24,7 @@ export default {
   'nav.eventSale': 'Khuyến mãi',
   'nav.collections': 'Bộ sưu tập',
   'nav.drumLesson': 'Giáo Trình Học Trống',
+  'nav.sheetBooks': 'Sách Nhạc',
   'nav.freeSheets': 'Bản nhạc miễn phí',
   'nav.customerSupport': 'Hỗ trợ khách hàng',
   'nav.company.about': 'Về chúng tôi',

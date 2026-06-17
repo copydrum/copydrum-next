@@ -9,6 +9,7 @@ import type { Profile } from '../../lib/supabase';
 import { googleAuth } from '../../lib/google';
 import { getUserDisplayName } from '../../utils/userDisplayName';
 import { isKoreanSiteHost } from '../../config/hostType';
+import { COLLECTIONS_PUBLIC_ENABLED } from '@/config/featureFlags';
 
 interface Category {
   id: string;
@@ -32,6 +33,7 @@ const baseMenuItems: NavItem[] = [
   { labelKey: 'nav.categories', href: '/categories', icon: 'ri-apps-line' },
   { labelKey: 'sidebar.nav.collections', href: '/collections', icon: 'ri-stack-line' },
   { labelKey: 'sidebar.nav.drumLesson', href: '/free-sheets', icon: 'ri-book-2-line' },
+  { labelKey: 'sidebar.nav.sheetBooks', href: '/sheet-books', icon: 'ri-book-mark-line' },
   { labelKey: 'nav.customOrder', href: '/custom-order', icon: 'ri-edit-line' },
   { labelKey: 'sidebar.nav.purchaseHistory', href: '/purchases', icon: 'ri-file-list-3-line' },
 ];
@@ -63,7 +65,8 @@ export default function MobileMenuSidebar({
         let { data, error } = await supabase
           .from('categories')
           .select('id, name')
-          .neq('name', '드럼레슨');
+          .neq('name', '드럼레슨')
+          .neq('name', '악보집');
 
         if (error) throw error;
 
@@ -72,7 +75,8 @@ export default function MobileMenuSidebar({
           const { data: dataWithSlug, error: slugError } = await supabase
             .from('categories')
             .select('id, name, slug')
-            .neq('name', '드럼레슨');
+            .neq('name', '드럼레슨')
+          .neq('name', '악보집');
 
           // slug 컬럼이 있으면 slug 포함 데이터 사용, 없으면 기본 데이터 사용
           if (!slugError && dataWithSlug) {
@@ -96,10 +100,13 @@ export default function MobileMenuSidebar({
   }, [isOpen]);
   
   const menuItems = useMemo(() => {
+    let items = COLLECTIONS_PUBLIC_ENABLED
+      ? baseMenuItems
+      : baseMenuItems.filter((item) => item.href !== '/collections');
     if (isKoreanSite) {
-      return baseMenuItems.filter(item => item.labelKey !== 'nav.categories');
+      return items.filter(item => item.labelKey !== 'nav.categories');
     }
-    return baseMenuItems.filter(item => item.labelKey !== 'nav.customOrder' && item.labelKey !== 'nav.categories');
+    return items.filter(item => item.labelKey !== 'nav.customOrder' && item.labelKey !== 'nav.categories');
   }, [isKoreanSite]);
 
   // 장르 목록 생성

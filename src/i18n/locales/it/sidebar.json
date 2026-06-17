@@ -7,7 +7,8 @@
     "logout": "Esci",
     "login": "Accedi",
     "collections": "Collezioni",
-    "drumLesson": "Libri di Lezioni di Batteria"
+    "drumLesson": "Libri di Lezioni di Batteria",
+    "sheetBooks": "Libri di Spartiti"
   },
   "header": {
     "signup": "Registrati",
@@ -97,4 +98,3 @@
   "migrationNotice1": "Se sei un membro esistente, potresti dover reimpostare la tua password.",
   "migrationNotice2": "Reimpostala tramite Trova Password."
 }
-
