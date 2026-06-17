@@ -127,7 +127,7 @@ export default {
   'footer.description': 'Chúng tôi cung cấp bản nhạc trống chất lượng cao nhất, được tin tưởng bởi cả các tay trống chuyên nghiệp và nghiệp dư.',
   'footer.companyInfo': 'Công ty COPYDRUM | CEO Kang Mansu | Số đăng ký kinh doanh 307-07-86155',
   'footer.telecomLicense': 'Đăng ký kinh doanh viễn thông: 2020-Sejong-0099',
-  'footer.address': 'Địa chỉ: 836, 8F, Gangnam Jeil Tower, 454 Namsejong-ro, Sejong',
+  'footer.address': 'Địa chỉ: Phòng 113, Tầng 1, Jebi-dong, 2200 Hannuri-daero, Sejong-si, Hàn Quốc',
   'footer.contactInfo': 'Liên hệ: 070-7570-0028 (Vui lòng sử dụng yêu cầu 1:1 hoặc chat KakaoTalk vì liên hệ qua điện thoại khó khăn trong giờ làm việc.)',
   'footer.email': 'Email: copydrum@hanmail.net',
   'footer.contactInfoGlobal': 'Liên hệ: 070-7570-0028 (Hỗ trợ qua điện thoại bị hạn chế trong giờ làm việc. Vui lòng sử dụng biểu tượng trò chuyện ở góc dưới bên phải màn hình.)',

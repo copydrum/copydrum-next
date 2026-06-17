@@ -127,7 +127,7 @@ export default {
   'footer.description': 'Forniamo spartiti per batteria di altissima qualità, affidabili sia per batteristi professionisti che amatoriali.',
   'footer.companyInfo': 'Azienda COPYDRUM | CEO Kang Mansu | Numero di registrazione commerciale 307-07-86155',
   'footer.telecomLicense': 'Registrazione vendite telecomunicazioni: 2020-Sejong-0099',
-  'footer.address': 'Indirizzo: 836, 8F, Gangnam Jeil Tower, 454 Namsejong-ro, Sejong',
+  'footer.address': 'Indirizzo: Unità 113, 1° piano, Jebi-dong, 2200 Hannuri-daero, Sejong-si, Corea del Sud',
   'footer.contactInfo': 'Contatto: 070-7570-0028 (Si prega di utilizzare la richiesta 1:1 o la chat KakaoTalk poiché il contatto telefonico è difficile durante l\'orario lavorativo.)',
   'footer.email': 'E-mail: copydrum@hanmail.net',
   'footer.contactInfoGlobal': 'Contatto: 070-7570-0028 (Il supporto telefonico è limitato durante l\'orario lavorativo. Utilizzare l\'icona della chat nell\'angolo in basso a destra dello schermo.)',

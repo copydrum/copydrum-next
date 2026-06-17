@@ -127,7 +127,7 @@ export default {
   'footer.description': 'Wir bieten hochwertige Schlagzeugnoten, denen sowohl Profis als auch Hobby-Drummer vertrauen.',
   'footer.companyInfo': 'Firma COPYDRUM | CEO Kang Mansu | Handelsregisternummer 307-07-86155',
   'footer.telecomLicense': 'Telekommunikationsverkaufsgeschäft Registrierung: 2020-Sejong-0099',
-  'footer.address': 'Adresse: 836, 8F, Gangnam Jeil Tower, 454 Namsejong-ro, Sejong',
+  'footer.address': 'Adresse: Einheit 113, 1. OG, Jebi-dong, 2200 Hannuri-daero, Sejong-si, Südkorea',
   'footer.contactInfo': 'Kontakt: 070-7570-0028 (Bitte nutzen Sie 1:1-Anfrage oder KakaoTalk-Chat, da Telefonkontakt während der Arbeitszeit schwierig ist.)',
   'footer.email': 'E-Mail: copydrum@hanmail.net',
   'footer.contactInfoGlobal': 'Kontakt: 070-7570-0028 (Telefonischer Support ist während der Geschäftszeiten eingeschränkt. Bitte nutzen Sie das Chat-Symbol unten rechts auf dem Bildschirm.)',

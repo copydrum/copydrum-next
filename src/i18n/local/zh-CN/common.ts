@@ -127,7 +127,7 @@ export default {
   'footer.description': '我们提供最高质量的鼓谱，深受专业和业余鼓手信赖。',
   'footer.companyInfo': '公司 COPYDRUM | 首席执行官 姜万洙 | 商业注册号 307-07-86155',
   'footer.telecomLicense': '电信销售业务注册：2020-Sejong-0099',
-  'footer.address': '地址：世宗市 南世宗路 454 江南第一大厦 8层 836号',
+  'footer.address': '地址：世宗特别自治市 韩努里大路 2200，褵栋 1层 113号',
   'footer.contactInfo': '联系方式：070-7570-0028 (工作时间电话联系困难，请使用1:1询问或KakaoTalk聊天。)',
   'footer.email': '电子邮件：copydrum@hanmail.net',
   'footer.contactInfoGlobal': '联系方式：070-7570-0028 (营业时间内电话支持有限。请使用屏幕右下角的聊天图标。)',

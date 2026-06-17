@@ -417,7 +417,7 @@ export default {
   'footer.description': '전문 드러머부터 취미 드러머까지, 누구나 믿고 찾는 최고 품질의 드럼 악보를 제공합니다.',
   'footer.companyInfo': '회사명 COPYDRUM | 대표자 강만수 | 사업자등록번호 307-07-86155',
   'footer.telecomLicense': '통신판매업 신고 : 제2020세종0099호',
-  'footer.address': '주소 세종 남세종로 454 강남제일타워 8층 836호',
+  'footer.address': '주소: 세종특별자치시 한누리대로 2200, 제비동 1층 113호',
   'footer.contactInfo': '연락처 070-7570-0028 (작업중에 연락이 어렵습니다. 1:1문의 또는 카카오톡 채팅을 이용해주세요.)',
   'footer.email': '이메일: copydrum@hanmail.net',
   'footer.contactInfoGlobal': '문의사항이 있으시면 마이페이지의 1:1 문의하기를 이용해 주세요.',

@@ -430,7 +430,7 @@ export default {
   'footer.description': 'We provide the highest quality drum sheet music trusted by professional and hobbyist drummers alike.',
   'footer.companyInfo': 'Company COPYDRUM | CEO Kang Mansu | Business Registration No. 307-07-86155',
   'footer.telecomLicense': 'Telecom Sales Business Registration: 2020-Sejong-0099',
-  'footer.address': 'Address: 836, 8F, Gangnam Jeil Tower, 454 Namsejong-ro, Sejong',
+  'footer.address': 'Address: Unit 113, 1F, Jebi-dong, 2200 Hannuri-daero, Sejong-si, Republic of Korea',
   'footer.contactInfo': 'Contact: 070-7570-0028 (Please use 1:1 inquiry or KakaoTalk chat as phone contact is difficult during work hours.)',
   'footer.email': 'Email: copydrum@hanmail.net',
   'footer.contactInfoGlobal': 'Contact: 070-7570-0028 (Phone support is limited during business hours. Please use the chat icon in the bottom-right corner of the screen.)',

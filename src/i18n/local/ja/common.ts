@@ -428,7 +428,7 @@ export default {
   'footer.description': 'プロから趣味のドラマーまで信頼される最高品質のドラム楽譜サービスを提供します。',
   'footer.companyInfo': '会社名 COPYDRUM | 代表 カン・マンス | 事業者登録番号 307-07-86155',
   'footer.telecomLicense': '通信販売業届出: 2020-Sejong-0099',
-  'footer.address': '住所: 世宗特別自治市 南世宗路 454 江南第一タワー 8階 836号',
+  'footer.address': '住所: 世宗特別自治市 ハンヌリ大路 2200, ジェビ棟 1階 113号',
   'footer.contactInfo': '連絡先: 070-7570-0028 (業務中は電話に出られない場合があるため、1:1お問い合わせまたはカカオトーク相談をご利用ください)',
   'footer.email': 'メール: copydrum@hanmail.net',
   'footer.contactInfoGlobal': '連絡先: 070-7570-0028 (営業時間中は電話対応が難しい場合があります。画面右下のチャットアイコンをご利用ください。)',

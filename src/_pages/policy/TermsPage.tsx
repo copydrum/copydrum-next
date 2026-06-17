@@ -96,7 +96,7 @@ const TermsPage: React.FC = () => {
               <li>대표자: 강만수</li>
               <li>사업자등록번호: 307-07-86155</li>
               <li>통신판매업 신고번호: 제2020세종0099호</li>
-              <li>주소: 세종특별자치시 남세종로 454, 강남제일타워 8층 836호</li>
+              <li>주소: 세종특별자치시 한누리대로 2200, 제비동 1층 113호</li>
               <li>연락처: 070-7570-0028</li>
               <li>
                 이메일: <a href="mailto:copydrum@hanmail.net">copydrum@hanmail.net</a>
@@ -174,7 +174,7 @@ const TermsPage: React.FC = () => {
               <li>Business registration no.: 307-07-86155</li>
               <li>Mail-order sales registration: 제2020세종0099호</li>
               <li>
-                Address: 8F #836, Gangnam Jeil Tower, 454 Namsejong-ro, Sejong, Republic of Korea
+                Address: Unit 113, 1F, Jebi-dong, 2200 Hannuri-daero, Sejong-si, Republic of Korea
               </li>
               <li>Phone: +82-70-7570-0028</li>
               <li>

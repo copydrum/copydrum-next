@@ -127,7 +127,7 @@ export default {
   'footer.description': 'Hem profesyonel hem de amatör davulcuların güvendiği en yüksek kaliteli davul notalarını sağlıyoruz.',
   'footer.companyInfo': 'Şirket COPYDRUM | CEO Kang Mansu | Ticaret sicil numarası 307-07-86155',
   'footer.telecomLicense': 'Telekomünikasyon satış işletme kaydı: 2020-Sejong-0099',
-  'footer.address': 'Adres: 836, 8F, Gangnam Jeil Tower, 454 Namsejong-ro, Sejong',
+  'footer.address': 'Adres: Unit 113, 1. Kat, Jebi-dong, 2200 Hannuri-daero, Sejong, Güney Kore',
   'footer.contactInfo': 'İletişim: 070-7570-0028 (Lütfen çalışma saatleri içinde telefon iletişimi zor olduğu için 1:1 sorgu veya KakaoTalk sohbetini kullanın.)',
   'footer.email': 'E-posta: copydrum@hanmail.net',
   'footer.contactInfoGlobal': 'İletişim: 070-7570-0028 (Çalışma saatlerinde telefon desteği sınırlıdır. Lütfen ekranın sağ alt köşesindeki sohbet simgesini kullanın.)',

@@ -127,7 +127,7 @@ export default {
   'footer.description': 'Kami menyediakan partitur drum berkualitas tertinggi yang dipercaya oleh drummer profesional dan amatir.',
   'footer.companyInfo': 'Perusahaan COPYDRUM | CEO Kang Mansu | Nomor registrasi bisnis 307-07-86155',
   'footer.telecomLicense': 'Registrasi penjualan telekomunikasi: 2020-Sejong-0099',
-  'footer.address': 'Alamat: 836, 8F, Gangnam Jeil Tower, 454 Namsejong-ro, Sejong',
+  'footer.address': 'Alamat: Unit 113, Lantai 1, Jebi-dong, 2200 Hannuri-daero, Sejong-si, Korea Selatan',
   'footer.contactInfo': 'Kontak: 070-7570-0028 (Silakan gunakan permintaan 1:1 atau chat KakaoTalk karena kontak telepon sulit selama jam kerja.)',
   'footer.email': 'Email: copydrum@hanmail.net',
   'footer.contactInfoGlobal': 'Kontak: 070-7570-0028 (Dukungan telepon terbatas selama jam kerja. Silakan gunakan ikon obrolan di sudut kanan bawah layar.)',

@@ -127,7 +127,7 @@ export default {
   'footer.description': 'Nous fournissons des partitions de batterie de la plus haute qualité, approuvées par les batteurs professionnels et amateurs.',
   'footer.companyInfo': 'Société COPYDRUM | PDG Kang Mansu | Numéro d\'enregistrement commercial 307-07-86155',
   'footer.telecomLicense': 'Enregistrement de vente par télécommunications : 2020-Sejong-0099',
-  'footer.address': 'Adresse : 836, 8F, Gangnam Jeil Tower, 454 Namsejong-ro, Sejong',
+  'footer.address': 'Adresse : Unité 113, 1er étage, Jebi-dong, 2200 Hannuri-daero, Sejong-si, République de Corée',
   'footer.contactInfo': 'Contact : 070-7570-0028 (Veuillez utiliser la demande 1:1 ou le chat KakaoTalk car le contact téléphonique est difficile pendant les heures de travail.)',
   'footer.email': 'E-mail : copydrum@hanmail.net',
   'footer.contactInfoGlobal': 'Contact : 070-7570-0028 (Le support téléphonique est limité pendant les heures ouvrables. Veuillez utiliser l\'icône de chat en bas à droite de l\'écran.)',

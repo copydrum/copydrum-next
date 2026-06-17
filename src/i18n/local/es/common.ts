@@ -127,7 +127,7 @@ export default {
   'footer.description': 'Proporcionamos partituras de batería de la más alta calidad, confiables tanto para bateristas profesionales como aficionados.',
   'footer.companyInfo': 'Empresa COPYDRUM | CEO Kang Mansu | Número de registro comercial 307-07-86155',
   'footer.telecomLicense': 'Registro de ventas por telecomunicaciones: 2020-Sejong-0099',
-  'footer.address': 'Dirección: 836, 8F, Gangnam Jeil Tower, 454 Namsejong-ro, Sejong',
+  'footer.address': 'Dirección: Unidad 113, 1.º piso, Jebi-dong, 2200 Hannuri-daero, Sejong-si, República de Corea',
   'footer.contactInfo': 'Contacto: 070-7570-0028 (Por favor, use la consulta 1:1 o el chat de KakaoTalk ya que el contacto telefónico es difícil durante el horario laboral.)',
   'footer.email': 'Correo electrónico: copydrum@hanmail.net',
   'footer.contactInfoGlobal': 'Contacto: 070-7570-0028 (El soporte telefónico es limitado durante el horario laboral. Utilice el icono de chat en la esquina inferior derecha de la pantalla.)',

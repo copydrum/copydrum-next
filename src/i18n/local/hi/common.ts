@@ -127,7 +127,7 @@ export default {
   'footer.description': 'हम उच्चतम गुणवत्ता वाले ड्रम नोट्स प्रदान करते हैं, जिन पर पेशेवर और शौकिया ड्रमर दोनों भरोसा करते हैं।',
   'footer.companyInfo': 'कंपनी COPYDRUM | CEO Kang Mansu | व्यावसायिक पंजीकरण संख्या 307-07-86155',
   'footer.telecomLicense': 'दूरसंचार बिक्री व्यवसाय पंजीकरण: 2020-Sejong-0099',
-  'footer.address': 'पता: 836, 8F, Gangnam Jeil Tower, 454 Namsejong-ro, Sejong',
+  'footer.address': 'पता: यूनिट 113, 1ली मंज़िल, Jebi-dong, 2200 Hannuri-daero, Sejong-si, दक्षिण कोरिया',
   'footer.contactInfo': 'संपर्क: 070-7570-0028 (कृपया 1:1 पूछताछ या KakaoTalk चैट का उपयोग करें क्योंकि काम के घंटों के दौरान फोन संपर्क मुश्किल है।)',
   'footer.email': 'ईमेल: copydrum@hanmail.net',
   'footer.contactInfoGlobal': 'संपर्क: 070-7570-0028 (कार्य घंटों के दौरान फोन सहायता सीमित है। कृपया स्क्रीन के नीचे दाईं ओर चैट आइकन का उपयोग करें।)',

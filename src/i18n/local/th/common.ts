@@ -127,7 +127,7 @@ export default {
   'footer.description': 'เรามีโน้ตกลองคุณภาพสูงสุดที่เชื่อถือได้ทั้งจากมือกลองมืออาชีพและมือสมัครเล่น',
   'footer.companyInfo': 'บริษัท COPYDRUM | CEO Kang Mansu | เลขทะเบียนธุรกิจ 307-07-86155',
   'footer.telecomLicense': 'การลงทะเบียนขายโทรคมนาคม: 2020-Sejong-0099',
-  'footer.address': 'ที่อยู่: 836, 8F, Gangnam Jeil Tower, 454 Namsejong-ro, Sejong',
+  'footer.address': 'ที่อยู่: ห้อง 113 ชั้น 1 อาคาร Jebi-dong เลขที่ 2200 ถนน Hannuri-daero เมืองเซจง เกาหลีใต้',
   'footer.contactInfo': 'ติดต่อ: 070-7570-0028 (กรุณาใช้คำขอ 1:1 หรือแชท KakaoTalk เนื่องจากติดต่อทางโทรศัพท์ยากในช่วงเวลาทำงาน)',
   'footer.email': 'อีเมล: copydrum@hanmail.net',
   'footer.contactInfoGlobal': 'ติดต่อ: 070-7570-0028 (การสนับสนุนทางโทรศัพท์มีจำกัดในช่วงเวลาทำการ กรุณาใช้ไอคอนแชทที่มุมล่างขวาของหน้าจอ)',
