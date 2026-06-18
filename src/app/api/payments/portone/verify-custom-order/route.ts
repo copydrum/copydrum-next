@@ -5,6 +5,8 @@ import { createClient } from '@supabase/supabase-js';
 // 시트 구매용 /verify 와 달리 orders/order_items/purchases/다운로드 발급 로직과 완전히 분리되어 있고,
 // 결제가 PAID 로 확인되고 금액이 견적가와 일치할 때만 custom_orders.status 를 'in_progress' 로 올린다.
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 function createAdminClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -34,8 +36,66 @@ async function getPortOneAccessToken(apiSecret: string): Promise<string> {
   return result.accessToken;
 }
 
+function parsePortOneMetadata(raw: unknown): Record<string, unknown> {
+  if (!raw) return {};
+  if (typeof raw === 'string') {
+    try {
+      const parsed = JSON.parse(raw);
+      return parsed && typeof parsed === 'object' ? (parsed as Record<string, unknown>) : {};
+    } catch {
+      return {};
+    }
+  }
+  if (typeof raw === 'object') return raw as Record<string, unknown>;
+  return {};
+}
+
+function mergePortOneMetadata(...sources: unknown[]): Record<string, unknown> {
+  return sources.reduce<Record<string, unknown>>((acc, src) => {
+    return { ...acc, ...parsePortOneMetadata(src) };
+  }, {});
+}
+
+function extractMerchantOrderId(payment: Record<string, unknown>): string | undefined {
+  const candidates = [
+    payment.order_id,
+    payment.orderId,
+    payment.merchant_uid,
+    payment.merchantUid,
+    (payment.customData as Record<string, unknown> | undefined)?.orderId,
+    (payment.custom_data as Record<string, unknown> | undefined)?.order_id,
+  ];
+  for (const c of candidates) {
+    const s = String(c ?? '').trim();
+    if (UUID_RE.test(s)) return s;
+  }
+  return undefined;
+}
+
+async function getAuthoritativeStatus(
+  paymentId: string,
+  accessToken: string,
+): Promise<string | null> {
+  try {
+    const res = await fetch(`https://api.portone.io/payments/${encodeURIComponent(paymentId)}`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!res.ok) return null;
+    const p = (await res.json()) as Record<string, unknown>;
+    return p?.status ? String(p.status).toUpperCase() : null;
+  } catch {
+    return null;
+  }
+}
+
 async function getPortOnePayment(paymentId: string, apiSecret: string): Promise<any> {
   const accessToken = await getPortOneAccessToken(apiSecret);
+  const authoritativeStatus = await getAuthoritativeStatus(paymentId, accessToken);
+
   const url = `https://api.portone.io/v2/payments/${encodeURIComponent(paymentId)}`;
   const response = await fetch(url, {
     method: 'GET',
@@ -48,17 +108,27 @@ async function getPortOnePayment(paymentId: string, apiSecret: string): Promise<
     const errorText = await response.text();
     throw new Error(`PortOne API error: ${response.status} ${errorText}`);
   }
+
   const rawResult = await response.json();
   if (rawResult.payment && rawResult.payment.transactions && rawResult.payment.transactions.length > 0) {
-    const tx = rawResult.payment.transactions[0];
+    const payment = rawResult.payment as Record<string, unknown>;
+    const txs = rawResult.payment.transactions as any[];
+    const tx = txs.find((t) => t.is_primary === true || t.isPrimary === true) ?? txs[0];
+    const mergedMetadata = mergePortOneMetadata(
+      tx.metadata,
+      payment.metadata,
+      payment.customData,
+      payment.custom_data,
+    );
+
     return {
-      id: rawResult.payment.id,
+      id: payment.id,
       transactionId: tx.id,
-      status: tx.status,
-      amount: tx.amount,
-      orderName: rawResult.payment.order_name,
-      metadata: tx.metadata || rawResult.payment.metadata || {},
-      customer: rawResult.payment.customer || {},
+      status: authoritativeStatus ?? tx.status,
+      amount: tx.amount ?? payment.amount,
+      merchantOrderId: extractMerchantOrderId(payment),
+      metadata: mergedMetadata,
+      customer: payment.customer || {},
     };
   }
   throw new Error('Invalid payment data structure from PortOne');
@@ -75,16 +145,14 @@ function classifyPaymentStatus(status: string): 'PAID' | 'FAILED' | 'PENDING' | 
   return 'UNKNOWN';
 }
 
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { paymentId, customOrderId } = body;
+    const { paymentId, customOrderId: bodyCustomOrderId } = body;
 
-    if (!paymentId || !customOrderId || !UUID_RE.test(customOrderId)) {
+    if (!paymentId) {
       return NextResponse.json(
-        { success: false, error: '결제 ID와 주문제작 ID가 필요합니다.' },
+        { success: false, error: '결제 ID가 필요합니다.' },
         { status: 400 }
       );
     }
@@ -94,6 +162,39 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { success: false, error: '서버 설정 오류: 결제 검증을 수행할 수 없습니다.' },
         { status: 500 }
+      );
+    }
+
+    // PortOne 결제 조회 (PAID 확인 필수) — customOrderId는 API 응답에서도 추출 가능
+    let portonePayment: any;
+    try {
+      portonePayment = await getPortOnePayment(paymentId, portoneApiKey);
+    } catch (e) {
+      console.error('[verify-custom-order] ❌ PortOne 조회 실패:', e);
+      return NextResponse.json(
+        {
+          success: false,
+          error: '결제 정보를 확인할 수 없습니다. 잠시 후 다시 시도해 주세요.',
+          errorCode: 'PAYMENT_VERIFICATION_FAILED',
+        },
+        { status: 502 }
+      );
+    }
+
+    const meta = (portonePayment.metadata || {}) as Record<string, unknown>;
+    const customOrderId = [
+      bodyCustomOrderId,
+      meta.customOrderId,
+      meta.custom_order_id,
+      portonePayment.merchantOrderId,
+    ]
+      .map((v) => String(v ?? '').trim())
+      .find((v) => UUID_RE.test(v));
+
+    if (!customOrderId) {
+      return NextResponse.json(
+        { success: false, error: '주문제작 ID를 확인할 수 없습니다.' },
+        { status: 400 }
       );
     }
 
@@ -133,32 +234,35 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 2) PortOne 결제 단건 조회 (PAID 확인 필수)
-    let portonePayment: any;
-    try {
-      portonePayment = await getPortOnePayment(paymentId, portoneApiKey);
-    } catch (e) {
-      console.error('[verify-custom-order] ❌ PortOne 조회 실패:', e);
-      return NextResponse.json(
-        { success: false, error: '결제 정보를 확인할 수 없습니다. 잠시 후 다시 시도해 주세요.', errorCode: 'PAYMENT_VERIFICATION_FAILED' },
-        { status: 502 }
-      );
-    }
+    console.log('[verify-custom-order] 🔍 PortOne 결제 조회:', {
+      paymentId: portonePayment.id,
+      status: portonePayment.status,
+      merchantOrderId: portonePayment.merchantOrderId,
+      customOrderId,
+    });
 
     const category = classifyPaymentStatus(portonePayment.status);
     if (category === 'PENDING') {
-      return NextResponse.json({ success: false, pending: true, message: '결제 승인 대기 중입니다.', errorCode: 'PAYMENT_PENDING' });
+      return NextResponse.json({
+        success: false,
+        pending: true,
+        message: '결제 승인 대기 중입니다.',
+        errorCode: 'PAYMENT_PENDING',
+      });
     }
     if (category !== 'PAID') {
       return NextResponse.json(
-        { success: false, error: '결제가 완료되지 않았습니다.', errorCode: 'PAYMENT_NOT_PAID', paymentStatus: portonePayment.status },
+        {
+          success: false,
+          error: '결제가 완료되지 않았습니다.',
+          errorCode: 'PAYMENT_NOT_PAID',
+          paymentStatus: portonePayment.status,
+        },
         { status: 400 }
       );
     }
 
     // 3) 결제 금액 ↔ 견적 금액 대조
-    //    - 글로벌(비한국) 주문: estimated_price 가 USD, PortOne USD 결제는 센트 단위(scale 2)
-    //    - 한국 주문: estimated_price 가 KRW, PortOne KRW 결제는 원 단위(scale 0)
     const pgAmountRaw = portonePayment.amount?.total ?? portonePayment.amount ?? 0;
     const pgCurrency = portonePayment.amount?.currency ?? '';
     const isUSD = pgCurrency === 'CURRENCY_USD' || pgCurrency === 'USD';
@@ -167,7 +271,7 @@ export async function POST(request: NextRequest) {
     if (isUSD) {
       const expectedCents = Math.round(estimatedPrice * 100);
       const paidCents = Math.round(Number(pgAmountRaw) || 0);
-      const tolerance = Math.max(50, Math.round(expectedCents * 0.02)); // 50센트 또는 2%
+      const tolerance = Math.max(50, Math.round(expectedCents * 0.02));
       if (Math.abs(paidCents - expectedCents) > tolerance) {
         console.error('[verify-custom-order] ⛔ USD 금액 불일치 — 승인 거부:', { customOrderId, paidCents, expectedCents });
         return NextResponse.json(
@@ -178,7 +282,7 @@ export async function POST(request: NextRequest) {
     } else if (isKRW) {
       const expectedKRW = Math.round(estimatedPrice);
       const paidKRW = Math.round(Number(pgAmountRaw) || 0);
-      const tolerance = Math.max(10, Math.round(expectedKRW * 0.02)); // 10원 또는 2%
+      const tolerance = Math.max(10, Math.round(expectedKRW * 0.02));
       if (Math.abs(paidKRW - expectedKRW) > tolerance) {
         console.error('[verify-custom-order] ⛔ KRW 금액 불일치 — 승인 거부:', { customOrderId, paidKRW, expectedKRW });
         return NextResponse.json(
@@ -187,22 +291,39 @@ export async function POST(request: NextRequest) {
         );
       }
     } else {
-      // 알 수 없는 통화면 오탐 방지를 위해 차단하지 않고 경고만 남긴다.
       console.warn('[verify-custom-order] ℹ️ 알 수 없는 통화 — 금액 대조 생략(경고만):', { customOrderId, pgAmountRaw, pgCurrency });
     }
 
     // 4) 결제 확인 → custom_orders.status 업데이트 (결제 후 바로 작업중)
-    const { error: updateError } = await supabase
+    const { data: updated, error: updateError } = await supabase
       .from('custom_orders')
       .update({ status: 'in_progress', updated_at: new Date().toISOString() })
       .eq('id', customOrderId)
-      .eq('status', 'quoted'); // 경합 방지: quoted 일 때만 전이
+      .eq('status', 'quoted')
+      .select('id')
+      .maybeSingle();
 
     if (updateError) {
       console.error('[verify-custom-order] ❌ 상태 업데이트 실패:', updateError);
       return NextResponse.json(
         { success: false, error: '주문 상태 업데이트에 실패했습니다.' },
         { status: 500 }
+      );
+    }
+
+    if (!updated) {
+      const { data: recheck } = await supabase
+        .from('custom_orders')
+        .select('status')
+        .eq('id', customOrderId)
+        .maybeSingle();
+      if (recheck && ['payment_confirmed', 'in_progress', 'completed'].includes((recheck as any).status)) {
+        return NextResponse.json({ success: true, message: '이미 결제가 확인된 주문입니다.', alreadyConfirmed: true });
+      }
+      console.error('[verify-custom-order] ❌ 상태 전이 실패(0 rows):', { customOrderId, currentStatus: (recheck as any)?.status });
+      return NextResponse.json(
+        { success: false, error: '주문 상태를 업데이트할 수 없습니다.' },
+        { status: 409 }
       );
     }
 

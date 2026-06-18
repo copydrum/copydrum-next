@@ -22,6 +22,63 @@ const buildResponse = <T>(payload: T, status = 200, origin?: string) =>
     headers: { ...getCorsHeaders(origin), "Content-Type": "application/json" },
   });
 
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function parsePortOneMetadata(raw: unknown): Record<string, unknown> {
+  if (!raw) return {};
+  if (typeof raw === "string") {
+    try {
+      const parsed = JSON.parse(raw);
+      return parsed && typeof parsed === "object" ? (parsed as Record<string, unknown>) : {};
+    } catch {
+      return {};
+    }
+  }
+  if (typeof raw === "object") return raw as Record<string, unknown>;
+  return {};
+}
+
+function mergePortOneMetadata(...sources: unknown[]): Record<string, unknown> {
+  return sources.reduce<Record<string, unknown>>((acc, src) => {
+    return { ...acc, ...parsePortOneMetadata(src) };
+  }, {});
+}
+
+/** PortOne 결제에 저장된 가맹점 주문 ID (SDK orderId 필드) */
+function extractMerchantOrderId(payment: Record<string, unknown>): string | undefined {
+  const candidates = [
+    payment.order_id,
+    payment.orderId,
+    payment.merchant_uid,
+    payment.merchantUid,
+    (payment.customData as Record<string, unknown> | undefined)?.orderId,
+    (payment.custom_data as Record<string, unknown> | undefined)?.order_id,
+  ];
+  for (const c of candidates) {
+    const s = String(c ?? "").trim();
+    if (UUID_REGEX.test(s)) return s;
+  }
+  return undefined;
+}
+
+function resolveCustomOrderId(
+  metadata: Record<string, unknown>,
+  webhookOrderId: string | undefined | null,
+  merchantOrderId: string | undefined | null,
+): string | null {
+  for (const c of [
+    metadata.customOrderId,
+    metadata.custom_order_id,
+    webhookOrderId,
+    merchantOrderId,
+  ]) {
+    const s = String(c ?? "").trim();
+    if (UUID_REGEX.test(s)) return s;
+  }
+  return null;
+}
+
 interface PortOnePaymentResponse {
   id: string;
   status: string;
@@ -29,7 +86,10 @@ interface PortOnePaymentResponse {
     total: number;
     currency: string;
   };
+  /** @deprecated orderName 사용 권장 — 과거 호환용(상품명) */
   orderId?: string;
+  orderName?: string;
+  merchantOrderId?: string;
   transactionId?: string;
   metadata?: Record<string, unknown>;
   customer?: {
@@ -160,16 +220,28 @@ async function getPortOnePayment(
       channelKey: channelKey ? channelKey.substring(0, 20) + '...' : 'N/A',
     });
 
+    const payment = rawResult.payment as Record<string, unknown>;
+    const mergedMetadata = mergePortOneMetadata(
+      tx.metadata,
+      payment.metadata,
+      payment.customData,
+      payment.custom_data,
+    );
+    const merchantOrderId = extractMerchantOrderId(payment);
+    const orderName = String(payment.order_name ?? payment.orderName ?? "");
+
     return {
-      id: rawResult.payment.id,
+      id: payment.id as string,
       transactionId: tx.id,
       // 상태 판정은 권위 있는 top-level status 우선 (비동기 PayPal 오판 방지),
       // 조회 실패 시에만 primary 트랜잭션 status 로 폴백
       status: authoritativeStatus ?? tx.status,
       amount: tx.amount,
-      orderId: rawResult.payment.order_name,
-      metadata: tx.metadata || rawResult.payment.metadata || {},
-      customer: rawResult.payment.customer || {},
+      orderId: orderName,
+      orderName,
+      merchantOrderId,
+      metadata: mergedMetadata,
+      customer: (payment.customer as PortOnePaymentResponse["customer"]) || {},
       virtualAccount: foundVirtualAccount,
       pgProvider,
       payMethod,
@@ -251,16 +323,17 @@ serve(async (req) => {
       (typeof paymentId === "string" && paymentId.startsWith("copay_"));
 
     if (isCustomOrderPayment) {
-      const customOrderId =
-        (cpMeta.customOrderId as string | undefined) ||
-        (orderId as string | undefined) ||
-        null;
+      const customOrderId = resolveCustomOrderId(
+        cpMeta,
+        orderId,
+        portonePayment.merchantOrderId,
+      );
 
-      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-      if (!customOrderId || !uuidRegex.test(customOrderId)) {
+      if (!customOrderId) {
         console.error("[portone-payment-confirm] ❌ 주문제작 결제인데 customOrderId 없음/형식 오류:", {
           paymentId,
-          customOrderId,
+          webhookOrderId: orderId,
+          merchantOrderId: portonePayment.merchantOrderId,
           metadata: cpMeta,
         });
         return buildResponse(
@@ -373,16 +446,46 @@ serve(async (req) => {
       }
 
       // 결제 확인 → 작업중(in_progress)으로 전이 (경합 방지: quoted 일 때만)
-      const { error: coUpdateError } = await supabase
+      const { data: coUpdated, error: coUpdateError } = await supabase
         .from("custom_orders")
         .update({ status: "in_progress", updated_at: new Date().toISOString() })
         .eq("id", customOrderId)
-        .eq("status", "quoted");
+        .eq("status", "quoted")
+        .select("id")
+        .maybeSingle();
 
       if (coUpdateError) {
         console.error("[portone-payment-confirm] ❌ 주문제작 상태 업데이트 실패:", coUpdateError);
         return buildResponse(
           { success: false, error: { message: "failed to update custom order status" } },
+          200,
+          origin,
+        );
+      }
+
+      if (!coUpdated) {
+        const { data: recheck } = await supabase
+          .from("custom_orders")
+          .select("status")
+          .eq("id", customOrderId)
+          .maybeSingle();
+        if (
+          recheck &&
+          ["payment_confirmed", "in_progress", "completed"].includes((recheck as any).status)
+        ) {
+          console.log("[portone-payment-confirm] ✅ 주문제작 이미 전이됨(경합 멱등):", { customOrderId });
+          return buildResponse(
+            { success: true, message: "custom order already confirmed", data: { customOrderId } },
+            200,
+            origin,
+          );
+        }
+        console.error("[portone-payment-confirm] ❌ 주문제작 상태 전이 실패(0 rows):", {
+          customOrderId,
+          currentStatus: (recheck as any)?.status,
+        });
+        return buildResponse(
+          { success: false, error: { message: "custom order status transition failed" } },
           200,
           origin,
         );
@@ -688,7 +791,7 @@ serve(async (req) => {
         // metadata에 원본 clientOrderId 보존 (UUID가 아니거나 ID 충돌로 새 UUID 발급된 경우)
         const orderMetadata: Record<string, unknown> = {
           type: "sheet_purchase",
-          description: portonePayment.orderId || "포트원 결제",
+          description: portonePayment.orderName || portonePayment.orderId || "포트원 결제",
           created_from: "portone_payment_confirm_lazy_creation",
           portone_payment_id: paymentId,
           portone_metadata: metadata,
