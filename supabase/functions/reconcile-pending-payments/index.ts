@@ -170,6 +170,44 @@ serve(async (req) => {
     const paidAll = await listPaidPayments(accessToken, sinceIso, untilIso);
     const paypalPaid = paidAll.filter((p) => p.pgProvider.startsWith("PAYPAL"));
 
+    // 2-1) 🛑 [중복 매출 방지 — 핵심] 이미 어떤 주문에든 transaction_id 로 "소비된" 결제는
+    //   다른 pending 주문에 절대 재매칭하지 않는다.
+    //
+    //   배경(실제 발생 사례):
+    //     동일 사용자가 같은 상품으로 주문을 2건 만든 경우(체크아웃 재진입 등), 정상 결제
+    //     흐름(verify/웹훅)이 한 주문을 이미 완료하면서 transaction_id 를 채워둔다.
+    //     그런데 이 reconcile 의 매칭 키(email+orderName+paidAt)는 "어느 주문에 속한
+    //     결제인지" 구분할 수 없어, 남아있는 pending 주문에 같은 결제를 또 붙여
+    //     "주문완료 2건 + 매출 2배"를 만들었다.
+    //
+    //   → 후보 결제 목록에서 "이미 다른 주문이 사용 중인 결제 ID"를 사전 제외한다.
+    //     (run 내 usedPaymentIds 가드는 같은 실행 안에서만 유효하므로, 과거 실행/정상 흐름이
+    //      이미 완료한 주문까지 커버하려면 DB 기준의 소비 여부 확인이 반드시 필요하다.)
+    const consumedPaymentIds = new Set<string>();
+    {
+      const candidatePaymentIds = paypalPaid.map((p) => p.id).filter(Boolean);
+      const CHUNK = 200;
+      for (let i = 0; i < candidatePaymentIds.length; i += CHUNK) {
+        const chunk = candidatePaymentIds.slice(i, i + CHUNK);
+        if (chunk.length === 0) continue;
+        const { data: consumedRows, error: consumedErr } = await supabase
+          .from("orders")
+          .select("transaction_id")
+          .in("transaction_id", chunk);
+        if (consumedErr) {
+          // 소비 여부를 확인할 수 없으면 복구를 진행하지 않는다.
+          // (잘못 복구해 중복 매출을 만드는 것보다, 이번 주기 미복구가 훨씬 안전)
+          return json(
+            { success: false, error: `consumed-payment check failed: ${consumedErr.message}` },
+            500,
+          );
+        }
+        for (const r of consumedRows ?? []) {
+          if (r.transaction_id) consumedPaymentIds.add(r.transaction_id as string);
+        }
+      }
+    }
+
     // 3) 주문별 이메일 해석 (캐시)
     const emailCache = new Map<string, string>();
     const resolveEmail = async (userId: string): Promise<string> => {
@@ -201,12 +239,14 @@ serve(async (req) => {
         }
 
         // 매칭 후보: 이메일 + 상품명 + 시각(±timeWindow) + 미사용 + 미취소
+        //   + 다른 주문이 이미 소비하지 않은 결제(consumedPaymentIds)  ← 중복 매출 방지
         const candidates = paypalPaid.filter((p) =>
           p.email === email &&
           p.orderName === desc &&
           Math.abs(p.paidAtMs - createdMs) <= timeWindowMs &&
           p.cancelled === 0 &&
-          !usedPaymentIds.has(p.id)
+          !usedPaymentIds.has(p.id) &&
+          !consumedPaymentIds.has(p.id)
         );
 
         if (candidates.length === 0) {
@@ -248,6 +288,36 @@ serve(async (req) => {
             paymentId: match.id,
             action: "WOULD_RECOVER",
             paidAt: new Date(match.paidAtMs).toISOString(),
+          });
+          continue;
+        }
+
+        // ── 최종 레이스 가드: update 직전에 이 결제가 이미 다른 주문에 붙지 않았는지 재확인 ──
+        //   (사전 consumedPaymentIds 조회와 이 시점 사이에 정상 흐름/다른 실행이 결제를
+        //    소비했을 수 있으므로, 완료 처리 직전 DB 기준으로 한 번 더 확인한다.)
+        const { data: alreadyUsedRows, error: alreadyUsedErr } = await supabase
+          .from("orders")
+          .select("id")
+          .eq("transaction_id", match.id)
+          .neq("id", order.id)
+          .limit(1);
+
+        if (alreadyUsedErr) {
+          results.push({
+            orderNumber: order.order_number,
+            paymentId: match.id,
+            action: "skip(consumed-recheck-failed)",
+            detail: alreadyUsedErr.message,
+          });
+          continue;
+        }
+        if (alreadyUsedRows && alreadyUsedRows.length > 0) {
+          usedPaymentIds.add(match.id);
+          results.push({
+            orderNumber: order.order_number,
+            paymentId: match.id,
+            action: "skip(payment-already-consumed)",
+            consumedByOrderId: alreadyUsedRows[0].id,
           });
           continue;
         }

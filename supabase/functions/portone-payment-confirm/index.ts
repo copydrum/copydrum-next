@@ -229,6 +229,176 @@ serve(async (req) => {
     const portonePayment = await getPortOnePayment(paymentId, portoneApiKey);
 
     const supabase = createClient(supabaseUrl, serviceRoleKey);
+
+    // ─────────────────────────────────────────────────────────────
+    // [주문제작 견적 결제] custom_orders 전용 처리
+    //
+    // 주문제작 견적 결제(KG이니시스/카카오페이/PayPal)는 sheet 구매(orders)와 전혀
+    // 다른 테이블(custom_orders)을 사용한다. 결제 ID는 `copay_` 접두를 가지며
+    // metadata.type === 'custom_order' 로 식별된다.
+    //
+    // ⚠️ 이 분기가 없으면 주문제작 결제 웹훅이 orders 테이블 로직으로 흘러가
+    //    (1) 결제완료가 custom_orders 에 전혀 반영되지 않고("작업중"으로 자동 전이 안 됨)
+    //    (2) orders 테이블에 유령 주문이 생성될 수 있다.
+    //
+    // 클라이언트 검증(/api/payments/portone/verify-custom-order)이 실패/누락되어도
+    // 웹훅이 서버 측에서 권위 있게 PAID 를 확인해 custom_orders.status 를 in_progress 로
+    // 자동 전이시킨다. (결제후 작업중 자동 전환의 신뢰성 보장)
+    // ─────────────────────────────────────────────────────────────
+    const cpMeta = (portonePayment.metadata || {}) as Record<string, unknown>;
+    const isCustomOrderPayment =
+      cpMeta.type === "custom_order" ||
+      (typeof paymentId === "string" && paymentId.startsWith("copay_"));
+
+    if (isCustomOrderPayment) {
+      const customOrderId =
+        (cpMeta.customOrderId as string | undefined) ||
+        (orderId as string | undefined) ||
+        null;
+
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (!customOrderId || !uuidRegex.test(customOrderId)) {
+        console.error("[portone-payment-confirm] ❌ 주문제작 결제인데 customOrderId 없음/형식 오류:", {
+          paymentId,
+          customOrderId,
+          metadata: cpMeta,
+        });
+        return buildResponse(
+          { success: false, error: { message: "custom order payment missing valid customOrderId" } },
+          200,
+          origin,
+        );
+      }
+
+      const { data: customOrder, error: coError } = await supabase
+        .from("custom_orders")
+        .select("id, status, estimated_price, locale")
+        .eq("id", customOrderId)
+        .maybeSingle();
+
+      if (coError || !customOrder) {
+        console.error("[portone-payment-confirm] ❌ 주문제작 정보를 찾을 수 없음:", {
+          paymentId,
+          customOrderId,
+          error: coError,
+        });
+        return buildResponse(
+          { success: false, error: { message: "custom order not found" } },
+          200,
+          origin,
+        );
+      }
+
+      // 멱등: 이미 결제 확인 이상 단계면 그대로 성공
+      if (["payment_confirmed", "in_progress", "completed"].includes((customOrder as any).status)) {
+        console.log("[portone-payment-confirm] ✅ 주문제작 이미 결제 확인됨(멱등):", { customOrderId });
+        return buildResponse(
+          { success: true, message: "custom order already confirmed", data: { customOrderId } },
+          200,
+          origin,
+        );
+      }
+
+      // 결제 가능한 상태(quoted)가 아니면 전이하지 않음
+      if ((customOrder as any).status !== "quoted") {
+        console.warn("[portone-payment-confirm] ⚠️ 주문제작이 결제 가능한 상태(quoted)가 아님:", {
+          customOrderId,
+          status: (customOrder as any).status,
+        });
+        return buildResponse(
+          { success: false, error: { message: "custom order not in payable state" } },
+          200,
+          origin,
+        );
+      }
+
+      // PAID 확인 (권위 있는 top-level status)
+      const coStatus = portonePayment.status;
+      if (coStatus !== "PAID") {
+        console.log("[portone-payment-confirm] ⏳ 주문제작 결제 미완료(PAID 아님) — 전이 보류:", {
+          customOrderId,
+          paymentId,
+          coStatus,
+        });
+        return buildResponse(
+          {
+            success: false,
+            pending: ["PENDING", "READY", "PAY_PENDING", "VIRTUAL_ACCOUNT_ISSUED"].includes(coStatus),
+            error: { message: `custom order payment not paid (${coStatus})` },
+          },
+          200,
+          origin,
+        );
+      }
+
+      // 금액 대조: 한국 주문(KRW), 글로벌 주문(USD 센트)
+      const estimatedPrice = Number((customOrder as any).estimated_price) || 0;
+      const pgAmountRaw = portonePayment.amount?.total ?? (portonePayment.amount as any) ?? 0;
+      const pgCurrency = portonePayment.amount?.currency ?? "";
+      const isUSD = pgCurrency === "CURRENCY_USD" || pgCurrency === "USD";
+      const isKRW = pgCurrency === "CURRENCY_KRW" || pgCurrency === "KRW";
+
+      if (estimatedPrice > 0 && isKRW) {
+        const expectedKRW = Math.round(estimatedPrice);
+        const paidKRW = Math.round(Number(pgAmountRaw) || 0);
+        const tolerance = Math.max(10, Math.round(expectedKRW * 0.02));
+        if (Math.abs(paidKRW - expectedKRW) > tolerance) {
+          console.error("[portone-payment-confirm] ⛔ 주문제작 KRW 금액 불일치 — 전이 거부:", {
+            customOrderId,
+            paidKRW,
+            expectedKRW,
+          });
+          return buildResponse(
+            { success: false, error: { message: "custom order amount mismatch (KRW)" } },
+            200,
+            origin,
+          );
+        }
+      } else if (estimatedPrice > 0 && isUSD) {
+        const expectedCents = Math.round(estimatedPrice * 100);
+        const paidCents = Math.round(Number(pgAmountRaw) || 0);
+        const tolerance = Math.max(50, Math.round(expectedCents * 0.02));
+        if (Math.abs(paidCents - expectedCents) > tolerance) {
+          console.error("[portone-payment-confirm] ⛔ 주문제작 USD 금액 불일치 — 전이 거부:", {
+            customOrderId,
+            paidCents,
+            expectedCents,
+          });
+          return buildResponse(
+            { success: false, error: { message: "custom order amount mismatch (USD)" } },
+            200,
+            origin,
+          );
+        }
+      }
+
+      // 결제 확인 → 작업중(in_progress)으로 전이 (경합 방지: quoted 일 때만)
+      const { error: coUpdateError } = await supabase
+        .from("custom_orders")
+        .update({ status: "in_progress", updated_at: new Date().toISOString() })
+        .eq("id", customOrderId)
+        .eq("status", "quoted");
+
+      if (coUpdateError) {
+        console.error("[portone-payment-confirm] ❌ 주문제작 상태 업데이트 실패:", coUpdateError);
+        return buildResponse(
+          { success: false, error: { message: "failed to update custom order status" } },
+          200,
+          origin,
+        );
+      }
+
+      console.log("[portone-payment-confirm] ✅ 주문제작 결제 확인 → 작업중 전이 완료:", {
+        customOrderId,
+        paymentId,
+      });
+      return buildResponse(
+        { success: true, message: "custom order confirmed → in_progress", data: { customOrderId } },
+        200,
+        origin,
+      );
+    }
+
     let orderData = null;
 
     // ─────────────────────────────────────────────────────────────
@@ -395,11 +565,84 @@ serve(async (req) => {
           //    실패해 결제가 통째로 유실되는 것을 방지)
           const { data: conflicting } = await supabase
             .from("orders")
-            .select("id, transaction_id, status")
+            .select("id, transaction_id, status, payment_status, metadata")
             .eq("id", clientOrderId)
             .maybeSingle();
 
           if (conflicting) {
+            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            // 🛑 [중복 매출 방지 — PayPal 핵심 가드]
+            // clientOrderId 가 가리키는 주문이 "이미 결제 완료(paid/completed)"인데
+            // 지금 들어온 결제(paymentId)는 그 주문의 transaction_id 와 다르다면,
+            // 이 결제는 "같은 주문 의도"에 대한 별개의 결제 ID 다.
+            //
+            // 배경(PayPal 전용 재현 경로):
+            //   create-order 가 PAY_PENDING in-flight 주문을 재활용 → PayPalPaymentButton 이
+            //   그 주문의 transaction_id 를 새 paymentId 로 덮어씀 → 원래 결제가 "고아"가 됨.
+            //   이후 고아 결제 웹훅이 도착하면 여기서 새 UUID 주문이 만들어지고,
+            //   PAID 라면 두 번째 "주문완료"가 생성되어 매출이 2배로 잡힌다.
+            //
+            // → 원 주문이 이미 완료된 경우, 새 주문을 만들지 않는다(=중복 매출 차단).
+            //   대신 원 주문 metadata 에 중복 결제 ID 를 남겨 관리자가 환불을 검토하게 한다.
+            //   (KG이니시스/카카오페이는 즉시 PAID 라 이 경로가 트리거되지 않음)
+            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            const conflictPaid =
+              conflicting.status === "completed" || conflicting.payment_status === "paid";
+            const conflictTxDiffers =
+              conflicting.transaction_id && conflicting.transaction_id !== paymentId;
+
+            if (conflictPaid && conflictTxDiffers) {
+              console.error(
+                "[portone-payment-confirm] 🛑 중복 매출 차단 — 원 주문이 이미 완료됨, 새 주문 생성하지 않음(환불 검토 대상):",
+                {
+                  clientOrderId,
+                  conflictingOrderId: conflicting.id,
+                  conflictingTxId: conflicting.transaction_id,
+                  conflictingStatus: conflicting.status,
+                  conflictingPaymentStatus: conflicting.payment_status,
+                  duplicatePaymentId: paymentId,
+                },
+              );
+
+              // 관리자 추적용: 원 주문에 중복 결제 ID 기록 (상태는 그대로 둠)
+              try {
+                const prevMeta = (conflicting.metadata as Record<string, unknown> | null) || {};
+                const dupIds = Array.isArray(prevMeta.duplicate_payment_ids)
+                  ? (prevMeta.duplicate_payment_ids as string[])
+                  : [];
+                if (!dupIds.includes(paymentId)) dupIds.push(paymentId);
+                await supabase
+                  .from("orders")
+                  .update({
+                    metadata: {
+                      ...prevMeta,
+                      duplicate_payment_ids: dupIds,
+                      duplicate_payment_suspected: true,
+                      duplicate_flagged_at: new Date().toISOString(),
+                    },
+                    updated_at: new Date().toISOString(),
+                  })
+                  .eq("id", conflicting.id);
+              } catch (flagErr) {
+                console.warn("[portone-payment-confirm] 중복 결제 플래그 기록 실패(무시):", flagErr);
+              }
+
+              return buildResponse(
+                {
+                  success: false,
+                  error: {
+                    message:
+                      "Duplicate payment for an already-completed order. No new order created (pending admin refund review).",
+                    errorCode: "DUPLICATE_PAYMENT_BLOCKED",
+                    existingOrderId: conflicting.id,
+                    duplicatePaymentId: paymentId,
+                  },
+                },
+                200,
+                origin,
+              );
+            }
+
             finalOrderId = crypto.randomUUID();
             originalClientOrderId = clientOrderId;
             idConflictReason = `existing order ${conflicting.id} already taken by tx_id=${conflicting.transaction_id} (status=${conflicting.status})`;
