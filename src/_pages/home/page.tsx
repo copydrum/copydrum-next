@@ -967,30 +967,6 @@ export default function Home() {
             </div>
           </div>
         </section>
-
-        {/* Trust strip - 신뢰 신호 (즉시 다운로드·안전 결제·환불 보장·다국어) */}
-        <div className="border-b border-gray-100 bg-gray-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-            <div className="grid grid-cols-2 gap-y-3 gap-x-2 md:grid-cols-4">
-              <div className="flex items-center justify-center gap-1.5 text-gray-700">
-                <i className="ri-download-cloud-2-line text-lg text-blue-600"></i>
-                <span className="text-xs sm:text-sm font-medium">{t('home.trust.instantDownload')}</span>
-              </div>
-              <div className="flex items-center justify-center gap-1.5 text-gray-700">
-                <i className="ri-shield-check-line text-lg text-emerald-600"></i>
-                <span className="text-xs sm:text-sm font-medium">{t('home.trust.securePayment')}</span>
-              </div>
-              <div className="flex items-center justify-center gap-1.5 text-gray-700">
-                <i className="ri-refund-2-line text-lg text-amber-600"></i>
-                <span className="text-xs sm:text-sm font-medium">{t('home.trust.moneyBack')}</span>
-              </div>
-              <div className="flex items-center justify-center gap-1.5 text-gray-700">
-                <i className="ri-global-line text-lg text-purple-600"></i>
-                <span className="text-xs sm:text-sm font-medium">{t('home.trust.languages')}</span>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Main Content */}
