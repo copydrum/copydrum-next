@@ -49,6 +49,13 @@ export default function OnePageCheckout({
   const hostname = typeof window !== 'undefined' ? window.location.hostname : 'copydrum.com';
   const currency = getSiteCurrency(hostname, i18n.language);
 
+  // ⚠️ [결제수단 분기 기준] 화면 언어(i18n.language)가 아니라 "주문 통화"를 단일 기준으로 사용한다.
+  //    - i18n.language 하나만 보면, 결제 페이지에서 언어가 잠깐 흔들릴 때
+  //      (쿠키/경로 불일치 등) 한국 손님에게 PayPal만 뜨거나 그 반대 현상이 발생할 수 있다.
+  //    - 통화는 getSiteCurrency로 일관되게 계산되므로, KRW면 한국 결제수단(KG이니시스/카카오페이/포인트),
+  //      그 외 통화면 PayPal로 안정적으로 분기한다.
+  const isKoreanCheckout = currency === 'KRW';
+
   // 총액 계산
   const totalAmount = items.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
   const convertedAmount = convertFromKrw(totalAmount, currency, i18n.language);
@@ -166,7 +173,7 @@ export default function OnePageCheckout({
                 {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
                 {/* 🔵 섹션 1: 카드 결제 (한국어: KG이니시스) */}
                 {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-                {i18n.language === 'ko' && (
+                {isKoreanCheckout && (
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
                     <i className="ri-bank-card-line text-lg text-gray-700"></i>
@@ -194,7 +201,7 @@ export default function OnePageCheckout({
                 )}
 
                 {/* OR 구분선 (한국어: KG이니시스↔카카오페이 사이) */}
-                {i18n.language === 'ko' && (
+                {isKoreanCheckout && (
                 <div className="flex items-center gap-3 my-1">
                   <div className="flex-1 h-px bg-gray-300"></div>
                   <span className="text-xs font-semibold text-gray-400 uppercase tracking-widest select-none">OR</span>
@@ -205,7 +212,7 @@ export default function OnePageCheckout({
                 {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
                 {/* 🟡 섹션 2: PayPal 결제 (한국어 페이지에서는 숨김) */}
                 {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-                {i18n.language !== 'ko' && (
+                {!isKoreanCheckout && (
                 <div className="border-2 border-gray-200 rounded-xl p-4 bg-gray-50/50 hover:border-[#0070ba]/30 transition-colors space-y-3">
                   {/* 섹션 라벨 */}
                   <div className="flex items-center gap-2">
@@ -234,7 +241,7 @@ export default function OnePageCheckout({
                 )}
 
                 {/* ━━━ 카카오페이 버튼 (한국어 페이지에서만 표시) ━━━ */}
-                {i18n.language === 'ko' && (
+                {isKoreanCheckout && (
                 <div className={''}>
                   <KakaoPayButton
                     orderId={orderId}
@@ -257,7 +264,7 @@ export default function OnePageCheckout({
                 {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
                 {/* 🟠 포인트 결제 (아코디언) - 한국어 페이지에서만 표시 */}
                 {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-                {i18n.language === 'ko' && hasPoints && (
+                {isKoreanCheckout && hasPoints && (
                   <div className="border-t border-gray-200 pt-3 mt-1">
                     <button
                       onClick={() => setShowPointsForm(!showPointsForm)}

@@ -141,7 +141,17 @@ export default function middleware(request: NextRequest) {
   // 3. DETECT LOCALE & SET HEADER/COOKIE
   //    (URL rewrite 없음 — [locale] 동적 라우팅이 자동 처리)
   // ===========================================
-  const locale = localeInPath || defaultLocale;
+  // ⚠️ [중요] /payments/, /payment/, /checkout 등 locale 제외 경로는 경로에
+  //    locale이 없다. 이때 무조건 defaultLocale('en')로 쿠키를 덮어쓰면,
+  //    한국어(/ko/...)로 보던 사용자가 결제 페이지에 진입/새로고침하는 순간
+  //    locale 쿠키가 en으로 바뀌어 i18n.language='en'이 되고,
+  //    결제 화면에서 카카오페이/KG이니시스가 사라지고 PayPal만 노출되는 버그가 발생한다.
+  //    → 경로에 locale이 없으면 "기존 쿠키 값을 보존"하고, 쿠키도 갱신하지 않는다.
+  const existingLocaleCookie = request.cookies.get('locale')?.value;
+  const hasValidExistingLocale =
+    !!existingLocaleCookie && locales.includes(existingLocaleCookie);
+  const locale =
+    localeInPath || (hasValidExistingLocale ? existingLocaleCookie! : defaultLocale);
 
   // /en/admin → /admin 으로 리다이렉트 (locale prefix 제거)
   if (localeInPath) {
@@ -158,7 +168,12 @@ export default function middleware(request: NextRequest) {
 
   // Set locale header and cookie for server components to use
   response.headers.set('x-locale', locale);
-  response.cookies.set('locale', locale, { path: '/', sameSite: 'lax' });
+  // ✅ 경로에 locale이 명시된 경우에만 쿠키를 갱신한다.
+  //    locale이 없는 제외 경로(/payments/ 등)에서는 기존 쿠키를 보존하여
+  //    사용자의 언어/결제수단 선택이 결제 단계에서 뒤집히지 않도록 한다.
+  if (localeInPath) {
+    response.cookies.set('locale', locale, { path: '/', sameSite: 'lax' });
+  }
 
   return response;
 }
