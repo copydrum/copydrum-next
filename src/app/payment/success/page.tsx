@@ -24,7 +24,11 @@ const PAYPAL_POLL_MAX_DURATION_MS = 10 * 60 * 1000; // 최대 10분
 // PENDING 자동 폴링 대상 결제수단
 // → 외부 PG(PortOne) 즉시/비동기 결제만 폴링한다.
 //   무통장입금·가상계좌(입금 대기)·포인트(즉시 서버 처리)는 폴링 대상이 아님.
-const POLLABLE_METHODS = new Set(['paypal', 'card', 'inicis', 'kakaopay', 'transfer']);
+const POLLABLE_METHODS = new Set(['paypal', 'card', 'inicis', 'kakaopay', 'transfer', 'lemonsqueezy', 'lemon_squeezy']);
+
+// 웹훅이 완료를 책임지는(클라이언트는 DB 폴링만 하면 되는) 결제수단
+// → Lemon Squeezy는 PortOne이 아니므로 portone/verify를 호출하면 안 된다.
+const WEBHOOK_DRIVEN_METHODS = new Set(['lemonsqueezy', 'lemon_squeezy']);
 
 interface Order {
   id: string;
@@ -33,6 +37,7 @@ interface Order {
   status: string;
   payment_status: string;
   payment_method: string | null;
+  transaction_id: string | null;
   created_at: string;
 }
 
@@ -53,6 +58,8 @@ const METHOD_KEY_MAP: Record<string, string> = {
   card: 'methodCard',
   inicis: 'methodInicis',
   paypal: 'methodPaypal',
+  lemonsqueezy: 'methodCard',
+  lemon_squeezy: 'methodCard',
   dodo: 'methodDodo',
 };
 
@@ -152,7 +159,17 @@ export default function PaymentSuccessPage() {
         if (orderData.status !== 'completed') {
           // ━━━ PortOne (카드/카카오페이/PayPal) 결제 검증 ━━━
           const actualMethod = resolvedMethod;
-          if (actualMethod !== 'point' && actualMethod !== 'points' && actualMethod !== 'dodo') {
+          if (WEBHOOK_DRIVEN_METHODS.has(actualMethod)) {
+            // 🍋 Lemon Squeezy: 결제 완료는 서버 웹훅이 처리한다.
+            //   클라이언트는 PortOne verify를 호출하지 않고, 주문이 completed 될 때까지
+            //   DB만 폴링하면 된다. (웹훅 도착 전까지 "처리 중" 화면 표시)
+            setOrder(orderData);
+            if (orderData.payment_status !== 'paid') {
+              console.log('[payment-success] 🍋 Lemon Squeezy 결제 — 웹훅 완료 대기 폴링 시작');
+              setPollingPending(true);
+              pollStartedAtRef.current = Date.now();
+            }
+          } else if (actualMethod !== 'point' && actualMethod !== 'points' && actualMethod !== 'dodo') {
             // URL의 paymentId(PayPal-SDK가 전달)를 우선 사용, 없으면 DB 값 사용
             const paymentIdForVerify = urlPaymentId || orderData.transaction_id;
 
@@ -306,8 +323,12 @@ export default function PaymentSuccessPage() {
       }
 
       try {
+        const pollMethod = (order.payment_method || urlMethod || '').toLowerCase();
+        const isWebhookDriven = WEBHOOK_DRIVEN_METHODS.has(pollMethod);
         const paymentIdForVerify = urlPaymentId || order.transaction_id;
-        if (!paymentIdForVerify) {
+        if (isWebhookDriven) {
+          // 🍋 Lemon Squeezy: PortOne verify 호출 금지. 아래 DB 재조회만으로 완료 감지.
+        } else if (!paymentIdForVerify) {
           console.warn('[payment-success] paymentId 없음 — 폴링 건너뜀');
         } else {
           const verifyResponse = await fetch('/api/payments/portone/verify', {

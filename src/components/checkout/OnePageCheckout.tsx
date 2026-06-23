@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { formatCurrency, getSiteCurrency, convertFromKrw } from '@/lib/currency';
 import CardPaymentButton from './CardPaymentButton';
 import PayPalPaymentButton from './PayPalPaymentButton';
+import LemonSqueezyButton from './LemonSqueezyButton';
 import KakaoPayButton from './KakaoPayButton';
 import PointsPaymentForm from './PointsPaymentForm';
 
@@ -210,7 +211,42 @@ export default function OnePageCheckout({
                 )}
 
                 {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-                {/* 🟡 섹션 2: PayPal 결제 (한국어 페이지에서는 숨김) */}
+                {/* 💳 섹션 2: 카드/기타 결제 (해외 전용, Lemon Squeezy 오버레이) */}
+                {/* - 사이트 위 오버레이로 결제 (사이트 이탈 없음)             */}
+                {/* - 앨범 자켓/이미지/실제 PDF는 LS에 전달하지 않음           */}
+                {/* - PayPal 위에 노출되는 메인 결제 수단                      */}
+                {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+                {!isKoreanCheckout && (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <i className="ri-bank-card-line text-lg text-gray-700"></i>
+                    <span className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+                      {t('checkout.payWithCardTitle', 'Credit / Debit Card')}
+                    </span>
+                  </div>
+                  <LemonSqueezyButton
+                    orderId={orderId}
+                    amount={totalAmount}
+                    items={items}
+                    onSuccess={(paymentId, dbOrderId) => handlePaymentComplete('lemonsqueezy', paymentId, dbOrderId)}
+                    onError={handlePaymentFailed}
+                    onProcessing={handlePaymentStart}
+                    compact
+                  />
+                </div>
+                )}
+
+                {/* OR 구분선 (해외: 카드 ↔ PayPal 사이) */}
+                {!isKoreanCheckout && (
+                <div className="flex items-center gap-3 my-1">
+                  <div className="flex-1 h-px bg-gray-300"></div>
+                  <span className="text-xs font-semibold text-gray-400 uppercase tracking-widest select-none">OR</span>
+                  <div className="flex-1 h-px bg-gray-300"></div>
+                </div>
+                )}
+
+                {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+                {/* 🟡 섹션 3: PayPal 결제 (한국어 페이지에서는 숨김) */}
                 {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
                 {!isKoreanCheckout && (
                 <div className="border-2 border-gray-200 rounded-xl p-4 bg-gray-50/50 hover:border-[#0070ba]/30 transition-colors space-y-3">
@@ -313,6 +349,36 @@ export default function OnePageCheckout({
                     <i className="ri-shield-check-line text-green-600"></i>
                     <span>{t('checkout.securePayment')}</span>
                   </div>
+
+                  {/* 결제 가능한 카드/수단 브랜드 (해외 결제 화면에서만 표시) */}
+                  {!isKoreanCheckout && (
+                    <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
+                      {[
+                        { icon: 'ri-visa-fill', label: 'Visa', color: '#1434CB' },
+                        { icon: 'ri-mastercard-fill', label: 'Mastercard', color: '#EB001B' },
+                        { icon: 'ri-paypal-fill', label: 'PayPal', color: '#003087' },
+                        { icon: 'ri-apple-fill', label: 'Apple Pay', color: '#111827' },
+                        { icon: 'ri-google-fill', label: 'Google Pay', color: '#4285F4' },
+                      ].map((brand) => (
+                        <span
+                          key={brand.label}
+                          title={brand.label}
+                          aria-label={brand.label}
+                          className="inline-flex items-center justify-center h-7 w-11 rounded-md border border-gray-200 bg-white"
+                        >
+                          <i className={`${brand.icon} text-xl`} style={{ color: brand.color }}></i>
+                        </span>
+                      ))}
+                      {/* American Express는 아이콘이 없어 텍스트 배지로 표기 */}
+                      <span
+                        title="American Express"
+                        aria-label="American Express"
+                        className="inline-flex items-center justify-center h-7 px-2 rounded-md border border-gray-200 bg-white text-[10px] font-bold tracking-tight text-[#1F72CD]"
+                      >
+                        AMEX
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
