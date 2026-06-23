@@ -146,27 +146,38 @@ export async function POST(request: NextRequest) {
 
     // ── Lemon Squeezy Create Checkout API 호출 ──
     // 문서: https://docs.lemonsqueezy.com/api/checkouts/create-checkout
+    // ⚠️ 선택 필드(description/redirect_url 등)는 "빈 값이면 아예 넣지 않는다".
+    //    LS는 빈 문자열을 string 검증에서 거부할 수 있어, 값이 있을 때만 포함한다.
+    const productOptions: Record<string, unknown> = {
+      name: checkoutName,
+      // 🚫 앨범 자켓 등 이미지 전달 안 함
+      media: [],
+      receipt_button_text: 'Back to CopyDrum',
+    };
+    // 장바구니(여러 곡)일 때만 곡 목록을 설명으로 전달 (단건은 생략)
+    if (checkoutDescription) {
+      productOptions.description = checkoutDescription;
+    }
+    if (appUrl) {
+      // 결제 후 자체 안내 페이지로 이동
+      productOptions.redirect_url = `${appUrl}/payment/success?orderId=${order.id}&method=lemonsqueezy`;
+      productOptions.receipt_link_url = appUrl;
+    }
+
+    const checkoutOptions: Record<string, unknown> = {
+      embed: true,    // 오버레이 결제 (사이트 이탈 없음)
+      media: false,   // 🚫 체크아웃 이미지 숨김 (자켓 노출 차단)
+      desc: sanitizedItems.length > 1, // 장바구니일 때만 설명 표시
+    };
+
     const payload = {
       data: {
         type: 'checkouts',
         attributes: {
           // 이번 결제 금액 (스토어 통화 최소 단위 정수)
           custom_price: customPrice,
-          product_options: {
-            name: checkoutName,
-            description: checkoutDescription,
-            // 🚫 앨범 자켓 등 이미지 전달 안 함
-            media: [],
-            // 결제 후 자체 안내 페이지 사용 (LS Thank-you 화면 최소화)
-            redirect_url: appUrl ? `${appUrl}/payment/success?orderId=${order.id}&method=lemonsqueezy` : undefined,
-            receipt_button_text: 'Back to CopyDrum',
-            receipt_link_url: appUrl || undefined,
-          },
-          checkout_options: {
-            embed: true,      // 오버레이 결제 (사이트 이탈 없음)
-            media: false,     // 🚫 체크아웃 이미지 숨김 (자켓 노출 차단)
-            desc: sanitizedItems.length > 1, // 장바구니일 때만 설명 표시
-          },
+          product_options: productOptions,
+          checkout_options: checkoutOptions,
           checkout_data: {
             email: authUser.email || undefined,
             custom: {
