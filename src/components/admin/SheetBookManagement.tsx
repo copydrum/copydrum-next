@@ -9,6 +9,7 @@ import {
 
 // 악보집 장르(서브카테고리) — /sheet-books 필터 탭과 1:1 매칭
 const SHEET_BOOK_GENRE_OPTIONS = [...SHEET_BOOK_GENRE_NAMES];
+const ITEMS_PER_PAGE = 10;
 
 // ─── Types ───────────────────────────────────────────
 interface SheetBookItem {
@@ -169,6 +170,7 @@ export default function SheetBookManagement() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
 
   const [editingBook, setEditingBook] = useState<SheetBookItem | null>(null);
   const [editForm, setEditForm] = useState<BookFormData>(createEmptyForm());
@@ -654,6 +656,21 @@ export default function SheetBookManagement() {
     );
   });
 
+  const totalPages = Math.max(1, Math.ceil(filteredBooks.length / ITEMS_PER_PAGE));
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const paginatedBooks = filteredBooks.slice(startIndex, endIndex);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
+
   // ── Render ──
   if (loading) {
     return (
@@ -731,7 +748,7 @@ export default function SheetBookManagement() {
                   </td>
                 </tr>
               ) : (
-                filteredBooks.map((book) => {
+                paginatedBooks.map((book) => {
                   const videoId = extractVideoId(book.youtube_url || '');
                   return (
                     <tr key={book.id} className="hover:bg-gray-50">
@@ -835,6 +852,76 @@ export default function SheetBookManagement() {
             </tbody>
           </table>
         </div>
+
+        {filteredBooks.length > 0 && (
+          <div className="px-6 py-4 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="text-sm text-gray-700">
+              전체 {filteredBooks.length}권 중{' '}
+              {filteredBooks.length > 0 ? startIndex + 1 : 0}-
+              {Math.min(endIndex, filteredBooks.length)}권 표시
+            </div>
+            {totalPages > 1 && (
+              <div className="flex items-center space-x-2">
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}
+                  className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
+                    currentPage === 1
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                  }`}
+                >
+                  <i className="ri-arrow-left-s-line"></i>
+                </button>
+
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+                  if (
+                    page === 1 ||
+                    page === totalPages ||
+                    (page >= currentPage - 2 && page <= currentPage + 2)
+                  ) {
+                    return (
+                      <button
+                        key={page}
+                        type="button"
+                        onClick={() => setCurrentPage(page)}
+                        className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
+                          currentPage === page
+                            ? 'bg-indigo-600 text-white'
+                            : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    );
+                  }
+                  if (page === currentPage - 3 || page === currentPage + 3) {
+                    return (
+                      <span key={page} className="px-2 text-gray-400">
+                        ...
+                      </span>
+                    );
+                  }
+                  return null;
+                })}
+
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages}
+                  className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
+                    currentPage === totalPages
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                  }`}
+                >
+                  <i className="ri-arrow-right-s-line"></i>
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* ===== 새 교재 등록 모달 ===== */}
