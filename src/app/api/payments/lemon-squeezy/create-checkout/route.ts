@@ -7,6 +7,7 @@ import {
   buildCheckoutName,
   buildCheckoutDescription,
   krwToStoreUnitAmount,
+  resolveCheckoutItemTitle,
   type SanitizedOrderItem,
 } from '@/lib/payments/lemonSqueezy';
 
@@ -80,7 +81,7 @@ export async function POST(request: NextRequest) {
         order_items (
           drum_sheet_id,
           sheet_title,
-          drum_sheets:drum_sheet_id ( title, artist )
+          drum_sheets:drum_sheet_id ( title, artist, title_translations )
         )
       `,
       )
@@ -130,10 +131,17 @@ export async function POST(request: NextRequest) {
 
     // sanitize 된 표시 정보 구성 (앨범 자켓·이미지 없음, 텍스트만)
     const rawItems = (order.order_items || []) as any[];
-    const sanitizedItems: SanitizedOrderItem[] = rawItems.map((it) => ({
-      title: it.drum_sheets?.title || it.sheet_title || 'Drum Sheet',
-      artist: it.drum_sheets?.artist || null,
-    }));
+    const sanitizedItems: SanitizedOrderItem[] = rawItems.map((it) => {
+      const koreanTitle = it.drum_sheets?.title || it.sheet_title || 'Drum Sheet';
+      return {
+        title: resolveCheckoutItemTitle(
+          koreanTitle,
+          it.drum_sheets?.title_translations,
+          locale,
+        ),
+        artist: it.drum_sheets?.artist || null,
+      };
+    });
     if (sanitizedItems.length === 0) {
       sanitizedItems.push({ title: 'CopyDrum Drum Sheet', artist: null });
     }

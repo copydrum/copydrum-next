@@ -76,6 +76,23 @@ export interface SanitizedOrderItem {
 }
 
 /**
+ * LS 체크아웃 표시용 제목.
+ * 해외 결제(locale !== 'ko')에서는 title_translations.en 을 우선한다.
+ * (악보집·드럼레슨북 등 한/영 이중 등록 상품 대응)
+ */
+export function resolveCheckoutItemTitle(
+  koreanTitle: string,
+  titleTranslations?: Record<string, string> | null,
+  locale?: string,
+): string {
+  if (locale && locale !== 'ko') {
+    const en = titleTranslations?.en?.trim();
+    if (en) return en;
+  }
+  return (koreanTitle || 'Drum Sheet').trim();
+}
+
+/**
  * 체크아웃에 표시할 product_options.name 을 만든다.
  * - 단건: sanitize 된 곡 제목
  * - 장바구니(여러 곡): "CopyDrum Drum Sheets (N items)"
