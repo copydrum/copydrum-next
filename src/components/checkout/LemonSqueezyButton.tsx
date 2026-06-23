@@ -51,6 +51,27 @@ export default function LemonSqueezyButton({
   const succeededRef = useRef(false);
   // 실제 DB 주문 ID (장바구니는 클라이언트 임시 UUID로 시작하므로 주문 생성 후 갱신)
   const dbOrderIdRef = useRef<string>(orderId);
+  // 최신 onSuccess 콜백을 ref로 보관 (전역 eventHandler 클로저가 stale 되지 않도록)
+  const onSuccessRef = useRef(onSuccess);
+  onSuccessRef.current = onSuccess;
+
+  // lemon.js 의 전역 eventHandler 를 (재)등록한다.
+  // ⚠️ lemon.js 의 Setup 은 전역 단일 핸들러를 사용하므로, 결제창을 열기 직전
+  //    실제 주문 ID(dbOrderIdRef.current)를 읽도록 매번 재등록하여
+  //    stale 한 임시 orderId 가 성공 페이지로 전달되는 것을 방지한다.
+  const registerHandler = useCallback(() => {
+    window.LemonSqueezy?.Setup({
+      eventHandler: (event) => {
+        // 결제 성공 이벤트 → 성공 콜백 (실제 권한 부여는 서버 웹훅이 담당)
+        if (event.event === 'Checkout.Success') {
+          if (succeededRef.current) return;
+          succeededRef.current = true;
+          window.LemonSqueezy?.Url.Close();
+          onSuccessRef.current('', dbOrderIdRef.current);
+        }
+      },
+    });
+  }, []);
 
   // lemon.js 로드
   useEffect(() => {
@@ -58,17 +79,7 @@ export default function LemonSqueezyButton({
 
     const setup = () => {
       try {
-        window.LemonSqueezy?.Setup({
-          eventHandler: (event) => {
-            // 결제 성공 이벤트 → 성공 콜백 (실제 권한 부여는 서버 웹훅이 담당)
-            if (event.event === 'Checkout.Success') {
-              if (succeededRef.current) return;
-              succeededRef.current = true;
-              window.LemonSqueezy?.Url.Close();
-              onSuccess('', dbOrderIdRef.current);
-            }
-          },
-        });
+        registerHandler();
         setScriptReady(true);
       } catch (e) {
         console.error('[lemon-squeezy] Setup 실패:', e);
@@ -184,6 +195,15 @@ export default function LemonSqueezyButton({
         return;
       }
 
+      // 결제창을 열기 직전, 실제 주문 ID를 읽는 핸들러로 다시 등록
+      // (전역 단일 핸들러가 다른 인스턴스의 stale orderId 를 들고 있을 수 있음)
+      succeededRef.current = false;
+      try {
+        registerHandler();
+      } catch {
+        /* noop */
+      }
+
       // 오버레이로 결제창 열기 (사이트 이탈 없음)
       if (window.LemonSqueezy?.Url?.Open) {
         window.LemonSqueezy.Url.Open(result.checkoutUrl);
@@ -198,7 +218,7 @@ export default function LemonSqueezyButton({
     } finally {
       setCreating(false);
     }
-  }, [creating, user?.id, orderId, amount, items, i18n.language, onProcessing, onSuccess, onError, t]);
+  }, [creating, user?.id, orderId, amount, items, i18n.language, onProcessing, onSuccess, onError, t, registerHandler]);
 
   return (
     <div className="w-full space-y-2">
