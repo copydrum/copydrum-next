@@ -9,13 +9,15 @@ const LOCALE_TO_CURRENCY: Record<string, Currency> = {
     // Korean Won
     'ko': 'KRW',
 
-    // Euro (유럽: 1000원 = €1)
-    'de': 'EUR',
-    'fr': 'EUR',
-    'it': 'EUR',
-    'es': 'EUR',
-
     // USD Standard (1000원 = $1)
+    // ⚠️ 유럽 국가(de/fr/it/es)도 USD로 표시한다.
+    //   실제 해외 결제(Lemon Squeezy 카드 / PayPal)가 모두 USD로 청구되므로,
+    //   사이트 표시 통화도 USD로 맞춰 결제창과 일치시킨다. (€3 ↔ $3 혼동 방지)
+    //   환율 비율은 EUR과 동일(1/1000)이라 표시 금액 숫자는 변하지 않는다.
+    'de': 'USD',
+    'fr': 'USD',
+    'it': 'USD',
+    'es': 'USD',
     'en': 'USD',
     'ja': 'USD',
     'zh-CN': 'USD',
