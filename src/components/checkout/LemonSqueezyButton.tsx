@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useAuthStore } from '@/stores/authStore';
 import type { CheckoutItem } from './OnePageCheckout';
 
 // lemon.js 가 window에 주입하는 전역 객체 타입 (필요한 부분만 선언)
@@ -35,6 +36,7 @@ interface LemonSqueezyButtonProps {
 
 export default function LemonSqueezyButton({
   orderId,
+  amount,
   items,
   onSuccess,
   onError,
@@ -42,10 +44,13 @@ export default function LemonSqueezyButton({
   compact,
 }: LemonSqueezyButtonProps) {
   const { t, i18n } = useTranslation();
+  const user = useAuthStore((state) => state.user);
   const [scriptReady, setScriptReady] = useState(false);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const succeededRef = useRef(false);
+  // 실제 DB 주문 ID (장바구니는 클라이언트 임시 UUID로 시작하므로 주문 생성 후 갱신)
+  const dbOrderIdRef = useRef<string>(orderId);
 
   // lemon.js 로드
   useEffect(() => {
@@ -60,7 +65,7 @@ export default function LemonSqueezyButton({
               if (succeededRef.current) return;
               succeededRef.current = true;
               window.LemonSqueezy?.Url.Close();
-              onSuccess('', orderId);
+              onSuccess('', dbOrderIdRef.current);
             }
           },
         });
@@ -110,15 +115,65 @@ export default function LemonSqueezyButton({
 
   const handleClick = useCallback(async () => {
     if (creating) return;
+    if (!user?.id) {
+      const msg = t('checkout.loginRequired', '로그인이 필요합니다.');
+      setError(msg);
+      onError(new Error(msg));
+      return;
+    }
     setError(null);
     setCreating(true);
     onProcessing();
 
     try {
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      // 1단계: DB에 주문 생성 (PayPal/카드와 동일한 Upsert)
+      //   → 장바구니는 클라이언트 임시 UUID로 시작하므로 여기서 실제 주문을 만든다.
+      //   → 동일 유저+동일 아이템+동일 금액의 pending 주문은 재활용된다.
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      let dbOrderId = orderId;
+      const orderDescription =
+        items.length === 1 ? items[0].title : `${items[0].title} 외 ${items.length - 1}건`;
+
+      const createResponse = await fetch('/api/orders/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.id,
+          items: items.map((item) => ({
+            sheetId: item.sheet_id,
+            title: item.title,
+            price: item.price,
+          })),
+          amount,
+          description: orderDescription,
+          paymentMethod: 'lemonsqueezy',
+        }),
+      });
+      const createResult = await createResponse.json();
+
+      if (createResult.success && createResult.orderId) {
+        dbOrderId = createResult.orderId;
+        dbOrderIdRef.current = dbOrderId;
+
+        // 동일 상품의 기존 결제가 이미 완료됨 — 재결제 없이 성공 화면으로
+        if (createResult.alreadyPaid) {
+          succeededRef.current = true;
+          onSuccess('', dbOrderId);
+          return;
+        }
+      } else {
+        const msg = createResult?.error || t('checkout.lsCreateError', '결제창을 여는 데 실패했습니다.');
+        setError(msg);
+        onError(new Error(msg));
+        return;
+      }
+
+      // 2단계: 실제 DB 주문 ID로 Lemon Squeezy 체크아웃 생성
       const res = await fetch('/api/payments/lemon-squeezy/create-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orderId, locale: i18n.language }),
+        body: JSON.stringify({ orderId: dbOrderId, locale: i18n.language }),
       });
       const result = await res.json();
 
@@ -143,7 +198,7 @@ export default function LemonSqueezyButton({
     } finally {
       setCreating(false);
     }
-  }, [creating, orderId, i18n.language, onProcessing, onError, t]);
+  }, [creating, user?.id, orderId, amount, items, i18n.language, onProcessing, onSuccess, onError, t]);
 
   return (
     <div className="w-full space-y-2">
