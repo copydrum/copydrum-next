@@ -114,7 +114,7 @@ export function buildCategorySeoStrings(
  * @returns Object with SEO metadata
  */
 export function buildCollectionsSeoStrings(locale: string) {
-  const baseUrl = 'https://copydrum.com';
+  const baseUrl = 'https://www.copydrum.com';
 
   const seoData: Record<string, { title: string; description: string }> = {
     ko: {
@@ -248,7 +248,7 @@ export function buildCollectionDetailSeoStrings(
     original_price?: number;
   }
 ) {
-  const baseUrl = 'https://copydrum.com';
+  const baseUrl = 'https://www.copydrum.com';
   const thumbnail = collection.thumbnail_url || `${baseUrl}/logo.png`;
 
   const name = resolveLocalized(collection.title_translations, locale, collection.title);

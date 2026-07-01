@@ -29,8 +29,8 @@ export async function GET() {
       (sheet) => `
     <item>
       <title><![CDATA[${sheet.title} - ${sheet.artist}]]></title>
-      <link>https://copydrum.com/${FEED_LOCALE}/drum-sheet/${sheet.slug}</link>
-      <guid isPermaLink="true">https://copydrum.com/${FEED_LOCALE}/drum-sheet/${sheet.slug}</guid>
+      <link>https://www.copydrum.com/${FEED_LOCALE}/drum-sheet/${sheet.slug}</link>
+      <guid isPermaLink="true">https://www.copydrum.com/${FEED_LOCALE}/drum-sheet/${sheet.slug}</guid>
       <pubDate>${new Date(sheet.created_at).toUTCString()}</pubDate>
       <description><![CDATA[Drum sheet music for ${sheet.title} by ${sheet.artist}]]></description>
     </item>`
@@ -41,10 +41,10 @@ export async function GET() {
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>COPYDRUM - Drum Sheet Music</title>
-    <link>https://copydrum.com/${FEED_LOCALE}</link>
+    <link>https://www.copydrum.com/${FEED_LOCALE}</link>
     <description>Latest drum sheet music from COPYDRUM</description>
     <language>${FEED_LOCALE}</language>
-    <atom:link href="https://copydrum.com/rss.xml" rel="self" type="application/rss+xml"/>
+    <atom:link href="https://www.copydrum.com/rss.xml" rel="self" type="application/rss+xml"/>
     ${items}
   </channel>
 </rss>`;

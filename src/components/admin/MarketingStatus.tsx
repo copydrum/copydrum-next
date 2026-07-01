@@ -251,8 +251,8 @@ export default function MarketingStatus() {
 
     const handleCopyLink = (sheet: DrumSheet) => {
         const url = activeTab === 'naver'
-            ? `https://copydrum.com/drum-sheet/${sheet.slug}`
-            : `https://en.copydrum.com/drum-sheet/${sheet.slug}`;
+            ? `https://www.copydrum.com/ko/drum-sheet/${sheet.slug}`
+            : `https://www.copydrum.com/en/drum-sheet/${sheet.slug}`;
         navigator.clipboard.writeText(url).then(() => {
             alert('상품 링크가 복사되었습니다: ' + url);
         });
@@ -264,8 +264,8 @@ export default function MarketingStatus() {
         const isTistory = activeTab === 'tistory';
 
         const sheetUrl = isNaver
-            ? `https://copydrum.com/drum-sheet/${sheet.slug}`
-            : `https://en.copydrum.com/drum-sheet/${sheet.slug}`;
+            ? `https://www.copydrum.com/ko/drum-sheet/${sheet.slug}`
+            : `https://www.copydrum.com/en/drum-sheet/${sheet.slug}`;
 
         const imageHtml = sheet.preview_image_url
             ? `<img src="${sheet.preview_image_url}" alt="${sheet.title} ${isNaver ? '드럼 악보 미리보기' : 'Drum Sheet Music Preview'}" style="max-width:100%;height:auto;display:block;margin:10px auto;" />`
@@ -540,8 +540,8 @@ ${sheet.youtube_url ? `<p>Related Video: <a href="${sheet.youtube_url}">${sheet.
         const isTistory = activeTab === 'tistory';
 
         const sheetUrl = isNaver
-            ? `https://copydrum.com/drum-sheet/${sheet.slug}`
-            : `https://en.copydrum.com/drum-sheet/${sheet.slug}`;
+            ? `https://www.copydrum.com/ko/drum-sheet/${sheet.slug}`
+            : `https://www.copydrum.com/en/drum-sheet/${sheet.slug}`;
 
         if (isPinterest) {
             return `🥁 ${sheet.artist} - ${sheet.title} | Drum Sheet Music\nGet this drum sheet music at CopyDrum!\n👉 ${sheetUrl}${sheet.youtube_url ? `\n🎬 Watch: ${sheet.youtube_url}` : ''}`;
@@ -574,8 +574,8 @@ ${sheet.youtube_url ? `<p>Related Video: <a href="${sheet.youtube_url}">${sheet.
 
     const generateProductUrl = (sheet: DrumSheet): string => {
         return activeTab === 'naver'
-            ? `https://copydrum.com/drum-sheet/${sheet.slug}`
-            : `https://en.copydrum.com/drum-sheet/${sheet.slug}`;
+            ? `https://www.copydrum.com/ko/drum-sheet/${sheet.slug}`
+            : `https://www.copydrum.com/en/drum-sheet/${sheet.slug}`;
     };
 
     const handleExcelDownload = () => {

@@ -7,7 +7,7 @@ export const maxDuration = 60;
 
 // 사이트 표준 도메인(www 미사용) + 글로벌 SEO x-default 와 동일한 /en locale 사용.
 // 피드 title/description 이 영어 기준이므로 영어 locale URL 로 연결한다.
-const BASE_URL = 'https://copydrum.com';
+const BASE_URL = 'https://www.copydrum.com';
 const FEED_LOCALE = 'en';
 const BATCH_SIZE = 1000;
 

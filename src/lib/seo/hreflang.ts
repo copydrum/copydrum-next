@@ -5,7 +5,7 @@
 import { headers } from 'next/headers';
 import { languages } from '@/i18n/languages';
 
-export const BASE_URL = 'https://copydrum.com';
+export const BASE_URL = 'https://www.copydrum.com';
 
 // locale 코드 → URL path 매핑 (middleware 와 동일)
 export const localeToPath: Record<string, string> = {

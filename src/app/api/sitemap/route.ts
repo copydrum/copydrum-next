@@ -13,7 +13,7 @@ const SUPPORTED_LANG_PATHS = [
   'id', 'pt', 'ru', 'it', 'tr', 'uk',
 ];
 
-const BASE_DOMAIN = 'https://copydrum.com';
+const BASE_DOMAIN = 'https://www.copydrum.com';
 
 export async function GET() {
   const today = new Date().toISOString().split('T')[0];

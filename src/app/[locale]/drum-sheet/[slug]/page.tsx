@@ -15,7 +15,7 @@ function isUUID(str: string) {
 }
 
 // Base URL for canonical and alternates
-const BASE_URL = 'https://copydrum.com';
+const BASE_URL = 'https://www.copydrum.com';
 
 // Locale to URL path mapping (matches middleware)
 const localeToPath: Record<string, string> = {

@@ -100,8 +100,8 @@ export default function middleware(request: NextRequest) {
       const newPath = subdomainToPath[subdomain];
       const protocol = request.headers.get('x-forwarded-proto') || 'https';
       const newUrl = newPath
-        ? `${protocol}://copydrum.com/${newPath}${pathname}${search}`
-        : `${protocol}://copydrum.com${pathname}${search}`;
+        ? `${protocol}://www.copydrum.com/${newPath}${pathname}${search}`
+        : `${protocol}://www.copydrum.com${pathname}${search}`;
       return NextResponse.redirect(newUrl, { status: 301 });
     }
   }
@@ -127,8 +127,16 @@ export default function middleware(request: NextRequest) {
 
     const isBotRequest = isBot(userAgent);
 
-    if (!isExcludedPath && !isBotRequest && pathname !== '/favicon.ico') {
-      const preferredLocale = getPreferredLanguage(acceptLanguage);
+    if (!isExcludedPath && pathname !== '/favicon.ico') {
+      // ⚠️ [SEO] 봇(Googlebot/Pinterest 등)도 반드시 서버에서 locale 경로로 리다이렉트한다.
+      //    과거에는 봇을 제외(!isBotRequest)했는데, 그 결과 봇이 루트('/')나 locale 없는 경로에서
+      //    클라이언트 전용 리다이렉트 컴포넌트(page.tsx)의 "Loading..." 셸만 보고
+      //    실제 콘텐츠를 크롤링하지 못했다.
+      //    → 봇은 Accept-Language 가 없어 자연히 기본 locale('en')로 이동하며,
+      //      실제 콘텐츠가 있는 /en 페이지를 크롤링/색인할 수 있게 된다.
+      const preferredLocale = isBotRequest
+        ? defaultLocale
+        : getPreferredLanguage(acceptLanguage);
       const localePath = localeToPath[preferredLocale] || 'en';
 
       const url = request.nextUrl.clone();

@@ -19,7 +19,7 @@ const VALID_LANGS: Record<string, boolean> = {
   it: true, tr: true, uk: true,
 };
 
-const BASE_DOMAIN = 'https://copydrum.com';
+const BASE_DOMAIN = 'https://www.copydrum.com';
 
 // hreflang alternate 생성을 위한 locale(URL path) ↔ hreflang(BCP-47) 매핑
 const ALT_LOCALES: { path: string; hreflang: string }[] = [

@@ -22,6 +22,6 @@ export default function robots(): MetadataRoute.Robots {
         '/payments/',
       ],
     },
-    sitemap: 'https://copydrum.com/sitemap.xml',
+    sitemap: 'https://www.copydrum.com/sitemap.xml',
   };
 }
