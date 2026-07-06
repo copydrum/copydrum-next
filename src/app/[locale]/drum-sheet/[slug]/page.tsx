@@ -1,6 +1,4 @@
-import { createClient } from '@/lib/supabase/server';
 import { notFound, redirect } from 'next/navigation';
-import { headers } from 'next/headers';
 import { cache } from 'react';
 import SheetDetailClient from './SheetDetailClient';
 import type { Metadata } from 'next';
@@ -8,6 +6,11 @@ import { languages } from '@/i18n/languages';
 import { getServerDetailSeo } from '@/lib/seo/serverSeo';
 import { getSiteCurrency, convertFromKrw } from '@/lib/currency';
 import { buildDigitalOfferMerchantExtras } from '@/lib/seo/productOfferSchema';
+import { localeToPath, localeFromPathSegment } from '@/lib/seo/hreflang';
+import { createPublicServerClient } from '@/lib/supabase/publicServer';
+
+/** ISR: cache HTML at CDN; re-fetch from DB at most once per hour. */
+export const revalidate = 3600;
 
 // 헬퍼 함수
 function isUUID(str: string) {
@@ -17,33 +20,12 @@ function isUUID(str: string) {
 // Base URL for canonical and alternates
 const BASE_URL = 'https://www.copydrum.com';
 
-// Locale to URL path mapping (matches middleware)
-const localeToPath: Record<string, string> = {
-  'en': 'en',
-  'ko': 'ko',
-  'ja': 'ja',
-  'zh-CN': 'zh-cn',
-  'zh-TW': 'zh-tw',
-  'de': 'de',
-  'fr': 'fr',
-  'es': 'es',
-  'vi': 'vi',
-  'th': 'th',
-  'hi': 'hi',
-  'id': 'id',
-  'pt': 'pt',
-  'ru': 'ru',
-  'it': 'it',
-  'tr': 'tr',
-  'uk': 'uk',
-};
-
 /**
- * Cached function to fetch drum sheet by slug or UUID
- * This prevents duplicate queries in generateMetadata and page component
+ * Cached function to fetch drum sheet by slug or UUID.
+ * Uses cookie-less client so the page can be statically cached (ISR).
  */
 const getSheetBySlugOrId = cache(async (slugOrId: string) => {
-  const supabase = await createClient();
+  const supabase = createPublicServerClient();
 
   let query = supabase.from('drum_sheets').select('*, categories(name), sales_type, description').single();
 
@@ -60,7 +42,7 @@ const getSheetBySlugOrId = cache(async (slugOrId: string) => {
 
 const getReviewStats = cache(async (sheetId: string) => {
   try {
-    const supabase = await createClient();
+    const supabase = createPublicServerClient();
     const { data } = await supabase
       .from('drum_sheet_review_stats')
       .select('review_count, avg_rating')
@@ -76,12 +58,13 @@ const getReviewStats = cache(async (sheetId: string) => {
 });
 
 interface PageProps {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { slug } = await params;
+  const { slug, locale: localePath } = await params;
   const decodedSlug = decodeURIComponent(slug);
+  const locale = localeFromPathSegment(localePath);
 
   // Use cached function to fetch sheet (shared with page component)
   const { sheet } = await getSheetBySlugOrId(decodedSlug);
@@ -90,10 +73,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!sheet) {
     return { title: 'Not Found' };
   }
-
-  // Get current locale from headers (set by middleware)
-  const headersList = await headers();
-  const locale = headersList.get('x-locale') || 'en';
 
   const sheetRow = sheet as {
     title: string;
@@ -174,8 +153,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function SheetDetailPage({ params }: PageProps) {
-  const { slug } = await params;
+  const { slug, locale: localePath } = await params;
   const decodedSlug = decodeURIComponent(slug);
+  const locale = localeFromPathSegment(localePath);
+  const localePathSegment = localeToPath[locale] || 'en';
 
   // Use cached function to fetch sheet (shared with generateMetadata)
   const { sheet, error, isUUID: isUUIDParam } = await getSheetBySlugOrId(decodedSlug);
@@ -185,19 +166,14 @@ export default async function SheetDetailPage({ params }: PageProps) {
     return notFound();
   }
 
-  // 현재 locale (미들웨어가 설정한 x-locale 헤더)
-  const headersList = await headers();
-  const locale = headersList.get('x-locale') || 'en';
-  const localePath = localeToPath[locale] || 'en';
-
   // UUID 기반 URL → slug 기반 URL 로 리다이렉트 (locale prefix 보존)
   if (isUUIDParam && sheet.slug) {
-    redirect(`/${localePath}/drum-sheet/${sheet.slug}`);
+    redirect(`/${localePathSegment}/drum-sheet/${sheet.slug}`);
   }
 
   // ─── JSON-LD 구조화 데이터 (Product + BreadcrumbList) ───
   const canonicalSlug = sheet.slug || decodedSlug;
-  const pageUrl = `${BASE_URL}/${localePath}/drum-sheet/${canonicalSlug}`;
+  const pageUrl = `${BASE_URL}/${localePathSegment}/drum-sheet/${canonicalSlug}`;
   const productImage = sheet.preview_image_url || sheet.thumbnail_url || undefined;
   const isPreorder = sheet.sales_type === 'PREORDER';
   const price = Math.max(0, Math.round(Number(sheet.price) || 0));
@@ -212,7 +188,7 @@ export default async function SheetDetailPage({ params }: PageProps) {
   // 리뷰 통계 (있을 때만 aggregateRating 노출 → 리치 결과 자격)
   const reviewStats = await getReviewStats(sheet.id);
 
-  const refundPolicyUrl = `${BASE_URL}/${localePath}/policy/refund`;
+  const refundPolicyUrl = `${BASE_URL}/${localePathSegment}/policy/refund`;
   const merchantOfferExtras = buildDigitalOfferMerchantExtras(
     offerCurrency,
     locale,
@@ -260,13 +236,13 @@ export default async function SheetDetailPage({ params }: PageProps) {
             '@type': 'ListItem',
             position: 1,
             name: 'COPYDRUM',
-            item: `${BASE_URL}/${localePath}`,
+            item: `${BASE_URL}/${localePathSegment}`,
           },
           {
             '@type': 'ListItem',
             position: 2,
             name: sheet.categories?.name || 'Drum Sheet Music',
-            item: `${BASE_URL}/${localePath}/categories`,
+            item: `${BASE_URL}/${localePathSegment}/categories`,
           },
           {
             '@type': 'ListItem',

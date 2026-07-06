@@ -28,6 +28,31 @@ export const localeToPath: Record<string, string> = {
   uk: 'uk',
 };
 
+/** URL path segment (e.g. zh-cn) → i18n locale code (e.g. zh-CN). Matches middleware. */
+export const pathToLocale: Record<string, string> = {
+  en: 'en',
+  ko: 'ko',
+  ja: 'ja',
+  de: 'de',
+  es: 'es',
+  fr: 'fr',
+  hi: 'hi',
+  id: 'id',
+  it: 'it',
+  pt: 'pt',
+  ru: 'ru',
+  th: 'th',
+  tr: 'tr',
+  uk: 'uk',
+  vi: 'vi',
+  'zh-cn': 'zh-CN',
+  'zh-tw': 'zh-TW',
+};
+
+export function localeFromPathSegment(pathSegment: string): string {
+  return pathToLocale[pathSegment.toLowerCase()] || 'en';
+}
+
 /** 미들웨어가 설정한 x-locale 헤더에서 현재 locale 을 읽는다. */
 export async function getLocaleFromHeaders(): Promise<string> {
   const headersList = await headers();

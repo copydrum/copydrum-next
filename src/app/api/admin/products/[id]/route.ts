@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { revalidateDrumSheetPages } from '@/lib/revalidateSheetPage';
 
 // ✅ Service Role Key가 있으면 Admin 권한으로 RLS 우회
 function createAdminClient() {
@@ -78,7 +79,7 @@ export async function PATCH(
       .from('drum_sheets')
       .update(finalUpdateData)
       .eq('id', productId)
-      .select('id, title, artist, sales_type, pdf_url')
+      .select('id, title, artist, sales_type, pdf_url, slug')
       .single();
 
     if (updateError) {
@@ -196,6 +197,10 @@ export async function PATCH(
         console.error('[product-update] ❌ 선주문 완료 처리 중 오류:', fulfillmentError);
         // 완료 처리 실패해도 상품 업데이트는 성공했으므로 계속 진행
       }
+    }
+
+    if (updatedProduct.slug) {
+      revalidateDrumSheetPages(updatedProduct.slug);
     }
 
     return NextResponse.json({
