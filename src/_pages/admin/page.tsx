@@ -14612,17 +14612,16 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
         <div className="space-y-2">
           <h2 className="text-2xl font-bold text-gray-900">인기곡 순위 관리</h2>
           <p className="text-gray-500">
-            장르별 인기곡은 이제 <strong>조회수·판매량을 기반으로 자동 정렬</strong>되어 메인 페이지에 노출됩니다. 별도의 수동 지정 없이도 데이터에 따라 매일 갱신됩니다.
+            장르별 인기곡은 아래에서 지정한 <strong>수동 순위</strong> 기준으로 메인 페이지에 노출됩니다.
           </p>
         </div>
 
         <div className="flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
           <i className="ri-magic-line mt-0.5 text-lg text-emerald-600"></i>
           <div className="text-sm text-emerald-800">
-            <p className="font-semibold">자동 정렬이 적용 중입니다</p>
+            <p className="font-semibold">수동 순위가 메인에 적용됩니다</p>
             <p className="mt-1 text-emerald-700">
-              메인 페이지 인기곡 섹션은 최근 7일 구매·전체 구매·조회수 점수로 상위 10곡을 자동 선정합니다.
-              아래 수동 순위 도구는 <strong>선택 사항(레거시)</strong>이며, 현재 메인 노출에는 사용되지 않습니다.
+              이 장르에서 지정한 1~10위가 메인 페이지 인기곡 섹션에 그대로 반영됩니다.
             </p>
           </div>
         </div>
