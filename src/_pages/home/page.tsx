@@ -276,17 +276,40 @@ export default function Home() {
     }
 
     try {
-      // 자동 인기 정렬: 선택된 장르의 활성 악보 전체를 구매수·조회수 점수로 정렬해 상위 10개를 노출.
-      // 관리자가 수동으로 순위를 입력하지 않아도 데이터 기반으로 자동 갱신된다.
-      const { data: genreSheets, error: genreError } = await supabase
-        .from('drum_sheets')
-        .select('id, title, artist, price, thumbnail_url, youtube_url, category_id, created_at, slug, view_count_total, view_count_7d')
-        .eq('is_active', true)
-        .eq('category_id', selectedGenre);
+      // 인기 정렬: 완료 주문 누적 판매량을 1순위로 사용한다.
+      // 장르는 기본 category_id + drum_sheet_categories(다중 장르 매핑) 모두 포함한다.
+      const selectFields = 'id, title, artist, price, thumbnail_url, youtube_url, category_id, created_at, slug, view_count_total, view_count_7d';
+      const [primaryResult, junctionResult] = await Promise.all([
+        supabase
+          .from('drum_sheets')
+          .select(selectFields)
+          .eq('is_active', true)
+          .eq('category_id', selectedGenre),
+        supabase
+          .from('drum_sheet_categories')
+          .select(`
+            drum_sheets!inner (
+              id, title, artist, price, thumbnail_url, youtube_url, category_id, created_at, slug, view_count_total, view_count_7d
+            )
+          `)
+          .eq('category_id', selectedGenre)
+          .eq('drum_sheets.is_active', true),
+      ]);
 
-      if (genreError) throw genreError;
+      if (primaryResult.error) throw primaryResult.error;
+      if (junctionResult.error) throw junctionResult.error;
 
-      if (!genreSheets || genreSheets.length === 0) {
+      const sheetMap = new Map<string, any>();
+      for (const sheet of primaryResult.data || []) {
+        if (sheet?.id) sheetMap.set(sheet.id, sheet);
+      }
+      for (const row of junctionResult.data || []) {
+        const sheet = (row as any).drum_sheets;
+        if (sheet?.id && !sheetMap.has(sheet.id)) sheetMap.set(sheet.id, sheet);
+      }
+
+      const genreSheets = Array.from(sheetMap.values());
+      if (genreSheets.length === 0) {
         setPopularSheets([]);
         return;
       }
@@ -296,15 +319,13 @@ export default function Home() {
       const sevenDaysAgo = new Date();
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-      // 구매수는 order_items(완료 주문)에서 집계, 조회수는 drum_sheets 사전 집계 컬럼 사용
+      // 구매수는 완료 주문(order_items + orders.status=completed)을 기준으로 집계
       const { data: allOrderItems, error: orderItemsError } = await supabase
         .from('order_items')
         .select(`
           drum_sheet_id,
-          order_id,
           created_at,
           orders!inner (
-            id,
             status
           )
         `)
@@ -331,13 +352,9 @@ export default function Home() {
             }
           }
         });
+      } else if (orderItemsError) {
+        console.error('완료 주문 기반 구매 집계 실패:', orderItemsError);
       }
-
-      // 인기도 점수: 최근 데이터에 더 높은 가중치
-      const recentPurchaseWeight = 2.0;
-      const totalPurchaseWeight = 1.0;
-      const recentViewWeight = 0.2;
-      const totalViewWeight = 0.1;
 
       const sheetsWithScores = genreSheets.map((sheet) => {
         const totalPurchaseCount = purchaseCountMap.get(sheet.id) || 0;
@@ -345,11 +362,8 @@ export default function Home() {
         const totalViewCount = sheet.view_count_total ?? 0;
         const recentViewCount = sheet.view_count_7d ?? 0;
 
-        const score =
-          (recentPurchaseCount * recentPurchaseWeight) +
-          (totalPurchaseCount * totalPurchaseWeight) +
-          (recentViewCount * recentViewWeight) +
-          (totalViewCount * totalViewWeight);
+        // 누적 구매량을 최우선으로 두고, 보조 지표는 동점 해소 용도로만 반영
+        const score = (totalPurchaseCount * 1000) + (recentPurchaseCount * 100) + (recentViewCount * 2) + totalViewCount;
 
         return {
           ...sheet,
@@ -361,16 +375,16 @@ export default function Home() {
         };
       });
 
-      // 점수 내림차순 정렬. 동점 시: 최근 구매수 > 전체 구매수 > 최근 조회수 > 전체 조회수 > 최신순
+      // 점수 내림차순 정렬. 동점 시: 누적 구매수 > 최근 구매수 > 최근 조회수 > 전체 조회수 > 최신순
       sheetsWithScores.sort((a, b) => {
         if (Math.abs(b.score - a.score) > 0.001) {
           return b.score - a.score;
         }
-        if (b.recentPurchaseCount !== a.recentPurchaseCount) {
-          return b.recentPurchaseCount - a.recentPurchaseCount;
-        }
         if (b.totalPurchaseCount !== a.totalPurchaseCount) {
           return b.totalPurchaseCount - a.totalPurchaseCount;
+        }
+        if (b.recentPurchaseCount !== a.recentPurchaseCount) {
+          return b.recentPurchaseCount - a.recentPurchaseCount;
         }
         if (b.recentViewCount !== a.recentViewCount) {
           return b.recentViewCount - a.recentViewCount;
