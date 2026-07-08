@@ -276,138 +276,14 @@ export default function Home() {
     }
 
     try {
-      // 인기 정렬: 완료 주문 누적 판매량을 1순위로 사용한다.
-      // 장르는 기본 category_id + drum_sheet_categories(다중 장르 매핑) 모두 포함한다.
-      const selectFields = 'id, title, artist, price, thumbnail_url, youtube_url, category_id, created_at, slug, view_count_total, view_count_7d';
-      const [primaryResult, junctionResult] = await Promise.all([
-        supabase
-          .from('drum_sheets')
-          .select(selectFields)
-          .eq('is_active', true)
-          .eq('category_id', selectedGenre),
-        supabase
-          .from('drum_sheet_categories')
-          .select(`
-            drum_sheets!inner (
-              id, title, artist, price, thumbnail_url, youtube_url, category_id, created_at, slug, view_count_total, view_count_7d
-            )
-          `)
-          .eq('category_id', selectedGenre)
-          .eq('drum_sheets.is_active', true),
-      ]);
-
-      if (primaryResult.error) throw primaryResult.error;
-      if (junctionResult.error) throw junctionResult.error;
-
-      const sheetMap = new Map<string, any>();
-      for (const sheet of primaryResult.data || []) {
-        if (sheet?.id) sheetMap.set(sheet.id, sheet);
-      }
-      for (const row of junctionResult.data || []) {
-        const sheet = (row as any).drum_sheets;
-        if (sheet?.id && !sheetMap.has(sheet.id)) sheetMap.set(sheet.id, sheet);
-      }
-
-      const genreSheets = Array.from(sheetMap.values());
-      if (genreSheets.length === 0) {
-        setPopularSheets([]);
-        return;
-      }
-
-      const sheetIds = genreSheets.map((sheet) => sheet.id);
-
-      const sevenDaysAgo = new Date();
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-
-      // 구매수는 완료 주문(order_items + orders.status=completed)을 기준으로 집계
-      const { data: allOrderItems, error: orderItemsError } = await supabase
-        .from('order_items')
-        .select(`
-          drum_sheet_id,
-          created_at,
-          orders!inner (
-            status
-          )
-        `)
-        .in('drum_sheet_id', sheetIds)
-        .eq('orders.status', 'completed');
-
-      const purchaseCountMap = new Map<string, number>();
-      const recentPurchaseCountMap = new Map<string, number>();
-
-      if (allOrderItems && !orderItemsError) {
-        allOrderItems.forEach((item) => {
-          if (item.drum_sheet_id) {
-            purchaseCountMap.set(
-              item.drum_sheet_id,
-              (purchaseCountMap.get(item.drum_sheet_id) || 0) + 1
-            );
-
-            const itemDate = new Date(item.created_at);
-            if (itemDate >= sevenDaysAgo) {
-              recentPurchaseCountMap.set(
-                item.drum_sheet_id,
-                (recentPurchaseCountMap.get(item.drum_sheet_id) || 0) + 1
-              );
-            }
-          }
-        });
-      } else if (orderItemsError) {
-        console.error('완료 주문 기반 구매 집계 실패:', orderItemsError);
-      }
-
-      const sheetsWithScores = genreSheets.map((sheet) => {
-        const totalPurchaseCount = purchaseCountMap.get(sheet.id) || 0;
-        const recentPurchaseCount = recentPurchaseCountMap.get(sheet.id) || 0;
-        const totalViewCount = sheet.view_count_total ?? 0;
-        const recentViewCount = sheet.view_count_7d ?? 0;
-
-        // 누적 구매량을 최우선으로 두고, 보조 지표는 동점 해소 용도로만 반영
-        const score = (totalPurchaseCount * 1000) + (recentPurchaseCount * 100) + (recentViewCount * 2) + totalViewCount;
-
-        return {
-          ...sheet,
-          totalPurchaseCount,
-          recentPurchaseCount,
-          totalViewCount,
-          recentViewCount,
-          score,
-        };
+      const response = await fetch(`/api/home/popular?genreId=${encodeURIComponent(selectedGenre)}`, {
+        cache: 'no-store',
       });
-
-      // 점수 내림차순 정렬. 동점 시: 누적 구매수 > 최근 구매수 > 최근 조회수 > 전체 조회수 > 최신순
-      sheetsWithScores.sort((a, b) => {
-        if (Math.abs(b.score - a.score) > 0.001) {
-          return b.score - a.score;
-        }
-        if (b.totalPurchaseCount !== a.totalPurchaseCount) {
-          return b.totalPurchaseCount - a.totalPurchaseCount;
-        }
-        if (b.recentPurchaseCount !== a.recentPurchaseCount) {
-          return b.recentPurchaseCount - a.recentPurchaseCount;
-        }
-        if (b.recentViewCount !== a.recentViewCount) {
-          return b.recentViewCount - a.recentViewCount;
-        }
-        if (b.totalViewCount !== a.totalViewCount) {
-          return b.totalViewCount - a.totalViewCount;
-        }
-        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-      });
-
-      // 상위 10개 선택 후 보조 계산 필드 제거
-      const finalSheets = sheetsWithScores.slice(0, 10).map(({
-        totalPurchaseCount,
-        recentPurchaseCount,
-        totalViewCount,
-        recentViewCount,
-        score,
-        view_count_total,
-        view_count_7d,
-        ...sheet
-      }) => sheet);
-
-      setPopularSheets(finalSheets);
+      const result = await response.json();
+      if (!response.ok || !result?.success) {
+        throw new Error(result?.error || '인기 악보 집계 API 호출 실패');
+      }
+      setPopularSheets(Array.isArray(result.sheets) ? result.sheets : []);
     } catch (error) {
       console.error(t('home.console.popularSheetsLoadError'), error);
       setPopularSheets([]);
