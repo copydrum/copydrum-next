@@ -31,6 +31,11 @@ type OrderItemRow = {
   orders: OrderJoin | OrderJoin[];
 };
 
+type PurchaseRow = {
+  drum_sheet_id: string | null;
+  created_at: string | null;
+};
+
 function createAdminClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -108,21 +113,46 @@ export async function GET(request: NextRequest) {
       .select('drum_sheet_id, created_at, orders!inner(status, payment_status)')
       .in('drum_sheet_id', sheetIds);
 
-    if (orderItemsError) throw orderItemsError;
-
     const totalPurchaseMap = new Map<string, number>();
     const recentPurchaseMap = new Map<string, number>();
 
-    for (const item of (orderItems || []) as OrderItemRow[]) {
-      const sheetId = item?.drum_sheet_id;
-      if (!sheetId) continue;
-      if (!isPaidOrder(item?.orders)) continue;
+    if (!orderItemsError && orderItems) {
+      for (const item of orderItems as OrderItemRow[]) {
+        const sheetId = item?.drum_sheet_id;
+        if (!sheetId) continue;
+        if (!isPaidOrder(item?.orders)) continue;
 
-      totalPurchaseMap.set(sheetId, (totalPurchaseMap.get(sheetId) || 0) + 1);
+        totalPurchaseMap.set(sheetId, (totalPurchaseMap.get(sheetId) || 0) + 1);
 
-      const createdAt = item?.created_at ? new Date(item.created_at) : null;
-      if (createdAt && createdAt >= sevenDaysAgo) {
-        recentPurchaseMap.set(sheetId, (recentPurchaseMap.get(sheetId) || 0) + 1);
+        const createdAt = item?.created_at ? new Date(item.created_at) : null;
+        if (createdAt && createdAt >= sevenDaysAgo) {
+          recentPurchaseMap.set(sheetId, (recentPurchaseMap.get(sheetId) || 0) + 1);
+        }
+      }
+    } else {
+      // 일부 배포 환경에서 order_items 조인이 권한/정책 영향으로 실패할 수 있어 purchases로 폴백
+      const { data: purchases, error: purchasesError } = await supabase
+        .from('purchases')
+        .select('drum_sheet_id, created_at')
+        .in('drum_sheet_id', sheetIds);
+
+      if (!purchasesError && purchases) {
+        for (const item of purchases as PurchaseRow[]) {
+          const sheetId = item?.drum_sheet_id;
+          if (!sheetId) continue;
+
+          totalPurchaseMap.set(sheetId, (totalPurchaseMap.get(sheetId) || 0) + 1);
+
+          const createdAt = item?.created_at ? new Date(item.created_at) : null;
+          if (createdAt && createdAt >= sevenDaysAgo) {
+            recentPurchaseMap.set(sheetId, (recentPurchaseMap.get(sheetId) || 0) + 1);
+          }
+        }
+      } else {
+        console.error('[api/home/popular] purchase aggregation failed', {
+          orderItemsError,
+          purchasesError,
+        });
       }
     }
 
@@ -177,8 +207,11 @@ export async function GET(request: NextRequest) {
       { headers: { 'Cache-Control': 'no-store' } },
     );
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'failed to load popular sheets';
-    return NextResponse.json({ success: false, error: message }, { status: 500 });
+    console.error('[api/home/popular] unexpected error', error);
+    return NextResponse.json(
+      { success: true, sheets: [] },
+      { headers: { 'Cache-Control': 'no-store' } },
+    );
   }
 }
 
