@@ -14363,16 +14363,34 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
 
       setPopularitySearchLoading(true);
       try {
-        // 1. 기본 category_id로 검색
-        const { data: basicResults, error: basicError } = await supabase
-          .from('drum_sheets')
-          .select('id, title, artist, thumbnail_url, category_id')
-          .eq('category_id', popularitySelectedGenre)
-          .eq('is_active', true)
-          .or(`title.ilike.%${searchTerm}%,artist.ilike.%${searchTerm}%`)
-          .limit(20);
+        const trimmedTerm = searchTerm.trim();
 
-        if (basicError) throw basicError;
+        // 1. 기본 category_id로 검색
+        //    ⚠️ .or('title.ilike.%x%,artist.ilike.%x%') 형태의 문자열 조합 필터는
+        //    검색어에 쉼표(,)나 괄호(예: "곡명 (feat. 아티스트)") 등이 포함되면
+        //    PostgREST 필터 문법이 깨져 검색이 실패하므로, 제목/아티스트를
+        //    별도의 .ilike() 쿼리로 분리해 병합한다.
+        const [titleResult, artistResult] = await Promise.all([
+          supabase
+            .from('drum_sheets')
+            .select('id, title, artist, thumbnail_url, category_id')
+            .eq('category_id', popularitySelectedGenre)
+            .eq('is_active', true)
+            .ilike('title', `%${trimmedTerm}%`)
+            .limit(20),
+          supabase
+            .from('drum_sheets')
+            .select('id, title, artist, thumbnail_url, category_id')
+            .eq('category_id', popularitySelectedGenre)
+            .eq('is_active', true)
+            .ilike('artist', `%${trimmedTerm}%`)
+            .limit(20),
+        ]);
+
+        if (titleResult.error) throw titleResult.error;
+        if (artistResult.error) throw artistResult.error;
+
+        const basicResults = [...(titleResult.data || []), ...(artistResult.data || [])];
 
         // 2. drum_sheet_categories를 통한 추가 카테고리 검색
         const { data: categoryRelations, error: relationError } = await supabase
@@ -14408,7 +14426,7 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
           categoryRelations.forEach((relation: any) => {
             const sheet = relation.sheet;
             if (sheet && !resultMap.has(sheet.id)) {
-              const searchLower = searchTerm.toLowerCase();
+              const searchLower = trimmedTerm.toLowerCase();
               const titleMatch = sheet.title?.toLowerCase().includes(searchLower);
               const artistMatch = sheet.artist?.toLowerCase().includes(searchLower);
               
