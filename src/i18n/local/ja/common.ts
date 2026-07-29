@@ -552,7 +552,7 @@ export default {
   'sheetDetail.youtubeThumbnailDescription': '上の画像はYouTube動画のサムネイルです。実際の楽譜プレビューは下段で確認できます。',
   'sheetDetail.refundPolicy': '返金ポリシー',
   'sheetDetail.refundPolicyLink': '返金ポリシーを確認する',
-  'sheetDetail.refundPolicyDescription': '本商品はデジタルPDFドラム楽譜ファイルであり、ファイルのダウンロードまたは閲覧が行われた場合、返金はできません。',
+  'sheetDetail.refundPolicyDescription': '本商品はデジタルPDFドラム楽譜ファイルです。ファイルを一度でもダウンロードまたは閲覧した場合、返金はできません。未ダウンロード、またはファイル自体に致命的な欠陥がある場合に限り、支払日から7日以内に返金可能です。',
   'sheetDetail.highQualityPdf': '高品質PDF',
   'sheetDetail.printableFormat': '印刷可能フォーマット',
   'sheetDetail.instantDownloadFeature': '即時ダウンロード',

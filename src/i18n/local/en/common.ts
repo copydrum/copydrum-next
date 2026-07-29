@@ -554,7 +554,7 @@ export default {
   'sheetDetail.youtubeThumbnailDescription': 'The image above is the YouTube video thumbnail. You can preview the actual sheet music below.',
   'sheetDetail.refundPolicy': 'Refund Policy',
   'sheetDetail.refundPolicyLink': 'Check Refund Policy',
-  'sheetDetail.refundPolicyDescription': 'This product is a digital PDF drum sheet music file. Once the file has been downloaded or accessed, it cannot be refunded.',
+  'sheetDetail.refundPolicyDescription': 'This product is a digital PDF drum sheet music file. Refunds are not available once the file has been downloaded or accessed. A refund may be requested within 7 days of payment only if the file has not been downloaded, or if the file itself has a critical defect.',
   'sheetDetail.highQualityPdf': 'High Quality PDF',
   'sheetDetail.printableFormat': 'Printable Format',
   'sheetDetail.instantDownloadFeature': 'Instant Download',

@@ -21,7 +21,7 @@ const RefundPolicyPage: React.FC = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const updated = '2026-06-17';
+  const updated = '2026-07-29';
 
   return (
     <div className="min-h-screen bg-white">
@@ -38,11 +38,15 @@ const RefundPolicyPage: React.FC = () => {
               운영합니다.
             </p>
 
-            <h2>1. 14일 무조건 환불 보장</h2>
+            <h2>1. 환불 기준</h2>
             <p>
-              <strong>구매일로부터 14일 이내에는 사유를 묻지 않고 전액 환불해 드립니다.</strong>{' '}
-              파일을 이미 다운로드했거나 열람한 경우에도 환불이 가능하며, 별도의 조건이나 예외는
-              없습니다.
+              결제 후 즉시 다운로드되는 디지털 콘텐츠의 특성상,{' '}
+              <strong>
+                파일을 한 번이라도 다운로드하거나 열람한 이력이 있는 경우에는 어떠한 사유로도 환불이
+                불가합니다.
+              </strong>{' '}
+              (단, 다운로드를 받지 않았거나 파일 자체에 치명적인 오류가 있는 경우에 한해 결제일로부터
+              7일 이내 환불 가능)
             </p>
 
             <h2>2. 환불 신청 방법</h2>
@@ -83,13 +87,16 @@ const RefundPolicyPage: React.FC = () => {
               with confidence, we operate the refund policy below.
             </p>
 
-            <h2>1. 14-Day Money-Back Guarantee</h2>
+            <h2>1. Refund Eligibility</h2>
             <p>
+              Due to the nature of digital content that becomes available for immediate download
+              after payment,{' '}
               <strong>
-                You may request a full refund within 14 days of your purchase, for any reason.
+                refunds are not available for any reason once the file has been downloaded or
+                accessed even once.
               </strong>{' '}
-              Refunds are available even if the file has already been downloaded or accessed. There
-              are no conditions or exceptions.
+              (Exception: a refund may be requested within 7 days of payment only if the file has
+              not been downloaded, or if the file itself has a critical defect.)
             </p>
 
             <h2>2. How to Request a Refund</h2>

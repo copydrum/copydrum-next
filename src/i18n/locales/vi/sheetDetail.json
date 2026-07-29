@@ -67,7 +67,7 @@
   "favoriteError": "Đã xảy ra lỗi khi xử lý yêu thích. Vui lòng thử lại.",
   "downloadError": "Đã xảy ra lỗi khi tải xuống. Vui lòng thử lại.",
   "refundPolicy": "Chính sách hoàn tiền",
-  "refundPolicyDescription": "Sản phẩm này là tệp PDF nhạc trống kỹ thuật số. Bạn có thể được hoàn tiền đầy đủ trong vòng 14 ngày kể từ khi mua. Xem Chính sách hoàn tiền của chúng tôi để biết chi tiết.",
+  "refundPolicyDescription": "Sản phẩm này là tệp PDF nhạc trống kỹ thuật số. Không hoàn tiền sau khi tệp đã được tải xuống hoặc xem. Chỉ có thể yêu cầu hoàn tiền trong vòng 7 ngày kể từ khi thanh toán nếu tệp chưa được tải xuống, hoặc nếu tệp có lỗi nghiêm trọng. Xem Chính sách hoàn tiền của chúng tôi để biết chi tiết.",
   "refundPolicyLink": "Chính sách Hoàn tiền & Giao hàng",
   "refundPolicyLinkText": "Để biết chi tiết, vui lòng kiểm tra",
   "refundPolicyLinkSuffix": "",

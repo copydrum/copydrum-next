@@ -21,7 +21,7 @@ const TermsPage: React.FC = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const updated = '2026-06-17';
+  const updated = '2026-07-29';
 
   return (
     <div className="min-h-screen bg-white">
@@ -71,8 +71,9 @@ const TermsPage: React.FC = () => {
 
             <h2>5. 환불</h2>
             <p>
-              환불은 별도의 <a href="/policy/refund">환불 정책</a>을 따릅니다. 당사는 구매일로부터 14일
-              이내 사유를 묻지 않는 전액 환불을 보장합니다.
+              환불은 별도의 <a href="/policy/refund">환불 정책</a>을 따릅니다. 디지털 콘텐츠 특성상
+              파일을 다운로드하거나 열람한 경우에는 환불이 불가하며, 미다운로드 또는 파일의 치명적인
+              오류가 있는 경우에 한해 결제일로부터 7일 이내 환불이 가능합니다.
             </p>
 
             <h2>6. 금지 행위</h2>
@@ -151,8 +152,10 @@ const TermsPage: React.FC = () => {
 
             <h2>5. Refunds</h2>
             <p>
-              Refunds are governed by our separate <a href="/policy/refund">Refund Policy</a>. We
-              offer a full refund within 14 days of purchase, for any reason.
+              Refunds are governed by our separate <a href="/policy/refund">Refund Policy</a>. Due to
+              the nature of digital content, refunds are not available once a file has been
+              downloaded or accessed. A refund may be requested within 7 days of payment only if the
+              file has not been downloaded, or if the file itself has a critical defect.
             </p>
 
             <h2>6. Prohibited Conduct</h2>

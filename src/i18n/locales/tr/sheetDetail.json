@@ -66,7 +66,7 @@
   "favoriteError": "Favoriler işlenirken bir hata oluştu. Lütfen tekrar deneyin.",
   "downloadError": "İndirme sırasında bir hata oluştu. Lütfen tekrar deneyin.",
   "refundPolicy": "İade Politikası",
-  "refundPolicyDescription": "Bu ürün dijital bir PDF davul notası dosyasıdır. Satın alma tarihinden itibaren 14 gün içinde tam iade yapılabilir. Ayrıntılar için İade Politikamıza bakın.",
+  "refundPolicyDescription": "Bu ürün dijital bir PDF davul notası dosyasıdır. Dosya indirildikten veya görüntülendikten sonra iade yapılamaz. İade yalnızca dosya indirilmemişse veya dosyanın kendisinde kritik bir hata varsa ödeme tarihinden itibaren 7 gün içinde talep edilebilir. Ayrıntılar için İade Politikamıza bakın.",
   "refundPolicyLink": "İade ve Teslimat Politikası",
   "refundPolicyLinkText": "Detaylar için lütfen",
   "refundPolicyLinkSuffix": "kontrol edin",

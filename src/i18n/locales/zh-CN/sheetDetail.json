@@ -67,7 +67,7 @@
   "favoriteError": "处理收藏时发生错误。请重试。",
   "downloadError": "下载时发生错误。请重试。",
   "refundPolicy": "退款政策",
-  "refundPolicyDescription": "此产品是数字PDF鼓谱文件。购买后14天内可获得全额退款。详情请参阅我们的退款政策。",
+  "refundPolicyDescription": "此产品是数字PDF鼓谱文件。一旦下载或查阅过文件，则无法退款。仅在未下载、或文件本身存在致命缺陷的情况下，可在付款之日起7日内申请退款。详情请参阅我们的退款政策。",
   "refundPolicyLink": "退款与交付政策",
   "refundPolicyLinkText": "详情请查看我们的",
   "refundPolicyLinkSuffix": "",

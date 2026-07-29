@@ -840,10 +840,6 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
                     <span className="text-sm font-medium">{t('home.trust.securePayment')}</span>
                   </div>
                   <div className="flex items-center gap-2 text-gray-700">
-                    <i className="ri-refund-2-line text-lg text-amber-600"></i>
-                    <span className="text-sm font-medium">{t('home.trust.moneyBack')}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-gray-700">
                     <i className="ri-download-cloud-2-line text-lg text-blue-600"></i>
                     <span className="text-sm font-medium">{t('home.trust.instantDownload')}</span>
                   </div>
@@ -1071,7 +1067,6 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
             {/* 신뢰 배지 (구매 바 상단) */}
             <div className="flex items-center justify-center gap-3 border-b border-gray-100 px-4 py-1.5 text-[11px] text-gray-500">
               <span className="flex items-center gap-1"><i className="ri-shield-check-line text-emerald-600"></i>{t('home.trust.securePayment')}</span>
-              <span className="flex items-center gap-1"><i className="ri-refund-2-line text-amber-600"></i>{t('home.trust.moneyBack')}</span>
               <span className="flex items-center gap-1"><i className="ri-download-cloud-2-line text-blue-600"></i>{t('home.trust.instantDownload')}</span>
             </div>
             {isFreeSheet ? (
