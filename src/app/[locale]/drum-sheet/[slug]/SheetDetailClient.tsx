@@ -482,7 +482,7 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
                 </button>
               </li>
               <li aria-hidden="true" className="text-gray-300">/</li>
-              <li className="text-gray-700 font-medium truncate max-w-[55vw] sm:max-w-xs" aria-current="page">
+              <li className="text-gray-700 font-medium break-words" aria-current="page">
                 {displaySheetTitle}
               </li>
             </ol>
@@ -549,10 +549,10 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
               <div className="lg:hidden">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h1 className="text-xl font-bold text-gray-900 leading-tight truncate">{displaySheetTitle}</h1>
+                    <div className="flex items-start gap-2 mb-1">
+                      <h1 className="text-xl font-bold text-gray-900 leading-tight break-words">{displaySheetTitle}</h1>
                       {sheet.is_featured && (
-                        <Star className="w-5 h-5 text-yellow-500 fill-current flex-shrink-0" />
+                        <Star className="w-5 h-5 mt-0.5 text-yellow-500 fill-current flex-shrink-0" />
                       )}
                     </div>
                     <p className="text-base text-gray-600 mb-1">{sheet.artist}</p>
