@@ -826,7 +826,7 @@ const LessonBooksPage = () => {
                         onClick={() => handleViewDetail(book)}
                         className="text-left"
                       >
-                        <h3 className="text-sm font-bold text-gray-900 leading-snug line-clamp-2 hover:text-orange-600 transition-colors">
+                        <h3 className="text-sm font-bold text-gray-900 leading-snug break-words hover:text-orange-600 transition-colors">
                           {getLessonBookListTitle(book)}
                         </h3>
                         <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">{book.artist}</p>

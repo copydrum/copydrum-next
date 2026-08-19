@@ -435,7 +435,7 @@ export default function SheetBooksPage() {
                         </span>
                       ) : null}
                       <button type="button" onClick={() => router.push(`/drum-sheet/${book.slug}`)} className="text-left">
-                        <h3 className="text-sm font-bold text-gray-900 line-clamp-2">{getDisplayTitle(book)}</h3>
+                        <h3 className="text-sm font-bold text-gray-900 leading-snug break-words">{getDisplayTitle(book)}</h3>
                         <p className="text-xs text-gray-500 mt-0.5">{book.artist}</p>
                       </button>
                       <p className="text-base sm:text-lg font-extrabold text-gray-900">{formatPrice(book.price)}</p>
