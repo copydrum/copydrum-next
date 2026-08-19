@@ -742,7 +742,7 @@ const LessonBooksPage = () => {
             </div>
           ) : (
             /* ====== Book Card Grid ====== */
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4">
               {paginatedBooks.map((book) => {
                 const isFav = favoriteIds.has(book.id);
                 const isFavLoading = favoriteLoadingIds.has(book.id);
@@ -814,7 +814,7 @@ const LessonBooksPage = () => {
                     </button>
 
                     {/* Card Body */}
-                    <div className="flex flex-1 flex-col gap-2 p-4">
+                    <div className="flex flex-1 flex-col gap-2 p-3 sm:p-4">
                       <div className="flex items-center gap-1.5">
                         <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold ${getDifficultyColor(book.difficulty)}`}>
                           {getDifficultyLabel(book.difficulty, t)}
@@ -834,13 +834,13 @@ const LessonBooksPage = () => {
 
                       {/* Price */}
                       <div className="mt-1">
-                        <div className="text-lg font-extrabold text-gray-900">
+                        <div className="text-base sm:text-lg font-extrabold text-gray-900">
                           {formatPrice(book.price)}
                         </div>
                       </div>
 
                       {/* Action Buttons */}
-                      <div className="mt-auto flex gap-2 pt-2">
+                      <div className="mt-auto flex flex-col gap-2 pt-2 sm:flex-row">
                         {isFree ? (
                           /* 무료: 로그인·결제 없이 원클릭 다운로드 */
                           <button
@@ -871,7 +871,7 @@ const LessonBooksPage = () => {
                               aria-label={t('freeSheets.actions.addToCart')}
                             >
                               <ShoppingCart className="h-4 w-4" />
-                              <span className="hidden sm:inline">{t('freeSheets.actions.addToCart')}</span>
+                              <span>{t('freeSheets.actions.addToCart')}</span>
                             </button>
                             <button
                               type="button"

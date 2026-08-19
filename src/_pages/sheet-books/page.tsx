@@ -386,7 +386,7 @@ export default function SheetBooksPage() {
               <p className="text-sm">{t('sheetBooks.empty.description')}</p>
             </div>
           ) : (
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4">
               {paginatedBooks.map((book) => {
                 const isFav = favoriteIds.has(book.id);
                 const isFavLoading = favoriteLoadingIds.has(book.id);
@@ -428,7 +428,7 @@ export default function SheetBooksPage() {
                       {isFavLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <i className={`ri-heart-${isFav ? 'fill' : 'line'}`} />}
                     </button>
 
-                    <div className="flex flex-1 flex-col gap-2 p-4">
+                    <div className="flex flex-1 flex-col gap-2 p-3 sm:p-4">
                       {primaryGenre ? (
                         <span className="inline-flex w-fit rounded-full bg-indigo-50 px-2 py-0.5 text-[11px] font-semibold text-indigo-700">
                           {getGenreLabel(primaryGenre)}
@@ -438,8 +438,8 @@ export default function SheetBooksPage() {
                         <h3 className="text-sm font-bold text-gray-900 line-clamp-2">{getDisplayTitle(book)}</h3>
                         <p className="text-xs text-gray-500 mt-0.5">{book.artist}</p>
                       </button>
-                      <p className="text-lg font-extrabold text-gray-900">{formatPrice(book.price)}</p>
-                      <div className="mt-auto flex gap-2 pt-2">
+                      <p className="text-base sm:text-lg font-extrabold text-gray-900">{formatPrice(book.price)}</p>
+                      <div className="mt-auto flex flex-col gap-2 pt-2 sm:flex-row">
                         <button
                           type="button"
                           onClick={() => handleAddToCart(book)}
