@@ -194,6 +194,15 @@ export default function Home() {
 
       if (youtubeCatIds.length === 0) return;
 
+      // 악보집/드럼레슨 교재는 장르 태그로 드럼솔로·드럼커버가 붙을 수 있어
+      // 본 카테고리가 솔로/커버이고 유튜브 URL이 있는 영상악보만 포함한다.
+      const isYoutubeSheet = (sheet: any) =>
+        Boolean(
+          sheet?.id &&
+          sheet.youtube_url &&
+          youtubeCatIds.includes(sheet.category_id)
+        );
+
       const results = await Promise.all(
         youtubeCatIds.map(catId =>
           Promise.all([
@@ -202,6 +211,7 @@ export default function Home() {
               .select(selectFields)
               .eq('is_active', true)
               .eq('category_id', catId)
+              .not('youtube_url', 'is', null)
               .order('created_at', { ascending: false })
               .limit(6),
             supabase
@@ -209,6 +219,7 @@ export default function Home() {
               .select(`drum_sheets!inner (${selectFields})`)
               .eq('category_id', catId)
               .eq('drum_sheets.is_active', true)
+              .not('drum_sheets.youtube_url', 'is', null)
           ])
         )
       );
@@ -216,11 +227,11 @@ export default function Home() {
       const sheetMap = new Map<string, any>();
       for (const [primaryResult, junctionResult] of results) {
         for (const sheet of (primaryResult.data || [])) {
-          if (sheet?.id && !sheetMap.has(sheet.id)) sheetMap.set(sheet.id, sheet);
+          if (isYoutubeSheet(sheet) && !sheetMap.has(sheet.id)) sheetMap.set(sheet.id, sheet);
         }
         for (const row of (junctionResult.data || [])) {
           const sheet = (row as any).drum_sheets;
-          if (sheet?.id && !sheetMap.has(sheet.id)) sheetMap.set(sheet.id, sheet);
+          if (isYoutubeSheet(sheet) && !sheetMap.has(sheet.id)) sheetMap.set(sheet.id, sheet);
         }
       }
 
