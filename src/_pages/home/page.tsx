@@ -97,6 +97,7 @@ export default function Home() {
   const [collections, setCollections] = useState<HomeCollection[]>([]);
   const [collectionSlideIndex, setCollectionSlideIndex] = useState(0);
   const collectionSliderRef = useRef<HTMLDivElement>(null);
+  const youtubeSliderRef = useRef<HTMLDivElement>(null);
   const [freeLessonSheets, setFreeLessonSheets] = useState<FreeLessonSheet[]>([]);
   const freeLessonSliderRef = useRef<HTMLDivElement>(null);
   // 드럼레슨 "개별 자료"(루디먼트/필인/리듬패턴/드럼테크닉/기초입문 카테고리) — 교재와 분리 노출
@@ -1522,13 +1523,17 @@ export default function Home() {
         {youtubeLatestSheets.length > 0 && (
           <section className="py-6 md:py-12">
             <div className="max-w-7xl mx-auto space-y-6">
-              {/* 모바일 */}
+              {/* 모바일: 가로 스냅 슬라이드 */}
               <div className="md:hidden">
                 <div className="mb-4 flex items-center justify-between">
                   <h3 className="text-2xl font-bold text-gray-900">{t('home.latestYoutubeSheets')}</h3>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {youtubeLatestSheets.slice(0, 4).map((sheet) => {
+                <div
+                  ref={youtubeSliderRef}
+                  className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4"
+                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                >
+                  {youtubeLatestSheets.map((sheet) => {
                     const isFavorite = favoriteIds.has(sheet.id);
                     const isFavoriteLoading = favoriteLoadingIds.has(sheet.id);
                     const videoId = sheet.youtube_url ? extractVideoId(sheet.youtube_url) : '';
@@ -1536,11 +1541,11 @@ export default function Home() {
                       <div
                         key={sheet.id}
                         onClick={() => router.push(`/drum-sheet/${sheet.slug}`)}
-                        className="group relative cursor-pointer overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all hover:shadow-lg"
+                        className="group relative flex-shrink-0 w-[85%] snap-center cursor-pointer overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm"
                       >
                         <div className="relative">
                           <div
-                            className="aspect-video w-full bg-gray-200 transition duration-300 group-hover:brightness-95"
+                            className="aspect-video w-full bg-gray-200"
                             style={{
                               backgroundImage: `url(${getYouTubeThumbnailUrl(sheet)})`,
                               backgroundPosition: 'center',
@@ -1549,7 +1554,7 @@ export default function Home() {
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
                           {videoId && (
-                            <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/95 text-red-600 shadow-lg">
                                 <svg className="w-6 h-6 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
                                   <path d="M8 5v14l11-7z" />
