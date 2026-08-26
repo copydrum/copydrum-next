@@ -19,6 +19,7 @@ interface RecentOrder {
   id: string;
   total_amount: number;
   created_at: string;
+  product_name: string;
   profiles?: { name?: string | null; email?: string | null } | null;
 }
 
@@ -361,11 +362,13 @@ export default function DashboardTab({
             <div className="space-y-4">
               {recentOrders.slice(0, 5).map((order) => (
                 <div key={order.id} className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium text-gray-900">{order.profiles?.name}</p>
-                    <p className="text-sm text-gray-500">{order.profiles?.email}</p>
+                  <div className="min-w-0 pr-4">
+                    <p className="font-medium text-gray-900 truncate">{order.product_name}</p>
+                    <p className="text-sm text-gray-500 truncate">
+                      {order.profiles?.name || order.profiles?.email || '회원 정보 없음'}
+                    </p>
                   </div>
-                  <div className="text-right">
+                  <div className="shrink-0 text-right">
                     <p className="font-medium text-gray-900">₩{order.total_amount.toLocaleString()}</p>
                     <p className="text-sm text-gray-500">{new Date(order.created_at).toLocaleDateString()}</p>
                   </div>

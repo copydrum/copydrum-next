@@ -1195,11 +1195,17 @@ const getOrderSummary = (order: Order): string => {
     return `${firstTitle} 외 ${remainingCount}곡`;
   }
 
-  // order_type이 null/undefined인 경우 기존 로직 유지
+  // order_type이 null/undefined인 경우에도 상품명 표시
   if (orderItems.length === 0) {
     return '구매 내역 없음';
   }
-  return `총 ${orderItems.length}개 악보`;
+  if (orderItems.length === 1) {
+    const firstItem = orderItems[0];
+    return firstItem.sheet_title ?? firstItem.drum_sheets?.title ?? '제목 미확인';
+  }
+  const firstItem = orderItems[0];
+  const firstTitle = firstItem.sheet_title ?? firstItem.drum_sheets?.title ?? '제목 미확인';
+  return `${firstTitle} 외 ${orderItems.length - 1}곡`;
 };
 
 const formatPercentChange = (value: number) => {
@@ -6935,7 +6941,15 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
         totalInquiryCount={totalInquiryCount}
         pendingInquiryCount={pendingInquiryCount}
         onNavigate={setActiveMenu}
-        recentOrders={orders}
+        recentOrders={orders
+          .filter((order) => order.status === 'completed')
+          .map((order) => ({
+            id: order.id,
+            total_amount: order.total_amount,
+            created_at: order.created_at,
+            product_name: getOrderSummary(order),
+            profiles: order.profiles,
+          }))}
         recentCustomOrders={customOrders}
         statusMeta={CUSTOM_ORDER_STATUS_META as Record<string, { label: string; className: string }>}
       />
