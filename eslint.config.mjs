@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Standalone local CLI tool with its own toolchain.
+    "tools/**",
   ]),
 ]);
 

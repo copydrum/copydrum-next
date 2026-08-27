@@ -20,10 +20,12 @@ interface DrumSheet {
     id: string;
     title: string;
     artist: string;
-    preview_image_url: string;
-    pdf_url: string;
-    youtube_url: string;
+    preview_image_url: string | null;
+    youtube_url: string | null;
+    slug: string | null;
 }
+
+const SITE_URL = 'https://www.copydrum.com';
 
 serve(async (req) => {
     if (req.method === 'OPTIONS') {
@@ -44,7 +46,6 @@ serve(async (req) => {
             const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
 
             if (!authError && user) {
-                // Check if user is admin
                 const { data: profile } = await supabaseAdmin
                     .from('profiles')
                     .select('role')
@@ -54,20 +55,18 @@ serve(async (req) => {
                 if (profile?.role === 'admin') {
                     triggeredBy = `admin:${user.email}`;
                 } else {
-                    // Allow service role (e.g. cron)
-                    // Note: getUser with service role key returns the user if a valid user token is passed,
-                    // but if the token IS the service role key, getUser might behave differently or we check the key directly.
-                    // For simplicity, we assume if it's not a user token, it might be a service call, 
-                    // but strictly speaking we should check if the JWT role is 'service_role'.
-                    const jwtPayload = JSON.parse(atob(token.split('.')[1]));
-                    if (jwtPayload.role === 'service_role') {
-                        triggeredBy = 'system:cron';
-                    } else {
+                    try {
+                        const jwtPayload = JSON.parse(atob(token.split('.')[1]));
+                        if (jwtPayload.role === 'service_role') {
+                            triggeredBy = 'system:cron';
+                        } else {
+                            return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: corsHeaders });
+                        }
+                    } catch {
                         return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: corsHeaders });
                     }
                 }
             } else {
-                // If getUser fails, check if it's the service role key directly (simple check)
                 if (token === supabaseServiceKey) {
                     triggeredBy = 'system:cron';
                 } else {
@@ -80,31 +79,34 @@ serve(async (req) => {
 
         console.log(`Marketing automation triggered by ${triggeredBy}`);
 
-        // 2. Fetch Settings
+        // 2. Fetch Settings — 서버 자동 발행은 Pinterest만 지원
+        // 네이버/티스토리/구글: tools/blog-autopost CLI 사용
+        // (티스토리 Open API 종료, 네이버 글쓰기 API 종료)
         const { data: settings, error: settingsError } = await supabaseAdmin
             .from('marketing_settings')
             .select('*')
-            .eq('is_enabled', true);
+            .eq('is_enabled', true)
+            .eq('platform', 'pinterest');
 
         if (settingsError) {
             throw new Error(`Failed to fetch settings: ${settingsError.message}`);
         }
 
         if (!settings || settings.length === 0) {
-            return new Response(JSON.stringify({ message: 'No active marketing platforms found.' }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+            return new Response(JSON.stringify({
+                message: 'No active Pinterest marketing settings. Use tools/blog-autopost for Naver/Tistory/Google.',
+            }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
         }
 
         const results = [];
 
-        // 3. Process each platform
-        for (const setting of settings) {
+        for (const setting of settings as MarketingSetting[]) {
             const platform = setting.platform;
             const limit = setting.daily_limit;
             const credentials = setting.credentials;
 
             console.log(`Processing platform: ${platform}`);
 
-            // Check today's post count
             const today = new Date().toISOString().split('T')[0];
             const { count: todayCount, error: countError } = await supabaseAdmin
                 .from('marketing_posts')
@@ -125,22 +127,19 @@ serve(async (req) => {
                 continue;
             }
 
-            // Fetch unposted sheets
-            // We need sheets that are NOT in marketing_posts for this platform
-            // Supabase doesn't support "NOT IN" with subquery easily in JS client, so we might need a stored procedure or fetch IDs.
-            // For simplicity/performance with small dataset, we can fetch posted IDs first.
-
             const { data: postedSheets } = await supabaseAdmin
                 .from('marketing_posts')
                 .select('sheet_id')
-                .eq('platform', platform);
+                .eq('platform', platform)
+                .in('status', ['success', 'manual_copy', 'skipped']);
 
             const postedSheetIds = postedSheets?.map(p => p.sheet_id) || [];
 
-            // Fetch candidate sheets (limit to remainingQuota + buffer)
             let query = supabaseAdmin
                 .from('drum_sheets')
-                .select('id, title, artist, preview_image_url, pdf_url, youtube_url')
+                .select('id, title, artist, preview_image_url, youtube_url, slug')
+                .eq('is_active', true)
+                .order('created_at', { ascending: false })
                 .limit(remainingQuota);
 
             if (postedSheetIds.length > 0) {
@@ -159,19 +158,10 @@ serve(async (req) => {
                 continue;
             }
 
-            // Post each candidate
-            for (const sheet of candidates) {
-                let postResult;
+            for (const sheet of candidates as DrumSheet[]) {
                 try {
-                    if (platform === 'tistory') {
-                        postResult = await postToTistory(sheet, credentials);
-                    } else if (platform === 'pinterest') {
-                        postResult = await postToPinterest(sheet, credentials);
-                    } else {
-                        throw new Error(`Unknown platform: ${platform}`);
-                    }
+                    const postResult = await postToPinterest(sheet, credentials);
 
-                    // Log success
                     await supabaseAdmin.from('marketing_posts').insert({
                         platform,
                         sheet_id: sheet.id,
@@ -182,11 +172,9 @@ serve(async (req) => {
                     });
 
                     results.push({ platform, sheet: sheet.title, status: 'success', url: postResult.url });
-
                 } catch (error: any) {
                     console.error(`Failed to post ${sheet.title} to ${platform}:`, error);
 
-                    // Log failure
                     await supabaseAdmin.from('marketing_posts').insert({
                         platform,
                         sheet_id: sheet.id,
@@ -214,50 +202,9 @@ serve(async (req) => {
     }
 });
 
-// --- Platform Specific Implementations ---
-
-async function postToTistory(sheet: DrumSheet, credentials: any) {
-    const { access_token, blog_name } = credentials;
-    if (!access_token || !blog_name) {
-        throw new Error('Missing Tistory credentials (access_token or blog_name)');
-    }
-
-    // Construct Content
-    const title = `[드럼악보] ${sheet.title} - ${sheet.artist}`;
-    const content = `
-    <p>안녕하세요! CopyDrum입니다.</p>
-    <p>오늘 소개해드릴 드럼 악보는 <strong>${sheet.artist}</strong>의 <strong>${sheet.title}</strong>입니다.</p>
-    <br/>
-    ${sheet.preview_image_url ? `<img src="${sheet.preview_image_url}" alt="${sheet.title} 드럼 악보 미리보기" style="max-width: 100%;" />` : ''}
-    <br/>
-    <p>이 악보는 CopyDrum에서 구매하실 수 있습니다.</p>
-    <p><a href="https://copydrum.com/sheet-detail/${sheet.id}" target="_blank" style="background-color: #2563eb; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">악보 보러가기</a></p>
-    <br/>
-    ${sheet.youtube_url ? `<p>관련 영상: <a href="${sheet.youtube_url}">${sheet.youtube_url}</a></p>` : ''}
-  `;
-
-    // Tistory API endpoint
-    const url = 'https://www.tistory.com/apis/post/write';
-    const params = new URLSearchParams();
-    params.append('access_token', access_token);
-    params.append('output', 'json');
-    params.append('blogName', blog_name);
-    params.append('title', title);
-    params.append('content', content);
-    params.append('visibility', '3'); // 3: Public
-
-    const response = await fetch(url, {
-        method: 'POST',
-        body: params,
-    });
-
-    const data = await response.json();
-
-    if (response.ok && data.tistory?.status === '200') {
-        return { url: data.tistory.url };
-    } else {
-        throw new Error(`Tistory API Error: ${JSON.stringify(data)}`);
-    }
+function sheetUrl(sheet: DrumSheet): string {
+    const key = sheet.slug || sheet.id;
+    return `${SITE_URL}/en/drum-sheet/${key}`;
 }
 
 async function postToPinterest(sheet: DrumSheet, credentials: any) {
@@ -267,9 +214,9 @@ async function postToPinterest(sheet: DrumSheet, credentials: any) {
     }
 
     const title = `${sheet.title} - ${sheet.artist} Drum Sheet Music`;
-    const description = `Get the drum sheet music for ${sheet.title} by ${sheet.artist} at CopyDrum! High quality, accurate transcription.`;
-    const link = `https://copydrum.com/sheet-detail/${sheet.id}`;
-    const imageUrl = sheet.preview_image_url || 'https://copydrum.com/default-sheet-preview.png'; // Fallback
+    const link = sheetUrl(sheet);
+    const description = `Get the drum sheet music for ${sheet.title} by ${sheet.artist} at CopyDrum! High quality, accurate transcription. ${link}`;
+    const imageUrl = sheet.preview_image_url || `${SITE_URL}/default-sheet-preview.png`;
 
     const url = 'https://api.pinterest.com/v5/pins';
     const body = {
@@ -278,8 +225,8 @@ async function postToPinterest(sheet: DrumSheet, credentials: any) {
             source_type: 'image_url',
             url: imageUrl,
         },
-        title: title,
-        description: description,
+        title: title.slice(0, 100),
+        description: description.slice(0, 800),
         link: link,
     };
 
@@ -295,8 +242,6 @@ async function postToPinterest(sheet: DrumSheet, credentials: any) {
     const data = await response.json();
 
     if (response.ok) {
-        // Pinterest returns the created pin object. We can construct the URL.
-        // data.id is the pin ID.
         return { url: `https://www.pinterest.com/pin/${data.id}/` };
     } else {
         throw new Error(`Pinterest API Error: ${JSON.stringify(data)}`);

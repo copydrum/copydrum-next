@@ -8,7 +8,11 @@
     "start": "next start",
     "lint": "eslint",
     "backfill:slugs": "tsx scripts/backfill-slugs.ts",
-    "backfill:category-slugs": "tsx scripts/backfill-category-slugs.ts"
+    "backfill:category-slugs": "tsx scripts/backfill-category-slugs.ts",
+    "autopost": "npm --prefix tools/blog-autopost run post --",
+    "autopost:dry": "npm --prefix tools/blog-autopost run dry-run --",
+    "autopost:login": "npm --prefix tools/blog-autopost run login --",
+    "autopost:auth-blogger": "npm --prefix tools/blog-autopost run auth:blogger"
   },
   "dependencies": {
     "@paypal/react-paypal-js": "^8.9.2",

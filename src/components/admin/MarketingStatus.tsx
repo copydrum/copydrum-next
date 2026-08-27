@@ -1,6 +1,15 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../lib/supabase';
 import * as XLSX from 'xlsx';
+import {
+    generateMarketingPost,
+    generatePinterestDescription,
+    generateTitle as buildPostTitle,
+    generateTags as buildPostTags,
+    buildProductUrl,
+    type MarketingPlatform,
+    type MarketingSheet,
+} from '../../lib/marketing/postTemplate';
 
 interface MarketingPost {
     id: string;
@@ -16,15 +25,11 @@ interface MarketingPost {
     };
 }
 
-interface DrumSheet {
-    id: string;
-    title: string;
-    artist: string;
-    preview_image_url: string;
-    pdf_url: string;
-    youtube_url: string;
-    slug?: string;
+interface DrumSheet extends MarketingSheet {
+    pdf_url?: string | null;
 }
+
+const SHEET_SELECT = '*, categories (name)';
 
 const PLATFORMS = [
     { id: 'naver', name: '네이버 블로그', color: 'bg-green-500', text: 'text-green-600' },
@@ -35,7 +40,7 @@ const PLATFORMS = [
 ] as const;
 
 export default function MarketingStatus() {
-    const [activeTab, setActiveTab] = useState<string>('naver');
+    const [activeTab, setActiveTab] = useState<MarketingPlatform>('naver');
     const [posts, setPosts] = useState<MarketingPost[]>([]);
     const [queue, setQueue] = useState<DrumSheet[]>([]);
     const [loading, setLoading] = useState(true);
@@ -125,14 +130,16 @@ export default function MarketingStatus() {
             const { data: postedSheets } = await supabase
                 .from('marketing_posts')
                 .select('sheet_id')
-                .eq('platform', activeTab);
+                .eq('platform', activeTab)
+                .in('status', ['success', 'manual_copy', 'skipped']);
 
             const postedIds = postedSheets?.map(p => p.sheet_id) || [];
 
             // Fetch candidates
             let query = supabase
                 .from('drum_sheets')
-                .select('*')
+                .select(SHEET_SELECT)
+                .eq('is_active', true)
                 .order('created_at', { ascending: false });
 
             if (searchQuery) {
@@ -144,7 +151,7 @@ export default function MarketingStatus() {
                 }
                 const { data: queueData, error: queueError } = await query.limit(15);
                 if (queueError) throw queueError;
-                setQueue(queueData || []);
+                setQueue((queueData || []) as unknown as DrumSheet[]);
             } else {
                 // Normal queue logic
                 if (selectedCategory) {
@@ -158,7 +165,7 @@ export default function MarketingStatus() {
                 const { data: queueData, error: queueError } = await query.limit(limit);
 
                 if (queueError) throw queueError;
-                setQueue(queueData || []);
+                setQueue((queueData || []) as unknown as DrumSheet[]);
             }
 
         } catch (error) {
@@ -169,61 +176,20 @@ export default function MarketingStatus() {
         }
     };
 
+    const isKoreanPlatform = activeTab === 'naver' || activeTab === 'tistory';
+
     const handleCopyTitle = (sheet: DrumSheet) => {
-        const isNaver = activeTab === 'naver';
-        const suffix = isNaver ? '드럼악보' : 'DRUM SHEET MUSIC';
-        const text = `${sheet.artist} - ${sheet.title} - ${suffix}`;
+        const text = buildPostTitle(sheet, activeTab);
         navigator.clipboard.writeText(text).then(() => {
-            alert((isNaver ? '제목이 복사되었습니다: ' : 'Title copied: ') + text);
+            alert((isKoreanPlatform ? '제목이 복사되었습니다: ' : 'Title copied: ') + text);
         });
     };
 
     const handleCopyTags = (sheet: DrumSheet) => {
-        const isNaver = activeTab === 'naver';
-
-        // Remove special characters for tags
-        const cleanArtist = sheet.artist.replace(/[^\w가-힣]/g, '');
-        const cleanTitle = sheet.title.replace(/[^\w가-힣]/g, '');
-
-        let tags: string[] = [];
-
-        if (isNaver) {
-            tags = [
-                '드럼악보',
-                '드럼커버',
-                '드럼연주',
-                '악보제작',
-                '카피드럼',
-                'CopyDrum',
-                'DrumSheet',
-                'DrumCover',
-                'DrumScore',
-                `${sheet.artist}`,
-                `${sheet.title}`,
-                `${cleanArtist}드럼`,
-                `${cleanTitle}드럼`
-            ];
-        } else {
-            tags = [
-                'DrumSheet',
-                'DrumCover',
-                'DrumScore',
-                'DrumMusic',
-                'SheetMusic',
-                'CopyDrum',
-                'Drummer',
-                'Drums',
-                `${sheet.artist}`,
-                `${sheet.title}`,
-                `${cleanArtist}Drum`,
-                `${cleanTitle}Drum`
-            ];
-        }
-
-        const tagString = tags.map(t => `#${t}`).join(' ');
+        const tagString = buildPostTags(sheet, activeTab).map(t => `#${t}`).join(' ');
 
         navigator.clipboard.writeText(tagString).then(() => {
-            alert((isNaver ? '태그가 복사되었습니다: ' : 'Tags copied: ') + tagString);
+            alert((isKoreanPlatform ? '태그가 복사되었습니다: ' : 'Tags copied: ') + tagString);
         });
     };
 
@@ -250,101 +216,21 @@ export default function MarketingStatus() {
     };
 
     const handleCopyLink = (sheet: DrumSheet) => {
-        const url = activeTab === 'naver'
-            ? `https://www.copydrum.com/ko/drum-sheet/${sheet.slug}`
-            : `https://www.copydrum.com/en/drum-sheet/${sheet.slug}`;
+        const url = buildProductUrl(sheet, activeTab);
         navigator.clipboard.writeText(url).then(() => {
             alert('상품 링크가 복사되었습니다: ' + url);
         });
     };
 
     const handleCopyBody = (sheet: DrumSheet) => {
-        const isNaver = activeTab === 'naver';
-        const isPinterest = activeTab === 'pinterest';
-        const isTistory = activeTab === 'tistory';
-
-        const sheetUrl = isNaver
-            ? `https://www.copydrum.com/ko/drum-sheet/${sheet.slug}`
-            : `https://www.copydrum.com/en/drum-sheet/${sheet.slug}`;
-
-        const imageHtml = sheet.preview_image_url
-            ? `<img src="${sheet.preview_image_url}" alt="${sheet.title} ${isNaver ? '드럼 악보 미리보기' : 'Drum Sheet Music Preview'}" style="max-width:100%;height:auto;display:block;margin:10px auto;" />`
-            : '';
-
-        // 네이버/티스토리용: table 기반 버튼 (bgcolor 속성은 대부분의 블로그 에디터에서 지원)
-        const tableButton = (label: string) => `
-<div style="text-align:center;margin:25px 0;">
-<table border="0" cellspacing="0" cellpadding="0" align="center" style="border-collapse:separate;">
-<tr>
-<td align="center" bgcolor="#2563eb" style="border-radius:10px;padding:18px 40px;">
-<a href="${sheetUrl}" target="_blank" style="text-decoration:none;color:#ffffff;font-size:20px;font-weight:bold;">🥁 ${label}</a>
-</td>
-</tr>
-</table>
-</div>`;
-
-        // 구글 블로거용: 인라인 CSS 버튼 (구글 블로거는 인라인 스타일 완벽 지원)
-        const inlineButton = (label: string) => `
-<p style="text-align:center;margin:30px 0;">
-<a href="${sheetUrl}" target="_blank" style="background-color:#2563eb;color:#ffffff;padding:20px 40px;text-decoration:none;border-radius:8px;font-size:20px;font-weight:bold;display:inline-block;box-shadow:0 4px 6px rgba(0,0,0,0.1);">
-🥁 ${label}
-</a>
-</p>`;
-
-        let content = '';
-
-        if (isPinterest) {
-            // 핀터레스트: 플레인 텍스트 + URL 포함
-            content = `🥁 ${sheet.artist} - ${sheet.title} | Drum Sheet Music
-
-Get this drum sheet music at CopyDrum!
-👉 ${sheetUrl}
-${sheet.youtube_url ? `\n🎬 Watch: ${sheet.youtube_url}` : ''}`;
-
-            navigator.clipboard.writeText(content.trim()).then(() => {
+        if (activeTab === 'pinterest') {
+            navigator.clipboard.writeText(generatePinterestDescription(sheet)).then(() => {
                 alert('설명이 복사되었습니다.');
             });
             return;
         }
 
-        if (isNaver) {
-            content = `
-<p>안녕하세요! CopyDrum입니다.</p>
-<p>오늘 소개해드릴 드럼 악보는 <strong>${sheet.artist}</strong>의 <strong>${sheet.title}</strong>입니다.</p>
-<br/>
-${imageHtml}
-<br/>
-<p>이 악보는 CopyDrum에서 구매하실 수 있습니다.</p>
-${tableButton('악보 보러가기')}
-<br/>
-${sheet.youtube_url ? `<p>관련 영상: <a href="${sheet.youtube_url}">${sheet.youtube_url}</a></p>` : ''}
-`;
-        } else if (isTistory) {
-            content = `
-<p>Hello! This is CopyDrum.</p>
-<p>Today we are introducing drum sheet music for <strong>${sheet.artist}</strong> - <strong>${sheet.title}</strong>.</p>
-<br/>
-${imageHtml}
-<br/>
-<p>You can purchase this sheet music at CopyDrum.</p>
-${tableButton('Get Sheet Music')}
-<br/>
-${sheet.youtube_url ? `<p>Related Video: <a href="${sheet.youtube_url}">${sheet.youtube_url}</a></p>` : ''}
-`;
-        } else {
-            // 구글 블로거, 페이스북 등: 인라인 CSS 버튼
-            content = `
-<p>Hello! This is CopyDrum.</p>
-<p>Today we are introducing drum sheet music for <strong>${sheet.artist}</strong> - <strong>${sheet.title}</strong>.</p>
-<br/>
-${imageHtml}
-<br/>
-<p>You can purchase this sheet music at CopyDrum.</p>
-${inlineButton('Get Sheet Music')}
-<br/>
-${sheet.youtube_url ? `<p>Related Video: <a href="${sheet.youtube_url}">${sheet.youtube_url}</a></p>` : ''}
-`;
-        }
+        const content = generateMarketingPost(sheet, activeTab).html;
 
         // DOM 기반 복사: 이미지가 포함된 리치 텍스트를 안정적으로 복사
         const tempContainer = document.createElement('div');
@@ -376,7 +262,7 @@ ${sheet.youtube_url ? `<p>Related Video: <a href="${sheet.youtube_url}">${sheet.
         document.body.removeChild(tempContainer);
 
         if (copied) {
-            alert(isNaver ? '본문 내용이 복사되었습니다. 블로그 에디터에 붙여넣기 하세요.' : 'Content copied. Paste it into your blog editor.');
+            alert(isKoreanPlatform ? '본문 내용이 복사되었습니다. 블로그 에디터에 붙여넣기 하세요.' : 'Content copied. Paste it into your blog editor.');
         } else {
             // Fallback: ClipboardItem API
             const blob = new Blob([content], { type: 'text/html' });
@@ -388,7 +274,7 @@ ${sheet.youtube_url ? `<p>Related Video: <a href="${sheet.youtube_url}">${sheet.
             });
 
             navigator.clipboard.write([item]).then(() => {
-                alert(isNaver ? '본문 내용이 복사되었습니다. 블로그 에디터에 붙여넣기 하세요.' : 'Content copied. Paste it into your blog editor.');
+                alert(isKoreanPlatform ? '본문 내용이 복사되었습니다. 블로그 에디터에 붙여넣기 하세요.' : 'Content copied. Paste it into your blog editor.');
             }).catch(err => {
                 console.error('Clipboard write failed:', err);
                 alert('복사에 실패했습니다. 브라우저 권한을 확인해주세요.');
@@ -534,50 +420,6 @@ ${sheet.youtube_url ? `<p>Related Video: <a href="${sheet.youtube_url}">${sheet.
         }
     };
 
-    const generateBody = (sheet: DrumSheet): string => {
-        const isNaver = activeTab === 'naver';
-        const isPinterest = activeTab === 'pinterest';
-        const isTistory = activeTab === 'tistory';
-
-        const sheetUrl = isNaver
-            ? `https://www.copydrum.com/ko/drum-sheet/${sheet.slug}`
-            : `https://www.copydrum.com/en/drum-sheet/${sheet.slug}`;
-
-        if (isPinterest) {
-            return `🥁 ${sheet.artist} - ${sheet.title} | Drum Sheet Music\nGet this drum sheet music at CopyDrum!\n👉 ${sheetUrl}${sheet.youtube_url ? `\n🎬 Watch: ${sheet.youtube_url}` : ''}`;
-        }
-
-        const imageHtml = sheet.preview_image_url
-            ? `<img src="${sheet.preview_image_url}" alt="${sheet.title} ${isNaver ? '드럼 악보 미리보기' : 'Drum Sheet Music Preview'}" style="max-width:100%;height:auto;display:block;margin:10px auto;" />`
-            : '';
-
-        const tableButton = (label: string) =>
-            `<div style="text-align:center;margin:25px 0;"><table border="0" cellspacing="0" cellpadding="0" align="center" style="border-collapse:separate;"><tr><td align="center" bgcolor="#2563eb" style="border-radius:10px;padding:18px 40px;"><a href="${sheetUrl}" target="_blank" style="text-decoration:none;color:#ffffff;font-size:20px;font-weight:bold;">🥁 ${label}</a></td></tr></table></div>`;
-
-        const inlineButton = (label: string) =>
-            `<p style="text-align:center;margin:30px 0;"><a href="${sheetUrl}" target="_blank" style="background-color:#2563eb;color:#ffffff;padding:20px 40px;text-decoration:none;border-radius:8px;font-size:20px;font-weight:bold;display:inline-block;box-shadow:0 4px 6px rgba(0,0,0,0.1);">🥁 ${label}</a></p>`;
-
-        if (isNaver) {
-            return `<p>안녕하세요! CopyDrum입니다.</p><p>오늘 소개해드릴 드럼 악보는 <strong>${sheet.artist}</strong>의 <strong>${sheet.title}</strong>입니다.</p><br/>${imageHtml}<br/><p>이 악보는 CopyDrum에서 구매하실 수 있습니다.</p>${tableButton('악보 보러가기')}<br/>${sheet.youtube_url ? `<p>관련 영상: <a href="${sheet.youtube_url}">${sheet.youtube_url}</a></p>` : ''}`;
-        } else if (isTistory) {
-            return `<p>Hello! This is CopyDrum.</p><p>Today we are introducing drum sheet music for <strong>${sheet.artist}</strong> - <strong>${sheet.title}</strong>.</p><br/>${imageHtml}<br/><p>You can purchase this sheet music at CopyDrum.</p>${tableButton('Get Sheet Music')}<br/>${sheet.youtube_url ? `<p>Related Video: <a href="${sheet.youtube_url}">${sheet.youtube_url}</a></p>` : ''}`;
-        } else {
-            return `<p>Hello! This is CopyDrum.</p><p>Today we are introducing drum sheet music for <strong>${sheet.artist}</strong> - <strong>${sheet.title}</strong>.</p><br/>${imageHtml}<br/><p>You can purchase this sheet music at CopyDrum.</p>${inlineButton('Get Sheet Music')}<br/>${sheet.youtube_url ? `<p>Related Video: <a href="${sheet.youtube_url}">${sheet.youtube_url}</a></p>` : ''}`;
-        }
-    };
-
-    const generateTitle = (sheet: DrumSheet): string => {
-        const isNaver = activeTab === 'naver';
-        const suffix = isNaver ? '드럼악보' : 'DRUM SHEET MUSIC';
-        return `${sheet.artist} - ${sheet.title} - ${suffix}`;
-    };
-
-    const generateProductUrl = (sheet: DrumSheet): string => {
-        return activeTab === 'naver'
-            ? `https://www.copydrum.com/ko/drum-sheet/${sheet.slug}`
-            : `https://www.copydrum.com/en/drum-sheet/${sheet.slug}`;
-    };
-
     const handleExcelDownload = () => {
         if (queue.length === 0) {
             alert('다운로드할 악보가 없습니다. 대기열이 비어있습니다.');
@@ -586,15 +428,19 @@ ${sheet.youtube_url ? `<p>Related Video: <a href="${sheet.youtube_url}">${sheet.
 
         setExcelDownloading(true);
         try {
-            const rows = queue.map((sheet: DrumSheet) => ({
-                '제목': generateTitle(sheet),
-                '본문내용': generateBody(sheet),
-                '미리보기 이미지 URL': sheet.preview_image_url || '',
-                '상품 URL': generateProductUrl(sheet),
-            }));
+            const rows = queue.map((sheet: DrumSheet) => {
+                const post = generateMarketingPost(sheet, activeTab);
+                return {
+                    '제목': post.title,
+                    '본문내용': activeTab === 'pinterest' ? generatePinterestDescription(sheet) : post.html,
+                    '태그': post.tags.map(t => `#${t}`).join(' '),
+                    '미리보기 이미지 URL': sheet.preview_image_url || '',
+                    '상품 URL': post.productUrl,
+                };
+            });
 
             const ws = XLSX.utils.json_to_sheet(rows);
-            ws['!cols'] = [{ wch: 50 }, { wch: 80 }, { wch: 60 }, { wch: 60 }];
+            ws['!cols'] = [{ wch: 50 }, { wch: 80 }, { wch: 60 }, { wch: 60 }, { wch: 60 }];
 
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, activePlatform?.name || activeTab);
@@ -824,16 +670,17 @@ ${sheet.youtube_url ? `<p>Related Video: <a href="${sheet.youtube_url}">${sheet.
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">일시</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">악보</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">상태</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">발행 글</th>
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
                             {loading ? (
                                 <tr>
-                                    <td colSpan={3} className="px-6 py-4 text-center text-gray-500">로딩 중...</td>
+                                    <td colSpan={4} className="px-6 py-4 text-center text-gray-500">로딩 중...</td>
                                 </tr>
                             ) : posts.length === 0 ? (
                                 <tr>
-                                    <td colSpan={3} className="px-6 py-4 text-center text-gray-500">완료된 내역이 없습니다.</td>
+                                    <td colSpan={4} className="px-6 py-4 text-center text-gray-500">완료된 내역이 없습니다.</td>
                                 </tr>
                             ) : (
                                 posts.map((post) => (
@@ -854,6 +701,25 @@ ${sheet.youtube_url ? `<p>Related Video: <a href="${sheet.youtube_url}">${sheet.
                                                     post.status === 'manual_copy' ? '수동 완료' :
                                                         post.status === 'skipped' ? '제외됨' : '실패'}
                                             </span>
+                                        </td>
+                                        <td className="px-6 py-4 text-sm">
+                                            {post.post_url ? (
+                                                <a
+                                                    href={post.post_url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-blue-600 hover:underline inline-flex items-center gap-1"
+                                                >
+                                                    <i className="ri-external-link-line"></i>
+                                                    글 보기
+                                                </a>
+                                            ) : post.error_message ? (
+                                                <span className="text-red-600" title={post.error_message}>
+                                                    {post.error_message.length > 40 ? `${post.error_message.slice(0, 40)}...` : post.error_message}
+                                                </span>
+                                            ) : (
+                                                <span className="text-gray-400">-</span>
+                                            )}
                                         </td>
                                     </tr>
                                 ))

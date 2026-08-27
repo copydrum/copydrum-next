@@ -66,6 +66,14 @@ CHECK_INQUIRIES_STATUS*.txt
 # One-time scripts
 /scripts/
 
+# Blog auto-posting tool (local only: browser sessions, credentials, logs)
+/tools/blog-autopost/node_modules/
+/tools/blog-autopost/.profiles/
+/tools/blog-autopost/.tmp/
+/tools/blog-autopost/token.blogger.json
+/tools/blog-autopost/client_secret.json
+/tools/blog-autopost/client_secret*.json
+
 # Supabase temp files
 supabase/.temp/
 

@@ -170,6 +170,8 @@ export default function SheetBookManagement() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState('');
+  /** '' = 전체 장르 */
+  const [selectedGenre, setSelectedGenre] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
 
   const [editingBook, setEditingBook] = useState<SheetBookItem | null>(null);
@@ -645,14 +647,27 @@ export default function SheetBookManagement() {
   };
 
   // ── Filtered Books ──
+  const genreCounts = SHEET_BOOK_GENRE_OPTIONS.reduce<Record<string, number>>((acc, name) => {
+    acc[name] = books.filter((b) => b.book_genre === name).length;
+    return acc;
+  }, {});
+  const uncategorizedCount = books.filter((b) => !b.book_genre).length;
+
   const filteredBooks = books.filter((b) => {
+    if (selectedGenre === '__none__') {
+      if (b.book_genre) return false;
+    } else if (selectedGenre && b.book_genre !== selectedGenre) {
+      return false;
+    }
+
     const term = searchTerm.toLowerCase().trim();
     if (!term) return true;
     const enTitle = (b.title_translations?.en || '').toLowerCase();
     return (
       b.title.toLowerCase().includes(term) ||
       enTitle.includes(term) ||
-      (b.artist || '').toLowerCase().includes(term)
+      (b.artist || '').toLowerCase().includes(term) ||
+      (b.book_genre || '').toLowerCase().includes(term)
     );
   });
 
@@ -663,7 +678,7 @@ export default function SheetBookManagement() {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm]);
+  }, [searchTerm, selectedGenre]);
 
   useEffect(() => {
     if (currentPage > totalPages) {
@@ -707,10 +722,16 @@ export default function SheetBookManagement() {
 
       {/* ===== 교재 목록 ===== */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-        <div className="p-6 border-b border-gray-100">
+        <div className="p-6 border-b border-gray-100 space-y-4">
           <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
             <h3 className="text-lg font-semibold text-gray-900">
-              📚 악보집 목록 ({filteredBooks.length}권)
+              📚 악보집 목록 ({filteredBooks.length}권
+              {selectedGenre
+                ? selectedGenre === '__none__'
+                  ? ' · 장르 미지정'
+                  : ` · ${selectedGenre}`
+                : ` / 전체 ${books.length}권`}
+              )
             </h3>
             <div className="relative">
               <i className="ri-search-line absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
@@ -718,10 +739,52 @@ export default function SheetBookManagement() {
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="검색 (제목, 저자)..."
+                placeholder="검색 (제목, 저자, 장르)..."
                 className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm"
               />
             </div>
+          </div>
+
+          {/* 장르 필터 탭 */}
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setSelectedGenre('')}
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                selectedGenre === ''
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              전체 ({books.length})
+            </button>
+            {SHEET_BOOK_GENRE_OPTIONS.map((name) => (
+              <button
+                key={name}
+                type="button"
+                onClick={() => setSelectedGenre(name)}
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                  selectedGenre === name
+                    ? 'bg-indigo-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                {name} ({genreCounts[name] || 0})
+              </button>
+            ))}
+            {uncategorizedCount > 0 && (
+              <button
+                type="button"
+                onClick={() => setSelectedGenre('__none__')}
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                  selectedGenre === '__none__'
+                    ? 'bg-amber-600 text-white'
+                    : 'bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-200'
+                }`}
+              >
+                미지정 ({uncategorizedCount})
+              </button>
+            )}
           </div>
         </div>
 
@@ -731,6 +794,7 @@ export default function SheetBookManagement() {
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">표지</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">제목 / 저자</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">장르</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">가격</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">대상 수준</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">페이지</th>
@@ -743,8 +807,10 @@ export default function SheetBookManagement() {
             <tbody className="divide-y divide-gray-200">
               {filteredBooks.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="px-6 py-12 text-center text-gray-500">
-                    {searchTerm ? '검색 결과가 없습니다.' : '등록된 교재가 없습니다.'}
+                  <td colSpan={10} className="px-6 py-12 text-center text-gray-500">
+                    {searchTerm || selectedGenre
+                      ? '조건에 맞는 악보집이 없습니다.'
+                      : '등록된 교재가 없습니다.'}
                   </td>
                 </tr>
               ) : (
@@ -768,6 +834,27 @@ export default function SheetBookManagement() {
                       <td className="px-6 py-4">
                         <div className="text-sm font-medium text-gray-900">{book.title}</div>
                         <div className="text-xs text-gray-500">{book.artist}</div>
+                      </td>
+                      <td className="px-6 py-4">
+                        {book.book_genre ? (
+                          <button
+                            type="button"
+                            onClick={() => setSelectedGenre(book.book_genre || '')}
+                            className="inline-flex px-2 py-0.5 text-xs font-medium rounded-full bg-indigo-50 text-indigo-700 hover:bg-indigo-100"
+                            title="이 장르만 보기"
+                          >
+                            {book.book_genre}
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => setSelectedGenre('__none__')}
+                            className="inline-flex px-2 py-0.5 text-xs font-medium rounded-full bg-amber-50 text-amber-700 hover:bg-amber-100"
+                            title="장르 미지정만 보기"
+                          >
+                            미지정
+                          </button>
+                        )}
                       </td>
                       <td className="px-6 py-4">
                         {book.price > 0 ? (

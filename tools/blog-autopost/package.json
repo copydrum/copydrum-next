@@ -1,0 +1,24 @@
+{
+  "name": "copydrum-blog-autopost",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Local CLI that posts CopyDrum sheet music promotions to Naver, Tistory, and Google Blogger",
+  "scripts": {
+    "post": "tsx src/index.ts",
+    "login": "tsx src/login.ts",
+    "auth:blogger": "tsx src/auth-blogger.ts",
+    "dry-run": "tsx src/index.ts --dry-run"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.95.3",
+    "dotenv": "^17.2.4",
+    "googleapis": "^144.0.0",
+    "playwright": "^1.50.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "tsx": "^4.21.0",
+    "typescript": "^5"
+  }
+}
