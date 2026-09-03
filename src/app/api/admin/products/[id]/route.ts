@@ -78,8 +78,19 @@ export async function PATCH(
 
     const artistForKey = String(finalUpdateData.artist ?? existingProduct.artist ?? '').trim();
     const titleForKey = String(finalUpdateData.title ?? existingProduct.title ?? '').trim();
-    const normalizedKey = tryGenerateNormalizedKey(artistForKey, titleForKey);
+    let normalizedKey = tryGenerateNormalizedKey(artistForKey, titleForKey);
     if (normalizedKey) {
+      const { data: duplicate } = await supabase
+        .from('drum_sheets')
+        .select('id')
+        .eq('normalized_key', normalizedKey)
+        .neq('id', productId)
+        .maybeSingle();
+
+      if (duplicate) {
+        normalizedKey = `${normalizedKey}${productId.slice(0, 8)}`;
+      }
+
       finalUpdateData.normalized_key = normalizedKey;
     }
 
