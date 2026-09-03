@@ -9,6 +9,7 @@
     "lint": "eslint",
     "backfill:slugs": "tsx scripts/backfill-slugs.ts",
     "backfill:category-slugs": "tsx scripts/backfill-category-slugs.ts",
+    "backfill:normalized-keys": "tsx scripts/backfill-normalized-keys.ts",
     "autopost": "npm --prefix tools/blog-autopost run post --",
     "autopost:dry": "npm --prefix tools/blog-autopost run dry-run --",
     "autopost:login": "npm --prefix tools/blog-autopost run login --",

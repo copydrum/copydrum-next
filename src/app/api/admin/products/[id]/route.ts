@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { revalidateDrumSheetPages } from '@/lib/revalidateSheetPage';
+import { tryGenerateNormalizedKey } from '@/lib/utils/normalizedKey';
 
 // ✅ Service Role Key가 있으면 Admin 권한으로 RLS 우회
 function createAdminClient() {
@@ -73,6 +74,13 @@ export async function PATCH(
     if (wasPreorder && !hadPdfUrl && newPdfUrl && newPdfUrl.trim()) {
       finalUpdateData.sales_type = 'INSTANT';
       console.log(`[product-update] 🔄 PREORDER → INSTANT 전환: ${productId} (${existingProduct.title})`);
+    }
+
+    const artistForKey = String(finalUpdateData.artist ?? existingProduct.artist ?? '').trim();
+    const titleForKey = String(finalUpdateData.title ?? existingProduct.title ?? '').trim();
+    const normalizedKey = tryGenerateNormalizedKey(artistForKey, titleForKey);
+    if (normalizedKey) {
+      finalUpdateData.normalized_key = normalizedKey;
     }
 
     const { data: updatedProduct, error: updateError } = await supabase

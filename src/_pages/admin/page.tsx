@@ -28,6 +28,7 @@ import {
 import { fetchAnalyticsData, type AnalyticsPeriod, type AnalyticsData } from '../../lib/analytics';
 import { fetchDrumLessonAnalytics, type DrumLessonAnalyticsData } from '../../lib/drumLessonAnalytics';
 import type { VirtualAccountInfo } from '../../lib/payments';
+import { tryGenerateNormalizedKey } from '../../lib/utils/normalizedKey';
 import { completeOrderAfterPayment } from '../../lib/payments/completeOrderAfterPayment';
 import {
   ResponsiveContainer,
@@ -5397,15 +5398,23 @@ const AdminPage: React.FC = () => {
       // category_id는 첫 번째 선택된 카테고리로 설정 (하위 호환성)
       const categoryId = newSheet.category_ids.length > 0 ? newSheet.category_ids[0] : '';
 
+      const trimmedTitle = newSheet.title.trim();
+      const trimmedArtist = newSheet.artist.trim();
+
       const insertData: any = {
-        title: newSheet.title.trim(),
-        artist: newSheet.artist.trim(),
+        title: trimmedTitle,
+        artist: trimmedArtist,
         difficulty: difficulty, // 정규화된 값 사용 (반드시 포함)
         price: Number(newSheet.price) || 0,
         category_id: categoryId,
         pdf_url: newSheet.pdf_url, // 필수 필드
         is_active: true
       };
+
+      const normalizedKey = tryGenerateNormalizedKey(trimmedArtist, trimmedTitle);
+      if (normalizedKey) {
+        insertData.normalized_key = normalizedKey;
+      }
 
       // 선택적 필드 추가 (썸네일: 외부 URL이면 Supabase Storage에 업로드)
       if (newSheet.thumbnail_url) {
@@ -6059,14 +6068,22 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
           }
 
           // 5. 데이터베이스에 삽입
+          const trimmedTitle = title.trim();
+          const trimmedArtist = artist.trim();
+
           const insertData: any = {
-            title: title.trim(),
-            artist: artist.trim(),
+            title: trimmedTitle,
+            artist: trimmedArtist,
             difficulty: difficulty,
             price: Math.max(0, price),
             tempo: Math.max(0, tempo), // [추가] 템포 저장
             is_active: true
           };
+
+          const normalizedKey = tryGenerateNormalizedKey(trimmedArtist, trimmedTitle);
+          if (normalizedKey) {
+            insertData.normalized_key = normalizedKey;
+          }
 
           if (categoryId) {
             insertData.category_id = categoryId;

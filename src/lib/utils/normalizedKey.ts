@@ -48,6 +48,15 @@ export function generateNormalizedKey(artist: string, title: string): string {
   return normalized;
 }
 
+/** artist/title이 비어 있거나 정규화 실패 시 null 반환 (업로드·백필용) */
+export function tryGenerateNormalizedKey(artist: string, title: string): string | null {
+  try {
+    return generateNormalizedKey(artist, title);
+  } catch {
+    return null;
+  }
+}
+
 /**
  * normalized_key 검증 함수
  * 생성된 키가 유효한지 확인합니다.
