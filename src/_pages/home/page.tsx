@@ -96,7 +96,6 @@ export default function Home() {
   const [selectedGenre, setSelectedGenre] = useState<string>('');
   const [collections, setCollections] = useState<HomeCollection[]>([]);
   const [collectionSlideIndex, setCollectionSlideIndex] = useState(0);
-  const collectionSliderRef = useRef<HTMLDivElement>(null);
   const youtubeSliderRef = useRef<HTMLDivElement>(null);
   const [freeLessonSheets, setFreeLessonSheets] = useState<FreeLessonSheet[]>([]);
   const freeLessonSliderRef = useRef<HTMLDivElement>(null);
@@ -1372,74 +1371,63 @@ export default function Home() {
                 </a>
               </div>
 
-              {/* Mobile: 1 item per slide with scroll-snap */}
+              {/* Mobile: 2 columns */}
               <div className="md:hidden">
-                <div
-                  ref={collectionSliderRef}
-                  className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4"
-                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-                >
-                  {collections.map((collection) => (
+                <div className="grid grid-cols-2 gap-3">
+                  {collections.slice(0, 6).map((collection) => (
                     <div
                       key={collection.id}
                       onClick={() => router.push(`/collections/${collection.slug || collection.id}`)}
-                      className="flex-shrink-0 w-[85%] snap-center cursor-pointer"
+                      className="bg-white rounded-xl shadow-md overflow-hidden cursor-pointer"
                     >
-                      <div className="bg-white rounded-2xl shadow-md overflow-hidden transition-transform hover:scale-[1.02]">
-                        {/* Thumbnail */}
-                        <div className="relative aspect-[4/3] bg-gray-200">
-                          {collection.thumbnail_url ? (
-                            <img
-                              src={collection.thumbnail_url}
-                              alt={getCollectionLocalizedTitle(collection)}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-gray-400">
-                              <i className="ri-image-line text-5xl"></i>
-                            </div>
-                          )}
-                          {/* Collection Badge */}
-                          <div className="absolute top-3 left-3">
-                            <span className="bg-blue-600 text-white text-xs font-semibold px-2.5 py-1 rounded-full">
-                              {t('collectionsPage.collection.badge')}
-                            </span>
+                      <div className="relative aspect-[4/3] bg-gray-200">
+                        {collection.thumbnail_url ? (
+                          <img
+                            src={collection.thumbnail_url}
+                            alt={getCollectionLocalizedTitle(collection)}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-gray-400">
+                            <i className="ri-image-line text-3xl"></i>
                           </div>
-                          {/* Discount Badge */}
-                          {collection.discount_percentage > 0 && (
-                            <div className="absolute top-3 right-3">
-                              <span className="bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
-                                {t('collectionsPage.collection.discount', { percentage: collection.discount_percentage })}
-                              </span>
-                            </div>
-                          )}
+                        )}
+                        <div className="absolute top-2 left-2">
+                          <span className="bg-blue-600 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded-full">
+                            {t('collectionsPage.collection.badge')}
+                          </span>
                         </div>
-                        {/* Content */}
-                        <div className="p-4">
-                          <h4 className="font-bold text-gray-900 text-base line-clamp-3 leading-snug mb-1">
-                            {getCollectionLocalizedTitle(collection)}
-                          </h4>
-                          <div className="text-xs text-gray-400 mb-2">
-                            {t('home.songsIncluded', { count: collection.sheet_count || 0 })}
-                          </div>
-                          <div className="flex items-center gap-2">
-                            {collection.original_price > collection.sale_price && (
-                              <span className="text-xs text-gray-400 line-through">
-                                {formatCurrency(collection.original_price)}
-                              </span>
-                            )}
-                            <span className="text-lg font-bold text-blue-600">
-                              {collection.sale_price > 0
-                                ? formatCurrency(collection.sale_price)
-                                : t('collectionsPage.collection.free')}
+                        {collection.discount_percentage > 0 && (
+                          <div className="absolute top-2 right-2">
+                            <span className="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                              {t('collectionsPage.collection.discount', { percentage: collection.discount_percentage })}
                             </span>
                           </div>
+                        )}
+                      </div>
+                      <div className="p-2.5">
+                        <h4 className="font-bold text-gray-900 text-sm line-clamp-2 leading-snug mb-1">
+                          {getCollectionLocalizedTitle(collection)}
+                        </h4>
+                        <div className="text-[11px] text-gray-400 mb-1">
+                          {t('home.songsIncluded', { count: collection.sheet_count || 0 })}
+                        </div>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          {collection.original_price > collection.sale_price && (
+                            <span className="text-[11px] text-gray-400 line-through">
+                              {formatCurrency(collection.original_price)}
+                            </span>
+                          )}
+                          <span className="text-sm font-bold text-blue-600">
+                            {collection.sale_price > 0
+                              ? formatCurrency(collection.sale_price)
+                              : t('collectionsPage.collection.free')}
+                          </span>
                         </div>
                       </div>
                     </div>
                   ))}
                 </div>
-                {/* Mobile: View All button */}
                 <div className="mt-4 flex justify-center">
                   <button
                     type="button"
