@@ -626,11 +626,16 @@ export default function Home() {
   };
 
   const getCollectionLocalizedDescription = (collection: HomeCollection) => {
-    if (i18n.language === 'ko') return collection.description;
-    if (collection.description_translations && collection.description_translations['en']) {
-      return collection.description_translations['en'];
-    }
-    return collection.description;
+    const raw =
+      i18n.language === 'ko'
+        ? collection.description
+        : collection.description_translations?.['en'] || collection.description;
+    if (!raw) return '';
+    return raw
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/&nbsp;/gi, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
   };
 
   const getGenreDisplayName = (categoryName: string | null | undefined): string => {

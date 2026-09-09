@@ -258,7 +258,12 @@ export function buildCollectionDetailSeoStrings(
     locale,
     collection.description || ''
   );
-  const description = localizedDesc || `${name} - ${suffix}`;
+  const plainDesc = (localizedDesc || '')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  const description = plainDesc || `${name} - ${suffix}`;
   const ogTitle = `${name} - ${suffix}`;
 
   return {

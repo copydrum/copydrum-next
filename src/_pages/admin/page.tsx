@@ -850,6 +850,21 @@ const buildInitialTranslations = (
 };
 
 // 모음집 전용: 한국어는 ko에만, 영어는 en과 나머지 모든 언어에 저장
+const isEmptyRichText = (value: string | null | undefined): boolean => {
+  if (!value) return true;
+  const stripped = value
+    .replace(/<[^>]*>/g, '')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/\s+/g, '')
+    .trim();
+  return stripped.length === 0;
+};
+
+const normalizeCollectionRichText = (value: string | null | undefined): string => {
+  if (isEmptyRichText(value)) return '';
+  return (value || '').trim();
+};
+
 const buildCollectionTranslations = (
   koreanValue: string | null | undefined,
   englishValue: string | null | undefined,
@@ -928,6 +943,7 @@ const copyKoreanTranslationsToAll = (setState: CollectionFormStateSetter) => {
 const renderCollectionKoreanEnglishEditor = (
   formState: CollectionFormState,
   onChange: (lang: string, field: CollectionTranslationField, value: string) => void,
+  onImageUpload?: (file: File) => Promise<string>,
 ) => {
   const getKoreanValue = (field: CollectionTranslationField) => {
     return formState[field];
@@ -943,7 +959,7 @@ const renderCollectionKoreanEnglishEditor = (
       <div className="mb-2">
         <h4 className="text-sm font-semibold text-gray-900 mb-1">제목 및 설명</h4>
         <p className="text-xs text-gray-500">
-          한국어는 한국어 페이지에, 영어는 나머지 언어 페이지에 노출됩니다.
+          한국어는 한국어 페이지에, 영어는 나머지 언어 페이지에 노출됩니다. 설명은 악보 상세와 동일한 글쓰기 에디터를 사용합니다.
         </p>
       </div>
 
@@ -969,14 +985,17 @@ const renderCollectionKoreanEnglishEditor = (
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              설명 (한국어)
+              설명 (한국어){' '}
+              <span className="text-xs font-normal text-gray-500">
+                굵게/제목/목록/이미지/YouTube 삽입 가능
+              </span>
             </label>
-            <textarea
+            <RichTextEditor
               value={getKoreanValue('description')}
-              onChange={(e) => onChange('ko', 'description', e.target.value)}
-              rows={4}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-              placeholder="한국어 설명을 입력하세요"
+              onChange={(html) => onChange('ko', 'description', html)}
+              onImageUpload={onImageUpload}
+              placeholder="모음집 소개, 구성 곡 안내, 추천 대상 등을 자유롭게 작성하세요."
+              minHeight={180}
             />
           </div>
         </div>
@@ -1002,14 +1021,17 @@ const renderCollectionKoreanEnglishEditor = (
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              설명 (영어)
+              설명 (영어){' '}
+              <span className="text-xs font-normal text-gray-500">
+                비우면 한국어 설명을 대신 표시할 수 있습니다
+              </span>
             </label>
-            <textarea
+            <RichTextEditor
               value={getEnglishValue('description')}
-              onChange={(e) => onChange('en', 'description', e.target.value)}
-              rows={4}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-              placeholder="English description"
+              onChange={(html) => onChange('en', 'description', html)}
+              onImageUpload={onImageUpload}
+              placeholder="Collection intro, included songs, recommended for..."
+              minHeight={180}
             />
           </div>
         </div>
@@ -1306,6 +1328,8 @@ const AdminPage: React.FC = () => {
   const [sheetSearchTerm, setSheetSearchTerm] = useState('');
   const [sheetCategoryFilter, setSheetCategoryFilter] = useState<string>('all');
   const [isAddingSheet, setIsAddingSheet] = useState(false);
+  const [isSubmittingNewSheet, setIsSubmittingNewSheet] = useState(false);
+  const addingSheetLockRef = useRef(false);
   const [sheetCurrentPage, setSheetCurrentPage] = useState(1);
   const [sheetItemsPerPage, setSheetItemsPerPage] = useState(20);
   const [showSheetBulkModal, setShowSheetBulkModal] = useState(false);
@@ -4680,14 +4704,18 @@ const AdminPage: React.FC = () => {
 
     try {
       const discount = calculateDiscountPercentage(newCollection.original_price, newCollection.sale_price);
+      const normalizedDescription = normalizeCollectionRichText(newCollection.description);
+      const normalizedDescriptionEn = normalizeCollectionRichText(
+        newCollection.description_translations?.['en'] ?? '',
+      );
       const titleTranslations = buildCollectionTranslations(
         newCollection.title,
         newCollection.title_translations?.['en'] ?? '',
         newCollection.title_translations
       );
       const descriptionTranslations = buildCollectionTranslations(
-        newCollection.description,
-        newCollection.description_translations?.['en'] ?? '',
+        normalizedDescription,
+        normalizedDescriptionEn,
         newCollection.description_translations
       );
 
@@ -4698,7 +4726,7 @@ const AdminPage: React.FC = () => {
 
       const payload: any = {
         title: newCollection.title,
-        description: newCollection.description || null,
+        description: normalizedDescription || null,
         thumbnail_url: newCollection.thumbnail_url || null,
         original_price: newCollection.original_price,
         sale_price: newCollection.sale_price,
@@ -5478,6 +5506,10 @@ const AdminPage: React.FC = () => {
   };
 
   const handleAddSheet = async () => {
+    if (addingSheetLockRef.current || isSubmittingNewSheet) {
+      return;
+    }
+
     if (!newSheet.title || !newSheet.artist || newSheet.category_ids.length === 0) {
       alert('제목, 아티스트, 카테고리는 필수입니다.');
       return;
@@ -5487,6 +5519,9 @@ const AdminPage: React.FC = () => {
       alert('PDF 파일을 업로드해주세요.');
       return;
     }
+
+    addingSheetLockRef.current = true;
+    setIsSubmittingNewSheet(true);
 
     try {
       // difficulty 값 검증 및 정규화
@@ -5532,10 +5567,7 @@ const AdminPage: React.FC = () => {
         is_active: true
       };
 
-      const normalizedKey = tryGenerateNormalizedKey(trimmedArtist, trimmedTitle);
-      if (normalizedKey) {
-        insertData.normalized_key = normalizedKey;
-      }
+      const baseNormalizedKey = tryGenerateNormalizedKey(trimmedArtist, trimmedTitle);
 
       // 선택적 필드 추가 (썸네일: 외부 URL이면 Supabase Storage에 업로드)
       if (newSheet.thumbnail_url) {
@@ -5647,10 +5679,41 @@ const AdminPage: React.FC = () => {
       insertData.slug = slug;
       console.log('=== 생성된 slug ===', slug);
 
-      const { data, error } = await supabase
+      // normalized_key는 insert 후 id를 알 때 확정 (중복 unique 충돌 방지)
+      // 같은 아티스트+곡명이 이미 있으면 id suffix를 붙여 등록을 막지 않음
+      if (baseNormalizedKey) {
+        const { data: existingKeyRow } = await supabase
+          .from('drum_sheets')
+          .select('id')
+          .eq('normalized_key', baseNormalizedKey)
+          .maybeSingle();
+
+        if (!existingKeyRow) {
+          insertData.normalized_key = baseNormalizedKey;
+        }
+      }
+
+      let { data, error } = await supabase
         .from('drum_sheets')
         .insert([insertData])
         .select();
+
+      // 연타/레이스로 normalized_key 충돌 시: 키 없이 재시도 후 id 기반 키 부여
+      if (
+        error &&
+        error.code === '23505' &&
+        String(error.message || '').includes('normalized_key')
+      ) {
+        console.warn('[add-sheet] normalized_key 충돌, 키 없이 재시도:', error.message);
+        const retryData = { ...insertData };
+        delete retryData.normalized_key;
+        const retryResult = await supabase
+          .from('drum_sheets')
+          .insert([retryData])
+          .select();
+        data = retryResult.data;
+        error = retryResult.error;
+      }
 
       if (error) {
         console.error('=== Supabase 에러 상세 ===');
@@ -5664,9 +5727,35 @@ const AdminPage: React.FC = () => {
 
       console.log('악보 추가 성공:', data);
 
+      const sheetId = data?.[0]?.id as string | undefined;
+
+      if (sheetId && baseNormalizedKey) {
+        let keyToSet = baseNormalizedKey;
+        const { data: duplicate } = await supabase
+          .from('drum_sheets')
+          .select('id')
+          .eq('normalized_key', baseNormalizedKey)
+          .neq('id', sheetId)
+          .maybeSingle();
+
+        if (duplicate) {
+          keyToSet = `${baseNormalizedKey}${sheetId.slice(0, 8)}`;
+        }
+
+        if (data?.[0]?.normalized_key !== keyToSet) {
+          const { error: keyUpdateError } = await supabase
+            .from('drum_sheets')
+            .update({ normalized_key: keyToSet })
+            .eq('id', sheetId);
+
+          if (keyUpdateError) {
+            console.warn('[add-sheet] normalized_key 후처리 실패(악보 등록은 완료):', keyUpdateError);
+          }
+        }
+      }
+
       // drum_sheet_categories 테이블에 관계 데이터 삽입
-      if (data && data.length > 0 && newSheet.category_ids.length > 0) {
-        const sheetId = data[0].id;
+      if (sheetId && newSheet.category_ids.length > 0) {
         const categoryRelations = newSheet.category_ids.map(categoryId => ({
           sheet_id: sheetId,
           category_id: categoryId
@@ -5710,7 +5799,13 @@ const AdminPage: React.FC = () => {
 
       // Supabase 에러인 경우 상세 메시지 표시
       let errorMessage = '악보 추가 중 오류가 발생했습니다.';
-      if (error?.message) {
+      if (
+        error?.code === '23505' ||
+        String(error?.message || '').includes('normalized_key')
+      ) {
+        errorMessage =
+          '같은 아티스트·곡명으로 이미 등록된 악보가 있어 검색키 충돌이 났습니다.\n목록에서 등록 여부를 확인해 주세요.';
+      } else if (error?.message) {
         errorMessage += `\n\n오류: ${error.message}`;
       }
       if (error?.details) {
@@ -5721,6 +5816,9 @@ const AdminPage: React.FC = () => {
       }
 
       alert(errorMessage);
+    } finally {
+      addingSheetLockRef.current = false;
+      setIsSubmittingNewSheet(false);
     }
   };
 
@@ -9019,9 +9117,14 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
               </button>
               <button
                 onClick={handleAddSheet}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                disabled={isSubmittingNewSheet}
+                className={`px-4 py-2 text-white rounded-lg transition-colors ${
+                  isSubmittingNewSheet
+                    ? 'bg-blue-400 cursor-not-allowed'
+                    : 'bg-blue-600 hover:bg-blue-700'
+                }`}
               >
-                추가
+                {isSubmittingNewSheet ? '등록 중...' : '추가'}
               </button>
             </div>
           </div>
@@ -10103,7 +10206,8 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
             <div className="space-y-4">
               {renderCollectionKoreanEnglishEditor(
                 newCollection,
-                (lang, field, value) => updateCollectionTranslation(setNewCollection, lang, field, value)
+                (lang, field, value) => updateCollectionTranslation(setNewCollection, lang, field, value),
+                uploadSheetDescriptionImage,
               )}
 
               <div>

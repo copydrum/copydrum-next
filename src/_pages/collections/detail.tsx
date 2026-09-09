@@ -9,6 +9,7 @@ import MainHeader from '@/components/common/MainHeader';
 import { useDialogStore } from '@/stores/dialogStore';
 import { useAuthStore } from '@/stores/authStore';
 import type { User } from '@supabase/supabase-js';
+import { sanitizeLessonDetailHtml } from '@/lib/sanitizeLessonDetailHtml';
 
 interface Collection {
   id: string;
@@ -22,6 +23,24 @@ interface Collection {
   discount_percentage: number;
   slug: string;
   is_active: boolean;
+}
+
+function collectionDescriptionLooksLikeHtml(raw: string): boolean {
+  return /<[a-z][\s\S]*>/i.test(raw.trim());
+}
+
+function CollectionDescriptionBody({ raw }: { raw: string }) {
+  const trimmed = (raw || '').trim();
+  if (!trimmed || trimmed === '<p></p>') return null;
+  if (collectionDescriptionLooksLikeHtml(trimmed)) {
+    return (
+      <div
+        className="prose prose-sm sm:prose-base max-w-none text-gray-600 [&_img]:max-w-full [&_img]:h-auto [&_img]:rounded-lg"
+        dangerouslySetInnerHTML={{ __html: sanitizeLessonDetailHtml(trimmed) }}
+      />
+    );
+  }
+  return <p className="text-gray-600 whitespace-pre-line">{trimmed}</p>;
 }
 
 interface DrumSheet {
@@ -433,9 +452,7 @@ export default function CollectionDetailClient({ slug }: CollectionDetailClientP
 
                 {/* Description */}
                 {getLocalizedDescription(collection) && (
-                  <p className="text-gray-600 whitespace-pre-line">
-                    {getLocalizedDescription(collection)}
-                  </p>
+                  <CollectionDescriptionBody raw={getLocalizedDescription(collection) || ''} />
                 )}
               </div>
 
