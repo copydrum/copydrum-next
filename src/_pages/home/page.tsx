@@ -14,7 +14,7 @@ import { getSiteCurrency, convertFromKrw, formatCurrency as formatCurrencyUtil }
 import { useSiteLanguage } from '../../hooks/useSiteLanguage';
 import Seo from '../../components/Seo';
 import { languageDomainMap } from '../../config/languageDomainMap';
-import { COLLECTIONS_PUBLIC_ENABLED } from '@/config/featureFlags';
+import { COLLECTIONS_PUBLIC_ENABLED, SHEET_BOOKS_PUBLIC_ENABLED } from '@/config/featureFlags';
 import {
   SHEET_BOOK_GENRE_I18N_KEYS,
   SHEET_BOOK_GENRE_NAMES,
@@ -517,6 +517,10 @@ export default function Home() {
   }, []);
 
   const loadSheetBooks = useCallback(async () => {
+    if (!SHEET_BOOKS_PUBLIC_ENABLED) {
+      setSheetBooks([]);
+      return;
+    }
     try {
       const { data: mainCategory, error: catError } = await supabase
         .from('categories')
@@ -1052,626 +1056,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Drum Lesson Materials Section (개별 자료) — 교재와 분리 노출, 무료 유입 */}
-        {lessonMaterials.length > 0 && (
-          <section className="py-8 md:py-16">
-            <div className="max-w-7xl mx-auto">
-              <div className="mb-5 md:mb-8 flex items-center justify-between">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="text-2xl md:text-3xl font-bold text-gray-900">{t('home.lessonMaterialTitle')}</h3>
-                    <span className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-[10px] md:text-xs font-bold px-2 py-0.5 rounded-full">
-                      {t('home.lessonMaterialBadge')}
-                    </span>
-                  </div>
-                  <p className="hidden md:block text-gray-500 mt-1">{t('home.lessonMaterialDescription')}</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => router.push('/free-sheets?tab=materials')}
-                  className="text-sm text-gray-500 hover:text-gray-700 hidden md:inline-flex items-center gap-1 whitespace-nowrap"
-                >
-                  {t('home.lessonMaterialViewAll')} &gt;
-                </button>
-              </div>
-
-              {/* Mobile: horizontal scroll */}
-              <div className="md:hidden">
-                <div
-                  ref={lessonMaterialSliderRef}
-                  className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4"
-                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-                >
-                  {lessonMaterials.map((sheet) => {
-                    const price = Math.max(0, sheet.price ?? 0);
-                    const isFree = price === 0;
-                    return (
-                      <div key={sheet.id} className="flex-shrink-0 w-[44%] snap-start">
-                        <button
-                          type="button"
-                          onClick={() => router.push(`/drum-sheet/${sheet.slug}`)}
-                          className="block w-full text-left bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-lg transition-shadow"
-                        >
-                          <div className="relative aspect-[3/4] bg-gradient-to-br from-emerald-50 to-teal-50 overflow-hidden">
-                            <img
-                              src={sheet.thumbnail_url || generateDefaultThumbnail(600, 800)}
-                              alt={getFreeLessonSheetTitle(sheet)}
-                              className="w-full h-full object-cover"
-                              onError={(e) => {
-                                const img = e.target as HTMLImageElement;
-                                img.src = generateDefaultThumbnail(600, 800);
-                              }}
-                            />
-                            <span className="absolute top-2 left-2 bg-white/95 text-teal-700 text-[10px] font-bold tracking-wider px-2 py-0.5 rounded-md shadow-sm">
-                              PDF
-                            </span>
-                            {isFree && (
-                              <span className="absolute top-2 right-2 bg-emerald-500 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md shadow-sm">
-                                {t('freeSheets.price.free')}
-                              </span>
-                            )}
-                          </div>
-                          <div className="p-3">
-                            <h4 className="font-bold text-gray-900 text-sm line-clamp-2 leading-snug mb-1">
-                              {getFreeLessonSheetTitle(sheet)}
-                            </h4>
-                            <p className="text-[11px] text-gray-500 line-clamp-1 mb-2">{sheet.categories?.name ?? sheet.artist}</p>
-                            <div className="text-base font-extrabold text-gray-900">
-                              {isFree ? t('freeSheets.price.free') : formatCurrency(price)}
-                            </div>
-                          </div>
-                        </button>
-                      </div>
-                    );
-                  })}
-                </div>
-                <div className="mt-3 flex justify-center">
-                  <button
-                    type="button"
-                    onClick={() => router.push('/free-sheets?tab=materials')}
-                    className="inline-flex items-center justify-center gap-1.5 px-6 py-2.5 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-sm font-semibold shadow-sm hover:from-emerald-600 hover:to-teal-600 transition-all"
-                  >
-                    <i className="ri-music-2-line text-sm"></i>
-                    {t('home.lessonMaterialViewAll')}
-                  </button>
-                </div>
-              </div>
-
-              {/* PC: 4-column grid */}
-              <div className="hidden md:block">
-                <div className="grid grid-cols-4 gap-6">
-                  {lessonMaterials.slice(0, 8).map((sheet) => {
-                    const price = Math.max(0, sheet.price ?? 0);
-                    const isFree = price === 0;
-                    return (
-                      <button
-                        key={sheet.id}
-                        type="button"
-                        onClick={() => router.push(`/drum-sheet/${sheet.slug}`)}
-                        className="text-left bg-white rounded-2xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
-                      >
-                        <div className="relative aspect-[3/4] bg-gradient-to-br from-emerald-50 to-teal-50 overflow-hidden">
-                          <img
-                            src={sheet.thumbnail_url || generateDefaultThumbnail(600, 800)}
-                            alt={getFreeLessonSheetTitle(sheet)}
-                            className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-                            onError={(e) => {
-                              const img = e.target as HTMLImageElement;
-                              img.src = generateDefaultThumbnail(600, 800);
-                            }}
-                          />
-                          <span className="absolute top-3 left-3 bg-white/95 text-teal-700 text-[11px] font-bold tracking-wider px-2 py-0.5 rounded-md shadow-sm">
-                            PDF
-                          </span>
-                          {isFree && (
-                            <span className="absolute top-10 left-3 bg-emerald-500 text-white text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md shadow-sm">
-                              {t('freeSheets.price.free')}
-                            </span>
-                          )}
-                          {sheet.difficulty && (
-                            <span className={`absolute top-3 right-3 text-[11px] font-semibold px-2 py-0.5 rounded-full ${getFreeLessonDifficultyColor(sheet.difficulty)}`}>
-                              {getFreeLessonDifficultyLabel(sheet.difficulty)}
-                            </span>
-                          )}
-                        </div>
-                        <div className="p-4">
-                          <h4 className="font-bold text-gray-900 text-sm line-clamp-2 leading-snug mb-1 hover:text-teal-600 transition-colors">
-                            {getFreeLessonSheetTitle(sheet)}
-                          </h4>
-                          <p className="text-xs text-gray-500 line-clamp-1 mb-3">{sheet.categories?.name ?? sheet.artist}</p>
-                          <div className="text-lg font-extrabold text-gray-900">
-                            {isFree ? t('freeSheets.price.free') : formatCurrency(price)}
-                          </div>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-                <div className="mt-8 flex justify-center">
-                  <button
-                    type="button"
-                    onClick={() => router.push('/free-sheets?tab=materials')}
-                    className="inline-flex items-center justify-center gap-2 px-8 py-3 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-semibold shadow-md hover:from-emerald-600 hover:to-teal-600 transition-all cursor-pointer"
-                  >
-                    <i className="ri-music-2-line"></i>
-                    {t('home.lessonMaterialViewAll')}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* Drum Lesson Books Section (책표지형 카드) — 무료/레슨 상위 노출 */}
-        {freeLessonSheets.length > 0 && (
-          <section className="py-8 md:py-16">
-            <div className="max-w-7xl mx-auto">
-              {/* Section Header */}
-              <div className="mb-5 md:mb-8 flex items-center justify-between">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="text-2xl md:text-3xl font-bold text-gray-900">{t('home.freeLessonTitle')}</h3>
-                    <span className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[10px] md:text-xs font-bold px-2 py-0.5 rounded-full">
-                      {t('home.freeLessonBadge')}
-                    </span>
-                  </div>
-                  <p className="hidden md:block text-gray-500 mt-1">{t('home.freeLessonDescription')}</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => router.push('/free-sheets?tab=books')}
-                  className="text-sm text-gray-500 hover:text-gray-700 hidden md:inline-flex items-center gap-1 whitespace-nowrap"
-                >
-                  {t('home.freeLessonViewAll')} &gt;
-                </button>
-              </div>
-
-              {/* ===== Mobile: horizontal scroll book covers ===== */}
-              <div className="md:hidden">
-                <div
-                  ref={freeLessonSliderRef}
-                  className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4"
-                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-                >
-                  {freeLessonSheets.map((sheet) => {
-                    const price = Math.max(0, sheet.price ?? 0);
-                    const isFree = price === 0;
-                    return (
-                      <div
-                        key={sheet.id}
-                        className="flex-shrink-0 w-[44%] snap-start"
-                      >
-                        <button
-                          type="button"
-                          onClick={() => router.push(`/drum-sheet/${sheet.slug}`)}
-                          className="block w-full text-left bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-lg transition-shadow"
-                        >
-                          {/* Book Cover (3:4 portrait) */}
-                          <div className="relative aspect-[3/4] bg-gradient-to-br from-amber-50 to-orange-50 overflow-hidden">
-                            <img
-                              src={sheet.thumbnail_url || generateDefaultThumbnail(600, 800)}
-                              alt={getFreeLessonSheetTitle(sheet)}
-                              className="w-full h-full object-cover"
-                              onError={(e) => {
-                                const img = e.target as HTMLImageElement;
-                                img.src = generateDefaultThumbnail(600, 800);
-                              }}
-                            />
-                            {/* PDF badge */}
-                            <span className="absolute top-2 left-2 bg-white/95 text-orange-700 text-[10px] font-bold tracking-wider px-2 py-0.5 rounded-md shadow-sm">
-                              PDF
-                            </span>
-                            {/* FREE badge */}
-                            {isFree && (
-                              <span className="absolute top-2 right-2 bg-emerald-500 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md shadow-sm">
-                                {t('freeSheets.price.free')}
-                              </span>
-                            )}
-                            {/* Page count */}
-                            {sheet.page_count ? (
-                              <span className="absolute bottom-2 left-2 bg-black/60 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full backdrop-blur-sm">
-                                {sheet.page_count}p
-                              </span>
-                            ) : null}
-                          </div>
-                          {/* Content */}
-                          <div className="p-3">
-                            <h4 className="font-bold text-gray-900 text-sm line-clamp-2 leading-snug mb-1">
-                              {getFreeLessonSheetTitle(sheet)}
-                            </h4>
-                            <p className="text-[11px] text-gray-500 line-clamp-1 mb-2">{sheet.artist}</p>
-                            <div className="text-base font-extrabold text-gray-900">
-                              {isFree ? t('freeSheets.price.free') : formatCurrency(price)}
-                            </div>
-                          </div>
-                        </button>
-                      </div>
-                    );
-                  })}
-                </div>
-                {/* Mobile: View All button */}
-                <div className="mt-3 flex justify-center">
-                  <button
-                    type="button"
-                    onClick={() => router.push('/free-sheets?tab=books')}
-                    className="inline-flex items-center justify-center gap-1.5 px-6 py-2.5 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-white text-sm font-semibold shadow-sm hover:from-amber-600 hover:to-orange-600 transition-all"
-                  >
-                    <i className="ri-book-2-line text-sm"></i>
-                    {t('home.freeLessonViewAll')}
-                  </button>
-                </div>
-              </div>
-
-              {/* ===== PC: 4-column book grid ===== */}
-              <div className="hidden md:block">
-                <div className="grid grid-cols-4 gap-6">
-                  {freeLessonSheets.slice(0, 8).map((sheet) => {
-                    const price = Math.max(0, sheet.price ?? 0);
-                    const isFree = price === 0;
-                    return (
-                      <button
-                        key={sheet.id}
-                        type="button"
-                        onClick={() => router.push(`/drum-sheet/${sheet.slug}`)}
-                        className="text-left bg-white rounded-2xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
-                      >
-                        {/* Book Cover (3:4 portrait) */}
-                        <div className="relative aspect-[3/4] bg-gradient-to-br from-amber-50 to-orange-50 overflow-hidden">
-                          <img
-                            src={sheet.thumbnail_url || generateDefaultThumbnail(600, 800)}
-                            alt={getFreeLessonSheetTitle(sheet)}
-                            className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-                            onError={(e) => {
-                              const img = e.target as HTMLImageElement;
-                              img.src = generateDefaultThumbnail(600, 800);
-                            }}
-                          />
-                          <span className="absolute top-3 left-3 bg-white/95 text-orange-700 text-[11px] font-bold tracking-wider px-2 py-0.5 rounded-md shadow-sm">
-                            PDF
-                          </span>
-                          {isFree && (
-                            <span className="absolute top-10 left-3 bg-emerald-500 text-white text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md shadow-sm">
-                              {t('freeSheets.price.free')}
-                            </span>
-                          )}
-                          {sheet.page_count ? (
-                            <span className="absolute bottom-3 left-3 bg-black/60 text-white text-[11px] font-semibold px-2.5 py-0.5 rounded-full backdrop-blur-sm">
-                              {sheet.page_count}p
-                            </span>
-                          ) : null}
-                          {sheet.difficulty && (
-                            <span className={`absolute top-3 right-3 text-[11px] font-semibold px-2 py-0.5 rounded-full ${getFreeLessonDifficultyColor(sheet.difficulty)}`}>
-                              {getFreeLessonDifficultyLabel(sheet.difficulty)}
-                            </span>
-                          )}
-                        </div>
-                        {/* Content */}
-                        <div className="p-4">
-                          <h4 className="font-bold text-gray-900 text-sm line-clamp-2 leading-snug mb-1 hover:text-orange-600 transition-colors">
-                            {getFreeLessonSheetTitle(sheet)}
-                          </h4>
-                          <p className="text-xs text-gray-500 line-clamp-1 mb-3">{sheet.artist}</p>
-                          <div className="text-lg font-extrabold text-gray-900">
-                            {isFree ? t('freeSheets.price.free') : formatCurrency(price)}
-                          </div>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-                {/* PC: View All Button */}
-                <div className="mt-8 flex justify-center">
-                  <button
-                    type="button"
-                    onClick={() => router.push('/free-sheets?tab=books')}
-                    className="inline-flex items-center justify-center gap-2 px-8 py-3 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold shadow-md hover:from-amber-600 hover:to-orange-600 transition-all cursor-pointer"
-                  >
-                    <i className="ri-book-2-line"></i>
-                    {t('home.freeLessonViewAll')}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* Sheet Books Section — 드럼레슨 교재 바로 아래 */}
-        {sheetBooks.length > 0 && (
-          <section className="py-8 md:py-16">
-            <div className="max-w-7xl mx-auto">
-              <div className="mb-5 md:mb-8 flex items-center justify-between">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="text-2xl md:text-3xl font-bold text-gray-900">{t('sheetBooks.title')}</h3>
-                    <span className="bg-gradient-to-r from-indigo-500 to-violet-500 text-white text-[10px] md:text-xs font-bold px-2 py-0.5 rounded-full">
-                      {t('sheetBooks.badge')}
-                    </span>
-                  </div>
-                  <p className="hidden md:block text-gray-500 mt-1">{t('sheetBooks.description')}</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => router.push('/sheet-books')}
-                  className="text-sm text-gray-500 hover:text-gray-700 hidden md:inline-flex items-center gap-1 whitespace-nowrap"
-                >
-                  {t('sheetBooks.actions.viewAll')} &gt;
-                </button>
-              </div>
-
-              <div className="md:hidden">
-                <div
-                  ref={sheetBookSliderRef}
-                  className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4"
-                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-                >
-                  {sheetBooks.map((book) => {
-                    const price = Math.max(0, book.price ?? 0);
-                    const isFree = price === 0;
-                    const primaryGenre = book.genres[0];
-                    return (
-                      <div key={book.id} className="flex-shrink-0 w-[44%] snap-start">
-                        <button
-                          type="button"
-                          onClick={() => router.push(`/drum-sheet/${book.slug}`)}
-                          className="block w-full text-left bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-lg transition-shadow"
-                        >
-                          <div className="relative aspect-[3/4] bg-gradient-to-br from-indigo-50 to-violet-50 overflow-hidden">
-                            <img
-                              src={book.thumbnail_url || generateDefaultThumbnail(600, 800)}
-                              alt={getSheetBookTitle(book)}
-                              className="w-full h-full object-cover"
-                              onError={(e) => {
-                                const img = e.target as HTMLImageElement;
-                                img.src = generateDefaultThumbnail(600, 800);
-                              }}
-                            />
-                            <span className="absolute top-2 left-2 bg-white/95 text-indigo-700 text-[10px] font-bold tracking-wider px-2 py-0.5 rounded-md shadow-sm">
-                              PDF
-                            </span>
-                            {primaryGenre && (
-                              <span className="absolute top-2 right-2 bg-indigo-600/90 text-white text-[10px] font-semibold px-2 py-0.5 rounded-md shadow-sm">
-                                {getSheetBookGenreLabel(primaryGenre)}
-                              </span>
-                            )}
-                            {book.page_count ? (
-                              <span className="absolute bottom-2 left-2 bg-black/60 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full backdrop-blur-sm">
-                                {book.page_count}p
-                              </span>
-                            ) : null}
-                          </div>
-                          <div className="p-3">
-                            <h4 className="font-bold text-gray-900 text-sm line-clamp-2 leading-snug mb-1">
-                              {getSheetBookTitle(book)}
-                            </h4>
-                            <p className="text-[11px] text-gray-500 line-clamp-1 mb-2">{book.artist}</p>
-                            <div className="text-base font-extrabold text-gray-900">
-                              {isFree ? t('sheetBooks.price.free') : formatCurrency(price)}
-                            </div>
-                          </div>
-                        </button>
-                      </div>
-                    );
-                  })}
-                </div>
-                <div className="mt-3 flex justify-center">
-                  <button
-                    type="button"
-                    onClick={() => router.push('/sheet-books')}
-                    className="inline-flex items-center justify-center gap-1.5 px-6 py-2.5 rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 text-white text-sm font-semibold shadow-sm hover:from-indigo-600 hover:to-violet-600 transition-all"
-                  >
-                    <i className="ri-book-mark-line text-sm"></i>
-                    {t('sheetBooks.actions.viewAll')}
-                  </button>
-                </div>
-              </div>
-
-              <div className="hidden md:block">
-                <div className="grid grid-cols-4 gap-6">
-                  {sheetBooks.slice(0, 8).map((book) => {
-                    const price = Math.max(0, book.price ?? 0);
-                    const isFree = price === 0;
-                    const primaryGenre = book.genres[0];
-                    return (
-                      <button
-                        key={book.id}
-                        type="button"
-                        onClick={() => router.push(`/drum-sheet/${book.slug}`)}
-                        className="text-left bg-white rounded-2xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
-                      >
-                        <div className="relative aspect-[3/4] bg-gradient-to-br from-indigo-50 to-violet-50 overflow-hidden">
-                          <img
-                            src={book.thumbnail_url || generateDefaultThumbnail(600, 800)}
-                            alt={getSheetBookTitle(book)}
-                            className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-                            onError={(e) => {
-                              const img = e.target as HTMLImageElement;
-                              img.src = generateDefaultThumbnail(600, 800);
-                            }}
-                          />
-                          <span className="absolute top-3 left-3 bg-white/95 text-indigo-700 text-[11px] font-bold tracking-wider px-2 py-0.5 rounded-md shadow-sm">
-                            PDF
-                          </span>
-                          {primaryGenre && (
-                            <span className="absolute top-3 right-3 bg-indigo-600/90 text-white text-[11px] font-semibold px-2 py-0.5 rounded-md shadow-sm">
-                              {getSheetBookGenreLabel(primaryGenre)}
-                            </span>
-                          )}
-                          {book.page_count ? (
-                            <span className="absolute bottom-3 left-3 bg-black/60 text-white text-[11px] font-semibold px-2.5 py-0.5 rounded-full backdrop-blur-sm">
-                              {book.page_count}p
-                            </span>
-                          ) : null}
-                        </div>
-                        <div className="p-4">
-                          <h4 className="font-bold text-gray-900 text-sm line-clamp-2 leading-snug mb-1 hover:text-indigo-600 transition-colors">
-                            {getSheetBookTitle(book)}
-                          </h4>
-                          <p className="text-xs text-gray-500 line-clamp-1 mb-3">{book.artist}</p>
-                          <div className="text-lg font-extrabold text-gray-900">
-                            {isFree ? t('sheetBooks.price.free') : formatCurrency(price)}
-                          </div>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-                <div className="mt-8 flex justify-center">
-                  <button
-                    type="button"
-                    onClick={() => router.push('/sheet-books')}
-                    className="inline-flex items-center justify-center gap-2 px-8 py-3 rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 text-white font-semibold shadow-md hover:from-indigo-600 hover:to-violet-600 transition-all cursor-pointer"
-                  >
-                    <i className="ri-book-mark-line"></i>
-                    {t('sheetBooks.actions.viewAll')}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* Latest YouTube Sheets - 최신 유튜브 영상악보 */}
-        {youtubeLatestSheets.length > 0 && (
-          <section className="py-6 md:py-12">
-            <div className="max-w-7xl mx-auto space-y-6">
-              {/* 모바일: 가로 스냅 슬라이드 */}
-              <div className="md:hidden">
-                <div className="mb-4 flex items-center justify-between">
-                  <h3 className="text-2xl font-bold text-gray-900">{t('home.latestYoutubeSheets')}</h3>
-                </div>
-                <div
-                  ref={youtubeSliderRef}
-                  className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4"
-                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-                >
-                  {youtubeLatestSheets.map((sheet) => {
-                    const isFavorite = favoriteIds.has(sheet.id);
-                    const isFavoriteLoading = favoriteLoadingIds.has(sheet.id);
-                    const videoId = sheet.youtube_url ? extractVideoId(sheet.youtube_url) : '';
-                    return (
-                      <div
-                        key={sheet.id}
-                        onClick={() => router.push(`/drum-sheet/${sheet.slug}`)}
-                        className="group relative flex-shrink-0 w-[85%] snap-center cursor-pointer overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm"
-                      >
-                        <div className="relative">
-                          <div
-                            className="aspect-video w-full bg-gray-200"
-                            style={{
-                              backgroundImage: `url(${getYouTubeThumbnailUrl(sheet)})`,
-                              backgroundPosition: 'center',
-                              backgroundSize: 'cover',
-                            }}
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-                          {videoId && (
-                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/95 text-red-600 shadow-lg">
-                                <svg className="w-6 h-6 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
-                                  <path d="M8 5v14l11-7z" />
-                                </svg>
-                              </div>
-                            </div>
-                          )}
-                          <button
-                            type="button"
-                            onClick={(event) => {
-                              event.stopPropagation();
-                              handleToggleFavorite(sheet.id);
-                            }}
-                            disabled={isFavoriteLoading}
-                            className={`absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full shadow transition-colors ${
-                              isFavorite
-                                ? 'bg-red-50 text-red-500 border border-red-200'
-                                : 'bg-white/90 text-gray-500 hover:text-red-500'
-                            } ${isFavoriteLoading ? 'opacity-60 cursor-not-allowed' : ''}`}
-                          >
-                            <i className={`ri-heart-${isFavorite ? 'fill' : 'line'} text-base`} />
-                          </button>
-                        </div>
-                        <div className="p-3">
-                          <h4 className="text-sm font-bold text-gray-900 line-clamp-2 leading-tight">{sheet.title}</h4>
-                          <p className="text-xs font-medium text-blue-600 mt-0.5">{sheet.artist}</p>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-                <div className="mt-4 flex justify-center">
-                  <button
-                    type="button"
-                    onClick={() => router.push('/categories?category=drum-solo')}
-                    className="inline-flex items-center justify-center px-6 py-2.5 rounded-full bg-blue-600 text-white text-sm font-semibold shadow-sm hover:bg-blue-700 transition-colors"
-                  >
-                    {t('home.showMore')}
-                  </button>
-                </div>
-              </div>
-
-              {/* 데스크톱 */}
-              <div className="hidden md:block">
-                <div className="mb-6 flex items-center justify-between">
-                  <h3 className="text-3xl font-bold text-gray-900">{t('home.latestYoutubeSheets')}</h3>
-                </div>
-                <div className="grid grid-cols-3 gap-5">
-                  {youtubeLatestSheets.slice(0, 6).map((sheet) => {
-                    const isFavorite = favoriteIds.has(sheet.id);
-                    const isFavoriteLoading = favoriteLoadingIds.has(sheet.id);
-                    const videoId = sheet.youtube_url ? extractVideoId(sheet.youtube_url) : '';
-                    return (
-                      <div
-                        key={sheet.id}
-                        onClick={() => router.push(`/drum-sheet/${sheet.slug}`)}
-                        className="group relative cursor-pointer overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all hover:shadow-lg"
-                      >
-                        <div className="relative">
-                          <div
-                            className="aspect-video w-full bg-gray-200 transition duration-300 group-hover:brightness-95"
-                            style={{
-                              backgroundImage: `url(${getYouTubeThumbnailUrl(sheet)})`,
-                              backgroundPosition: 'center',
-                              backgroundSize: 'cover',
-                            }}
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-                          {videoId && (
-                            <div className="absolute inset-0 flex items-center justify-center">
-                              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/95 text-red-600 shadow-lg transition-transform group-hover:scale-110">
-                                <svg className="w-7 h-7 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
-                                  <path d="M8 5v14l11-7z" />
-                                </svg>
-                              </div>
-                            </div>
-                          )}
-                          <button
-                            type="button"
-                            onClick={(event) => {
-                              event.stopPropagation();
-                              handleToggleFavorite(sheet.id);
-                            }}
-                            disabled={isFavoriteLoading}
-                            className={`absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full shadow transition-colors ${
-                              isFavorite
-                                ? 'bg-red-50 text-red-500 border border-red-200'
-                                : 'bg-white/90 text-gray-500 hover:text-red-500 hover:bg-red-50/80'
-                            } ${isFavoriteLoading ? 'opacity-60 cursor-not-allowed' : ''}`}
-                          >
-                            <i className={`ri-heart-${isFavorite ? 'fill' : 'line'} text-lg`} />
-                          </button>
-                        </div>
-                        <div className="p-4">
-                          <h4 className="text-base font-bold text-gray-900 line-clamp-2 leading-tight">{sheet.title}</h4>
-                          <p className="text-sm font-medium text-blue-600 mt-0.5">{sheet.artist}</p>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          </section>
-        )}
-
         {/* Popular Sheets */}
         <section className="py-12 md:py-16 bg-gray-50 rounded-3xl md:rounded-none -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto space-y-8">
@@ -2185,6 +1569,626 @@ export default function Home() {
                     ))}
                   </div>
                 )}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Drum Lesson Books Section (책표지형 카드) — 무료/레슨 상위 노출 */}
+        {freeLessonSheets.length > 0 && (
+          <section className="py-8 md:py-16">
+            <div className="max-w-7xl mx-auto">
+              {/* Section Header */}
+              <div className="mb-5 md:mb-8 flex items-center justify-between">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="text-2xl md:text-3xl font-bold text-gray-900">{t('home.freeLessonTitle')}</h3>
+                    <span className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[10px] md:text-xs font-bold px-2 py-0.5 rounded-full">
+                      {t('home.freeLessonBadge')}
+                    </span>
+                  </div>
+                  <p className="hidden md:block text-gray-500 mt-1">{t('home.freeLessonDescription')}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => router.push('/free-sheets?tab=books')}
+                  className="text-sm text-gray-500 hover:text-gray-700 hidden md:inline-flex items-center gap-1 whitespace-nowrap"
+                >
+                  {t('home.freeLessonViewAll')} &gt;
+                </button>
+              </div>
+
+              {/* ===== Mobile: horizontal scroll book covers ===== */}
+              <div className="md:hidden">
+                <div
+                  ref={freeLessonSliderRef}
+                  className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4"
+                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                >
+                  {freeLessonSheets.map((sheet) => {
+                    const price = Math.max(0, sheet.price ?? 0);
+                    const isFree = price === 0;
+                    return (
+                      <div
+                        key={sheet.id}
+                        className="flex-shrink-0 w-[44%] snap-start"
+                      >
+                        <button
+                          type="button"
+                          onClick={() => router.push(`/drum-sheet/${sheet.slug}`)}
+                          className="block w-full text-left bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+                        >
+                          {/* Book Cover (3:4 portrait) */}
+                          <div className="relative aspect-[3/4] bg-gradient-to-br from-amber-50 to-orange-50 overflow-hidden">
+                            <img
+                              src={sheet.thumbnail_url || generateDefaultThumbnail(600, 800)}
+                              alt={getFreeLessonSheetTitle(sheet)}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                const img = e.target as HTMLImageElement;
+                                img.src = generateDefaultThumbnail(600, 800);
+                              }}
+                            />
+                            {/* PDF badge */}
+                            <span className="absolute top-2 left-2 bg-white/95 text-orange-700 text-[10px] font-bold tracking-wider px-2 py-0.5 rounded-md shadow-sm">
+                              PDF
+                            </span>
+                            {/* FREE badge */}
+                            {isFree && (
+                              <span className="absolute top-2 right-2 bg-emerald-500 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md shadow-sm">
+                                {t('freeSheets.price.free')}
+                              </span>
+                            )}
+                            {/* Page count */}
+                            {sheet.page_count ? (
+                              <span className="absolute bottom-2 left-2 bg-black/60 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full backdrop-blur-sm">
+                                {sheet.page_count}p
+                              </span>
+                            ) : null}
+                          </div>
+                          {/* Content */}
+                          <div className="p-3">
+                            <h4 className="font-bold text-gray-900 text-sm line-clamp-2 leading-snug mb-1">
+                              {getFreeLessonSheetTitle(sheet)}
+                            </h4>
+                            <p className="text-[11px] text-gray-500 line-clamp-1 mb-2">{sheet.artist}</p>
+                            <div className="text-base font-extrabold text-gray-900">
+                              {isFree ? t('freeSheets.price.free') : formatCurrency(price)}
+                            </div>
+                          </div>
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+                {/* Mobile: View All button */}
+                <div className="mt-3 flex justify-center">
+                  <button
+                    type="button"
+                    onClick={() => router.push('/free-sheets?tab=books')}
+                    className="inline-flex items-center justify-center gap-1.5 px-6 py-2.5 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-white text-sm font-semibold shadow-sm hover:from-amber-600 hover:to-orange-600 transition-all"
+                  >
+                    <i className="ri-book-2-line text-sm"></i>
+                    {t('home.freeLessonViewAll')}
+                  </button>
+                </div>
+              </div>
+
+              {/* ===== PC: 4-column book grid ===== */}
+              <div className="hidden md:block">
+                <div className="grid grid-cols-4 gap-6">
+                  {freeLessonSheets.slice(0, 8).map((sheet) => {
+                    const price = Math.max(0, sheet.price ?? 0);
+                    const isFree = price === 0;
+                    return (
+                      <button
+                        key={sheet.id}
+                        type="button"
+                        onClick={() => router.push(`/drum-sheet/${sheet.slug}`)}
+                        className="text-left bg-white rounded-2xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+                      >
+                        {/* Book Cover (3:4 portrait) */}
+                        <div className="relative aspect-[3/4] bg-gradient-to-br from-amber-50 to-orange-50 overflow-hidden">
+                          <img
+                            src={sheet.thumbnail_url || generateDefaultThumbnail(600, 800)}
+                            alt={getFreeLessonSheetTitle(sheet)}
+                            className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                            onError={(e) => {
+                              const img = e.target as HTMLImageElement;
+                              img.src = generateDefaultThumbnail(600, 800);
+                            }}
+                          />
+                          <span className="absolute top-3 left-3 bg-white/95 text-orange-700 text-[11px] font-bold tracking-wider px-2 py-0.5 rounded-md shadow-sm">
+                            PDF
+                          </span>
+                          {isFree && (
+                            <span className="absolute top-10 left-3 bg-emerald-500 text-white text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md shadow-sm">
+                              {t('freeSheets.price.free')}
+                            </span>
+                          )}
+                          {sheet.page_count ? (
+                            <span className="absolute bottom-3 left-3 bg-black/60 text-white text-[11px] font-semibold px-2.5 py-0.5 rounded-full backdrop-blur-sm">
+                              {sheet.page_count}p
+                            </span>
+                          ) : null}
+                          {sheet.difficulty && (
+                            <span className={`absolute top-3 right-3 text-[11px] font-semibold px-2 py-0.5 rounded-full ${getFreeLessonDifficultyColor(sheet.difficulty)}`}>
+                              {getFreeLessonDifficultyLabel(sheet.difficulty)}
+                            </span>
+                          )}
+                        </div>
+                        {/* Content */}
+                        <div className="p-4">
+                          <h4 className="font-bold text-gray-900 text-sm line-clamp-2 leading-snug mb-1 hover:text-orange-600 transition-colors">
+                            {getFreeLessonSheetTitle(sheet)}
+                          </h4>
+                          <p className="text-xs text-gray-500 line-clamp-1 mb-3">{sheet.artist}</p>
+                          <div className="text-lg font-extrabold text-gray-900">
+                            {isFree ? t('freeSheets.price.free') : formatCurrency(price)}
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+                {/* PC: View All Button */}
+                <div className="mt-8 flex justify-center">
+                  <button
+                    type="button"
+                    onClick={() => router.push('/free-sheets?tab=books')}
+                    className="inline-flex items-center justify-center gap-2 px-8 py-3 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold shadow-md hover:from-amber-600 hover:to-orange-600 transition-all cursor-pointer"
+                  >
+                    <i className="ri-book-2-line"></i>
+                    {t('home.freeLessonViewAll')}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Latest YouTube Sheets - 최신 유튜브 영상악보 */}
+        {youtubeLatestSheets.length > 0 && (
+          <section className="py-6 md:py-12">
+            <div className="max-w-7xl mx-auto space-y-6">
+              {/* 모바일: 가로 스냅 슬라이드 */}
+              <div className="md:hidden">
+                <div className="mb-4 flex items-center justify-between">
+                  <h3 className="text-2xl font-bold text-gray-900">{t('home.latestYoutubeSheets')}</h3>
+                </div>
+                <div
+                  ref={youtubeSliderRef}
+                  className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4"
+                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                >
+                  {youtubeLatestSheets.map((sheet) => {
+                    const isFavorite = favoriteIds.has(sheet.id);
+                    const isFavoriteLoading = favoriteLoadingIds.has(sheet.id);
+                    const videoId = sheet.youtube_url ? extractVideoId(sheet.youtube_url) : '';
+                    return (
+                      <div
+                        key={sheet.id}
+                        onClick={() => router.push(`/drum-sheet/${sheet.slug}`)}
+                        className="group relative flex-shrink-0 w-[85%] snap-center cursor-pointer overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm"
+                      >
+                        <div className="relative">
+                          <div
+                            className="aspect-video w-full bg-gray-200"
+                            style={{
+                              backgroundImage: `url(${getYouTubeThumbnailUrl(sheet)})`,
+                              backgroundPosition: 'center',
+                              backgroundSize: 'cover',
+                            }}
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                          {videoId && (
+                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/95 text-red-600 shadow-lg">
+                                <svg className="w-6 h-6 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                                  <path d="M8 5v14l11-7z" />
+                                </svg>
+                              </div>
+                            </div>
+                          )}
+                          <button
+                            type="button"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              handleToggleFavorite(sheet.id);
+                            }}
+                            disabled={isFavoriteLoading}
+                            className={`absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full shadow transition-colors ${
+                              isFavorite
+                                ? 'bg-red-50 text-red-500 border border-red-200'
+                                : 'bg-white/90 text-gray-500 hover:text-red-500'
+                            } ${isFavoriteLoading ? 'opacity-60 cursor-not-allowed' : ''}`}
+                          >
+                            <i className={`ri-heart-${isFavorite ? 'fill' : 'line'} text-base`} />
+                          </button>
+                        </div>
+                        <div className="p-3">
+                          <h4 className="text-sm font-bold text-gray-900 line-clamp-2 leading-tight">{sheet.title}</h4>
+                          <p className="text-xs font-medium text-blue-600 mt-0.5">{sheet.artist}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="mt-4 flex justify-center">
+                  <button
+                    type="button"
+                    onClick={() => router.push('/categories?category=drum-solo')}
+                    className="inline-flex items-center justify-center px-6 py-2.5 rounded-full bg-blue-600 text-white text-sm font-semibold shadow-sm hover:bg-blue-700 transition-colors"
+                  >
+                    {t('home.showMore')}
+                  </button>
+                </div>
+              </div>
+
+              {/* 데스크톱 */}
+              <div className="hidden md:block">
+                <div className="mb-6 flex items-center justify-between">
+                  <h3 className="text-3xl font-bold text-gray-900">{t('home.latestYoutubeSheets')}</h3>
+                </div>
+                <div className="grid grid-cols-3 gap-5">
+                  {youtubeLatestSheets.slice(0, 6).map((sheet) => {
+                    const isFavorite = favoriteIds.has(sheet.id);
+                    const isFavoriteLoading = favoriteLoadingIds.has(sheet.id);
+                    const videoId = sheet.youtube_url ? extractVideoId(sheet.youtube_url) : '';
+                    return (
+                      <div
+                        key={sheet.id}
+                        onClick={() => router.push(`/drum-sheet/${sheet.slug}`)}
+                        className="group relative cursor-pointer overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all hover:shadow-lg"
+                      >
+                        <div className="relative">
+                          <div
+                            className="aspect-video w-full bg-gray-200 transition duration-300 group-hover:brightness-95"
+                            style={{
+                              backgroundImage: `url(${getYouTubeThumbnailUrl(sheet)})`,
+                              backgroundPosition: 'center',
+                              backgroundSize: 'cover',
+                            }}
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                          {videoId && (
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/95 text-red-600 shadow-lg transition-transform group-hover:scale-110">
+                                <svg className="w-7 h-7 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                                  <path d="M8 5v14l11-7z" />
+                                </svg>
+                              </div>
+                            </div>
+                          )}
+                          <button
+                            type="button"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              handleToggleFavorite(sheet.id);
+                            }}
+                            disabled={isFavoriteLoading}
+                            className={`absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full shadow transition-colors ${
+                              isFavorite
+                                ? 'bg-red-50 text-red-500 border border-red-200'
+                                : 'bg-white/90 text-gray-500 hover:text-red-500 hover:bg-red-50/80'
+                            } ${isFavoriteLoading ? 'opacity-60 cursor-not-allowed' : ''}`}
+                          >
+                            <i className={`ri-heart-${isFavorite ? 'fill' : 'line'} text-lg`} />
+                          </button>
+                        </div>
+                        <div className="p-4">
+                          <h4 className="text-base font-bold text-gray-900 line-clamp-2 leading-tight">{sheet.title}</h4>
+                          <p className="text-sm font-medium text-blue-600 mt-0.5">{sheet.artist}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Drum Lesson Materials Section (개별 자료) — 교재와 분리 노출, 무료 유입 */}
+        {lessonMaterials.length > 0 && (
+          <section className="py-8 md:py-16">
+            <div className="max-w-7xl mx-auto">
+              <div className="mb-5 md:mb-8 flex items-center justify-between">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="text-2xl md:text-3xl font-bold text-gray-900">{t('home.lessonMaterialTitle')}</h3>
+                    <span className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-[10px] md:text-xs font-bold px-2 py-0.5 rounded-full">
+                      {t('home.lessonMaterialBadge')}
+                    </span>
+                  </div>
+                  <p className="hidden md:block text-gray-500 mt-1">{t('home.lessonMaterialDescription')}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => router.push('/free-sheets?tab=materials')}
+                  className="text-sm text-gray-500 hover:text-gray-700 hidden md:inline-flex items-center gap-1 whitespace-nowrap"
+                >
+                  {t('home.lessonMaterialViewAll')} &gt;
+                </button>
+              </div>
+
+              {/* Mobile: horizontal scroll */}
+              <div className="md:hidden">
+                <div
+                  ref={lessonMaterialSliderRef}
+                  className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4"
+                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                >
+                  {lessonMaterials.map((sheet) => {
+                    const price = Math.max(0, sheet.price ?? 0);
+                    const isFree = price === 0;
+                    return (
+                      <div key={sheet.id} className="flex-shrink-0 w-[44%] snap-start">
+                        <button
+                          type="button"
+                          onClick={() => router.push(`/drum-sheet/${sheet.slug}`)}
+                          className="block w-full text-left bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+                        >
+                          <div className="relative aspect-[3/4] bg-gradient-to-br from-emerald-50 to-teal-50 overflow-hidden">
+                            <img
+                              src={sheet.thumbnail_url || generateDefaultThumbnail(600, 800)}
+                              alt={getFreeLessonSheetTitle(sheet)}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                const img = e.target as HTMLImageElement;
+                                img.src = generateDefaultThumbnail(600, 800);
+                              }}
+                            />
+                            <span className="absolute top-2 left-2 bg-white/95 text-teal-700 text-[10px] font-bold tracking-wider px-2 py-0.5 rounded-md shadow-sm">
+                              PDF
+                            </span>
+                            {isFree && (
+                              <span className="absolute top-2 right-2 bg-emerald-500 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md shadow-sm">
+                                {t('freeSheets.price.free')}
+                              </span>
+                            )}
+                          </div>
+                          <div className="p-3">
+                            <h4 className="font-bold text-gray-900 text-sm line-clamp-2 leading-snug mb-1">
+                              {getFreeLessonSheetTitle(sheet)}
+                            </h4>
+                            <p className="text-[11px] text-gray-500 line-clamp-1 mb-2">{sheet.categories?.name ?? sheet.artist}</p>
+                            <div className="text-base font-extrabold text-gray-900">
+                              {isFree ? t('freeSheets.price.free') : formatCurrency(price)}
+                            </div>
+                          </div>
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="mt-3 flex justify-center">
+                  <button
+                    type="button"
+                    onClick={() => router.push('/free-sheets?tab=materials')}
+                    className="inline-flex items-center justify-center gap-1.5 px-6 py-2.5 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-sm font-semibold shadow-sm hover:from-emerald-600 hover:to-teal-600 transition-all"
+                  >
+                    <i className="ri-music-2-line text-sm"></i>
+                    {t('home.lessonMaterialViewAll')}
+                  </button>
+                </div>
+              </div>
+
+              {/* PC: 4-column grid */}
+              <div className="hidden md:block">
+                <div className="grid grid-cols-4 gap-6">
+                  {lessonMaterials.slice(0, 8).map((sheet) => {
+                    const price = Math.max(0, sheet.price ?? 0);
+                    const isFree = price === 0;
+                    return (
+                      <button
+                        key={sheet.id}
+                        type="button"
+                        onClick={() => router.push(`/drum-sheet/${sheet.slug}`)}
+                        className="text-left bg-white rounded-2xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+                      >
+                        <div className="relative aspect-[3/4] bg-gradient-to-br from-emerald-50 to-teal-50 overflow-hidden">
+                          <img
+                            src={sheet.thumbnail_url || generateDefaultThumbnail(600, 800)}
+                            alt={getFreeLessonSheetTitle(sheet)}
+                            className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                            onError={(e) => {
+                              const img = e.target as HTMLImageElement;
+                              img.src = generateDefaultThumbnail(600, 800);
+                            }}
+                          />
+                          <span className="absolute top-3 left-3 bg-white/95 text-teal-700 text-[11px] font-bold tracking-wider px-2 py-0.5 rounded-md shadow-sm">
+                            PDF
+                          </span>
+                          {isFree && (
+                            <span className="absolute top-10 left-3 bg-emerald-500 text-white text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md shadow-sm">
+                              {t('freeSheets.price.free')}
+                            </span>
+                          )}
+                          {sheet.difficulty && (
+                            <span className={`absolute top-3 right-3 text-[11px] font-semibold px-2 py-0.5 rounded-full ${getFreeLessonDifficultyColor(sheet.difficulty)}`}>
+                              {getFreeLessonDifficultyLabel(sheet.difficulty)}
+                            </span>
+                          )}
+                        </div>
+                        <div className="p-4">
+                          <h4 className="font-bold text-gray-900 text-sm line-clamp-2 leading-snug mb-1 hover:text-teal-600 transition-colors">
+                            {getFreeLessonSheetTitle(sheet)}
+                          </h4>
+                          <p className="text-xs text-gray-500 line-clamp-1 mb-3">{sheet.categories?.name ?? sheet.artist}</p>
+                          <div className="text-lg font-extrabold text-gray-900">
+                            {isFree ? t('freeSheets.price.free') : formatCurrency(price)}
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="mt-8 flex justify-center">
+                  <button
+                    type="button"
+                    onClick={() => router.push('/free-sheets?tab=materials')}
+                    className="inline-flex items-center justify-center gap-2 px-8 py-3 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-semibold shadow-md hover:from-emerald-600 hover:to-teal-600 transition-all cursor-pointer"
+                  >
+                    <i className="ri-music-2-line"></i>
+                    {t('home.lessonMaterialViewAll')}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Sheet Books Section — 드럼레슨 교재 바로 아래 */}
+        {SHEET_BOOKS_PUBLIC_ENABLED && sheetBooks.length > 0 && (
+          <section className="py-8 md:py-16">
+            <div className="max-w-7xl mx-auto">
+              <div className="mb-5 md:mb-8 flex items-center justify-between">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="text-2xl md:text-3xl font-bold text-gray-900">{t('sheetBooks.title')}</h3>
+                    <span className="bg-gradient-to-r from-indigo-500 to-violet-500 text-white text-[10px] md:text-xs font-bold px-2 py-0.5 rounded-full">
+                      {t('sheetBooks.badge')}
+                    </span>
+                  </div>
+                  <p className="hidden md:block text-gray-500 mt-1">{t('sheetBooks.description')}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => router.push('/sheet-books')}
+                  className="text-sm text-gray-500 hover:text-gray-700 hidden md:inline-flex items-center gap-1 whitespace-nowrap"
+                >
+                  {t('sheetBooks.actions.viewAll')} &gt;
+                </button>
+              </div>
+
+              <div className="md:hidden">
+                <div
+                  ref={sheetBookSliderRef}
+                  className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4"
+                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                >
+                  {sheetBooks.map((book) => {
+                    const price = Math.max(0, book.price ?? 0);
+                    const isFree = price === 0;
+                    const primaryGenre = book.genres[0];
+                    return (
+                      <div key={book.id} className="flex-shrink-0 w-[44%] snap-start">
+                        <button
+                          type="button"
+                          onClick={() => router.push(`/drum-sheet/${book.slug}`)}
+                          className="block w-full text-left bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+                        >
+                          <div className="relative aspect-[3/4] bg-gradient-to-br from-indigo-50 to-violet-50 overflow-hidden">
+                            <img
+                              src={book.thumbnail_url || generateDefaultThumbnail(600, 800)}
+                              alt={getSheetBookTitle(book)}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                const img = e.target as HTMLImageElement;
+                                img.src = generateDefaultThumbnail(600, 800);
+                              }}
+                            />
+                            <span className="absolute top-2 left-2 bg-white/95 text-indigo-700 text-[10px] font-bold tracking-wider px-2 py-0.5 rounded-md shadow-sm">
+                              PDF
+                            </span>
+                            {primaryGenre && (
+                              <span className="absolute top-2 right-2 bg-indigo-600/90 text-white text-[10px] font-semibold px-2 py-0.5 rounded-md shadow-sm">
+                                {getSheetBookGenreLabel(primaryGenre)}
+                              </span>
+                            )}
+                            {book.page_count ? (
+                              <span className="absolute bottom-2 left-2 bg-black/60 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full backdrop-blur-sm">
+                                {book.page_count}p
+                              </span>
+                            ) : null}
+                          </div>
+                          <div className="p-3">
+                            <h4 className="font-bold text-gray-900 text-sm line-clamp-2 leading-snug mb-1">
+                              {getSheetBookTitle(book)}
+                            </h4>
+                            <p className="text-[11px] text-gray-500 line-clamp-1 mb-2">{book.artist}</p>
+                            <div className="text-base font-extrabold text-gray-900">
+                              {isFree ? t('sheetBooks.price.free') : formatCurrency(price)}
+                            </div>
+                          </div>
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="mt-3 flex justify-center">
+                  <button
+                    type="button"
+                    onClick={() => router.push('/sheet-books')}
+                    className="inline-flex items-center justify-center gap-1.5 px-6 py-2.5 rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 text-white text-sm font-semibold shadow-sm hover:from-indigo-600 hover:to-violet-600 transition-all"
+                  >
+                    <i className="ri-book-mark-line text-sm"></i>
+                    {t('sheetBooks.actions.viewAll')}
+                  </button>
+                </div>
+              </div>
+
+              <div className="hidden md:block">
+                <div className="grid grid-cols-4 gap-6">
+                  {sheetBooks.slice(0, 8).map((book) => {
+                    const price = Math.max(0, book.price ?? 0);
+                    const isFree = price === 0;
+                    const primaryGenre = book.genres[0];
+                    return (
+                      <button
+                        key={book.id}
+                        type="button"
+                        onClick={() => router.push(`/drum-sheet/${book.slug}`)}
+                        className="text-left bg-white rounded-2xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+                      >
+                        <div className="relative aspect-[3/4] bg-gradient-to-br from-indigo-50 to-violet-50 overflow-hidden">
+                          <img
+                            src={book.thumbnail_url || generateDefaultThumbnail(600, 800)}
+                            alt={getSheetBookTitle(book)}
+                            className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                            onError={(e) => {
+                              const img = e.target as HTMLImageElement;
+                              img.src = generateDefaultThumbnail(600, 800);
+                            }}
+                          />
+                          <span className="absolute top-3 left-3 bg-white/95 text-indigo-700 text-[11px] font-bold tracking-wider px-2 py-0.5 rounded-md shadow-sm">
+                            PDF
+                          </span>
+                          {primaryGenre && (
+                            <span className="absolute top-3 right-3 bg-indigo-600/90 text-white text-[11px] font-semibold px-2 py-0.5 rounded-md shadow-sm">
+                              {getSheetBookGenreLabel(primaryGenre)}
+                            </span>
+                          )}
+                          {book.page_count ? (
+                            <span className="absolute bottom-3 left-3 bg-black/60 text-white text-[11px] font-semibold px-2.5 py-0.5 rounded-full backdrop-blur-sm">
+                              {book.page_count}p
+                            </span>
+                          ) : null}
+                        </div>
+                        <div className="p-4">
+                          <h4 className="font-bold text-gray-900 text-sm line-clamp-2 leading-snug mb-1 hover:text-indigo-600 transition-colors">
+                            {getSheetBookTitle(book)}
+                          </h4>
+                          <p className="text-xs text-gray-500 line-clamp-1 mb-3">{book.artist}</p>
+                          <div className="text-lg font-extrabold text-gray-900">
+                            {isFree ? t('sheetBooks.price.free') : formatCurrency(price)}
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="mt-8 flex justify-center">
+                  <button
+                    type="button"
+                    onClick={() => router.push('/sheet-books')}
+                    className="inline-flex items-center justify-center gap-2 px-8 py-3 rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 text-white font-semibold shadow-md hover:from-indigo-600 hover:to-violet-600 transition-all cursor-pointer"
+                  >
+                    <i className="ri-book-mark-line"></i>
+                    {t('sheetBooks.actions.viewAll')}
+                  </button>
+                </div>
               </div>
             </div>
           </section>

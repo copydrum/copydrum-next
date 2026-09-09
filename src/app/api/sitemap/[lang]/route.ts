@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
-import { COLLECTIONS_PUBLIC_ENABLED } from '@/config/featureFlags';
+import { COLLECTIONS_PUBLIC_ENABLED, SHEET_BOOKS_PUBLIC_ENABLED } from '@/config/featureFlags';
 
 /**
  * 언어별 Sitemap - /sitemap/{lang}.xml
@@ -121,6 +121,7 @@ export async function GET(
   // ─── 1. 정적 페이지 ───
   for (const page of STATIC_PAGES) {
     if (!COLLECTIONS_PUBLIC_ENABLED && page.path === '/collections') continue;
+    if (!SHEET_BOOKS_PUBLIC_ENABLED && page.path === '/sheet-books') continue;
     const loc = page.path === '/'
       ? `${baseUrl}/`
       : `${baseUrl}${page.path}`;

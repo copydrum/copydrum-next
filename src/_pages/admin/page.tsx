@@ -29,6 +29,13 @@ import { fetchAnalyticsData, type AnalyticsPeriod, type AnalyticsData } from '..
 import { fetchDrumLessonAnalytics, type DrumLessonAnalyticsData } from '../../lib/drumLessonAnalytics';
 import type { VirtualAccountInfo } from '../../lib/payments';
 import { tryGenerateNormalizedKey } from '../../lib/utils/normalizedKey';
+import {
+  downloadCollectionExcelTemplate,
+  downloadUnmatchedCollectionRows,
+  matchCollectionExcelRows,
+  readCollectionExcelFile,
+  type CollectionExcelUnmatchedRow,
+} from '../../lib/admin/collectionExcelImport';
 import { completeOrderAfterPayment } from '../../lib/payments/completeOrderAfterPayment';
 import {
   ResponsiveContainer,
@@ -1424,9 +1431,7 @@ const AdminPage: React.FC = () => {
   const [isAddingCollection, setIsAddingCollection] = useState(false);
   const [editingCollection, setEditingCollection] = useState<Collection | null>(null);
   const [newCollection, setNewCollection] = useState<CollectionFormState>(createEmptyCollectionFormState());
-  const [editingCollectionData, setEditingCollectionData] = useState<CollectionFormState>(createEmptyCollectionFormState());
   const [newCollectionActiveLang, setNewCollectionActiveLang] = useState<string>('ko');
-  const [editingCollectionActiveLang, setEditingCollectionActiveLang] = useState<string>('ko');
   const [selectedCollectionId, setSelectedCollectionId] = useState<string | null>(null);
   const [collectionSheets, setCollectionSheets] = useState<CollectionSheet[]>([]);
   const [availableSheets, setAvailableSheets] = useState<DrumSheet[]>([]);
@@ -1435,6 +1440,10 @@ const AdminPage: React.FC = () => {
   const [collectionSheetSearchTerm, setCollectionSheetSearchTerm] = useState('');
   const [collectionArtistSearchTerm, setCollectionArtistSearchTerm] = useState('');
   const [isAddingCollectionLoading, setIsAddingCollectionLoading] = useState(false);
+  const [collectionExcelUnmatched, setCollectionExcelUnmatched] = useState<CollectionExcelUnmatchedRow[]>([]);
+  const [collectionExcelImportSummary, setCollectionExcelImportSummary] = useState('');
+  const [isCollectionExcelImporting, setIsCollectionExcelImporting] = useState(false);
+  const collectionExcelInputRef = useRef<HTMLInputElement>(null);
   const [seriesKeyword, setSeriesKeyword] = useState('');
   const [selectedSeriesCollectionIds, setSelectedSeriesCollectionIds] = useState<string[]>([]);
   const [seriesSheetMap, setSeriesSheetMap] = useState<Record<string, string[]>>({});
@@ -4391,8 +4400,12 @@ const AdminPage: React.FC = () => {
   const filteredSeriesCollections = React.useMemo(() => {
     if (!seriesKeyword.trim()) return [];
     const keyword = seriesKeyword.toLowerCase();
-    return collections.filter(c => c.title.toLowerCase().includes(keyword));
-  }, [collections, seriesKeyword]);
+    return collections.filter(
+      (c) =>
+        c.title.toLowerCase().includes(keyword) &&
+        (!editingCollection || c.id !== editingCollection.id),
+    );
+  }, [collections, seriesKeyword, editingCollection]);
 
   const seriesSheetIdSet = React.useMemo(() => new Set(Object.keys(seriesSheetMap)), [seriesSheetMap]);
 
@@ -4471,7 +4484,188 @@ const AdminPage: React.FC = () => {
     const totalPrice = calculateTotalPrice(updated);
     setNewCollection({ ...newCollection, original_price: totalPrice });
   };
-  const handleAddCollection = async () => {
+  const resetCollectionFormState = () => {
+    setIsAddingCollection(false);
+    setEditingCollection(null);
+    setNewCollection(createEmptyCollectionFormState());
+    setNewCollectionActiveLang('ko');
+    setSelectedSheetsForNewCollection([]);
+    setCollectionSheetSearchTerm('');
+    setCollectionArtistSearchTerm('');
+    setSeriesKeyword('');
+    setSelectedSeriesCollectionIds([]);
+    setSeriesSheetMap({});
+    setCollectionExcelUnmatched([]);
+    setCollectionExcelImportSummary('');
+    if (collectionExcelInputRef.current) {
+      collectionExcelInputRef.current.value = '';
+    }
+  };
+
+  const openCreateCollectionModal = () => {
+    resetCollectionFormState();
+    setIsAddingCollection(true);
+  };
+
+  const openEditCollectionModal = async (collection: Collection) => {
+    resetCollectionFormState();
+    setEditingCollection(collection);
+    setNewCollection({
+      title: collection.title,
+      description: collection.description || '',
+      thumbnail_url: collection.thumbnail_url || '',
+      original_price: collection.original_price,
+      sale_price: collection.sale_price,
+      discount_percentage: collection.discount_percentage,
+      is_active: collection.is_active,
+      category_id: collection.category_id || '',
+      category_ids: collection.category_ids || (collection.category_id ? [collection.category_id] : []),
+      title_translations: buildInitialTranslations(collection.title_translations, collection.title),
+      description_translations: buildInitialTranslations(
+        collection.description_translations,
+        collection.description || ''
+      ),
+    });
+
+    try {
+      const { data, error } = await supabase
+        .from('collection_sheets')
+        .select(`
+          *,
+          drum_sheets (
+            id,
+            title,
+            artist,
+            price,
+            thumbnail_url,
+            difficulty,
+            category_id,
+            created_at,
+            is_active
+          )
+        `)
+        .eq('collection_id', collection.id);
+
+      if (error) throw error;
+
+      const loadedSheets: DrumSheet[] = (data || [])
+        .map((cs: any) => cs.drum_sheets)
+        .filter(Boolean)
+        .map((sheet: any) => ({
+          id: sheet.id,
+          title: sheet.title,
+          artist: sheet.artist,
+          difficulty: sheet.difficulty || '',
+          price: sheet.price || 0,
+          category_id: sheet.category_id || '',
+          created_at: sheet.created_at || '',
+          is_active: sheet.is_active ?? true,
+          thumbnail_url: sheet.thumbnail_url,
+        }));
+
+      setSelectedSheetsForNewCollection(loadedSheets);
+      const totalPrice = calculateTotalPrice(loadedSheets);
+      setNewCollection((prev) => ({
+        ...prev,
+        original_price: totalPrice > 0 ? totalPrice : collection.original_price,
+      }));
+    } catch (error) {
+      console.error('모음집 악보 로드 오류:', error);
+      alert('모음집 악보 목록을 불러오지 못했습니다.');
+    }
+  };
+
+  const handleImportCollectionExcel = async (file: File) => {
+    setIsCollectionExcelImporting(true);
+    try {
+      const rows = await readCollectionExcelFile(file);
+      if (rows.length === 0) {
+        alert('엑셀에서 곡 목록을 찾지 못했습니다. 컬럼명: 곡명, 아티스트');
+        return;
+      }
+
+      const { matched, unmatched } = matchCollectionExcelRows(rows, sheets);
+      const existingIds = new Set(selectedSheetsForNewCollection.map((s) => s.id));
+      const newlyMatched = matched.filter((s) => !existingIds.has(s.id));
+
+      const updated = [
+        ...selectedSheetsForNewCollection,
+        ...newlyMatched.map((sheet) => ({
+          id: sheet.id,
+          title: sheet.title,
+          artist: sheet.artist,
+          difficulty: '',
+          price: sheet.price || 0,
+          category_id: '',
+          created_at: '',
+          is_active: sheet.is_active ?? true,
+        })),
+      ];
+
+      setSelectedSheetsForNewCollection(updated);
+      setNewCollection((prev) => ({
+        ...prev,
+        original_price: calculateTotalPrice(updated),
+        discount_percentage: calculateDiscountPercentage(calculateTotalPrice(updated), prev.sale_price),
+      }));
+      setCollectionExcelUnmatched(unmatched);
+      setCollectionExcelImportSummary(
+        `매칭 ${matched.length}곡 추가(신규 ${newlyMatched.length}) / 미등록·실패 ${unmatched.length}곡`
+      );
+
+      if (unmatched.length > 0) {
+        alert(`매칭 ${matched.length}곡, 미등록/실패 ${unmatched.length}곡입니다.\n미등록곡은 아래에서 다운로드할 수 있습니다.`);
+      } else {
+        alert(`매칭 완료: ${matched.length}곡이 선택 목록에 반영되었습니다.`);
+      }
+    } catch (error) {
+      console.error('모음집 엑셀 가져오기 오류:', error);
+      alert('엑셀 가져오기에 실패했습니다.');
+    } finally {
+      setIsCollectionExcelImporting(false);
+    }
+  };
+
+  const syncCollectionSheets = async (collectionId: string, selected: DrumSheet[]) => {
+    const { data: existingRows, error: existingError } = await supabase
+      .from('collection_sheets')
+      .select('id, drum_sheet_id')
+      .eq('collection_id', collectionId);
+
+    if (existingError) throw existingError;
+
+    const existing = existingRows || [];
+    const selectedIds = new Set(selected.map((s) => s.id));
+    const existingIds = new Set(existing.map((row) => row.drum_sheet_id));
+
+    const toDelete = existing.filter((row) => !selectedIds.has(row.drum_sheet_id)).map((row) => row.id);
+    const toInsert = selected
+      .filter((sheet) => !existingIds.has(sheet.id))
+      .map((sheet) => ({
+        collection_id: collectionId,
+        drum_sheet_id: sheet.id,
+      }));
+
+    if (toDelete.length > 0) {
+      const batchSize = 100;
+      for (let i = 0; i < toDelete.length; i += batchSize) {
+        const batch = toDelete.slice(i, i + batchSize);
+        const { error } = await supabase.from('collection_sheets').delete().in('id', batch);
+        if (error) throw error;
+      }
+    }
+
+    if (toInsert.length > 0) {
+      const batchSize = 100;
+      for (let i = 0; i < toInsert.length; i += batchSize) {
+        const batch = toInsert.slice(i, i + batchSize);
+        const { error } = await supabase.from('collection_sheets').insert(batch);
+        if (error) throw error;
+      }
+    }
+  };
+
+  const handleSaveCollectionForm = async () => {
     if (!newCollection.title) {
       alert('제목은 필수입니다.');
       return;
@@ -4486,7 +4680,6 @@ const AdminPage: React.FC = () => {
 
     try {
       const discount = calculateDiscountPercentage(newCollection.original_price, newCollection.sale_price);
-      // 모음집: 한국어는 ko에만, 영어는 en과 나머지 모든 언어에 저장
       const titleTranslations = buildCollectionTranslations(
         newCollection.title,
         newCollection.title_translations?.['en'] ?? '',
@@ -4498,15 +4691,12 @@ const AdminPage: React.FC = () => {
         newCollection.description_translations
       );
 
-      // category_ids 처리: 빈 배열이면 null, 있으면 배열로
       const categoryIds = newCollection.category_ids && newCollection.category_ids.length > 0
         ? newCollection.category_ids
         : null;
-
-      // category_id는 첫 번째 선택된 카테고리 또는 null
       const categoryId = categoryIds && categoryIds.length > 0 ? categoryIds[0] : null;
 
-      const insertData: any = {
+      const payload: any = {
         title: newCollection.title,
         description: newCollection.description || null,
         thumbnail_url: newCollection.thumbnail_url || null,
@@ -4520,116 +4710,47 @@ const AdminPage: React.FC = () => {
         description_translations: descriptionTranslations,
       };
 
-      // 모음집 생성
-      const { data: collectionData, error: collectionError } = await supabase
-        .from('collections')
-        .insert([insertData])
-        .select()
-        .single();
+      if (editingCollection) {
+        const { error } = await supabase
+          .from('collections')
+          .update(payload)
+          .eq('id', editingCollection.id);
+        if (error) throw error;
 
-      if (collectionError) throw collectionError;
+        await syncCollectionSheets(editingCollection.id, selectedSheetsForNewCollection);
+        alert('모음집이 수정되었습니다.');
+      } else {
+        const { data: collectionData, error: collectionError } = await supabase
+          .from('collections')
+          .insert([payload])
+          .select()
+          .single();
+        if (collectionError) throw collectionError;
 
-      // 선택한 악보들을 모음집에 추가 (배치 처리로 성능 최적화)
-      if (selectedSheetsForNewCollection.length > 0) {
-        const collectionSheetInserts = selectedSheetsForNewCollection.map(sheet => ({
+        const collectionSheetInserts = selectedSheetsForNewCollection.map((sheet) => ({
           collection_id: collectionData.id,
-          drum_sheet_id: sheet.id
+          drum_sheet_id: sheet.id,
         }));
 
-        // 100개씩 나눠서 배치 처리 (대량 데이터 처리 시 성능 향상)
         const batchSize = 100;
         for (let i = 0; i < collectionSheetInserts.length; i += batchSize) {
           const batch = collectionSheetInserts.slice(i, i + batchSize);
           const { error: sheetsError } = await supabase
             .from('collection_sheets')
             .insert(batch);
-
           if (sheetsError) throw sheetsError;
         }
+
+        alert('모음집이 추가되었습니다.');
       }
 
-      alert('모음집이 추가되었습니다.');
-      setIsAddingCollection(false);
-      setNewCollection(createEmptyCollectionFormState());
-      setNewCollectionActiveLang('ko');
-      setSelectedSheetsForNewCollection([]);
-      setCollectionSheetSearchTerm('');
-      setCollectionArtistSearchTerm('');
-      setSeriesKeyword('');
-      setSelectedSeriesCollectionIds([]);
-      setSeriesSheetMap({});
-      loadCollections();
-    } catch (error) {
-      console.error('모음집 추가 오류:', error);
-      alert('모음집 추가에 실패했습니다.');
-    } finally {
-      setIsAddingCollectionLoading(false);
-    }
-  };
-
-  const handleUpdateCollection = async () => {
-    if (!editingCollection) return;
-    if (!editingCollectionData.title) {
-      alert('제목은 필수입니다.');
-      return;
-    }
-
-    try {
-      const discount = editingCollectionData.original_price > 0 && editingCollectionData.sale_price > 0
-        ? Math.round(((editingCollectionData.original_price - editingCollectionData.sale_price) / editingCollectionData.original_price) * 100)
-        : 0;
-      // 모음집: 한국어는 ko에만, 영어는 en과 나머지 모든 언어에 저장
-      const titleTranslations = buildCollectionTranslations(
-        editingCollectionData.title,
-        editingCollectionData.title_translations?.['en'] ?? '',
-        editingCollectionData.title_translations
-      );
-      const descriptionTranslations = buildCollectionTranslations(
-        editingCollectionData.description,
-        editingCollectionData.description_translations?.['en'] ?? '',
-        editingCollectionData.description_translations
-      );
-
-      // category_ids 처리: 빈 배열이면 null, 있으면 배열로
-      const categoryIds = editingCollectionData.category_ids && editingCollectionData.category_ids.length > 0
-        ? editingCollectionData.category_ids
-        : null;
-
-      // category_id는 첫 번째 선택된 카테고리 또는 null
-      const categoryId = categoryIds && categoryIds.length > 0 ? categoryIds[0] : null;
-
-      const updateData: any = {
-        title: editingCollectionData.title,
-        description: editingCollectionData.description || null,
-        thumbnail_url: editingCollectionData.thumbnail_url || null,
-        original_price: editingCollectionData.original_price,
-        sale_price: editingCollectionData.sale_price,
-        discount_percentage: discount,
-        is_active: editingCollectionData.is_active,
-        category_id: categoryId,
-        category_ids: categoryIds,
-        title_translations: titleTranslations,
-        description_translations: descriptionTranslations,
-      };
-
-      const { error } = await supabase
-        .from('collections')
-        .update(updateData)
-        .eq('id', editingCollection.id);
-
-      if (error) {
-        console.error('모음집 수정 오류 상세:', error);
-        throw error;
-      }
-
-      alert('모음집이 수정되었습니다.');
-      setEditingCollection(null);
-      setEditingCollectionData(createEmptyCollectionFormState());
-      setEditingCollectionActiveLang('ko');
+      resetCollectionFormState();
       loadCollections();
     } catch (error: any) {
-      console.error('모음집 수정 오류:', error);
-      alert(`모음집 수정에 실패했습니다: ${error.message || '알 수 없는 오류'}`);
+      console.error('모음집 저장 오류:', error);
+      alert(`모음집 저장에 실패했습니다: ${error.message || '알 수 없는 오류'}`);
+    } finally {
+      setIsAddingCollectionLoading(false);
     }
   };
 
@@ -9773,17 +9894,7 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-gray-900">악보모음집 관리</h2>
         <button
-          onClick={() => {
-            setNewCollection(createEmptyCollectionFormState());
-            setNewCollectionActiveLang('ko');
-            setSelectedSheetsForNewCollection([]);
-            setCollectionSheetSearchTerm('');
-            setCollectionArtistSearchTerm('');
-            setSeriesKeyword('');
-            setSelectedSeriesCollectionIds([]);
-            setSeriesSheetMap({});
-            setIsAddingCollection(true);
-          }}
+          onClick={openCreateCollectionModal}
           className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
         >
           <i className="ri-add-line w-4 h-4"></i>
@@ -9868,24 +9979,7 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
                     <div className="flex space-x-2">
                       <button
                         onClick={() => {
-                          setEditingCollection(collection);
-                          setEditingCollectionData({
-                            title: collection.title,
-                            description: collection.description || '',
-                            thumbnail_url: collection.thumbnail_url || '',
-                            original_price: collection.original_price,
-                            sale_price: collection.sale_price,
-                            discount_percentage: collection.discount_percentage,
-                            is_active: collection.is_active,
-                            category_id: collection.category_id || '',
-                            category_ids: collection.category_ids || (collection.category_id ? [collection.category_id] : []),
-                            title_translations: buildInitialTranslations(collection.title_translations, collection.title),
-                            description_translations: buildInitialTranslations(
-                              collection.description_translations,
-                              collection.description || ''
-                            ),
-                          });
-                          setEditingCollectionActiveLang('ko');
+                          void openEditCollectionModal(collection);
                         }}
                         className="text-blue-600 hover:text-blue-900 transition-colors"
                         title="수정"
@@ -9999,11 +10093,13 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
         </div>
       </div>
 
-      {/* 새 모음집 추가 모달 */}
-      {isAddingCollection && (
+      {/* 새 모음집 추가 / 수정 모달 (동일 화면) */}
+      {(isAddingCollection || editingCollection) && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl p-6 w-full max-w-5xl max-h-[90vh] overflow-y-auto">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">새 모음집 추가</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              {editingCollection ? '모음집 수정' : '새 모음집 추가'}
+            </h3>
             <div className="space-y-4">
               {renderCollectionKoreanEnglishEditor(
                 newCollection,
@@ -10059,6 +10155,82 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="https://..."
                 />
+              </div>
+
+              {/* 엑셀 일괄 등록 */}
+              <div className="border border-blue-200 bg-blue-50 rounded-lg p-4 space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h4 className="text-sm font-semibold text-blue-900 flex items-center gap-2">
+                      <i className="ri-file-excel-2-line"></i>
+                      엑셀/CSV 곡 일괄 등록
+                    </h4>
+                    <p className="text-xs text-blue-800 mt-1">
+                      곡명·아티스트 목록을 올리면 사이트 등록곡과 매칭합니다. 없는 곡만 결과로 받을 수 있습니다.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => downloadCollectionExcelTemplate()}
+                    className="shrink-0 px-3 py-1.5 text-xs bg-white border border-blue-300 text-blue-700 rounded-lg hover:bg-blue-100"
+                  >
+                    샘플 다운로드
+                  </button>
+                </div>
+                <div className="flex flex-wrap items-center gap-3">
+                  <input
+                    ref={collectionExcelInputRef}
+                    type="file"
+                    accept=".xlsx,.xls,.csv"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        void handleImportCollectionExcel(file);
+                      }
+                    }}
+                  />
+                  <button
+                    type="button"
+                    disabled={isCollectionExcelImporting}
+                    onClick={() => collectionExcelInputRef.current?.click()}
+                    className={`px-3 py-2 text-sm text-white rounded-lg ${
+                      isCollectionExcelImporting ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
+                    }`}
+                  >
+                    {isCollectionExcelImporting ? '가져오는 중...' : '엑셀/CSV 가져오기'}
+                  </button>
+                  {collectionExcelImportSummary && (
+                    <span className="text-sm text-blue-900">{collectionExcelImportSummary}</span>
+                  )}
+                </div>
+                {collectionExcelUnmatched.length > 0 && (
+                  <div className="bg-white border border-orange-200 rounded-lg p-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-sm font-medium text-orange-800">
+                        미등록/실패 곡 {collectionExcelUnmatched.length}개
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => downloadUnmatchedCollectionRows(collectionExcelUnmatched)}
+                        className="px-3 py-1.5 text-xs bg-orange-600 text-white rounded-lg hover:bg-orange-700"
+                      >
+                        미등록곡 엑셀 다운로드
+                      </button>
+                    </div>
+                    <div className="max-h-36 overflow-y-auto space-y-1">
+                      {collectionExcelUnmatched.slice(0, 30).map((row, idx) => (
+                        <p key={`${row.rowNumber}-${idx}`} className="text-xs text-gray-700">
+                          [{row.rowNumber}행] {row.title || '(곡명없음)'}
+                          {row.artist ? ` - ${row.artist}` : ''} · {row.reason}
+                        </p>
+                      ))}
+                      {collectionExcelUnmatched.length > 30 && (
+                        <p className="text-xs text-gray-500">… 외 {collectionExcelUnmatched.length - 30}개 (다운로드 파일에 전체 포함)</p>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* 가격 정보 */}
@@ -10371,23 +10543,13 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
             </div>
             <div className="flex justify-end space-x-3 mt-6">
               <button
-                onClick={() => {
-                  setIsAddingCollection(false);
-                  setNewCollection(createEmptyCollectionFormState());
-                  setNewCollectionActiveLang('ko');
-                  setSelectedSheetsForNewCollection([]);
-                  setCollectionSheetSearchTerm('');
-                  setCollectionArtistSearchTerm('');
-                  setSeriesKeyword('');
-                  setSelectedSeriesCollectionIds([]);
-                  setSeriesSheetMap({});
-                }}
+                onClick={resetCollectionFormState}
                 className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
               >
                 취소
               </button>
               <button
-                onClick={handleAddCollection}
+                onClick={handleSaveCollectionForm}
                 disabled={isAddingCollectionLoading}
                 className={`px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2 ${isAddingCollectionLoading ? 'opacity-50 cursor-not-allowed' : ''
                   }`}
@@ -10398,120 +10560,10 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
                     <span>처리 중...</span>
                   </>
                 ) : (
-                  <span>추가 ({selectedSheetsForNewCollection.length}개 악보)</span>
+                  <span>
+                    {editingCollection ? '수정 저장' : '추가'} ({selectedSheetsForNewCollection.length}개 악보)
+                  </span>
                 )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* 모음집 수정 모달 */}
-      {editingCollection && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">모음집 수정</h3>
-            <div className="space-y-4">
-              {renderCollectionKoreanEnglishEditor(
-                editingCollectionData,
-                (lang, field, value) => updateCollectionTranslation(setEditingCollectionData, lang, field, value)
-              )}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">카테고리 (중복 선택 가능)</label>
-                <div className="max-h-32 overflow-y-auto border border-gray-300 rounded-lg p-2 bg-gray-50">
-                  {categories.length === 0 ? (
-                    <p className="text-sm text-gray-500">카테고리가 없습니다.</p>
-                  ) : (
-                    <div className="space-y-2">
-                      {categories.map((category) => (
-                        <label key={category.id} className="flex items-center space-x-2 cursor-pointer hover:bg-white p-1 rounded">
-                          <input
-                            type="checkbox"
-                            checked={editingCollectionData.category_ids.includes(category.id)}
-                            onChange={(e) => {
-                              if (e.target.checked) {
-                                setEditingCollectionData({
-                                  ...editingCollectionData,
-                                  category_ids: [...editingCollectionData.category_ids, category.id]
-                                });
-                              } else {
-                                setEditingCollectionData({
-                                  ...editingCollectionData,
-                                  category_ids: editingCollectionData.category_ids.filter(id => id !== category.id)
-                                });
-                              }
-                            }}
-                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                          />
-                          <span className="text-sm text-gray-700">{category.name}</span>
-                        </label>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                {editingCollectionData.category_ids.length > 0 && (
-                  <p className="text-xs text-gray-500 mt-1">
-                    선택됨: {editingCollectionData.category_ids.length}개
-                  </p>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">썸네일 URL</label>
-                <input
-                  type="text"
-                  value={editingCollectionData.thumbnail_url}
-                  onChange={(e) => setEditingCollectionData({ ...editingCollectionData, thumbnail_url: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="https://..."
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">정가 (원)</label>
-                  <input
-                    type="number"
-                    value={editingCollectionData.original_price}
-                    onChange={(e) => setEditingCollectionData({ ...editingCollectionData, original_price: parseInt(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">할인가 (원)</label>
-                  <input
-                    type="number"
-                    value={editingCollectionData.sale_price}
-                    onChange={(e) => setEditingCollectionData({ ...editingCollectionData, sale_price: parseInt(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    checked={editingCollectionData.is_active}
-                    onChange={(e) => setEditingCollectionData({ ...editingCollectionData, is_active: e.target.checked })}
-                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  />
-                  <span className="text-sm font-medium text-gray-700">활성화</span>
-                </label>
-              </div>
-            </div>
-            <div className="flex justify-end space-x-3 mt-6">
-              <button
-                onClick={() => {
-                  setEditingCollection(null);
-                  setEditingCollectionActiveLang('ko');
-                }}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
-              >
-                취소
-              </button>
-              <button
-                onClick={handleUpdateCollection}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                수정
               </button>
             </div>
           </div>

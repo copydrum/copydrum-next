@@ -4,7 +4,7 @@ import { useLocaleRouter } from '@/hooks/useLocaleRouter';
 import { usePathname } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { removeLocaleFromPathname } from '@/lib/localeUrl';
-import { COLLECTIONS_PUBLIC_ENABLED } from '@/config/featureFlags';
+import { COLLECTIONS_PUBLIC_ENABLED, SHEET_BOOKS_PUBLIC_ENABLED } from '@/config/featureFlags';
 
 interface QuickNavItem {
   key: string;
@@ -35,7 +35,13 @@ export default function MobileQuickNav() {
         className="flex gap-2 px-3 py-2 overflow-x-auto mobile-quick-nav-scroll"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
       >
-        {quickNavItems.filter((item) => COLLECTIONS_PUBLIC_ENABLED || item.key !== 'collections').map((item) => {
+        {quickNavItems
+          .filter((item) => {
+            if (item.key === 'collections' && !COLLECTIONS_PUBLIC_ENABLED) return false;
+            if (item.key === 'sheetBooks' && !SHEET_BOOKS_PUBLIC_ENABLED) return false;
+            return true;
+          })
+          .map((item) => {
           const isActive =
             item.key === 'home'
               ? pathWithoutLocale === '/' || pathWithoutLocale === ''

@@ -9,7 +9,7 @@ import LanguageSelector from './LanguageSelector';
 import { useLocaleRouter } from '@/hooks/useLocaleRouter';
 import { getLocaleFromPathname, removeLocaleFromPathname } from '@/lib/localeUrl';
 import { useCart } from '../../hooks/useCart';
-import { COLLECTIONS_PUBLIC_ENABLED } from '@/config/featureFlags';
+import { COLLECTIONS_PUBLIC_ENABLED, SHEET_BOOKS_PUBLIC_ENABLED } from '@/config/featureFlags';
 
 interface MainHeaderProps {
   user?: User | null;
@@ -351,17 +351,19 @@ export default function MainHeader({ user }: MainHeaderProps) {
               {t('sidebar.nav.collections')}
             </button>
           )}
-          <button
-            onClick={() => router.push('/sheet-books')}
-            className={`font-semibold text-lg whitespace-nowrap cursor-pointer transition-all duration-200 ${
-              removeLocaleFromPathname(pathname).startsWith('/sheet-books')
-                ? 'text-purple-300 underline'
-                : 'text-white hover:text-purple-300 hover:underline'
-            }`}
-            suppressHydrationWarning
-          >
-            {t('sidebar.nav.sheetBooks')}
-          </button>
+          {SHEET_BOOKS_PUBLIC_ENABLED && (
+            <button
+              onClick={() => router.push('/sheet-books')}
+              className={`font-semibold text-lg whitespace-nowrap cursor-pointer transition-all duration-200 ${
+                removeLocaleFromPathname(pathname).startsWith('/sheet-books')
+                  ? 'text-purple-300 underline'
+                  : 'text-white hover:text-purple-300 hover:underline'
+              }`}
+              suppressHydrationWarning
+            >
+              {t('sidebar.nav.sheetBooks')}
+            </button>
+          )}
         </nav>
       </div>
     </div>

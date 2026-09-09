@@ -9,7 +9,7 @@ import type { Profile } from '../../lib/supabase';
 import { googleAuth } from '../../lib/google';
 import { getUserDisplayName } from '../../utils/userDisplayName';
 import { isKoreanSiteHost } from '../../config/hostType';
-import { COLLECTIONS_PUBLIC_ENABLED } from '@/config/featureFlags';
+import { COLLECTIONS_PUBLIC_ENABLED, SHEET_BOOKS_PUBLIC_ENABLED } from '@/config/featureFlags';
 
 interface Category {
   id: string;
@@ -100,9 +100,13 @@ export default function MobileMenuSidebar({
   }, [isOpen]);
   
   const menuItems = useMemo(() => {
-    let items = COLLECTIONS_PUBLIC_ENABLED
-      ? baseMenuItems
-      : baseMenuItems.filter((item) => item.href !== '/collections');
+    let items = baseMenuItems;
+    if (!COLLECTIONS_PUBLIC_ENABLED) {
+      items = items.filter((item) => item.href !== '/collections');
+    }
+    if (!SHEET_BOOKS_PUBLIC_ENABLED) {
+      items = items.filter((item) => item.href !== '/sheet-books');
+    }
     if (isKoreanSite) {
       return items.filter(item => item.labelKey !== 'nav.categories');
     }
