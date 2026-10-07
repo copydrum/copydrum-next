@@ -17,6 +17,9 @@ export default function GuestCheckoutModal() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [info, setInfo] = useState('');
+  const [existingEmail, setExistingEmail] = useState('');
+  const [setupMailSending, setSetupMailSending] = useState(false);
+  const [setupMailSent, setSetupMailSent] = useState(false);
 
   const isKo = i18n.language === 'ko';
   const text = {
@@ -35,6 +38,34 @@ export default function GuestCheckoutModal() {
       ? '게스트 결제 준비 중 오류가 발생했습니다. 다시 시도해 주세요.'
       : 'Something went wrong preparing guest checkout. Please try again.',
     cancel: isKo ? '닫기' : 'Close',
+    noPassword: isKo
+      ? '이전에 회원가입 없이 구매하셔서 비밀번호가 없으신가요?'
+      : 'Purchased before without signing up and have no password?',
+    sendSetupMail: isKo ? '비밀번호 설정 메일 받기' : 'Email me a password setup link',
+    setupMailSent: isKo
+      ? '비밀번호 설정 메일을 보냈습니다. 꼭 지금 사용 중인 이 기기(브라우저)에서 메일의 링크를 열어 주세요.'
+      : 'We sent a password setup email. Please open the link on this same device (browser).',
+  };
+
+  const handleSendSetupMail = async () => {
+    if (!existingEmail) return;
+    setSetupMailSending(true);
+    setError('');
+    try {
+      const redirectBase = window.location.origin || getSiteUrl();
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(existingEmail, {
+        redirectTo: `${redirectBase}/auth/reset-password`,
+      });
+      if (resetError) {
+        setError(text.failed);
+        return;
+      }
+      setSetupMailSent(true);
+    } catch {
+      setError(text.failed);
+    } finally {
+      setSetupMailSending(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -69,6 +100,8 @@ export default function GuestCheckoutModal() {
       }
       if (json.exists) {
         setInfo(text.exists);
+        setExistingEmail(normalized);
+        setSetupMailSent(false);
         return;
       }
 
@@ -189,6 +222,25 @@ export default function GuestCheckoutModal() {
             <a href={loginHref} className="font-semibold underline">
               {text.loginInstead}
             </a>
+            {existingEmail && (
+              <div className="mt-2 border-t border-blue-200 pt-2">
+                {setupMailSent ? (
+                  <p>{text.setupMailSent}</p>
+                ) : (
+                  <>
+                    <p className="mb-1">{text.noPassword}</p>
+                    <button
+                      type="button"
+                      onClick={handleSendSetupMail}
+                      disabled={setupMailSending}
+                      className="font-semibold underline disabled:opacity-60"
+                    >
+                      {setupMailSending ? <i className="ri-loader-4-line animate-spin" /> : text.sendSetupMail}
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
           </div>
         )}
         {error && (

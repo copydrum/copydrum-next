@@ -17,10 +17,28 @@ export default function ResetPassword() {
   const [success, setSuccess] = useState('');
   const [isValidToken, setIsValidToken] = useState(false);
   const [checkingToken, setCheckingToken] = useState(true);
+  const [openedOnOtherDevice, setOpenedOnOtherDevice] = useState(false);
 
   useEffect(() => {
     const checkSession = async () => {
       try {
+        // 메일 템플릿이 token_hash 링크를 쓰는 경우: 기기와 무관하게 여기서 직접 검증한다.
+        const params = new URLSearchParams(window.location.search);
+        const tokenHash = params.get('token_hash');
+        if (tokenHash && params.get('type') === 'recovery') {
+          const { error: otpError } = await supabase.auth.verifyOtp({
+            token_hash: tokenHash,
+            type: 'recovery',
+          });
+          window.history.replaceState(window.history.state, '', window.location.pathname);
+          if (otpError) {
+            console.error(t('authResetPassword.console.sessionError'), otpError);
+            setError(t('authResetPassword.errors.invalidLink'));
+            setIsValidToken(false);
+            return;
+          }
+        }
+
         // Supabase 클라이언트가 URL 해시에서 토큰을 읽어 세션을 저장해두었다면
         // 여기서 바로 확인할 수 있음
         const { data, error } = await supabase.auth.getSession();
@@ -41,6 +59,12 @@ export default function ResetPassword() {
         if (data.session) {
           // 세션이 있다는 것은: 방금 전 recovery 링크를 통해 로그인된 상태
           setIsValidToken(true);
+        } else if (new URLSearchParams(window.location.search).has('code')) {
+          // ?code= 링크는 재설정을 요청한 브라우저에서만 교환할 수 있다(PKCE).
+          // 교환에 실패하면 code 가 URL 에 그대로 남는다.
+          setOpenedOnOtherDevice(true);
+          setError(t('authResetPassword.errors.openedOnOtherDevice'));
+          setIsValidToken(false);
         } else {
           // 세션이 없으면: 만료되었거나 이미 사용된 링크, 혹은 직접 URL을 친 경우
           setError(t('authResetPassword.errors.invalidLink'));
@@ -78,7 +102,8 @@ export default function ResetPassword() {
 
     try {
       const { data: updatedUserResponse, error: updateError } = await supabase.auth.updateUser({
-        password: password
+        password: password,
+        data: { password_set: true },
       });
 
       if (updateError) {
@@ -106,9 +131,9 @@ export default function ResetPassword() {
 
       setSuccess(t('authResetPassword.messages.passwordChanged'));
       
-      // 3초 후 로그인 페이지로 이동
+      // 재설정 링크로 이미 로그인된 상태이므로 로그인 페이지 대신 구매 내역으로 보낸다.
       setTimeout(() => {
-        router.push('/login');
+        router.push('/mypage?tab=purchases');
       }, 3000);
     } catch (err: any) {
       console.error(t('authResetPassword.console.passwordChangeError'), err);
@@ -227,9 +252,11 @@ export default function ResetPassword() {
                 )}
                 
                 <div className="space-y-4">
-                  <p className="text-gray-600 text-sm">
-                    {t('authResetPassword.messages.linkExpired')}
-                  </p>
+                  {!openedOnOtherDevice && (
+                    <p className="text-gray-600 text-sm">
+                      {t('authResetPassword.messages.linkExpired')}
+                    </p>
+                  )}
                   
                   <button
                     onClick={handleRequestNewLink}

@@ -53,6 +53,9 @@ export default function Login() {
   const [info, setInfo] = useState('');
   const [guestEmail, setGuestEmail] = useState('');
   const [guestLoading, setGuestLoading] = useState(false);
+  const [showPasswordSetupHint, setShowPasswordSetupHint] = useState(false);
+  const [setupMailSending, setSetupMailSending] = useState(false);
+  const [setupMailSent, setSetupMailSent] = useState(false);
 
   const isKo = i18n.language === 'ko';
   const guestText = {
@@ -69,6 +72,43 @@ export default function Login() {
     failed: isKo
       ? '게스트 결제 준비 중 오류가 발생했습니다. 다시 시도해 주세요.'
       : 'Something went wrong preparing guest checkout. Please try again.',
+  };
+
+  const passwordSetupText = {
+    hint: isKo
+      ? '회원가입 없이 구매하셨거나 Google·카카오로 가입하셨다면 아직 비밀번호가 없을 수 있습니다. 입력하신 이메일로 비밀번호 설정 메일을 받아 보세요.'
+      : 'If you purchased without signing up or joined with Google/Kakao, you may not have a password yet. Get a password setup email sent to the address you entered.',
+    button: isKo ? '비밀번호 설정 메일 받기' : 'Email me a password setup link',
+    emailRequired: isKo ? '이메일을 먼저 입력해 주세요.' : 'Please enter your email first.',
+    sent: isKo
+      ? '비밀번호 설정 메일을 보냈습니다. 꼭 지금 사용 중인 이 기기(브라우저)에서 메일의 링크를 열어 주세요.'
+      : 'We sent a password setup email. Please open the link on this same device (browser).',
+    failed: isKo ? '메일 발송에 실패했습니다. 잠시 후 다시 시도해 주세요.' : 'Failed to send the email. Please try again later.',
+  };
+
+  const handleSendPasswordSetupMail = async () => {
+    const normalized = email.trim().toLowerCase();
+    if (!normalized) {
+      setError(passwordSetupText.emailRequired);
+      return;
+    }
+    setSetupMailSending(true);
+    try {
+      const redirectBase = window.location.origin || getSiteUrl();
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(normalized, {
+        redirectTo: `${redirectBase}/auth/reset-password`,
+      });
+      if (resetError) {
+        setError(passwordSetupText.failed);
+        return;
+      }
+      setError('');
+      setSetupMailSent(true);
+    } catch {
+      setError(passwordSetupText.failed);
+    } finally {
+      setSetupMailSending(false);
+    }
   };
 
   const handleGuestCheckout = async () => {
@@ -94,6 +134,8 @@ export default function Login() {
       if (json.exists) {
         setEmail(normalized);
         setInfo(guestText.exists);
+        setShowPasswordSetupHint(true);
+        setSetupMailSent(false);
         return;
       }
       let otpErr = (
@@ -359,6 +401,8 @@ export default function Login() {
         }
 
         setError(t('authLogin.errors.invalidCredentials'));
+        setShowPasswordSetupHint(true);
+        setSetupMailSent(false);
       } else if (err.message.includes('Email not confirmed')) {
         setError(t('authLogin.errors.emailNotConfirmed'));
       } else {
@@ -403,6 +447,30 @@ export default function Login() {
                 {error && (
                   <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm">
                     {error}
+                  </div>
+                )}
+
+                {showPasswordSetupHint && (
+                  <div className="bg-amber-50 border border-amber-200 text-amber-900 px-4 py-3 rounded-md text-sm">
+                    {setupMailSent ? (
+                      <p>{passwordSetupText.sent}</p>
+                    ) : (
+                      <>
+                        <p className="mb-2">{passwordSetupText.hint}</p>
+                        <button
+                          type="button"
+                          onClick={handleSendPasswordSetupMail}
+                          disabled={setupMailSending}
+                          className="font-semibold underline disabled:opacity-60 cursor-pointer"
+                        >
+                          {setupMailSending ? (
+                            <i className="ri-loader-4-line animate-spin"></i>
+                          ) : (
+                            passwordSetupText.button
+                          )}
+                        </button>
+                      </>
+                    )}
                   </div>
                 )}
 

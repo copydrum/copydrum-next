@@ -8,6 +8,7 @@ import { useSearchParams } from 'next/navigation';
 import type { AuthChangeEvent, Session, User } from '@supabase/supabase-js';
 import { supabase } from '../../lib/supabase';
 import MainHeader from '../../components/common/MainHeader';
+import PasswordSettingsCard from '../../components/account/PasswordSettingsCard';
 import { useCart } from '../../hooks/useCart';
 import type { FavoriteSheet } from '../../lib/favorites';
 import { fetchUserFavorites, removeFavorite } from '../../lib/favorites';
@@ -1298,6 +1299,10 @@ export default function MyPage() {
                           </button>
                         </div>
                       </form>
+
+                      <div className="mt-8 pt-8 border-t border-gray-200">
+                        <PasswordSettingsCard />
+                      </div>
 
                       {/* 회원탈퇴 섹션 */}
                       <div className="mt-8 pt-8 border-t border-gray-200">

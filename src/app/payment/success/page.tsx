@@ -13,6 +13,7 @@ import {
   downloadFile,
 } from '@/utils/downloadHelpers';
 import { generateDefaultThumbnail } from '@/lib/defaultThumbnail';
+import PasswordSettingsCard from '@/components/account/PasswordSettingsCard';
 
 // 결제 PENDING 폴링 설정
 // PortOne 결제는 결제 직후 PG 상태가 잠시 PAY_PENDING/READY일 수 있고
@@ -521,6 +522,15 @@ export default function PaymentSuccessPage() {
     order.status !== 'completed' &&
     order.payment_status !== 'paid';
 
+  // 비회원 구매 계정은 비밀번호를 모르는 상태라 다른 기기에서 로그인할 수 없다.
+  // 저장 직후 password_set 이 반영되어도 완료 안내가 보이도록 한 번 켜지면 유지한다.
+  const [needsGuestPassword, setNeedsGuestPassword] = useState(false);
+  useEffect(() => {
+    if (user?.user_metadata?.guest_signup && !user?.user_metadata?.password_set) {
+      setNeedsGuestPassword(true);
+    }
+  }, [user]);
+
   // ========== Render ==========
   if (loading) {
     return (
@@ -670,6 +680,12 @@ export default function PaymentSuccessPage() {
             </div>
           )}
         </div>
+
+        {needsGuestPassword && (
+          <div className="mb-6">
+            <PasswordSettingsCard variant="guest" email={user?.email} />
+          </div>
+        )}
 
         {/* 주문 상품 및 다운로드 */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
