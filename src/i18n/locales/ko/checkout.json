@@ -78,6 +78,16 @@
       "cancelled": "결제를 취소했어요.",
       "delayed": "결제는 완료됐지만 충전 확인이 늦어지고 있어요. 잠시 후 마이페이지에서 잔액을 확인해 주세요. 계속 반영되지 않으면 고객센터로 문의해 주세요.",
       "failed": "결제가 완료되지 않았어요. 다시 시도해 주세요."
+    },
+    "entry": {
+      "label": "캐쉬",
+      "charge": "충전",
+      "chargeCash": "캐쉬충전",
+      "bonusBadge": "최대 +{{percent}}%",
+      "bonusShort": "+{{percent}}%",
+      "bonusUpTo": "충전하면 최대 {{percent}}% 보너스",
+      "myBalance": "내 캐쉬",
+      "chargeNow": "충전하기"
     }
   },
   "rewardPoints": {

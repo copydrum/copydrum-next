@@ -93,6 +93,16 @@
       "cancelled": "Paiement annulé.",
       "delayed": "Votre paiement a bien été effectué, mais l'ajout des crédits prend plus de temps que d'habitude. Vérifiez votre solde dans Ma Page d'ici quelques minutes et contactez le support s'il n'apparaît pas.",
       "failed": "Le paiement n'a pas abouti. Veuillez réessayer."
+    },
+    "entry": {
+      "label": "Crédits",
+      "charge": "Recharger",
+      "chargeCash": "Recharger des crédits",
+      "bonusBadge": "Jusqu'à +{{percent}}%",
+      "bonusShort": "+{{percent}}%",
+      "bonusUpTo": "Jusqu'à {{percent}}% de bonus à chaque recharge",
+      "myBalance": "Mes crédits",
+      "chargeNow": "Recharger"
     }
   },
   "rewardPoints": {

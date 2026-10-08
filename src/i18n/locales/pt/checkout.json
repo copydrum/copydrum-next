@@ -93,6 +93,16 @@
       "cancelled": "Pagamento cancelado.",
       "delayed": "Seu pagamento foi concluído, mas a adição dos créditos está demorando mais que o normal. Verifique seu saldo em Minha Página em instantes e fale com o suporte se ele não aparecer.",
       "failed": "O pagamento não foi concluído. Tente novamente."
+    },
+    "entry": {
+      "label": "Créditos",
+      "charge": "Recarregar",
+      "chargeCash": "Recarregar créditos",
+      "bonusBadge": "Até +{{percent}}%",
+      "bonusShort": "+{{percent}}%",
+      "bonusUpTo": "Até {{percent}}% de bônus ao recarregar",
+      "myBalance": "Meus créditos",
+      "chargeNow": "Recarregar"
     }
   },
   "rewardPoints": {

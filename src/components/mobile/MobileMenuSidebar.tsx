@@ -10,6 +10,7 @@ import { googleAuth } from '../../lib/google';
 import { getUserDisplayName } from '../../utils/userDisplayName';
 import { isKoreanSiteHost } from '../../config/hostType';
 import { COLLECTIONS_PUBLIC_ENABLED, SHEET_BOOKS_PUBLIC_ENABLED } from '@/config/featureFlags';
+import { CashChargeMenuCard } from '../cash/CashChargeEntry';
 
 interface Category {
   id: string;
@@ -284,6 +285,8 @@ export default function MobileMenuSidebar({
             <i className="ri-close-line text-xl" />
           </button>
         </div>
+
+        <CashChargeMenuCard user={user} onBeforeOpen={onClose} />
 
         <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-2">
           {/* 장르 리스트 */}

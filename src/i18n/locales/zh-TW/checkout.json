@@ -93,6 +93,16 @@
       "cancelled": "付款已取消。",
       "delayed": "付款已成功，但儲值金入帳比平常慢。請稍後到「我的頁面」查看餘額，若仍未入帳請聯絡客服。",
       "failed": "付款未完成，請再試一次。"
+    },
+    "entry": {
+      "label": "儲值金",
+      "charge": "儲值",
+      "chargeCash": "立即儲值",
+      "bonusBadge": "最高+{{percent}}%",
+      "bonusShort": "+{{percent}}%",
+      "bonusUpTo": "儲值最高加贈{{percent}}%",
+      "myBalance": "我的儲值金",
+      "chargeNow": "立即儲值"
     }
   },
   "rewardPoints": {

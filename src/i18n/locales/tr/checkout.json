@@ -93,6 +93,16 @@
       "cancelled": "Ödeme iptal edildi.",
       "delayed": "Ödemen alındı ancak bakiyenin eklenmesi normalden uzun sürüyor. Biraz sonra Sayfam'dan bakiyeni kontrol et; görünmezse destek ekibiyle iletişime geç.",
       "failed": "Ödeme tamamlanmadı. Lütfen tekrar dene."
+    },
+    "entry": {
+      "label": "Bakiye",
+      "charge": "Yükle",
+      "chargeCash": "Bakiye yükle",
+      "bonusBadge": "En fazla +%{{percent}}",
+      "bonusShort": "+%{{percent}}",
+      "bonusUpTo": "Yüklemelerde en fazla %{{percent}} bonus",
+      "myBalance": "Bakiyem",
+      "chargeNow": "Bakiye yükle"
     }
   },
   "rewardPoints": {

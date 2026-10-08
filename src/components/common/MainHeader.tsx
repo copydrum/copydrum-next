@@ -10,6 +10,7 @@ import { useLocaleRouter } from '@/hooks/useLocaleRouter';
 import { getLocaleFromPathname, removeLocaleFromPathname } from '@/lib/localeUrl';
 import { useCart } from '../../hooks/useCart';
 import { COLLECTIONS_PUBLIC_ENABLED, SHEET_BOOKS_PUBLIC_ENABLED } from '@/config/featureFlags';
+import { CashChargeHeaderButton } from '@/components/cash/CashChargeEntry';
 
 interface MainHeaderProps {
   user?: User | null;
@@ -177,6 +178,7 @@ export default function MainHeader({ user }: MainHeaderProps) {
         <div className="flex justify-end items-center gap-3" suppressHydrationWarning>
           {/* User Action Buttons */}
           <div className="flex items-center gap-2" suppressHydrationWarning>
+            <CashChargeHeaderButton user={user} />
             {user ? (
               <>
                 <button

@@ -8,6 +8,7 @@ import LanguageSelector from '../common/LanguageSelector';
 import { isGlobalSiteHost } from '../../config/hostType';
 import { useCart } from '../../hooks/useCart';
 import { getLanguageFromPath } from '../../i18n/languages';
+import { CashChargeMobileHeaderButton } from '../cash/CashChargeEntry';
 
 interface MobileHeaderProps {
   user?: User | null;
@@ -107,6 +108,7 @@ export default function MobileHeader({
 
         {/* 우측: 장바구니 / 마이페이지 아이콘 */}
         <div className="flex items-center gap-2" suppressHydrationWarning>
+          <CashChargeMobileHeaderButton user={user} />
           <button
             type="button"
             onClick={() => router.push('/cart')}

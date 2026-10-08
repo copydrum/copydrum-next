@@ -93,6 +93,16 @@
       "cancelled": "Zahlung abgebrochen.",
       "delayed": "Ihre Zahlung war erfolgreich, aber die Gutschrift dauert länger als üblich. Bitte prüfen Sie Ihr Guthaben in Kürze unter „Meine Seite“ und kontaktieren Sie den Support, falls es nicht erscheint.",
       "failed": "Die Zahlung wurde nicht abgeschlossen. Bitte versuchen Sie es erneut."
+    },
+    "entry": {
+      "label": "Guthaben",
+      "charge": "Aufladen",
+      "chargeCash": "Guthaben aufladen",
+      "bonusBadge": "Bis zu +{{percent}}%",
+      "bonusShort": "+{{percent}}%",
+      "bonusUpTo": "Bis zu {{percent}}% Bonus beim Aufladen",
+      "myBalance": "Mein Guthaben",
+      "chargeNow": "Aufladen"
     }
   },
   "rewardPoints": {

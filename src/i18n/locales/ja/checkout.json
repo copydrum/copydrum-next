@@ -93,6 +93,16 @@
       "cancelled": "お支払いがキャンセルされました。",
       "delayed": "お支払いは完了しましたが、チャージの反映に通常より時間がかかっています。しばらくしてからマイページで残高をご確認ください。反映されない場合はサポートまでお問い合わせください。",
       "failed": "お支払いが完了しませんでした。もう一度お試しください。"
+    },
+    "entry": {
+      "label": "キャッシュ",
+      "charge": "チャージ",
+      "chargeCash": "キャッシュチャージ",
+      "bonusBadge": "最大+{{percent}}%",
+      "bonusShort": "+{{percent}}%",
+      "bonusUpTo": "チャージで最大{{percent}}%ボーナス",
+      "myBalance": "マイキャッシュ",
+      "chargeNow": "チャージする"
     }
   },
   "rewardPoints": {

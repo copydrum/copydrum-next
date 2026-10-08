@@ -78,6 +78,16 @@
       "cancelled": "Payment cancelled.",
       "delayed": "Your payment went through, but adding Credits is taking longer than usual. Please check your balance in My Page shortly, and contact support if it doesn't appear.",
       "failed": "The payment wasn't completed. Please try again."
+    },
+    "entry": {
+      "label": "Credits",
+      "charge": "Add",
+      "chargeCash": "Add Credits",
+      "bonusBadge": "Up to +{{percent}}%",
+      "bonusShort": "+{{percent}}%",
+      "bonusUpTo": "Get up to {{percent}}% bonus when you add credits",
+      "myBalance": "My Credits",
+      "chargeNow": "Add Credits"
     }
   },
   "rewardPoints": {

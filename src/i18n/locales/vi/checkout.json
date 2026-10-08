@@ -93,6 +93,16 @@
       "cancelled": "Đã hủy thanh toán.",
       "delayed": "Thanh toán đã thành công nhưng việc cộng số dư đang chậm hơn bình thường. Vui lòng kiểm tra số dư trong Trang của tôi sau ít phút và liên hệ hỗ trợ nếu chưa thấy.",
       "failed": "Thanh toán chưa hoàn tất. Vui lòng thử lại."
+    },
+    "entry": {
+      "label": "Số dư",
+      "charge": "Nạp",
+      "chargeCash": "Nạp tiền",
+      "bonusBadge": "Đến +{{percent}}%",
+      "bonusShort": "+{{percent}}%",
+      "bonusUpTo": "Thưởng đến {{percent}}% khi nạp tiền",
+      "myBalance": "Số dư của tôi",
+      "chargeNow": "Nạp tiền"
     }
   },
   "rewardPoints": {

@@ -18,6 +18,50 @@ export const openCashChargeModal = (options: CashChargeModalOptions = {}) => {
   window.dispatchEvent(new CustomEvent<CashChargeModalOptions>(CASH_CHARGE_MODAL_EVENT, { detail: options }));
 };
 
+const CASH_BALANCE_EVENT = 'copydrum:cash-balance-changed';
+
+export const notifyCashBalanceChanged = (balance: number) => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+  window.dispatchEvent(new CustomEvent<number>(CASH_BALANCE_EVENT, { detail: balance }));
+};
+
+export const subscribeCashBalanceChanged = (handler: (balance: number) => void) => {
+  if (typeof window === 'undefined') {
+    return () => undefined;
+  }
+
+  const listener = (event: Event) => handler((event as CustomEvent<number>).detail);
+  window.addEventListener(CASH_BALANCE_EVENT, listener);
+  return () => {
+    window.removeEventListener(CASH_BALANCE_EVENT, listener);
+  };
+};
+
+/** 로그인하지 않은 사용자가 충전을 누르면 표시해 두고, 로그인 후 충전 창을 연다 (소셜 로그인 리디렉션 포함) */
+const CHARGE_AFTER_LOGIN_KEY = 'copydrum:cash-charge-after-login';
+const CHARGE_AFTER_LOGIN_TTL_MS = 30 * 60 * 1000;
+
+export const markCashChargeAfterLogin = () => {
+  try {
+    sessionStorage.setItem(CHARGE_AFTER_LOGIN_KEY, String(Date.now()));
+  } catch {
+    // sessionStorage 를 쓸 수 없으면 로그인 후 자동으로 열지 않는다
+  }
+};
+
+export const consumeCashChargeAfterLogin = (): boolean => {
+  try {
+    const markedAt = Number(sessionStorage.getItem(CHARGE_AFTER_LOGIN_KEY));
+    if (!markedAt) return false;
+    sessionStorage.removeItem(CHARGE_AFTER_LOGIN_KEY);
+    return Date.now() - markedAt < CHARGE_AFTER_LOGIN_TTL_MS;
+  } catch {
+    return false;
+  }
+};
+
 export const subscribeCashChargeModal = (handler: (options: CashChargeModalOptions) => void) => {
   if (typeof window === 'undefined') {
     return () => undefined;

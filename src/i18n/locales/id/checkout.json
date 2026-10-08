@@ -93,6 +93,16 @@
       "cancelled": "Pembayaran dibatalkan.",
       "delayed": "Pembayaran Anda berhasil, tetapi penambahan saldo memakan waktu lebih lama dari biasanya. Silakan cek saldo di Halaman Saya sebentar lagi dan hubungi dukungan jika belum muncul.",
       "failed": "Pembayaran tidak selesai. Silakan coba lagi."
+    },
+    "entry": {
+      "label": "Saldo",
+      "charge": "Isi",
+      "chargeCash": "Isi saldo",
+      "bonusBadge": "Hingga +{{percent}}%",
+      "bonusShort": "+{{percent}}%",
+      "bonusUpTo": "Bonus hingga {{percent}}% setiap isi saldo",
+      "myBalance": "Saldo saya",
+      "chargeNow": "Isi saldo"
     }
   },
   "rewardPoints": {

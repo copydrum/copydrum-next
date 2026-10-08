@@ -3,7 +3,14 @@
 import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useTranslation } from 'react-i18next';
-import { subscribeCashChargeModal, type CashChargeModalOptions } from '@/lib/cashChargeModal';
+import { useAuthStore } from '@/stores/authStore';
+import {
+  consumeCashChargeAfterLogin,
+  notifyCashBalanceChanged,
+  openCashChargeModal,
+  subscribeCashChargeModal,
+  type CashChargeModalOptions,
+} from '@/lib/cashChargeModal';
 
 const CashChargePanel = dynamic(() => import('./CashChargePanel'), { ssr: false });
 
@@ -12,7 +19,15 @@ export default function CashChargeModalHost() {
   const { t } = useTranslation();
   const [options, setOptions] = useState<CashChargeModalOptions | null>(null);
 
+  const userId = useAuthStore((state) => state.user?.id);
+
   useEffect(() => subscribeCashChargeModal((next) => setOptions(next)), []);
+
+  useEffect(() => {
+    if (userId && consumeCashChargeAfterLogin()) {
+      openCashChargeModal();
+    }
+  }, [userId]);
 
   useEffect(() => {
     if (!options) return;
@@ -53,6 +68,7 @@ export default function CashChargeModalHost() {
             returnTo={options.returnTo}
             onClose={close}
             onCharged={(balance) => {
+              notifyCashBalanceChanged(balance);
               if (options.closeOnCharged) close();
               options.onCharged?.(balance);
             }}

@@ -52,6 +52,9 @@ export const getCashChargeMethods = (region: CashChargeRegion): readonly CashCha
 export const findCashChargePackage = (region: CashChargeRegion, amountKrw: number): CashChargePackage | null =>
   CASH_CHARGE_PACKAGES[region].find((pkg) => pkg.amount === Math.round(amountKrw)) ?? null;
 
+export const getMaxBonusPercent = (region: CashChargeRegion): number =>
+  Math.max(...CASH_CHARGE_PACKAGES[region].map((pkg) => Math.round((pkg.bonus / pkg.amount) * 100)));
+
 /** 부족한 금액을 덮는 가장 작은 상품. 모두 부족하면 가장 큰 상품. */
 export const pickPackageForShortfall = (region: CashChargeRegion, shortfallKrw: number): CashChargePackage => {
   const packages = CASH_CHARGE_PACKAGES[region];

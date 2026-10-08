@@ -93,6 +93,16 @@
       "cancelled": "Pagamento annullato.",
       "delayed": "Il pagamento è andato a buon fine, ma l'accredito sta richiedendo più tempo del solito. Controlla il saldo in Mia pagina tra poco e contatta l'assistenza se non compare.",
       "failed": "Il pagamento non è stato completato. Riprova."
+    },
+    "entry": {
+      "label": "Crediti",
+      "charge": "Ricarica",
+      "chargeCash": "Ricarica crediti",
+      "bonusBadge": "Fino a +{{percent}}%",
+      "bonusShort": "+{{percent}}%",
+      "bonusUpTo": "Fino al {{percent}}% di bonus a ogni ricarica",
+      "myBalance": "I miei crediti",
+      "chargeNow": "Ricarica"
     }
   },
   "rewardPoints": {

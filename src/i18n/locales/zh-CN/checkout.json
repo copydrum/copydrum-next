@@ -93,6 +93,16 @@
       "cancelled": "支付已取消。",
       "delayed": "支付已成功，但余额到账比平时慢。请稍后在“我的页面”查看余额，如仍未到账请联系客服。",
       "failed": "支付未完成，请重试。"
+    },
+    "entry": {
+      "label": "余额",
+      "charge": "充值",
+      "chargeCash": "余额充值",
+      "bonusBadge": "最高+{{percent}}%",
+      "bonusShort": "+{{percent}}%",
+      "bonusUpTo": "充值最高赠送{{percent}}%",
+      "myBalance": "我的余额",
+      "chargeNow": "立即充值"
     }
   },
   "rewardPoints": {
