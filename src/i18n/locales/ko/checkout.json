@@ -34,6 +34,10 @@
     "insufficient": "보유 포인트가 부족합니다. 새로고침 후 다시 시도해 주세요.",
     "notice": "포인트는 1P = 1원으로 사용되며, 남은 금액은 아래 결제수단으로 결제됩니다."
   },
+  "membership": {
+    "toNext": "{{amount}}원 더 구매하면 {{tier}} 등급 (적립 {{rate}}%)",
+    "upgradeNow": "이번 결제로 {{tier}} 등급이 됩니다! 다음 구매부터 {{rate}}% 적립"
+  },
   "enterCardDetails": "카드 정보 입력",
   "cardNumber": "카드 번호",
   "expiryDate": "유효기간",

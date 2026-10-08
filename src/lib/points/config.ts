@@ -2,6 +2,7 @@
  * 적립 포인트 정책 (DB 함수 points_earn_rate / points_signup_bonus 와 값을 맞춘다)
  * 캐쉬(profiles.credits)와 별개의 잔액이며, 결제 시 포인트를 먼저 차감한다.
  */
+/** 루키 등급 적립률. 실제 적립률은 등급별 (membership_tiers.earn_rate) */
 export const POINT_EARN_RATE = 0.03;
 export const POINT_SIGNUP_BONUS = 1000;
 export const POINT_VALID_DAYS = 365;

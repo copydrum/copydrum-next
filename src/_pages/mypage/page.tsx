@@ -21,6 +21,8 @@ import { getUserDisplayName } from '../../utils/userDisplayName';
 import { useUserCredits } from '../../hooks/useUserCredits';
 import { useRewardPoints } from '../../hooks/useRewardPoints';
 import PointsPanel from '../../components/points/PointsPanel';
+import { useMembership } from '../../hooks/useMembership';
+import MembershipCard from '../../components/membership/MembershipCard';
 import { isKoreanSiteHost } from '../../config/hostType';
 
 import type { VirtualAccountInfo } from '../../lib/payments';
@@ -127,6 +129,7 @@ export default function MyPage() {
   const isKoreanSite = isKoreanSiteHost(hostname);
   const { credits, isLoading: creditsLoading } = useUserCredits(user);
   const rewardPoints = useRewardPoints(isKoreanSite ? user?.id : null);
+  const { membership } = useMembership(isKoreanSite ? user?.id : null);
 
   const formatCurrency = useCallback(
     (value: number) => {
@@ -1214,6 +1217,8 @@ export default function MyPage() {
                     </div>
                   )}
                 </div>
+
+                {isKoreanSite && membership && <MembershipCard membership={membership} />}
 
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 xl:grid-cols-4">
                   {stats.map((item) => {

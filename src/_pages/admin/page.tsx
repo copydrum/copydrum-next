@@ -21,6 +21,7 @@ import RichTextEditor from '../../components/admin/RichTextEditor';
 import DashboardTab from '../../components/admin/DashboardTab';
 import ChatInbox from '../../components/admin/ChatInbox';
 import ChatSettingsPanel from '../../components/admin/ChatSettingsPanel';
+import LegacyLookupModal from '../../components/admin/LegacyLookupModal';
 import {
   type DashboardAnalyticsPeriod,
   type DashboardAnalyticsResult,
@@ -1286,6 +1287,8 @@ const AdminPage: React.FC = () => {
   const [members, setMembers] = useState<Profile[]>([]);
   const [memberSearchTerm, setMemberSearchTerm] = useState('');
   const [isAddingMember, setIsAddingMember] = useState(false);
+  // 이전 사이트 내역 조회 모달 (null 이면 닫힘)
+  const [legacyLookupQuery, setLegacyLookupQuery] = useState<string | null>(null);
   const [memberCurrentPage, setMemberCurrentPage] = useState(1);
   const [memberItemsPerPage] = useState(20);
   const [newMember, setNewMember] = useState({
@@ -7675,6 +7678,13 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
         <h2 className="text-2xl font-bold text-gray-900">회원 관리</h2>
         <div className="flex space-x-3">
           <button
+            onClick={() => setLegacyLookupQuery('')}
+            className="bg-amber-500 text-white px-4 py-2 rounded-lg hover:bg-amber-600 transition-colors flex items-center space-x-2"
+          >
+            <i className="ri-history-line w-4 h-4"></i>
+            <span>이전 사이트 조회</span>
+          </button>
+          <button
             onClick={() => setIsAddingMember(true)}
             className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
           >
@@ -7797,6 +7807,14 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
                       <td className="px-3 md:px-6 py-3 md:py-4 text-xs md:text-sm font-medium">
                         <div className="flex space-x-1 md:space-x-2">
                           <button
+                            onClick={() => setLegacyLookupQuery(member.email || member.name || '')}
+                            className="text-amber-600 hover:text-amber-800 p-1.5 md:p-0"
+                            aria-label="이전 사이트 내역"
+                            title="이전 사이트 내역"
+                          >
+                            <i className="ri-history-line w-4 h-4 md:w-4 md:h-4"></i>
+                          </button>
+                          <button
                             onClick={() => handleDeleteMember(member.id)}
                             className="text-red-600 hover:text-red-900 p-1.5 md:p-0"
                             aria-label="회원 삭제"
@@ -7877,6 +7895,14 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
           </div>
         )}
       </div>
+
+      {legacyLookupQuery !== null && (
+        <LegacyLookupModal
+          key={legacyLookupQuery}
+          initialQuery={legacyLookupQuery}
+          onClose={() => setLegacyLookupQuery(null)}
+        />
+      )}
 
       {/* CSV 업로드 모달 */}
       {showMemberBulkModal && (

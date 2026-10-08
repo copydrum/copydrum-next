@@ -58,6 +58,18 @@
       "admin_deduct": "차감"
     }
   },
+  "membership": {
+    "tier": {
+      "rookie": "루키",
+      "session": "세션",
+      "master": "마스터"
+    },
+    "earnRate": "구매 적립 {{rate}}%",
+    "lifetimeSpend": "누적 구매 {{amount}}원",
+    "toNext": "{{amount}}원 더 구매하면 {{tier}} 등급이 되어 {{rate}}%가 적립됩니다.",
+    "top": "최고 등급입니다. 항상 감사합니다!",
+    "rule": "등급은 이전 사이트를 포함한 누적 구매 금액으로 정해지며, 한 번 올라간 등급은 내려가지 않습니다. (루키 3% · 세션 3만원 이상 5% · 마스터 10만원 이상 7%)"
+  },
   "stats": {
     "purchasedSheets": "구매한 악보",
     "availableDownloads": "다운로드 가능",

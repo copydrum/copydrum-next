@@ -4,7 +4,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatCurrency, getSiteCurrency, convertFromKrw } from '@/lib/currency';
 import { supabase } from '@/lib/supabase';
-import { calcEarnPoints } from '@/lib/points/config';
+import { calcEarnPoints, POINT_EARN_RATE } from '@/lib/points/config';
+import { useMembership } from '@/hooks/useMembership';
+import { ratePercent } from '@/lib/membership';
 import CardPaymentButton from './CardPaymentButton';
 import PayPalPaymentButton from './PayPalPaymentButton';
 import LemonSqueezyButton from './LemonSqueezyButton';
@@ -109,7 +111,10 @@ export default function OnePageCheckout({
   const pointsToUse = Math.min(Math.max(0, Math.floor(pointsInput) || 0), maxUsablePoints);
   const payableAmount = totalAmount - pointsToUse;
   const coveredByPoints = isKoreanCheckout && totalAmount > 0 && payableAmount === 0;
-  const earnPreview = calcEarnPoints(payableAmount);
+  const { membership } = useMembership(isKoreanCheckout ? userId : null);
+  const earnPreview = calcEarnPoints(payableAmount, membership?.earn_rate ?? POINT_EARN_RATE);
+  const remainingToNextTier = membership?.next_tier ? membership.remaining : null;
+  const upgradesWithThisOrder = remainingToNextTier !== null && payableAmount >= remainingToNextTier;
   const formattedPayable = formatCurrency(convertFromKrw(payableAmount, currency, i18n.language), currency);
   const hasCash = userCash > 0;
 
@@ -294,6 +299,20 @@ export default function OnePageCheckout({
                 {isKoreanCheckout && earnPreview > 0 && (
                   <p className="mt-2 text-xs text-emerald-700">
                     {t('checkout.rewardPoints.earnPreview', { points: earnPreview.toLocaleString('ko-KR') })}
+                  </p>
+                )}
+                {isKoreanCheckout && membership?.next_tier && remainingToNextTier !== null && (
+                  <p className="mt-1 text-xs text-violet-700">
+                    {upgradesWithThisOrder
+                      ? t('checkout.membership.upgradeNow', {
+                          tier: t(`mypage.membership.tier.${membership.next_tier}`),
+                          rate: ratePercent(membership.next_earn_rate),
+                        })
+                      : t('checkout.membership.toNext', {
+                          tier: t(`mypage.membership.tier.${membership.next_tier}`),
+                          amount: remainingToNextTier.toLocaleString('ko-KR'),
+                          rate: ratePercent(membership.next_earn_rate),
+                        })}
                   </p>
                 )}
               </div>

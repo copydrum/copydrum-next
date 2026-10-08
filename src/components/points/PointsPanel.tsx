@@ -2,7 +2,9 @@
 
 import { useTranslation } from 'react-i18next';
 import { useRewardPoints, type PointTransaction } from '@/hooks/useRewardPoints';
+import { useMembership } from '@/hooks/useMembership';
 import { POINT_EARN_RATE, POINT_VALID_DAYS } from '@/lib/points/config';
+import { ratePercent } from '@/lib/membership';
 
 const TYPE_STYLE: Record<PointTransaction['type'], string> = {
   earn: 'bg-emerald-100 text-emerald-700',
@@ -26,6 +28,7 @@ export default function PointsPanel({ userId }: { userId: string }) {
   const { balance, expiringSoon, nextExpiryAt, transactions, loading } = useRewardPoints(userId, {
     withHistory: true,
   });
+  const { membership } = useMembership(userId);
 
   return (
     <div className="space-y-6">
@@ -49,7 +52,7 @@ export default function PointsPanel({ userId }: { userId: string }) {
           <li>
             •{' '}
             {t('mypage.points.ruleEarn', '악보 구매 시 결제 금액의 {{rate}}%가 적립됩니다.', {
-              rate: Math.round(POINT_EARN_RATE * 100),
+              rate: ratePercent(membership?.earn_rate ?? POINT_EARN_RATE),
             })}
           </li>
           <li>• {t('mypage.points.ruleUse', '결제할 때 1P = 1원으로 사용할 수 있고, 남은 금액은 다른 결제수단으로 결제됩니다.')}</li>
