@@ -14,11 +14,11 @@
   "paypalDesc": "快速安全的PayPal付款",
   "kakaopay": "Kakao Pay",
   "kakaopayDesc": "使用Kakao Pay付款",
-  "usePoints": "使用點數",
-  "usePointsDesc": "使用點數付款 (餘額: {{balance}})",
-  "availablePoints": "可用點數",
-  "pointsToUse": "使用點數",
-  "insufficientPoints": "點數不足",
+  "usePoints": "使用儲值金付款",
+  "usePointsDesc": "使用儲值金（餘額：{{balance}}）",
+  "availablePoints": "我的儲值金",
+  "pointsToUse": "付款金額",
+  "insufficientPoints": "儲值金不足",
   "enterCardDetails": "輸入卡片資訊",
   "cardNumber": "卡號",
   "expiryDate": "有效期限",
@@ -47,5 +47,67 @@
   "creditDebitWallets": "信用卡/金融卡 & 電子錢包",
   "localCardsSupported": "+ 支援當地銀行卡",
   "preorderConsentTitle": "購物車中包含預購商品。",
-  "preorderConsentDescription": "預購商品在付款完成後立即開始1對1定制製譜工作，因此因單純改變主意而導致的訂單取消和退款是不可能的。您同意這一點嗎？"
+  "preorderConsentDescription": "預購商品在付款完成後立即開始1對1定制製譜工作，因此因單純改變主意而導致的訂單取消和退款是不可能的。您同意這一點嗎？",
+  "cashShortBy": "還差 {{amount}}",
+  "cashRemaining": "付款後儲值金",
+  "cashPay": {
+    "bonusHint": "儲值最高加贈 25%",
+    "chargeAndPay": "儲值差額並立即付款",
+    "charge": "儲值",
+    "chargedReady": "儲值完成。請點擊下方按鈕完成付款。"
+  },
+  "cashCharge": {
+    "title": "儲值",
+    "subtitle": "方案越大，加贈越多",
+    "currentBalance": "我的儲值金",
+    "shortfall": "已為您選好可補足 {{amount}} 差額的方案",
+    "payToCharge": "付款 {{pay}} → 儲值 {{total}}",
+    "bonus": "加贈 {{bonus}}",
+    "sheets": "約 {{count}} 首樂譜",
+    "popular": "熱門",
+    "best": "最划算",
+    "methodTitle": "付款方式",
+    "method": {
+      "lemonsqueezy": "信用卡",
+      "paypal": "PayPal"
+    },
+    "agree": "[必選] 我同意儲值退款政策（加贈部分恕不退款）",
+    "viewPolicy": "查看",
+    "submit": "付款 {{pay}}",
+    "paypalHint": "請點擊下方的 PayPal 按鈕完成購買。",
+    "back": "選擇其他方案",
+    "confirming": "正在確認付款...",
+    "doneTitle": "儲值完成",
+    "doneMessage": "已儲值 {{amount}}",
+    "newBalance": "儲值金餘額：{{balance}}",
+    "close": "關閉",
+    "continueCheckout": "繼續付款",
+    "goMypage": "前往我的頁面",
+    "error": {
+      "agreeRequired": "請先同意退款政策。",
+      "authRequired": "請先登入。",
+      "createFailed": "無法開始購買，請稍後再試。",
+      "invalidAmount": "此方案已無法使用，請重新整理頁面後再試。",
+      "invalidMethod": "此付款方式目前無法使用。",
+      "payFailed": "付款未能完成。{{message}}",
+      "cancelled": "付款已取消。",
+      "delayed": "付款已成功，但儲值金入帳比平常慢。請稍後到「我的頁面」查看餘額，若仍未入帳請聯絡客服。",
+      "failed": "付款未完成，請再試一次。"
+    }
+  },
+  "rewardPoints": {
+    "balance": "可用 {{points}}",
+    "discount": "回饋金",
+    "payable": "應付金額",
+    "earnPreview": "此筆訂單可獲得 {{points}} 回饋金",
+    "payWithPoints": "使用回饋金付款",
+    "applyFailed": "無法使用回饋金",
+    "insufficient": "回饋金不足，請重新整理頁面後再試。",
+    "notice": "優先折抵回饋金，剩餘金額以下方付款方式支付。",
+    "apply": "折抵 {{amount}} 回饋金"
+  },
+  "membership": {
+    "toNext": "再消費 {{amount}} 即可升級為 {{tier}}（回饋 {{rate}}%）",
+    "upgradeNow": "此筆訂單完成後升級為 {{tier}}！下一筆起回饋 {{rate}}%"
+  }
 }

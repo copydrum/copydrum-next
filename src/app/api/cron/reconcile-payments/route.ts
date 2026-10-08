@@ -3,6 +3,7 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { completeOrderAfterPayment } from '@/lib/payments/completeOrderAfterPayment';
 import type { PaymentMethod } from '@/lib/payments/types';
 import { getPayableAmount } from '@/lib/points/server';
+import { isPgAmountAcceptable } from '@/lib/payments/amountCheck';
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // 결제 재조정(reconciliation) 크론
@@ -123,14 +124,6 @@ function inferPaymentMethod(p: PortOneStatus, fallback: string | null): PaymentM
   // PG 응답에 명확한 단서가 없으면 기존 주문값(있으면) 사용, 없으면 card
   if (fallback && fallback !== 'paypal') return fallback as PaymentMethod;
   return 'card';
-}
-
-// KRW 결제 금액 검증 (해외 통화는 환율 모호성으로 검증 생략)
-function isAmountValid(pgAmount: number, pgCurrency: string, orderTotalKRW: number): boolean {
-  const isKRW = pgCurrency === 'CURRENCY_KRW' || pgCurrency === 'KRW';
-  if (!isKRW || !orderTotalKRW || orderTotalKRW <= 0) return true;
-  const tolerance = Math.max(10, Math.round(orderTotalKRW * 0.02));
-  return Math.abs(Math.round(pgAmount) - orderTotalKRW) <= tolerance;
 }
 
 // 동일 상품 구성(drum_sheet_id 집합)을 정렬된 키 문자열로 변환
@@ -256,7 +249,7 @@ async function handleReconcile(request: NextRequest) {
 
       if (PAID_STATUSES.includes(pg.status)) {
         // 금액 검증 (KRW 위변조 차단)
-        if (!isAmountValid(pg.amountTotal, pg.currency, getPayableAmount(order))) {
+        if (!isPgAmountAcceptable(pg.amountTotal, pg.currency, getPayableAmount(order))) {
           console.error('[reconcile-payments] ⛔ 금액 불일치 — 완료 보류:', {
             orderId: order.id,
             paymentId,
@@ -339,14 +332,7 @@ async function handleReconcile(request: NextRequest) {
           method: resolvedMethod,
         });
       } else if (FAILED_STATUSES.includes(pg.status)) {
-        await supabase
-          .from('orders')
-          .update({
-            status: 'failed',
-            payment_status: 'failed',
-            updated_at: new Date().toISOString(),
-          })
-          .eq('id', order.id);
+        // 같은 주문으로 다시 결제할 수 있으므로 주문 상태는 그대로 둔다
         result.failed++;
         result.details.push({ orderId: order.id, action: 'failed', pgStatus: pg.status });
       } else if (PENDING_STATUSES.includes(pg.status)) {

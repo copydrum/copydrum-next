@@ -29,6 +29,10 @@
     "customOrders": {
       "label": "定制订单",
       "description": "查看您的定制订单请求状态。"
+    },
+    "points": {
+      "label": "奖励金",
+      "description": "查看奖励金余额和即将过期的奖励金。"
     }
   },
   "stats": {
@@ -43,9 +47,9 @@
     "memberInfo": "会员信息",
     "nameNotSet": "未设置姓名",
     "joinedOn": "加入日期",
-    "cashBalance": "现金余额",
+    "cashBalance": "余额",
     "cashBalanceDescription": "可用于您的下一次乐谱购买。",
-    "chargeCash": "充值现金",
+    "chargeCash": "充值",
     "email": "电子邮件",
     "name": "姓名",
     "namePlaceholder": "请输入您的姓名",
@@ -53,7 +57,8 @@
     "phonePlaceholder": "请输入您的电话号码",
     "joinDate": "加入日期",
     "saving": "正在保存...",
-    "updateProfile": "更新个人资料"
+    "updateProfile": "更新个人资料",
+    "cashNotice": "可使用余额购买乐谱。充值套餐越大，赠送越多。"
   },
   "purchases": {
     "title": "购买历史",
@@ -286,5 +291,40 @@
     "bankTransfer": "银行转账",
     "preparing": "准备中"
   },
-  "cart": "购物车"
+  "cart": "购物车",
+  "points": {
+    "balance": "奖励金余额",
+    "expiringSoon": "30 天内过期",
+    "lastUsableDate": "{{date}} 前可用",
+    "ruleEarn": "购买乐谱实付金额的 {{rate}}% 将作为奖励金返还。",
+    "ruleUse": "奖励金在支付时抵扣，剩余金额通过您的支付方式支付。",
+    "ruleExpiry": "奖励金自获得起 {{days}} 天后过期，不可兑换现金。",
+    "history": "奖励金明细",
+    "loading": "加载中...",
+    "empty": "暂无奖励金记录。",
+    "balanceAfter": "余额 {{points}}",
+    "viewHistory": "查看奖励金明细",
+    "type": {
+      "earn": "获得",
+      "signup": "注册奖励",
+      "use": "使用",
+      "release": "退回",
+      "revoke": "撤销",
+      "expire": "过期",
+      "admin_add": "发放",
+      "admin_deduct": "扣除"
+    }
+  },
+  "membership": {
+    "tier": {
+      "rookie": "Rookie",
+      "session": "Session",
+      "master": "Master"
+    },
+    "earnRate": "返 {{rate}}%",
+    "lifetimeSpend": "累计消费 {{amount}}",
+    "toNext": "再消费 {{amount}} 即可升级为 {{tier}}，享 {{rate}}% 返还。",
+    "top": "您已是最高等级，感谢支持！",
+    "rule": "等级按累计消费计算，且不会降级。（Rookie 3% · Session 满 {{session}} 5% · Master 满 {{master}} 7%）"
+  }
 }

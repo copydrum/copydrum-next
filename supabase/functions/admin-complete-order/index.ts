@@ -7,16 +7,6 @@ const corsHeaders = {
         "authorization, x-client-info, apikey, content-type",
 };
 
-// src/lib/payments/cashPackages.ts 와 같은 표를 유지한다.
-const CASH_CHARGE_BONUS_BY_AMOUNT: Record<number, number> = {
-    3000: 0,
-    5000: 500,
-    10000: 1500,
-    30000: 6000,
-    50000: 11000,
-    100000: 25000,
-};
-
 const jsonResponse = (status: number, body: Record<string, unknown>) =>
     new Response(JSON.stringify(body), {
         status,
@@ -79,24 +69,15 @@ serve(async (req) => {
 
         const now = new Date().toISOString();
 
-        // 2. Handle Cash Charge
-        if (order.order_type === "cash") {
+        // 2. Handle Cash Charge (보너스는 DB 충전 상품 표 기준, 이미 충전된 주문은 건너뛴다)
+        if (order.order_type === "cash" || order.metadata?.type === "cash_charge") {
             console.log("[admin-complete-order] Processing cash charge");
-            const chargeAmount = Math.max(0, Math.round(Number(order.total_amount) || 0));
-            const bonusAmount = CASH_CHARGE_BONUS_BY_AMOUNT[chargeAmount] ?? 0;
-
-            const { error: chargeError } = await supabaseClient.rpc("wallet_apply_cash", {
-                p_user_id: order.user_id,
-                p_amount: chargeAmount,
-                p_bonus: bonusAmount,
-                p_type: "charge",
-                p_description: `캐시 충전 (주문번호: ${order.order_number || order.id})`,
+            const { error: chargeError } = await supabaseClient.rpc("cash_complete_charge_order", {
                 p_order_id: order.id,
                 p_created_by: user.id,
+                p_description: null,
             });
-
-            // 23505: 같은 주문의 충전이 이미 반영됨 → 주문 상태만 마저 갱신
-            if (chargeError && chargeError.code !== "23505") {
+            if (chargeError) {
                 console.error("[admin-complete-order] Cash charge error:", chargeError);
                 throw new Error("Failed to charge cash");
             }

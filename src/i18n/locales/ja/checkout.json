@@ -14,11 +14,11 @@
   "paypalDesc": "迅速かつ安全なPayPal決済",
   "kakaopay": "Kakao Pay",
   "kakaopayDesc": "Kakao Payで支払う",
-  "usePoints": "ポイント使用",
-  "usePointsDesc": "保有ポイントで支払う (残高: {{balance}})",
-  "availablePoints": "利用可能ポイント",
-  "pointsToUse": "使用ポイント",
-  "insufficientPoints": "ポイントが不足しています",
+  "usePoints": "ドラムキャッシュで支払う",
+  "usePointsDesc": "ドラムキャッシュを使う（残高: {{balance}}）",
+  "availablePoints": "保有ドラムキャッシュ",
+  "pointsToUse": "お支払い金額",
+  "insufficientPoints": "ドラムキャッシュが不足しています",
   "enterCardDetails": "カード情報を入力",
   "cardNumber": "カード番号",
   "expiryDate": "有効期限",
@@ -47,5 +47,67 @@
   "creditDebitWallets": "クレジット/デビットカード & ウォレット",
   "localCardsSupported": "+ ローカルカード対応",
   "preorderConsentTitle": "カートに予約注文商品が含まれています。",
-  "preorderConsentDescription": "予約注文商品は支払い完了後、即座に1対1のカスタム採譜作業が開始されるため、単純な気持ちの変更による注文キャンセルおよび返金はできません。これに同意されますか？"
+  "preorderConsentDescription": "予約注文商品は支払い完了後、即座に1対1のカスタム採譜作業が開始されるため、単純な気持ちの変更による注文キャンセルおよび返金はできません。これに同意されますか？",
+  "cashShortBy": "あと{{amount}}不足しています",
+  "cashRemaining": "お支払い後の残高",
+  "cashPay": {
+    "bonusHint": "チャージすると最大25%のボーナス",
+    "chargeAndPay": "不足分をチャージしてそのまま支払う",
+    "charge": "チャージする",
+    "chargedReady": "チャージが完了しました。下のボタンを押してお支払いを完了してください。"
+  },
+  "cashCharge": {
+    "title": "ドラムキャッシュをチャージ",
+    "subtitle": "大きいパックほどボーナスもアップ",
+    "currentBalance": "保有ドラムキャッシュ",
+    "shortfall": "不足している{{amount}}をカバーできるパックを選んでおきました",
+    "payToCharge": "{{pay}}のお支払いで{{total}}分チャージ",
+    "bonus": "{{bonus}}ボーナス",
+    "sheets": "楽譜 約{{count}}曲分",
+    "popular": "人気",
+    "best": "いちばんお得",
+    "methodTitle": "お支払い方法",
+    "method": {
+      "lemonsqueezy": "カード",
+      "paypal": "PayPal"
+    },
+    "agree": "[必須] チャージの返金ポリシーに同意します（ボーナス分は返金されません）",
+    "viewPolicy": "確認する",
+    "submit": "{{pay}}を支払う",
+    "paypalHint": "下のPayPalボタンを押して購入を完了してください。",
+    "back": "別のパックを選ぶ",
+    "confirming": "お支払いを確認しています...",
+    "doneTitle": "チャージ完了",
+    "doneMessage": "{{amount}}分のドラムキャッシュをチャージしました",
+    "newBalance": "残高: {{balance}}",
+    "close": "閉じる",
+    "continueCheckout": "お支払いを続ける",
+    "goMypage": "マイページへ",
+    "error": {
+      "agreeRequired": "返金ポリシーに同意してください。",
+      "authRequired": "先にログインしてください。",
+      "createFailed": "購入を開始できませんでした。しばらくしてからもう一度お試しください。",
+      "invalidAmount": "このパックは現在ご利用いただけません。ページを再読み込みしてもう一度お試しください。",
+      "invalidMethod": "このお支払い方法は現在ご利用いただけません。",
+      "payFailed": "お支払いを完了できませんでした。{{message}}",
+      "cancelled": "お支払いがキャンセルされました。",
+      "delayed": "お支払いは完了しましたが、チャージの反映に通常より時間がかかっています。しばらくしてからマイページで残高をご確認ください。反映されない場合はサポートまでお問い合わせください。",
+      "failed": "お支払いが完了しませんでした。もう一度お試しください。"
+    }
+  },
+  "rewardPoints": {
+    "balance": "{{points}}分利用可能",
+    "discount": "ポイント",
+    "payable": "お支払い金額",
+    "earnPreview": "このご注文で{{points}}分のポイントが貯まります",
+    "payWithPoints": "ポイントで支払う",
+    "applyFailed": "ポイントを適用できませんでした",
+    "insufficient": "ポイントが不足しています。ページを再読み込みしてもう一度お試しください。",
+    "notice": "ポイントが先に使われ、残りは下のお支払い方法で決済されます。",
+    "apply": "{{amount}}分のポイントを使う"
+  },
+  "membership": {
+    "toNext": "あと{{amount}}のご利用で{{tier}}にランクアップ（{{rate}}%還元）",
+    "upgradeNow": "このご注文で{{tier}}にランクアップ！次のご注文から{{rate}}%還元"
+  }
 }

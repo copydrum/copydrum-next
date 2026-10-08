@@ -14,11 +14,11 @@
   "paypalDesc": "PayPal ile hızlı ve güvenli ödeme",
   "kakaopay": "Kakao Pay",
   "kakaopayDesc": "Kakao Pay ile öde",
-  "usePoints": "Puan Kullan",
-  "usePointsDesc": "Puanlarınızla ödeyin (Bakiye: {{balance}})",
-  "availablePoints": "Kullanılabilir Puan",
-  "pointsToUse": "Kullanılacak Puan",
-  "insufficientPoints": "Yetersiz puan",
+  "usePoints": "Bakiye ile öde",
+  "usePointsDesc": "Bakiyeni kullan (Bakiye: {{balance}})",
+  "availablePoints": "Bakiyen",
+  "pointsToUse": "Ödenecek tutar",
+  "insufficientPoints": "Yetersiz bakiye",
   "enterCardDetails": "Kart Bilgilerini Girin",
   "cardNumber": "Kart Numarası",
   "expiryDate": "Son Kullanma Tarihi",
@@ -47,5 +47,67 @@
   "creditDebitWallets": "Kredi/Banka Kartı & Cüzdanlar",
   "localCardsSupported": "+ Yerel kartlar desteklenir",
   "preorderConsentTitle": "Sepetinizde ön sipariş ürünleri bulunmaktadır.",
-  "preorderConsentDescription": "Ön sipariş ürünleri ödeme sonrası hemen 1:1 özel transkripsiyon çalışmasına başlar, bu nedenle basit fikir değişikliği nedeniyle sipariş iptali ve iade mümkün değildir. Buna katılıyor musunuz?"
+  "preorderConsentDescription": "Ön sipariş ürünleri ödeme sonrası hemen 1:1 özel transkripsiyon çalışmasına başlar, bu nedenle basit fikir değişikliği nedeniyle sipariş iptali ve iade mümkün değildir. Buna katılıyor musunuz?",
+  "cashShortBy": "{{amount}} eksik",
+  "cashRemaining": "Ödeme sonrası bakiye",
+  "cashPay": {
+    "bonusHint": "Bakiye yüklerken %25'e varan bonus kazan",
+    "chargeAndPay": "Eksik tutarı yükle ve hemen öde",
+    "charge": "Bakiye yükle",
+    "chargedReady": "Bakiye yüklendi. Ödemeyi tamamlamak için aşağıdaki düğmeye tıkla."
+  },
+  "cashCharge": {
+    "title": "Bakiye yükle",
+    "subtitle": "Paket büyüdükçe bonus da büyür",
+    "currentBalance": "Bakiyen",
+    "shortfall": "Eksik olan {{amount}} tutarını karşılayan paketi seçtik",
+    "payToCharge": "{{pay}} öde → {{total}} bakiye al",
+    "bonus": "{{bonus}} bonus",
+    "sheets": "Yaklaşık {{count}} nota",
+    "popular": "Popüler",
+    "best": "En avantajlı",
+    "methodTitle": "Ödeme yöntemi",
+    "method": {
+      "lemonsqueezy": "Kart",
+      "paypal": "PayPal"
+    },
+    "agree": "[Zorunlu] Bakiye iade politikasını kabul ediyorum (bonus bakiye iade edilmez)",
+    "viewPolicy": "Görüntüle",
+    "submit": "{{pay}} öde",
+    "paypalHint": "Satın alma işlemini tamamlamak için aşağıdaki PayPal düğmesine tıkla.",
+    "back": "Başka bir paket seç",
+    "confirming": "Ödemen onaylanıyor...",
+    "doneTitle": "Bakiye yüklendi",
+    "doneMessage": "Bakiyene {{amount}} eklendi",
+    "newBalance": "Bakiye: {{balance}}",
+    "close": "Kapat",
+    "continueCheckout": "Ödemeye devam et",
+    "goMypage": "Sayfam'a git",
+    "error": {
+      "agreeRequired": "Lütfen iade politikasını kabul et.",
+      "authRequired": "Lütfen önce giriş yap.",
+      "createFailed": "Satın alma başlatılamadı. Lütfen biraz sonra tekrar dene.",
+      "invalidAmount": "Bu paket artık mevcut değil. Sayfayı yenileyip tekrar dene.",
+      "invalidMethod": "Bu ödeme yöntemi şu anda kullanılamıyor.",
+      "payFailed": "Ödeme tamamlanamadı. {{message}}",
+      "cancelled": "Ödeme iptal edildi.",
+      "delayed": "Ödemen alındı ancak bakiyenin eklenmesi normalden uzun sürüyor. Biraz sonra Sayfam'dan bakiyeni kontrol et; görünmezse destek ekibiyle iletişime geç.",
+      "failed": "Ödeme tamamlanmadı. Lütfen tekrar dene."
+    }
+  },
+  "rewardPoints": {
+    "balance": "{{points}} kullanılabilir",
+    "discount": "Ödüller",
+    "payable": "Ödenecek toplam",
+    "earnPreview": "Bu siparişle {{points}} ödül kazanacaksın",
+    "payWithPoints": "Ödüllerle öde",
+    "applyFailed": "Ödüller uygulanamadı",
+    "insufficient": "Yetersiz ödül. Sayfayı yenileyip tekrar dene.",
+    "notice": "Önce ödüller kullanılır, kalan tutar aşağıdaki ödeme yöntemiyle ödenir.",
+    "apply": "{{amount}} ödül kullan"
+  },
+  "membership": {
+    "toNext": "{{tier}} seviyesine ulaşmak için {{amount}} daha harca (%{{rate}} geri kazanım)",
+    "upgradeNow": "Bu siparişle {{tier}} seviyesine ulaşıyorsun! Sonraki siparişinden itibaren %{{rate}} geri kazan"
+  }
 }

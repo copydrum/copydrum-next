@@ -29,6 +29,10 @@
     "customOrders": {
       "label": "客製訂單",
       "description": "查看您的客製訂單請求狀態。"
+    },
+    "points": {
+      "label": "回饋金",
+      "description": "查看回饋金餘額與即將到期的回饋金。"
     }
   },
   "stats": {
@@ -43,9 +47,9 @@
     "memberInfo": "會員資訊",
     "nameNotSet": "未設定姓名",
     "joinedOn": "加入日期",
-    "cashBalance": "現金餘額",
+    "cashBalance": "儲值金",
     "cashBalanceDescription": "可用於您的下一次樂譜購買。",
-    "chargeCash": "儲值現金",
+    "chargeCash": "儲值",
     "email": "電子郵件",
     "name": "姓名",
     "namePlaceholder": "輸入您的姓名",
@@ -53,7 +57,8 @@
     "phonePlaceholder": "輸入您的電話號碼",
     "joinDate": "加入日期",
     "saving": "正在儲存...",
-    "updateProfile": "更新個人資料"
+    "updateProfile": "更新個人資料",
+    "cashNotice": "可使用儲值金購買樂譜。儲值方案越大，加贈越多。"
   },
   "purchases": {
     "title": "購買記錄",
@@ -286,5 +291,40 @@
     "bankTransfer": "銀行轉帳",
     "preparing": "準備中"
   },
-  "cart": "購物車"
+  "cart": "購物車",
+  "points": {
+    "balance": "回饋金餘額",
+    "expiringSoon": "30 天內到期",
+    "lastUsableDate": "{{date}} 前可使用",
+    "ruleEarn": "購買樂譜實付金額的 {{rate}}% 將以回饋金回饋。",
+    "ruleUse": "回饋金於付款時折抵，剩餘金額以您的付款方式支付。",
+    "ruleExpiry": "回饋金自獲得起 {{days}} 天後到期，且不可兌換現金。",
+    "history": "回饋金紀錄",
+    "loading": "載入中...",
+    "empty": "目前沒有回饋金紀錄。",
+    "balanceAfter": "餘額 {{points}}",
+    "viewHistory": "查看回饋金紀錄",
+    "type": {
+      "earn": "獲得",
+      "signup": "註冊禮",
+      "use": "使用",
+      "release": "退回",
+      "revoke": "收回",
+      "expire": "到期",
+      "admin_add": "發放",
+      "admin_deduct": "扣除"
+    }
+  },
+  "membership": {
+    "tier": {
+      "rookie": "Rookie",
+      "session": "Session",
+      "master": "Master"
+    },
+    "earnRate": "回饋 {{rate}}%",
+    "lifetimeSpend": "累計消費 {{amount}}",
+    "toNext": "再消費 {{amount}} 即可升級為 {{tier}}，享 {{rate}}% 回饋。",
+    "top": "您已是最高等級，感謝支持！",
+    "rule": "等級依累計消費計算，且不會降級。（Rookie 3% · Session 滿 {{session}} 5% · Master 滿 {{master}} 7%）"
+  }
 }

@@ -9,6 +9,7 @@ import {
   InsufficientCashError,
 } from '@/lib/payments/wallet';
 import { getPayableAmount } from '@/lib/points/server';
+import { isCashChargeOrder } from '@/lib/payments/cashPackages';
 
 export async function POST(request: NextRequest) {
   try {
@@ -42,7 +43,7 @@ export async function POST(request: NextRequest) {
     // 🔒 주문 소유권 및 금액 검증: 본인 주문이고, 결제 금액이 주문 총액과 일치해야 한다.
     const { data: orderRow, error: orderLookupError } = await supabase
       .from('orders')
-      .select('id, user_id, total_amount, points_used, status, payment_status')
+      .select('id, user_id, total_amount, points_used, status, payment_status, order_type, metadata')
       .eq('id', orderId)
       .single();
 
@@ -56,6 +57,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { success: false, error: 'Forbidden' },
         { status: 403 }
+      );
+    }
+    if (isCashChargeOrder(orderRow)) {
+      return NextResponse.json(
+        { success: false, error: 'Cash charge orders cannot be paid with cash' },
+        { status: 400 }
       );
     }
     if (orderRow.payment_status === 'paid' || orderRow.status === 'completed') {

@@ -14,11 +14,11 @@
   "paypalDesc": "Pagamenti veloci e sicuri con PayPal",
   "kakaopay": "Kakao Pay",
   "kakaopayDesc": "Paga con Kakao Pay",
-  "usePoints": "Usa Punti",
-  "usePointsDesc": "Paga con i tuoi punti (Saldo: {{balance}})",
-  "availablePoints": "Punti Disponibili",
-  "pointsToUse": "Punti da Usare",
-  "insufficientPoints": "Punti insufficienti",
+  "usePoints": "Paga con i crediti",
+  "usePointsDesc": "Usa i tuoi crediti (saldo: {{balance}})",
+  "availablePoints": "I tuoi crediti",
+  "pointsToUse": "Importo da pagare",
+  "insufficientPoints": "Crediti insufficienti",
   "enterCardDetails": "Inserisci Dettagli Carta",
   "cardNumber": "Numero Carta",
   "expiryDate": "Data di Scadenza",
@@ -47,5 +47,67 @@
   "creditDebitWallets": "Carta di Credito/Debito & Portafogli",
   "localCardsSupported": "+ Carte locali supportate",
   "preorderConsentTitle": "Il tuo carrello contiene articoli in pre-ordine.",
-  "preorderConsentDescription": "Gli articoli in pre-ordine iniziano la trascrizione personalizzata 1:1 immediatamente dopo il pagamento, quindi la cancellazione dell'ordine e i rimborsi dovuti a un semplice cambio di idea non sono possibili. Sei d'accordo con questo?"
+  "preorderConsentDescription": "Gli articoli in pre-ordine iniziano la trascrizione personalizzata 1:1 immediatamente dopo il pagamento, quindi la cancellazione dell'ordine e i rimborsi dovuti a un semplice cambio di idea non sono possibili. Sei d'accordo con questo?",
+  "cashShortBy": "Mancano {{amount}}",
+  "cashRemaining": "Crediti dopo il pagamento",
+  "cashPay": {
+    "bonusHint": "Fino al 25% di bonus quando acquisti crediti",
+    "chargeAndPay": "Ricarica la differenza e paga ora",
+    "charge": "Acquista crediti",
+    "chargedReady": "Crediti aggiunti. Clicca il pulsante qui sotto per completare il pagamento."
+  },
+  "cashCharge": {
+    "title": "Acquista crediti",
+    "subtitle": "Più grande è il pacchetto, più alto è il bonus",
+    "currentBalance": "I tuoi crediti",
+    "shortfall": "Abbiamo scelto un pacchetto che copre i {{amount}} mancanti",
+    "payToCharge": "Paga {{pay}} → Ricevi {{total}} in crediti",
+    "bonus": "{{bonus}} di bonus",
+    "sheets": "Circa {{count}} spartiti",
+    "popular": "Popolare",
+    "best": "Più conveniente",
+    "methodTitle": "Metodo di pagamento",
+    "method": {
+      "lemonsqueezy": "Carta",
+      "paypal": "PayPal"
+    },
+    "agree": "[Obbligatorio] Accetto la politica di rimborso dei crediti (i crediti bonus non sono rimborsabili)",
+    "viewPolicy": "Vedi",
+    "submit": "Paga {{pay}}",
+    "paypalHint": "Clicca il pulsante PayPal qui sotto per completare l'acquisto.",
+    "back": "Scegli un altro pacchetto",
+    "confirming": "Conferma del pagamento in corso...",
+    "doneTitle": "Crediti aggiunti",
+    "doneMessage": "Sono stati aggiunti {{amount}} in crediti",
+    "newBalance": "Saldo crediti: {{balance}}",
+    "close": "Chiudi",
+    "continueCheckout": "Continua il pagamento",
+    "goMypage": "Vai a Mia pagina",
+    "error": {
+      "agreeRequired": "Accetta la politica di rimborso.",
+      "authRequired": "Accedi prima di continuare.",
+      "createFailed": "Non è stato possibile avviare l'acquisto. Riprova tra un momento.",
+      "invalidAmount": "Questo pacchetto non è più disponibile. Aggiorna la pagina e riprova.",
+      "invalidMethod": "Questo metodo di pagamento non è al momento disponibile.",
+      "payFailed": "Non è stato possibile completare il pagamento. {{message}}",
+      "cancelled": "Pagamento annullato.",
+      "delayed": "Il pagamento è andato a buon fine, ma l'accredito sta richiedendo più tempo del solito. Controlla il saldo in Mia pagina tra poco e contatta l'assistenza se non compare.",
+      "failed": "Il pagamento non è stato completato. Riprova."
+    }
+  },
+  "rewardPoints": {
+    "balance": "{{points}} disponibili",
+    "discount": "Premi",
+    "payable": "Totale da pagare",
+    "earnPreview": "Con questo ordine guadagnerai {{points}} in premi",
+    "payWithPoints": "Paga con i premi",
+    "applyFailed": "Non è stato possibile applicare i premi",
+    "insufficient": "Premi insufficienti. Aggiorna la pagina e riprova.",
+    "notice": "I premi vengono applicati per primi, il resto viene addebitato con il metodo di pagamento qui sotto.",
+    "apply": "Usa {{amount}} di premi"
+  },
+  "membership": {
+    "toNext": "Spendi altri {{amount}} per diventare {{tier}} ({{rate}}% di ritorno)",
+    "upgradeNow": "Con questo ordine diventi {{tier}}! Dal prossimo ordine guadagni il {{rate}}%"
+  }
 }

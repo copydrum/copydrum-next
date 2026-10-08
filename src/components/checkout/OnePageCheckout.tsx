@@ -13,6 +13,8 @@ import LemonSqueezyButton from './LemonSqueezyButton';
 import KakaoPayButton from './KakaoPayButton';
 import CashPaymentForm from './CashPaymentForm';
 import { ensureCheckoutOrder } from './ensureCheckoutOrder';
+import { openCashChargeModal } from '@/lib/cashChargeModal';
+import { formatRewardPoints, formatWalletAmount } from '@/lib/wallet/display';
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -35,6 +37,8 @@ export interface OnePageCheckoutProps {
   userName?: string;
   /** 보유 캐쉬 (profiles.credits) */
   userCash?: number;
+  /** 충전 후 돌아온 경우 캐쉬 결제를 펼쳐 둔다 */
+  openCashPayment?: boolean;
   onPaymentSuccess: (method: string, paymentId?: string, dbOrderId?: string) => void;
   onPaymentError?: (error: Error) => void;
   onRemoveItem?: (itemId: string) => void;
@@ -47,13 +51,17 @@ export default function OnePageCheckout({
   userEmail,
   userName,
   userCash = 0,
+  openCashPayment = false,
   onPaymentSuccess,
   onPaymentError,
   onRemoveItem,
 }: OnePageCheckoutProps) {
   const { t, i18n } = useTranslation();
   const [processing, setProcessing] = useState(false);
-  const [showCashForm, setShowCashForm] = useState(false);
+  const [showCashForm, setShowCashForm] = useState(openCashPayment);
+  const [cashBalance, setCashBalance] = useState(userCash);
+  const [chargingShortfall, setChargingShortfall] = useState(false);
+  const [autoPayCash, setAutoPayCash] = useState(false);
   // 이 주문에 쓸 수 있는 포인트 (보유 포인트 + 이 주문에 이미 적용된 포인트)
   const [pointBalance, setPointBalance] = useState(0);
   const [pointsInput, setPointsInput] = useState(0);
@@ -73,9 +81,14 @@ export default function OnePageCheckout({
   const totalAmount = items.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
   const convertedAmount = convertFromKrw(totalAmount, currency, i18n.language);
   const formattedTotal = formatCurrency(convertedAmount, currency);
+  const locale = i18n.language;
 
   useEffect(() => {
-    if (!isKoreanCheckout || !userId) return;
+    setCashBalance(userCash);
+  }, [userCash]);
+
+  useEffect(() => {
+    if (!userId) return;
     let cancelled = false;
 
     (async () => {
@@ -104,19 +117,20 @@ export default function OnePageCheckout({
     return () => {
       cancelled = true;
     };
-  }, [isKoreanCheckout, userId, orderId]);
+  }, [userId, orderId]);
 
   // 포인트 먼저 차감, 남은 금액을 결제수단으로
-  const maxUsablePoints = isKoreanCheckout ? Math.min(pointBalance, totalAmount) : 0;
+  const maxUsablePoints = Math.min(pointBalance, totalAmount);
   const pointsToUse = Math.min(Math.max(0, Math.floor(pointsInput) || 0), maxUsablePoints);
   const payableAmount = totalAmount - pointsToUse;
-  const coveredByPoints = isKoreanCheckout && totalAmount > 0 && payableAmount === 0;
-  const { membership } = useMembership(isKoreanCheckout ? userId : null);
+  const coveredByPoints = totalAmount > 0 && payableAmount === 0;
+  const { membership } = useMembership(userId);
   const earnPreview = calcEarnPoints(payableAmount, membership?.earn_rate ?? POINT_EARN_RATE);
   const remainingToNextTier = membership?.next_tier ? membership.remaining : null;
   const upgradesWithThisOrder = remainingToNextTier !== null && payableAmount >= remainingToNextTier;
   const formattedPayable = formatCurrency(convertFromKrw(payableAmount, currency, i18n.language), currency);
-  const hasCash = userCash > 0;
+  const cashNotice =
+    openCashPayment && cashBalance >= payableAmount && payableAmount > 0 ? t('checkout.cashPay.chargedReady') : undefined;
 
   /** 결제 직전 주문에 포인트를 적용하고, PG/캐쉬로 결제할 금액을 돌려준다 */
   const prepareOrder = useCallback(
@@ -154,6 +168,41 @@ export default function OnePageCheckout({
     setProcessing(false);
     onPaymentError?.(error);
     alert(t('checkout.paymentError') + ': ' + error.message);
+  };
+
+  const checkoutOrderItems = items.map((item) => ({ sheet_id: item.sheet_id, title: item.title, price: item.price }));
+
+  /** 부족한 캐쉬를 충전한 뒤 이 주문을 캐쉬로 결제한다 */
+  const handleChargeShortfall = async () => {
+    if (chargingShortfall) return;
+    setChargingShortfall(true);
+    try {
+      const { orderId: dbOrderId, alreadyPaid } = await ensureCheckoutOrder({
+        orderId,
+        userId,
+        amount: totalAmount,
+        paymentMethod: 'points',
+        items: checkoutOrderItems,
+      });
+      if (alreadyPaid) {
+        handlePaymentComplete('points', undefined, dbOrderId);
+        return;
+      }
+      const payable = await prepareOrder(dbOrderId);
+      openCashChargeModal({
+        shortfall: Math.max(0, payable - cashBalance),
+        returnTo: `/payments/${dbOrderId}?pay=cash`,
+        closeOnCharged: true,
+        onCharged: (balance) => {
+          setCashBalance(balance);
+          setAutoPayCash(true);
+        },
+      });
+    } catch (error) {
+      handlePaymentFailed(error as Error);
+    } finally {
+      setChargingShortfall(false);
+    }
   };
 
   const handlePayWithPoints = async () => {
@@ -287,7 +336,7 @@ export default function OnePageCheckout({
                     <div className="flex justify-between items-center mt-1">
                       <span className="text-sm text-gray-600">{t('checkout.rewardPoints.discount')}</span>
                       <span className="text-sm font-semibold text-emerald-600">
-                        -{pointsToUse.toLocaleString('ko-KR')}P
+                        -{formatRewardPoints(pointsToUse, locale)}
                       </span>
                     </div>
                     <div className="flex justify-between items-center mt-1">
@@ -296,12 +345,14 @@ export default function OnePageCheckout({
                     </div>
                   </>
                 )}
-                {isKoreanCheckout && earnPreview > 0 && (
+                {earnPreview > 0 && (
                   <p className="mt-2 text-xs text-emerald-700">
-                    {t('checkout.rewardPoints.earnPreview', { points: earnPreview.toLocaleString('ko-KR') })}
+                    {t('checkout.rewardPoints.earnPreview', {
+                      points: isKoreanCheckout ? earnPreview.toLocaleString('ko-KR') : formatRewardPoints(earnPreview, locale),
+                    })}
                   </p>
                 )}
-                {isKoreanCheckout && membership?.next_tier && remainingToNextTier !== null && (
+                {membership?.next_tier && remainingToNextTier !== null && (
                   <p className="mt-1 text-xs text-violet-700">
                     {upgradesWithThisOrder
                       ? t('checkout.membership.upgradeNow', {
@@ -310,7 +361,9 @@ export default function OnePageCheckout({
                         })
                       : t('checkout.membership.toNext', {
                           tier: t(`mypage.membership.tier.${membership.next_tier}`),
-                          amount: remainingToNextTier.toLocaleString('ko-KR'),
+                          amount: isKoreanCheckout
+                            ? remainingToNextTier.toLocaleString('ko-KR')
+                            : formatWalletAmount(remainingToNextTier, locale),
                           rate: ratePercent(membership.next_earn_rate),
                         })}
                   </p>
@@ -318,6 +371,27 @@ export default function OnePageCheckout({
               </div>
 
               <div className="p-6 space-y-5">
+
+                {/* ━━━ 적립 포인트 사용 (해외: Rewards 를 한 번에 적용) ━━━ */}
+                {!isKoreanCheckout && pointBalance > 0 && (
+                  <label className="flex cursor-pointer items-start gap-3 rounded-xl border-2 border-emerald-200 bg-emerald-50/60 p-4">
+                    <input
+                      type="checkbox"
+                      checked={pointsToUse > 0}
+                      onChange={(e) => setPointsInput(e.target.checked ? maxUsablePoints : 0)}
+                      disabled={processing}
+                      className="mt-0.5 h-4 w-4 shrink-0 rounded border-gray-300 text-emerald-600"
+                    />
+                    <span className="min-w-0">
+                      <span className="block text-sm font-semibold text-gray-800">
+                        {t('checkout.rewardPoints.apply', { amount: formatRewardPoints(maxUsablePoints, locale) })}
+                      </span>
+                      <span className="mt-0.5 block text-xs text-gray-600">
+                        {t('checkout.rewardPoints.balance', { points: formatRewardPoints(pointBalance, locale) })}
+                      </span>
+                    </span>
+                  </label>
+                )}
 
                 {/* ━━━ 적립 포인트 사용 (한국어 결제, 보유 포인트가 있을 때) ━━━ */}
                 {isKoreanCheckout && pointBalance > 0 && (
@@ -423,7 +497,7 @@ export default function OnePageCheckout({
                 {/* - 앨범 자켓/이미지/실제 PDF는 LS에 전달하지 않음           */}
                 {/* - PayPal 위에 노출되는 메인 결제 수단                      */}
                 {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-                {!isKoreanCheckout && (
+                {!isKoreanCheckout && !coveredByPoints && (
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
                     <i className="ri-bank-card-line text-lg text-gray-700"></i>
@@ -435,6 +509,7 @@ export default function OnePageCheckout({
                     orderId={orderId}
                     amount={totalAmount}
                     items={items}
+                    prepareOrder={prepareOrder}
                     onSuccess={(paymentId, dbOrderId) => handlePaymentComplete('lemonsqueezy', paymentId, dbOrderId)}
                     onError={handlePaymentFailed}
                     onProcessing={handlePaymentStart}
@@ -444,7 +519,7 @@ export default function OnePageCheckout({
                 )}
 
                 {/* OR 구분선 (해외: 카드 ↔ PayPal 사이) */}
-                {!isKoreanCheckout && (
+                {!isKoreanCheckout && !coveredByPoints && (
                 <div className="flex items-center gap-3 my-1">
                   <div className="flex-1 h-px bg-gray-300"></div>
                   <span className="text-xs font-semibold text-gray-400 uppercase tracking-widest select-none">OR</span>
@@ -455,7 +530,7 @@ export default function OnePageCheckout({
                 {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
                 {/* 🟡 섹션 3: PayPal 결제 (한국어 페이지에서는 숨김) */}
                 {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-                {!isKoreanCheckout && (
+                {!isKoreanCheckout && !coveredByPoints && (
                 <div className="border-2 border-gray-200 rounded-xl p-4 bg-gray-50/50 hover:border-[#0070ba]/30 transition-colors space-y-3">
                   {/* 섹션 라벨 */}
                   <div className="flex items-center gap-2">
@@ -471,9 +546,11 @@ export default function OnePageCheckout({
                   {/* PayPal SPB 버튼 */}
                   <div className={''}>
                     <PayPalPaymentButton
+                      key={`paypal-${pointsToUse}`}
                       orderId={orderId}
                       amount={totalAmount}
                       items={items}
+                      prepareOrder={prepareOrder}
                       onSuccess={(paymentId, dbOrderId) => handlePaymentComplete('paypal', paymentId, dbOrderId)}
                       onError={handlePaymentFailed}
                       onProcessing={handlePaymentStart}
@@ -506,9 +583,9 @@ export default function OnePageCheckout({
                 )}
 
                 {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-                {/* 🟠 캐쉬 결제 (아코디언) - 한국어 페이지에서만 표시 */}
+                {/* 🟠 캐쉬 결제 (아코디언) - 해외는 Credits 로 표시 */}
                 {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-                {isKoreanCheckout && hasCash && !coveredByPoints && (
+                {!coveredByPoints && (
                   <div className="border-t border-gray-200 pt-3 mt-1">
                     <button
                       onClick={() => setShowCashForm(!showCashForm)}
@@ -522,7 +599,9 @@ export default function OnePageCheckout({
                         <div className="flex-1">
                           <p className="font-semibold text-gray-900 text-sm">{t('checkout.usePoints')}</p>
                           <p className="text-xs text-gray-500 mt-0.5">
-                            {t('checkout.usePointsDesc', { balance: formatCurrency(userCash, 'KRW') })}
+                            {cashBalance > 0
+                              ? t('checkout.usePointsDesc', { balance: formatWalletAmount(cashBalance, locale) })
+                              : t('checkout.cashPay.bonusHint')}
                           </p>
                         </div>
                         <i className={`ri-arrow-${showCashForm ? 'up' : 'down'}-s-line text-xl text-gray-400 group-hover:text-yellow-600 transition-colors`}></i>
@@ -535,9 +614,13 @@ export default function OnePageCheckout({
                           orderId={orderId}
                           orderTotal={totalAmount}
                           amount={payableAmount}
-                          availableCash={userCash}
+                          availableCash={cashBalance}
                           userId={userId}
                           prepareOrder={prepareOrder}
+                          onChargeShortfall={handleChargeShortfall}
+                          charging={chargingShortfall}
+                          autoPay={autoPayCash}
+                          notice={cashNotice}
                           items={items.map((item) => ({
                             id: item.id,
                             sheet_id: item.sheet_id,

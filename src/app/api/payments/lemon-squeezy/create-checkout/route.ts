@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getAuthenticatedUser } from '@/lib/auth/requireUser';
+import { getPayableAmount } from '@/lib/points/server';
+import { isCashChargeOrder } from '@/lib/payments/cashPackages';
 import {
   LEMON_SQUEEZY_API_BASE,
   getLemonSqueezyConfig,
   buildCheckoutName,
+  buildCreditsCheckoutName,
   buildCheckoutDescription,
   krwToStoreUnitAmount,
   resolveCheckoutItemTitle,
@@ -75,9 +78,12 @@ export async function POST(request: NextRequest) {
         id,
         user_id,
         total_amount,
+        points_used,
         status,
         payment_status,
         order_number,
+        order_type,
+        metadata,
         order_items (
           drum_sheet_id,
           sheet_title,
@@ -112,7 +118,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const krwAmount = Math.round(Number(order.total_amount) || 0);
+    // 적립 포인트를 쓴 주문은 남은 금액만 결제한다
+    const krwAmount = getPayableAmount(order);
     if (krwAmount <= 0) {
       return NextResponse.json(
         { success: false, error: '주문 금액이 올바르지 않습니다.' },
@@ -128,6 +135,8 @@ export async function POST(request: NextRequest) {
         { status: 400 },
       );
     }
+
+    const isCashCharge = isCashChargeOrder(order);
 
     // sanitize 된 표시 정보 구성 (앨범 자켓·이미지 없음, 텍스트만)
     const rawItems = (order.order_items || []) as any[];
@@ -146,8 +155,10 @@ export async function POST(request: NextRequest) {
       sanitizedItems.push({ title: 'CopyDrum Drum Sheet', artist: null });
     }
 
-    const checkoutName = buildCheckoutName(sanitizedItems);
-    const checkoutDescription = buildCheckoutDescription(sanitizedItems);
+    const checkoutName = isCashCharge
+      ? buildCreditsCheckoutName(customPrice, config.storeCurrency)
+      : buildCheckoutName(sanitizedItems);
+    const checkoutDescription = isCashCharge ? '' : buildCheckoutDescription(sanitizedItems);
 
     const appUrl = (process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || '').replace(/\/$/, '');
     const sheetIds = rawItems.map((it) => it.drum_sheet_id).filter(Boolean);
@@ -168,7 +179,9 @@ export async function POST(request: NextRequest) {
     }
     if (appUrl) {
       // 결제 후 자체 안내 페이지로 이동
-      productOptions.redirect_url = `${appUrl}/payment/success?orderId=${order.id}&method=lemonsqueezy`;
+      productOptions.redirect_url = isCashCharge
+        ? `${appUrl}/payments/cash-charge?orderId=${order.id}&method=lemonsqueezy`
+        : `${appUrl}/payment/success?orderId=${order.id}&method=lemonsqueezy`;
       productOptions.receipt_link_url = appUrl;
     }
 
@@ -194,6 +207,8 @@ export async function POST(request: NextRequest) {
               user_id: String(order.user_id),
               order_number: String(order.order_number || ''),
               sheet_ids: sheetIds.join(','),
+              // 웹훅이 실제 결제 금액을 이 값과 대조한다
+              expected_amount: String(customPrice),
             },
           },
           // 테스트 모드 결제 여부 (라이브 전환 시 LEMON_SQUEEZY_TEST_MODE=false)

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getPayableAmount } from '@/lib/points/server';
+import { isPgAmountAcceptable } from '@/lib/payments/amountCheck';
+import { isCashChargeOrder } from '@/lib/payments/cashPackages';
 
 // ✅ Service Role Key로 Admin 클라이언트 생성 (RLS 우회)
 // API Route는 서버에서 실행되므로 인증 세션이 없음 → anon key로는 업데이트 실패 가능
@@ -230,8 +232,7 @@ export async function POST(request: NextRequest) {
         portoneStatus,
       });
 
-      // 기존 주문이 있으면 FAILED로 업데이트
-      await updateOrderStatusIfExists(supabase, orderId, paymentId, 'failed', 'failed');
+      // 주문은 pending 그대로 둔다 — 같은 주문으로 다시 결제할 수 있어야 한다
 
       return NextResponse.json(
         {
@@ -562,46 +563,29 @@ export async function POST(request: NextRequest) {
     }
 
     // 4-1. 🔒 결제 금액 검증 (위변조/금액 불일치 차단)
-    //   통화/단위 모호성이 없는 KRW 결제는 PG 결제금액과 주문 총액이 정확히 일치해야 한다.
-    //   해외 통화(USD 등)는 환율·최소단위 모호성으로 오탐(정상 결제 차단) 위험이 커서
-    //   여기서는 차단하지 않고 경고만 기록한다. (해외 언더프라이싱은 주문 생성 단계의
-    //   서버 측 가격 하한 검증으로 1차 차단됨)
-    try {
+    //   PayPal 결제 금액은 브라우저가 정하므로 해외 통화도 하한을 확인해야 한다.
+    {
       const pgAmountRaw = portonePayment.amount?.total ?? portonePayment.amount ?? 0;
-      const pgCurrency = portonePayment.amount?.currency ?? 'CURRENCY_KRW';
+      const pgCurrency = portonePayment.amount?.currency ?? portonePayment.currency ?? 'CURRENCY_KRW';
       const orderTotalKRW = getPayableAmount(order);
-      const isKRW = pgCurrency === 'CURRENCY_KRW' || pgCurrency === 'KRW';
 
-      if (orderTotalKRW > 0 && isKRW) {
-        const pgKRW = Math.round(Number(pgAmountRaw) || 0);
-        const tolerance = Math.max(10, Math.round(orderTotalKRW * 0.02));
-        if (Math.abs(pgKRW - orderTotalKRW) > tolerance) {
-          console.error('[verify] ⛔ 결제 금액 불일치 — 주문 승인 거부:', {
-            orderId: order.id,
-            paymentId,
-            pgKRW,
-            orderTotalKRW,
-          });
-          return NextResponse.json(
-            {
-              success: false,
-              error: '결제 금액이 주문 금액과 일치하지 않습니다. 고객센터에 문의해 주세요.',
-              errorCode: 'PAYMENT_AMOUNT_MISMATCH',
-            },
-            { status: 400 }
-          );
-        }
-      } else if (orderTotalKRW > 0 && !isKRW) {
-        console.warn('[verify] ℹ️ 해외 통화 결제 — 금액 차단 검증 생략(경고 로깅만):', {
+      if (!isPgAmountAcceptable(Number(pgAmountRaw), String(pgCurrency), orderTotalKRW)) {
+        console.error('[verify] ⛔ 결제 금액 불일치 — 주문 승인 거부:', {
           orderId: order.id,
           paymentId,
           pgAmount: pgAmountRaw,
           pgCurrency,
           orderTotalKRW,
         });
+        return NextResponse.json(
+          {
+            success: false,
+            error: '결제 금액이 주문 금액과 일치하지 않습니다. 고객센터에 문의해 주세요.',
+            errorCode: 'PAYMENT_AMOUNT_MISMATCH',
+          },
+          { status: 400 }
+        );
       }
-    } catch (amountCheckError) {
-      console.warn('[verify] 금액 검증 중 예외(검증 생략):', amountCheckError);
     }
 
     // 5. completeOrderAfterPayment 호출 (예상 완료일 계산 및 저장 포함, 주문 상태 업데이트도 처리)
@@ -619,7 +603,15 @@ export async function POST(request: NextRequest) {
       console.log('[verify] ✅ completeOrderAfterPayment 처리 완료');
     } catch (completeError) {
       console.error('[verify] ⚠️ completeOrderAfterPayment 처리 실패, 직접 업데이트 시도:', completeError);
-      
+
+      // 충전 주문을 캐쉬 없이 완료로 바꾸면 다시 충전할 길이 없어진다 → 웹훅/재시도에 맡긴다
+      if (isCashChargeOrder(order)) {
+        return NextResponse.json(
+          { success: false, error: '캐쉬 충전 처리에 실패했습니다. 잠시 후 다시 확인해 주세요.' },
+          { status: 500 }
+        );
+      }
+
       // Fallback: completeOrderAfterPayment 실패 시 직접 업데이트
       const { data: updatedOrder, error: updateError } = await supabase
         .from('orders')

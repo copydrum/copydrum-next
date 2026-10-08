@@ -23,7 +23,8 @@ import { useRewardPoints } from '../../hooks/useRewardPoints';
 import PointsPanel from '../../components/points/PointsPanel';
 import { useMembership } from '../../hooks/useMembership';
 import MembershipCard from '../../components/membership/MembershipCard';
-import { isKoreanSiteHost } from '../../config/hostType';
+import { formatRewardPoints, formatWalletAmount } from '../../lib/wallet/display';
+import { openCashChargeModal } from '../../lib/cashChargeModal';
 
 import type { VirtualAccountInfo } from '../../lib/payments';
 
@@ -126,10 +127,9 @@ export default function MyPage() {
 
   const hostname = typeof window !== 'undefined' ? window.location.hostname : 'copydrum.com';
   const currency = getSiteCurrency(hostname, i18n.language);
-  const isKoreanSite = isKoreanSiteHost(hostname);
-  const { credits, isLoading: creditsLoading } = useUserCredits(user);
-  const rewardPoints = useRewardPoints(isKoreanSite ? user?.id : null);
-  const { membership } = useMembership(isKoreanSite ? user?.id : null);
+  const { credits, isLoading: creditsLoading, refresh: refreshCredits } = useUserCredits(user);
+  const rewardPoints = useRewardPoints(user?.id);
+  const { membership } = useMembership(user?.id);
 
   const formatCurrency = useCallback(
     (value: number) => {
@@ -172,10 +172,8 @@ export default function MyPage() {
     { id: 'favorites', label: t('mypage.tabs.favorites.label'), icon: 'ri-heart-line', description: t('mypage.tabs.favorites.description') },
     { id: 'inquiries', label: t('mypage.tabs.inquiries.label'), icon: 'ri-question-answer-line', description: t('mypage.tabs.inquiries.description') },
     { id: 'custom-orders', label: t('mypage.tabs.customOrders.label'), icon: 'ri-file-text-line', description: t('mypage.tabs.customOrders.description') },
-    ...(isKoreanSite
-      ? [{ id: 'points' as const, label: t('mypage.tabs.points.label'), icon: 'ri-coins-line', description: t('mypage.tabs.points.description') }]
-      : []),
-  ], [t, isKoreanSite]);
+    { id: 'points' as const, label: t('mypage.tabs.points.label'), icon: 'ri-coins-line', description: t('mypage.tabs.points.description') },
+  ], [t]);
 
   // URL 쿼리 파라미터에서 탭 정보 읽기
   const getInitialTab = useCallback((): TabKey => {
@@ -1184,41 +1182,48 @@ export default function MyPage() {
                     </div>
                   </div>
 
-                  {/* 보유 포인트·캐쉬 (한국어 사이트만, 캐쉬는 잔액이 있을 때만) */}
-                  {isKoreanSite && (
-                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-4">
-                      <div className="flex items-end justify-between gap-4">
-                        <div>
-                          <h3 className="text-sm text-gray-500">{t('mypage.points.balance')}</h3>
-                          <p className="text-3xl font-extrabold text-emerald-600">
-                            {rewardPoints.balance.toLocaleString('ko-KR')} P
+                  {/* 보유 포인트·캐쉬 (해외는 Rewards·Credits 를 달러로 표시) */}
+                  <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-4">
+                    <div className="flex items-end justify-between gap-4">
+                      <div>
+                        <h3 className="text-sm text-gray-500">{t('mypage.points.balance')}</h3>
+                        <p className="text-3xl font-extrabold text-emerald-600">
+                          {formatRewardPoints(rewardPoints.balance, i18n.language)}
+                        </p>
+                        {rewardPoints.expiringSoon > 0 && (
+                          <p className="mt-1 text-xs text-red-600">
+                            {t('mypage.points.expiringSoon')} {formatRewardPoints(rewardPoints.expiringSoon, i18n.language)}
                           </p>
-                          {rewardPoints.expiringSoon > 0 && (
-                            <p className="mt-1 text-xs text-red-600">
-                              {t('mypage.points.expiringSoon')} {rewardPoints.expiringSoon.toLocaleString('ko-KR')} P
-                            </p>
-                          )}
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => setActiveTab('points')}
-                          className="shrink-0 text-sm font-semibold text-emerald-700 hover:underline"
-                        >
-                          {t('mypage.points.viewHistory')}
-                        </button>
+                        )}
                       </div>
-                      {!creditsLoading && credits > 0 && (
-                        <div className="border-t border-gray-100 pt-4">
-                          <h3 className="text-sm text-gray-500">{t('mypage.profile.cashBalance')}</h3>
-                          <p className="text-2xl font-extrabold text-blue-600">{credits.toLocaleString('ko-KR')}원</p>
-                          <p className="mt-1 text-xs text-gray-500">{t('mypage.profile.cashLegacyNotice')}</p>
-                        </div>
-                      )}
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab('points')}
+                        className="shrink-0 text-sm font-semibold text-emerald-700 hover:underline"
+                      >
+                        {t('mypage.points.viewHistory')}
+                      </button>
                     </div>
-                  )}
+                    <div className="border-t border-gray-100 pt-4 flex items-end justify-between gap-4">
+                      <div>
+                        <h3 className="text-sm text-gray-500">{t('mypage.profile.cashBalance')}</h3>
+                        <p className="text-2xl font-extrabold text-blue-600">
+                          {creditsLoading ? '-' : formatWalletAmount(credits, i18n.language)}
+                        </p>
+                        <p className="mt-1 text-xs text-gray-500">{t('mypage.profile.cashNotice')}</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => openCashChargeModal({ onCharged: () => refreshCredits() })}
+                        className="shrink-0 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+                      >
+                        {t('mypage.profile.chargeCash')}
+                      </button>
+                    </div>
+                  </div>
                 </div>
 
-                {isKoreanSite && membership && <MembershipCard membership={membership} />}
+                {membership && <MembershipCard membership={membership} />}
 
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 xl:grid-cols-4">
                   {stats.map((item) => {
@@ -1911,7 +1916,7 @@ export default function MyPage() {
                     </div>
                   )}
 
-                  {activeTab === 'points' && isKoreanSite && user && <PointsPanel userId={user.id} />}
+                  {activeTab === 'points' && user && <PointsPanel userId={user.id} />}
                 </section>
               </section>
             </div>

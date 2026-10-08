@@ -254,32 +254,42 @@ async function getPortOnePayment(
 }
 
 /**
- * 결제 금액 검증.
- *
- * ⚠️ 해외 통화(USD/JPY 등)는 사이트 환율 정책(1000원=$1 또는 1500원=$1)과
- *    PortOne 최소단위 표현의 모호성 때문에 KRW로 정확히 환산하기 어렵다.
- *    잘못된 고정환율로 비교하면 "정상 결제"를 오탐(차단)할 위험이 크므로,
- *    여기서는 통화/단위 모호성이 없는 KRW 결제만 정확히 검증하고
- *    해외 통화 결제는 통과시킨다.
- *    (해외 언더프라이싱은 주문 생성 단계의 서버 측 가격 하한 검증으로 1차 차단됨)
- *
- * @returns true = 정상(또는 검증 생략), false = KRW 금액 불일치(차단)
+ * 결제 금액 검증. PayPal 결제 금액은 브라우저가 정하므로 해외 통화도 하한을 확인한다.
+ * - 원화: ±2% 이내
+ * - 달러: 가장 싼 환율(1,500원 = $1) 기준 하한 이상 (PortOne 은 센트 단위)
+ * - 엔화: 1엔 ≈ 9원 기준 하한 이상
+ * @returns true = 정상, false = 차단
  */
 function compareAmounts(
   portoneAmount: number,
   portoneCurrency: string,
   orderAmountKRW: number
 ): boolean {
-  const isKRW = portoneCurrency === "CURRENCY_KRW" || portoneCurrency === "KRW";
-  if (!isKRW) {
-    return true; // 해외 통화는 차단 검증 생략
-  }
+  // src/lib/payments/amountCheck.ts 와 같은 규칙
   if (!orderAmountKRW || orderAmountKRW <= 0) {
     return true;
   }
-  const pgKRW = Math.round(Number(portoneAmount) || 0);
-  const tolerance = Math.max(10, Math.round(orderAmountKRW * 0.02));
-  return Math.abs(pgKRW - orderAmountKRW) <= tolerance;
+  const amount = Math.round(Number(portoneAmount) || 0);
+  const currency = String(portoneCurrency || "KRW").toUpperCase().replace(/^CURRENCY_/, "");
+  if (currency === "KRW") {
+    const tolerance = Math.max(10, Math.round(orderAmountKRW * 0.02));
+    return Math.abs(amount - orderAmountKRW) <= tolerance;
+  }
+  if (currency === "USD") {
+    return amount >= Math.floor(orderAmountKRW / 15) - 1;
+  }
+  if (currency === "JPY") {
+    return amount >= Math.floor(orderAmountKRW * 0.08);
+  }
+  return false;
+}
+
+function isCashChargeOrder(order: Record<string, any>): boolean {
+  return (
+    order.order_type === "cash" ||
+    order.metadata?.type === "cash_charge" ||
+    order.metadata?.purpose === "cash_charge"
+  );
 }
 
 serve(async (req) => {
@@ -895,12 +905,10 @@ serve(async (req) => {
         orderId: order.id,
       });
 
-      // 주문 상태를 FAILED로 업데이트
+      // 같은 주문으로 다시 결제할 수 있으므로 주문 상태는 그대로 두고 실패 기록만 남긴다
       const { error: failUpdateError } = await supabase
         .from("orders")
         .update({
-          status: "failed",
-          payment_status: "failed",
           updated_at: new Date().toISOString(),
           metadata: {
             ...(order.metadata || {}),
@@ -1003,7 +1011,7 @@ serve(async (req) => {
       orderId: order.id,
     });
 
-    // 🔒 결제 금액 검증 (KRW 결제는 PG 결제금액과 주문 총액이 일치해야 함)
+    // 🔒 결제 금액 검증 (원화는 일치, 해외 통화는 하한 이상)
     {
       const pgAmount = portonePayment.amount?.total ?? portonePayment.amount ?? 0;
       const pgCurrency = portonePayment.amount?.currency ?? "CURRENCY_KRW";
@@ -1034,14 +1042,34 @@ serve(async (req) => {
       }
     }
 
+    // 충전 주문은 주문을 완료로 바꾸기 전에 캐쉬부터 넣는다 (가상계좌 입금은 웹훅으로만 확인된다)
+    if (isPaid && isCashChargeOrder(order)) {
+      const { error: chargeError } = await supabase.rpc("cash_complete_charge_order", {
+        p_order_id: order.id,
+        p_created_by: null,
+        p_description: null,
+      });
+      if (chargeError) {
+        console.error("[portone-payment-confirm] ❌ 캐쉬 충전 실패:", { orderId: order.id, chargeError });
+        return buildResponse(
+          {
+            success: false,
+            error: { message: "캐쉬 충전 처리에 실패했습니다.", errorCode: "CASH_CHARGE_FAILED" },
+          },
+          500,
+          origin
+        );
+      }
+    }
+
     // 가상계좌 정보 추출 및 매핑
     const va = portonePayment.virtualAccount;
     const virtualAccountInfo = va ? {
       // 로그에 나온 bank_code 대응 추가
       bankName: va.bankName || va.bank_name || va.bank || va.bankCode || va.bank_code || null,
       accountNumber: va.accountNumber || va.account_number || null,
-      accountHolder: va.accountHolder || va.account_holder || va.remittee_name || null,
-      expiresAt: va.expiresAt || va.expires_at || va.expired_at || va.valid_until || null,
+      accountHolder: va.accountHolder || va.account_holder || va.remitteeName || va.remittee_name || null,
+      expiresAt: va.expiresAt || va.expiredAt || va.expires_at || va.expired_at || va.valid_until || null,
     } : null;
 
     // DB 업데이트

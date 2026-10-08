@@ -29,7 +29,46 @@
     "customOrders": {
       "label": "Custom Orders",
       "description": "Check the status of your custom order requests."
+    },
+    "points": {
+      "label": "Rewards",
+      "description": "See your Rewards balance and what expires soon."
     }
+  },
+  "points": {
+    "balance": "Rewards balance",
+    "expiringSoon": "Expiring within 30 days",
+    "lastUsableDate": "Use by {{date}}",
+    "ruleEarn": "Earn {{rate}}% of what you pay for sheet music as Rewards.",
+    "ruleUse": "Rewards are applied at checkout, and the rest is charged to your payment method.",
+    "ruleExpiry": "Rewards expire {{days}} days after they're earned and can't be exchanged for cash.",
+    "history": "Rewards history",
+    "loading": "Loading...",
+    "empty": "No Rewards activity yet.",
+    "balanceAfter": "Balance {{points}}",
+    "viewHistory": "View Rewards history",
+    "type": {
+      "earn": "Earned",
+      "signup": "Welcome bonus",
+      "use": "Used",
+      "release": "Returned",
+      "revoke": "Reversed",
+      "expire": "Expired",
+      "admin_add": "Added",
+      "admin_deduct": "Deducted"
+    }
+  },
+  "membership": {
+    "tier": {
+      "rookie": "Rookie",
+      "session": "Session",
+      "master": "Master"
+    },
+    "earnRate": "{{rate}}% back",
+    "lifetimeSpend": "Total spent {{amount}}",
+    "toNext": "Spend {{amount}} more to reach {{tier}} and earn {{rate}}% back.",
+    "top": "You're at the top tier. Thank you!",
+    "rule": "Your tier is based on your total spending and never goes down. (Rookie 3% · Session {{session}}+ 5% · Master {{master}}+ 7%)"
   },
   "stats": {
     "purchasedSheets": "Purchased Sheets",
@@ -43,9 +82,10 @@
     "memberInfo": "Member Information",
     "nameNotSet": "Name not set",
     "joinedOn": "Joined on",
-    "cashBalance": "Point Balance",
+    "cashBalance": "Credits",
+    "cashNotice": "Use Credits to buy sheet music. Bigger packs come with bigger bonuses.",
     "cashBalanceDescription": "Available for your next sheet music purchase.",
-    "chargeCash": "Charge Points",
+    "chargeCash": "Buy Credits",
     "email": "Email",
     "name": "Name",
     "namePlaceholder": "Enter your name",

@@ -14,11 +14,11 @@
   "paypalDesc": "快速安全的PayPal支付",
   "kakaopay": "Kakao Pay",
   "kakaopayDesc": "使用Kakao Pay支付",
-  "usePoints": "使用积分",
-  "usePointsDesc": "使用积分支付 (余额: {{balance}})",
-  "availablePoints": "可用积分",
-  "pointsToUse": "使用积分",
-  "insufficientPoints": "积分不足",
+  "usePoints": "用余额支付",
+  "usePointsDesc": "使用余额（余额：{{balance}}）",
+  "availablePoints": "我的余额",
+  "pointsToUse": "支付金额",
+  "insufficientPoints": "余额不足",
   "enterCardDetails": "输入卡信息",
   "cardNumber": "卡号",
   "expiryDate": "有效期",
@@ -47,5 +47,67 @@
   "creditDebitWallets": "信用卡/借记卡 & 电子钱包",
   "localCardsSupported": "+ 支持本地银行卡",
   "preorderConsentTitle": "购物车中包含预购商品。",
-  "preorderConsentDescription": "预购商品在付款完成后立即开始1对1定制制谱工作，因此因单纯改变主意而导致的订单取消和退款是不可能的。您同意这一点吗？"
+  "preorderConsentDescription": "预购商品在付款完成后立即开始1对1定制制谱工作，因此因单纯改变主意而导致的订单取消和退款是不可能的。您同意这一点吗？",
+  "cashShortBy": "还差 {{amount}}",
+  "cashRemaining": "支付后余额",
+  "cashPay": {
+    "bonusHint": "充值最高赠送 25%",
+    "chargeAndPay": "充值差额并立即支付",
+    "charge": "充值",
+    "chargedReady": "充值成功。请点击下方按钮完成支付。"
+  },
+  "cashCharge": {
+    "title": "充值余额",
+    "subtitle": "套餐越大，赠送越多",
+    "currentBalance": "我的余额",
+    "shortfall": "已为您选好能补足 {{amount}} 差额的套餐",
+    "payToCharge": "支付 {{pay}} → 到账 {{total}}",
+    "bonus": "赠送 {{bonus}}",
+    "sheets": "约 {{count}} 首乐谱",
+    "popular": "热门",
+    "best": "最划算",
+    "methodTitle": "支付方式",
+    "method": {
+      "lemonsqueezy": "银行卡",
+      "paypal": "PayPal"
+    },
+    "agree": "[必选] 我同意充值退款政策（赠送部分不予退款）",
+    "viewPolicy": "查看",
+    "submit": "支付 {{pay}}",
+    "paypalHint": "请点击下方的 PayPal 按钮完成购买。",
+    "back": "选择其他套餐",
+    "confirming": "正在确认支付...",
+    "doneTitle": "充值成功",
+    "doneMessage": "已到账 {{amount}}",
+    "newBalance": "余额：{{balance}}",
+    "close": "关闭",
+    "continueCheckout": "继续支付",
+    "goMypage": "前往我的页面",
+    "error": {
+      "agreeRequired": "请先同意退款政策。",
+      "authRequired": "请先登录。",
+      "createFailed": "无法发起购买，请稍后再试。",
+      "invalidAmount": "该套餐已下架，请刷新页面后重试。",
+      "invalidMethod": "该支付方式暂不可用。",
+      "payFailed": "支付未能完成。{{message}}",
+      "cancelled": "支付已取消。",
+      "delayed": "支付已成功，但余额到账比平时慢。请稍后在“我的页面”查看余额，如仍未到账请联系客服。",
+      "failed": "支付未完成，请重试。"
+    }
+  },
+  "rewardPoints": {
+    "balance": "可用 {{points}}",
+    "discount": "奖励金",
+    "payable": "应付金额",
+    "earnPreview": "本单可获得 {{points}} 奖励金",
+    "payWithPoints": "用奖励金支付",
+    "applyFailed": "奖励金使用失败",
+    "insufficient": "奖励金不足，请刷新页面后重试。",
+    "notice": "优先抵扣奖励金，剩余金额通过下方支付方式支付。",
+    "apply": "使用 {{amount}} 奖励金"
+  },
+  "membership": {
+    "toNext": "再消费 {{amount}} 即可升级为 {{tier}}（返 {{rate}}%）",
+    "upgradeNow": "本单完成后升级为 {{tier}}！下一单起返 {{rate}}%"
+  }
 }

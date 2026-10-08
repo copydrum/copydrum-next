@@ -14,11 +14,11 @@
   "paypalDesc": "Schnelle und sichere PayPal-Zahlung",
   "kakaopay": "Kakao Pay",
   "kakaopayDesc": "Mit Kakao Pay bezahlen",
-  "usePoints": "Punkte verwenden",
-  "usePointsDesc": "Mit Ihren Punkten bezahlen (Guthaben: {{balance}})",
-  "availablePoints": "Verfügbare Punkte",
-  "pointsToUse": "Zu verwendende Punkte",
-  "insufficientPoints": "Unzureichende Punkte",
+  "usePoints": "Mit Guthaben bezahlen",
+  "usePointsDesc": "Guthaben verwenden (Stand: {{balance}})",
+  "availablePoints": "Ihr Guthaben",
+  "pointsToUse": "Zu zahlender Betrag",
+  "insufficientPoints": "Nicht genügend Guthaben",
   "enterCardDetails": "Kartendetails eingeben",
   "cardNumber": "Kartennummer",
   "expiryDate": "Ablaufdatum",
@@ -47,5 +47,67 @@
   "creditDebitWallets": "Kredit-/Debitkarte & Wallets",
   "localCardsSupported": "+ Lokale Karten unterstützt",
   "preorderConsentTitle": "Ihr Warenkorb enthält Vorbestellungsartikel.",
-  "preorderConsentDescription": "Vorbestellungsartikel beginnen die 1:1 maßgeschneiderte Transkription sofort nach Zahlung, daher sind Bestellstornierungen und Rückerstattungen aufgrund einfacher Meinungsänderung nicht möglich. Stimmen Sie dem zu?"
+  "preorderConsentDescription": "Vorbestellungsartikel beginnen die 1:1 maßgeschneiderte Transkription sofort nach Zahlung, daher sind Bestellstornierungen und Rückerstattungen aufgrund einfacher Meinungsänderung nicht möglich. Stimmen Sie dem zu?",
+  "cashShortBy": "Es fehlen noch {{amount}}",
+  "cashRemaining": "Guthaben nach der Zahlung",
+  "cashPay": {
+    "bonusHint": "Bis zu 25 % Bonus beim Aufladen von Guthaben",
+    "chargeAndPay": "Differenz aufladen und jetzt bezahlen",
+    "charge": "Guthaben aufladen",
+    "chargedReady": "Ihr Guthaben wurde aufgeladen. Klicken Sie unten, um die Zahlung abzuschließen."
+  },
+  "cashCharge": {
+    "title": "Guthaben aufladen",
+    "subtitle": "Je größer das Paket, desto größer der Bonus",
+    "currentBalance": "Ihr Guthaben",
+    "shortfall": "Wir haben ein Paket gewählt, das die fehlenden {{amount}} abdeckt",
+    "payToCharge": "{{pay}} zahlen → {{total}} Guthaben erhalten",
+    "bonus": "{{bonus}} Bonus",
+    "sheets": "Ca. {{count}} Noten",
+    "popular": "Beliebt",
+    "best": "Bester Wert",
+    "methodTitle": "Zahlungsmethode",
+    "method": {
+      "lemonsqueezy": "Karte",
+      "paypal": "PayPal"
+    },
+    "agree": "[Erforderlich] Ich stimme den Erstattungsbedingungen für Guthaben zu (Bonusguthaben wird nicht erstattet)",
+    "viewPolicy": "Anzeigen",
+    "submit": "{{pay}} bezahlen",
+    "paypalHint": "Klicken Sie unten auf den PayPal-Button, um den Kauf abzuschließen.",
+    "back": "Anderes Paket wählen",
+    "confirming": "Zahlung wird bestätigt...",
+    "doneTitle": "Guthaben aufgeladen",
+    "doneMessage": "{{amount}} Guthaben wurde hinzugefügt",
+    "newBalance": "Guthaben: {{balance}}",
+    "close": "Schließen",
+    "continueCheckout": "Weiter zur Zahlung",
+    "goMypage": "Zu Meine Seite",
+    "error": {
+      "agreeRequired": "Bitte stimmen Sie den Erstattungsbedingungen zu.",
+      "authRequired": "Bitte melden Sie sich zuerst an.",
+      "createFailed": "Der Kauf konnte nicht gestartet werden. Bitte versuchen Sie es gleich noch einmal.",
+      "invalidAmount": "Dieses Paket ist nicht mehr verfügbar. Bitte laden Sie die Seite neu und versuchen Sie es erneut.",
+      "invalidMethod": "Diese Zahlungsmethode ist derzeit nicht verfügbar.",
+      "payFailed": "Die Zahlung konnte nicht abgeschlossen werden. {{message}}",
+      "cancelled": "Zahlung abgebrochen.",
+      "delayed": "Ihre Zahlung war erfolgreich, aber die Gutschrift dauert länger als üblich. Bitte prüfen Sie Ihr Guthaben in Kürze unter „Meine Seite“ und kontaktieren Sie den Support, falls es nicht erscheint.",
+      "failed": "Die Zahlung wurde nicht abgeschlossen. Bitte versuchen Sie es erneut."
+    }
+  },
+  "rewardPoints": {
+    "balance": "{{points}} verfügbar",
+    "discount": "Prämien",
+    "payable": "Zu zahlen",
+    "earnPreview": "Mit dieser Bestellung erhalten Sie {{points}} Prämien",
+    "payWithPoints": "Mit Prämien bezahlen",
+    "applyFailed": "Prämien konnten nicht angewendet werden",
+    "insufficient": "Nicht genügend Prämien. Bitte laden Sie die Seite neu und versuchen Sie es erneut.",
+    "notice": "Prämien werden zuerst angerechnet, der Rest wird über die unten gewählte Zahlungsmethode bezahlt.",
+    "apply": "{{amount}} Prämien anwenden"
+  },
+  "membership": {
+    "toNext": "Noch {{amount}} bis {{tier}} ({{rate}} % zurück)",
+    "upgradeNow": "Mit dieser Bestellung erreichen Sie {{tier}}! Ab der nächsten Bestellung erhalten Sie {{rate}} % zurück"
+  }
 }

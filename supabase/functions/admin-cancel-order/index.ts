@@ -73,7 +73,7 @@ serve(async (req) => {
 
     const { data: order, error: orderError } = await adminClient
       .from("orders")
-      .select("id, user_id, status, total_amount, points_used, order_number")
+      .select("id, user_id, status, payment_status, total_amount, points_used, order_number, order_type, metadata")
       .eq("id", orderId)
       .maybeSingle();
 
@@ -96,6 +96,23 @@ serve(async (req) => {
 
     if (normalizedStatus === "cancelled" && !doRefund) {
       return new Response("Order already cancelled", { status: 409, headers: corsHeaders });
+    }
+
+    // 충전 주문의 '환불'은 캐쉬를 더 넣는 셈이 되고, 완료된 충전을 취소하면 캐쉬만 남는다.
+    // 충전 캐쉬 환불은 회원 캐쉬 관리의 충전 캐쉬 환불(wallet_refund_charge)로 처리한다.
+    const isCashCharge =
+      order.order_type === "cash" ||
+      order.metadata?.type === "cash_charge" ||
+      order.metadata?.purpose === "cash_charge";
+    const isChargePaid = normalizedStatus === "completed" || order.payment_status === "paid";
+    if (isCashCharge && (doRefund || isChargePaid)) {
+      return new Response(
+        JSON.stringify({
+          error: "CASH_CHARGE_ORDER",
+          message: "캐쉬 충전 주문은 회원 캐쉬 관리의 '충전 캐쉬 환불'로 처리해 주세요.",
+        }),
+        { status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
     }
 
     if (doRefund && !REFUNDABLE_STATUSES.has(normalizedStatus)) {

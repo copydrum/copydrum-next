@@ -2,15 +2,19 @@
 
 import { useTranslation } from 'react-i18next';
 import { TIER_STYLE, ratePercent, type MembershipSummary } from '@/lib/membership';
+import { formatWalletAmount, isKrwLocale } from '@/lib/wallet/display';
 
 export default function MembershipCard({ membership }: { membership: MembershipSummary }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const style = TIER_STYLE[membership.tier] ?? TIER_STYLE.rookie;
   const tierName = t(`mypage.membership.tier.${membership.tier}`);
   const hasNext = membership.next_tier !== null && membership.next_min_spend !== null && membership.remaining !== null;
   const progress = hasNext
     ? Math.min(100, Math.round((membership.lifetime_spend / Math.max(1, membership.next_min_spend!)) * 100))
     : 100;
+  // 한국어 문구는 "원"을 포함하고 있어 숫자만 넘긴다
+  const amount = (krw: number) =>
+    isKrwLocale(i18n.language) ? krw.toLocaleString('ko-KR') : formatWalletAmount(krw, i18n.language);
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-4">
@@ -25,7 +29,7 @@ export default function MembershipCard({ membership }: { membership: MembershipS
           </span>
         </div>
         <span className="text-xs text-gray-500">
-          {t('mypage.membership.lifetimeSpend', { amount: membership.lifetime_spend.toLocaleString('ko-KR') })}
+          {t('mypage.membership.lifetimeSpend', { amount: amount(membership.lifetime_spend) })}
         </span>
       </div>
 
@@ -37,14 +41,19 @@ export default function MembershipCard({ membership }: { membership: MembershipS
           {hasNext
             ? t('mypage.membership.toNext', {
                 tier: t(`mypage.membership.tier.${membership.next_tier}`),
-                amount: membership.remaining!.toLocaleString('ko-KR'),
+                amount: amount(membership.remaining!),
                 rate: ratePercent(membership.next_earn_rate),
               })
             : t('mypage.membership.top')}
         </p>
       </div>
 
-      <p className="text-xs text-gray-400">{t('mypage.membership.rule')}</p>
+      <p className="text-xs text-gray-400">
+        {t('mypage.membership.rule', {
+          session: formatWalletAmount(30000, i18n.language),
+          master: formatWalletAmount(100000, i18n.language),
+        })}
+      </p>
     </div>
   );
 }

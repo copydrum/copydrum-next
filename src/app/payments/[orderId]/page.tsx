@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { useLocaleRouter } from '@/hooks/useLocaleRouter';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '@/lib/supabase';
@@ -33,6 +33,7 @@ interface UserProfile {
 
 export default function PaymentPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const router = useLocaleRouter();
   const { t } = useTranslation();
   const { user } = useAuthStore();
@@ -129,8 +130,12 @@ export default function PaymentPage() {
   }, [orderId, user]);
 
   // 결제 성공 처리
-  const handlePaymentSuccess = (method: string, paymentId?: string, dbOrderId?: string) => {
+  const handlePaymentSuccess = async (method: string, paymentId?: string, dbOrderId?: string) => {
     const finalOrderId = dbOrderId || orderId;
+    const sheetIds = checkoutItems.map((item) => item.sheet_id).filter(Boolean);
+    if (user && sheetIds.length > 0) {
+      await supabase.from('cart_items').delete().eq('user_id', user.id).in('sheet_id', sheetIds);
+    }
     router.push(`/payment/success?orderId=${finalOrderId}&method=${method}&paymentId=${paymentId || ''}`);
   };
 
@@ -181,6 +186,7 @@ export default function PaymentPage() {
         userEmail={user.email || undefined}
         userName={user.user_metadata?.name || undefined}
         userCash={userProfile?.credits || 0}
+        openCashPayment={searchParams.get('pay') === 'cash'}
         onPaymentSuccess={handlePaymentSuccess}
         onPaymentError={handlePaymentError}
       />

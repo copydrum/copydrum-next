@@ -2,7 +2,7 @@
 export type Currency = 'KRW' | 'USD' | 'EUR';
 
 // USD 할인 적용 언어 (Discount 그룹: 1500원 = $1)
-const USD_DISCOUNT_LOCALES = ['vi', 'th', 'id', 'hi', 'pt', 'tr', 'ru', 'uk'];
+export const USD_DISCOUNT_LOCALES = ['vi', 'th', 'id', 'hi', 'pt', 'tr', 'ru', 'uk'];
 
 // Locale → Currency 매핑
 const LOCALE_TO_CURRENCY: Record<string, Currency> = {

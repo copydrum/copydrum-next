@@ -5,6 +5,7 @@ import { useRewardPoints, type PointTransaction } from '@/hooks/useRewardPoints'
 import { useMembership } from '@/hooks/useMembership';
 import { POINT_EARN_RATE, POINT_VALID_DAYS } from '@/lib/points/config';
 import { ratePercent } from '@/lib/membership';
+import { formatRewardPoints, isKrwLocale } from '@/lib/wallet/display';
 
 const TYPE_STYLE: Record<PointTransaction['type'], string> = {
   earn: 'bg-emerald-100 text-emerald-700',
@@ -24,11 +25,15 @@ function formatLastUsableDate(expiresAt: string): string {
 }
 
 export default function PointsPanel({ userId }: { userId: string }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { balance, expiringSoon, nextExpiryAt, transactions, loading } = useRewardPoints(userId, {
     withHistory: true,
   });
   const { membership } = useMembership(userId);
+  const pts = (points: number) => formatRewardPoints(points, i18n.language);
+  // 한국어 "잔액 {{points}} P" 문구는 단위를 포함한다
+  const ptsValue = (points: number) =>
+    isKrwLocale(i18n.language) ? points.toLocaleString('ko-KR') : formatRewardPoints(points, i18n.language);
 
   return (
     <div className="space-y-6">
@@ -36,12 +41,12 @@ export default function PointsPanel({ userId }: { userId: string }) {
         <div className="flex items-end justify-between gap-4">
           <div>
             <p className="text-sm text-gray-500">{t('mypage.points.balance', '보유 포인트')}</p>
-            <p className="text-3xl font-extrabold text-emerald-600">{balance.toLocaleString('ko-KR')} P</p>
+            <p className="text-3xl font-extrabold text-emerald-600">{pts(balance)}</p>
           </div>
           {expiringSoon > 0 && nextExpiryAt && (
             <div className="text-right">
               <p className="text-xs text-gray-500">{t('mypage.points.expiringSoon', '30일 내 소멸 예정')}</p>
-              <p className="text-lg font-bold text-red-600">{expiringSoon.toLocaleString('ko-KR')} P</p>
+              <p className="text-lg font-bold text-red-600">{pts(expiringSoon)}</p>
               <p className="text-[11px] text-gray-400">
                 {t('mypage.points.lastUsableDate', '{{date}}까지 사용 가능', { date: formatLastUsableDate(nextExpiryAt) })}
               </p>
@@ -82,17 +87,19 @@ export default function PointsPanel({ userId }: { userId: string }) {
                     <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${TYPE_STYLE[tx.type]}`}>
                       {t(`mypage.points.type.${tx.type}`)}
                     </span>
-                    <span className="truncate text-sm text-gray-700">{tx.description}</span>
+                    {isKrwLocale(i18n.language) && (
+                      <span className="truncate text-sm text-gray-700">{tx.description}</span>
+                    )}
                   </div>
                   <p className="mt-0.5 text-xs text-gray-400">{new Date(tx.created_at).toLocaleString('ko-KR')}</p>
                 </div>
                 <div className="text-right shrink-0">
                   <p className={`font-bold ${tx.amount >= 0 ? 'text-emerald-600' : 'text-gray-700'}`}>
-                    {tx.amount >= 0 ? '+' : ''}
-                    {tx.amount.toLocaleString('ko-KR')} P
+                    {tx.amount >= 0 ? '+' : '-'}
+                    {pts(Math.abs(tx.amount))}
                   </p>
                   <p className="text-[11px] text-gray-400">
-                    {t('mypage.points.balanceAfter', '잔액 {{points}} P', { points: tx.balance_after.toLocaleString('ko-KR') })}
+                    {t('mypage.points.balanceAfter', '잔액 {{points}} P', { points: ptsValue(tx.balance_after) })}
                   </p>
                 </div>
               </li>

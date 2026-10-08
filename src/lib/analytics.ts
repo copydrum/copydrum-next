@@ -17,8 +17,13 @@ interface RawOrder {
   created_at: string | null;
   status: string | null;
   total_amount: number | null;
+  points_used?: number | null;
   user_id?: string | null;
 }
+
+// 적립 포인트로 낸 금액은 실제 받은 돈이 아니므로 매출에서 뺀다
+const orderRevenue = (order: RawOrder): number =>
+  Math.max(0, safeNumber(order.total_amount) - safeNumber(order.points_used));
 
 interface RawOrderItem {
   id: string;
@@ -304,7 +309,7 @@ export const fetchAnalyticsData = async (period: AnalyticsPeriod = '30d'): Promi
 
   const ordersQuery = supabase
     .from('orders')
-    .select('id, created_at, status, total_amount, user_id')
+    .select('id, created_at, status, total_amount, points_used, user_id')
     .eq('status', 'completed')
     .order('created_at', { ascending: true });
 
@@ -319,7 +324,7 @@ export const fetchAnalyticsData = async (period: AnalyticsPeriod = '30d'): Promi
     previousStartIso && previousEndIso
       ? supabase
           .from('orders')
-          .select('id, created_at, status, total_amount')
+          .select('id, created_at, status, total_amount, points_used')
           .eq('status', 'completed')
           .gte('created_at', previousStartIso)
           .lte('created_at', previousEndIso)
@@ -462,7 +467,7 @@ export const fetchAnalyticsData = async (period: AnalyticsPeriod = '30d'): Promi
     }
     const bucketKey = formatBucketKey(createdAt, bucketUnit);
     const entry = revenueBuckets.get(bucketKey) ?? { revenue: 0, orders: 0 };
-    const amount = safeNumber(order.total_amount);
+    const amount = orderRevenue(order);
     entry.revenue += amount;
     entry.orders += 1;
     totalRevenue += amount;
@@ -481,7 +486,7 @@ export const fetchAnalyticsData = async (period: AnalyticsPeriod = '30d'): Promi
 
   const totalOrders = currentOrders.length;
   const previousRevenue = previousOrders.reduce(
-    (sum, order) => sum + safeNumber(order.total_amount),
+    (sum, order) => sum + orderRevenue(order),
     0,
   );
   const previousOrdersCount = previousOrders.length;

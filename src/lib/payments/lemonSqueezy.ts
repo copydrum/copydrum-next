@@ -104,6 +104,15 @@ export function buildCheckoutName(items: SanitizedOrderItem[]): string {
   return `CopyDrum Drum Sheets (${items.length} items)`;
 }
 
+/** 캐쉬(Credits) 충전 체크아웃 이름. 예: "CopyDrum Credits ($10.00)" */
+export function buildCreditsCheckoutName(unitAmount: number, storeCurrency: Currency): string {
+  if (storeCurrency === 'KRW') {
+    return `CopyDrum Credits (₩${unitAmount.toLocaleString('en-US')})`;
+  }
+  const symbol = storeCurrency === 'EUR' ? '€' : '$';
+  return `CopyDrum Credits (${symbol}${(unitAmount / 100).toFixed(2)})`;
+}
+
 /**
  * 장바구니 결제 시 체크아웃 설명(description) 텍스트.
  * 곡 목록을 sanitize 된 텍스트로만 나열한다. (이미지/자켓 없음)

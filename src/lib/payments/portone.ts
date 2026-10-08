@@ -24,6 +24,31 @@ function toPortOneCurrency(currency: 'KRW' | 'USD' | 'JPY'): PortOneCurrency {
 
 // PortOne V2 SDK만 사용 (V1 IMP 레거시 완전 제거)
 
+interface PaymentRequestHandlers {
+  onPaymentSuccess: (response: any) => void | Promise<void>;
+  onPaymentFail: (error: any) => void | Promise<void>;
+}
+
+/**
+ * PortOne.requestPayment 는 요청 객체만 받고 결과를 Promise 로 돌려준다 (콜백 인자 없음).
+ * PC(IFRAME)에서는 결과 객체가 오고, 모바일(REDIRECTION)에서는 redirectUrl 로 이동하므로 undefined 다.
+ */
+export async function runPaymentRequest(requestData: any, handlers: PaymentRequestHandlers): Promise<void> {
+  let response: any;
+  try {
+    response = await PortOne.requestPayment(requestData);
+  } catch (error) {
+    await handlers.onPaymentFail(error);
+    return;
+  }
+  if (!response) return;
+  if (response.code !== undefined && response.code !== null) {
+    await handlers.onPaymentFail(response);
+    return;
+  }
+  await handlers.onPaymentSuccess(response);
+}
+
 // KRW를 USD로 변환 (PayPal은 USD 사용)
 export const convertKRWToUSD = (amountKRW: number): number => {
   const usdAmount = amountKRW * DEFAULT_USD_RATE;
@@ -406,7 +431,7 @@ export const requestKakaoPayPayment = async (
     });
 
     // 포트원 V2 SDK로 카카오페이 결제 요청 (requestPayment 사용)
-    await PortOne.requestPayment(requestData, {
+    await runPaymentRequest(requestData, {
       onPaymentSuccess: async (paymentResult: any) => {
         console.log('[portone-kakaopay] onPaymentSuccess 전체 응답', JSON.stringify(paymentResult, null, 2));
 
@@ -597,7 +622,7 @@ export const requestInicisPayment = async (
 
     console.log('[portone-inicis] 결제 요청 시작:', requestData);
 
-    await PortOne.requestPayment(requestData, {
+    await runPaymentRequest(requestData, {
       onPaymentSuccess: async (paymentResult: any) => {
         console.log('[portone-inicis] SDK 결제 성공 응답:', paymentResult);
 
@@ -770,7 +795,7 @@ export async function requestPortonePayment(args: PortOnePaymentArgs): Promise<P
 
     // V2 SDK로 결제 요청
     return new Promise<PortOnePaymentResult>((resolve) => {
-      PortOne.requestPayment(requestData, {
+      runPaymentRequest(requestData, {
         onPaymentSuccess: async (paymentResult: any) => {
           console.log('[portone-v2] 카드 결제 성공:', paymentResult);
 

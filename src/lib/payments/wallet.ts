@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 
-export type CashTransactionType = 'charge' | 'use' | 'refund' | 'admin_add' | 'admin_deduct';
+export type CashTransactionType = 'charge' | 'use' | 'refund' | 'admin_add' | 'admin_deduct' | 'charge_refund';
 
 export interface ApplyCashParams {
   userId: string;
@@ -56,6 +56,24 @@ export async function applyCash(supabase: SupabaseClient, params: ApplyCashParam
     throw error;
   }
 
+  return Number(data) || 0;
+}
+
+/**
+ * 결제가 확인된 충전 주문의 캐쉬를 넣는다. 보너스는 DB 충전 상품 표로 정해진다.
+ * 이미 충전된 주문이면 아무것도 하지 않고 현재 잔액을 돌려준다.
+ */
+export async function completeCashChargeOrder(
+  supabase: SupabaseClient,
+  orderId: string,
+  description?: string,
+): Promise<number> {
+  const { data, error } = await supabase.rpc('cash_complete_charge_order', {
+    p_order_id: orderId,
+    p_created_by: null,
+    p_description: description ?? null,
+  });
+  if (error) throw error;
   return Number(data) || 0;
 }
 

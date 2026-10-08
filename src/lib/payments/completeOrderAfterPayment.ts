@@ -13,8 +13,8 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import type { PaymentMethod } from './types';
 import { calculateExpectedCompletionDate, formatDateToYMD } from '@/utils/businessDays';
 import { getSiteUrl } from '@/lib/siteUrl';
-import { getCashChargeBonus } from './cashPackages';
-import { applyCash, DuplicateCashTransactionError } from './wallet';
+import { isCashChargeOrder } from './cashPackages';
+import { completeCashChargeOrder } from './wallet';
 
 interface CompleteOrderAfterPaymentOptions {
   /** 트랜잭션 ID (PG사 거래 ID 또는 수동 확인 ID) */
@@ -66,6 +66,7 @@ export const completeOrderAfterPayment = async (
       payment_confirmed_at,
       expected_completion_date,
       order_number,
+      order_type,
       metadata,
       order_items (
         id,
@@ -162,40 +163,18 @@ export const completeOrderAfterPayment = async (
     return;
   }
 
-  const isCashCharge =
-    ((order.metadata as Record<string, unknown> | null)?.type === 'cash_charge' ||
-      (order.metadata as Record<string, unknown> | null)?.purpose === 'cash_charge') &&
-    (!orderItems || orderItems.length === 0);
+  const isCashCharge = isCashChargeOrder(order) && (!orderItems || orderItems.length === 0);
 
   const isSheetPurchase = orderItems && orderItems.length > 0;
 
-  // 1. 캐시 충전 처리
+  // 1. 캐시 충전 처리 (같은 주문이 이미 충전됐으면 DB 함수가 건너뛴다)
   if (isCashCharge) {
-    const chargeAmount = Math.max(0, order.total_amount ?? 0);
-    const bonusAmount = getCashChargeBonus(chargeAmount);
-
     try {
-      const newCredits = await applyCash(supabase, {
-        userId: order.user_id,
-        amount: chargeAmount,
-        bonus: bonusAmount,
-        type: 'charge',
-        description: `결제 완료: ${paymentMethod}`,
-        orderId: order.id,
-      });
-      console.log('[completeOrderAfterPayment] 캐시 충전 완료', {
-        orderId,
-        chargeAmount,
-        bonusAmount,
-        newCredits,
-      });
+      const newCredits = await completeCashChargeOrder(supabase, order.id, `캐쉬 충전 (${paymentMethod})`);
+      console.log('[completeOrderAfterPayment] 캐시 충전 완료', { orderId, newCredits });
     } catch (error) {
-      if (!(error instanceof DuplicateCashTransactionError)) {
-        console.error('[completeOrderAfterPayment] 캐시 충전 실패', error);
-        throw new Error('캐시 충전에 실패했습니다.');
-      }
-      // 같은 주문의 충전이 이미 반영됨 (웹훅 중복 등) → 주문 상태만 마저 갱신
-      console.warn('[completeOrderAfterPayment] 이미 충전된 주문', { orderId });
+      console.error('[completeOrderAfterPayment] 캐시 충전 실패', error);
+      throw new Error('캐시 충전에 실패했습니다.');
     }
   }
 

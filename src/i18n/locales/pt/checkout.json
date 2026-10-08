@@ -14,11 +14,11 @@
   "paypalDesc": "Pagamentos rápidos e seguros com PayPal",
   "kakaopay": "Kakao Pay",
   "kakaopayDesc": "Pagar com Kakao Pay",
-  "usePoints": "Usar Pontos",
-  "usePointsDesc": "Pagar com seus pontos (Saldo: {{balance}})",
-  "availablePoints": "Pontos Disponíveis",
-  "pointsToUse": "Pontos a Usar",
-  "insufficientPoints": "Pontos insuficientes",
+  "usePoints": "Pagar com créditos",
+  "usePointsDesc": "Use seus créditos (saldo: {{balance}})",
+  "availablePoints": "Seus créditos",
+  "pointsToUse": "Valor a pagar",
+  "insufficientPoints": "Créditos insuficientes",
   "enterCardDetails": "Inserir Detalhes do Cartão",
   "cardNumber": "Número do Cartão",
   "expiryDate": "Data de Validade",
@@ -47,5 +47,67 @@
   "creditDebitWallets": "Cartão de Crédito/Débito & Carteiras",
   "localCardsSupported": "+ Cartões locais aceitos",
   "preorderConsentTitle": "Seu carrinho contém itens de pré-encomenda.",
-  "preorderConsentDescription": "Os itens de pré-encomenda iniciam a transcrição personalizada 1:1 imediatamente após o pagamento, portanto, o cancelamento de pedidos e reembolsos devido a uma simples mudança de opinião não são possíveis. Você concorda com isso?"
+  "preorderConsentDescription": "Os itens de pré-encomenda iniciam a transcrição personalizada 1:1 imediatamente após o pagamento, portanto, o cancelamento de pedidos e reembolsos devido a uma simples mudança de opinião não são possíveis. Você concorda com isso?",
+  "cashShortBy": "Faltam {{amount}}",
+  "cashRemaining": "Créditos após o pagamento",
+  "cashPay": {
+    "bonusHint": "Ganhe até 25% de bônus ao comprar créditos",
+    "chargeAndPay": "Recarregar a diferença e pagar agora",
+    "charge": "Comprar créditos",
+    "chargedReady": "Créditos adicionados. Clique no botão abaixo para concluir o pagamento."
+  },
+  "cashCharge": {
+    "title": "Comprar créditos",
+    "subtitle": "Quanto maior o pacote, maior o bônus",
+    "currentBalance": "Seus créditos",
+    "shortfall": "Escolhemos um pacote que cobre os {{amount}} que faltam",
+    "payToCharge": "Pague {{pay}} → Receba {{total}} em créditos",
+    "bonus": "{{bonus}} de bônus",
+    "sheets": "Cerca de {{count}} partituras",
+    "popular": "Popular",
+    "best": "Melhor custo-benefício",
+    "methodTitle": "Forma de pagamento",
+    "method": {
+      "lemonsqueezy": "Cartão",
+      "paypal": "PayPal"
+    },
+    "agree": "[Obrigatório] Concordo com a política de reembolso de créditos (créditos de bônus não são reembolsáveis)",
+    "viewPolicy": "Ver",
+    "submit": "Pagar {{pay}}",
+    "paypalHint": "Clique no botão do PayPal abaixo para concluir a compra.",
+    "back": "Escolher outro pacote",
+    "confirming": "Confirmando o pagamento...",
+    "doneTitle": "Créditos adicionados",
+    "doneMessage": "{{amount}} em créditos foram adicionados",
+    "newBalance": "Saldo de créditos: {{balance}}",
+    "close": "Fechar",
+    "continueCheckout": "Continuar o pagamento",
+    "goMypage": "Ir para Minha Página",
+    "error": {
+      "agreeRequired": "Concorde com a política de reembolso.",
+      "authRequired": "Faça login primeiro.",
+      "createFailed": "Não foi possível iniciar a compra. Tente novamente em instantes.",
+      "invalidAmount": "Este pacote não está mais disponível. Atualize a página e tente novamente.",
+      "invalidMethod": "Esta forma de pagamento não está disponível no momento.",
+      "payFailed": "Não foi possível concluir o pagamento. {{message}}",
+      "cancelled": "Pagamento cancelado.",
+      "delayed": "Seu pagamento foi concluído, mas a adição dos créditos está demorando mais que o normal. Verifique seu saldo em Minha Página em instantes e fale com o suporte se ele não aparecer.",
+      "failed": "O pagamento não foi concluído. Tente novamente."
+    }
+  },
+  "rewardPoints": {
+    "balance": "{{points}} disponíveis",
+    "discount": "Recompensas",
+    "payable": "Total a pagar",
+    "earnPreview": "Você ganhará {{points}} em recompensas com este pedido",
+    "payWithPoints": "Pagar com recompensas",
+    "applyFailed": "Não foi possível aplicar suas recompensas",
+    "insufficient": "Recompensas insuficientes. Atualize a página e tente novamente.",
+    "notice": "As recompensas são aplicadas primeiro e o restante é cobrado na forma de pagamento abaixo.",
+    "apply": "Usar {{amount}} em recompensas"
+  },
+  "membership": {
+    "toNext": "Gaste mais {{amount}} para chegar a {{tier}} ({{rate}}% de volta)",
+    "upgradeNow": "Com este pedido você chega a {{tier}}! Ganhe {{rate}}% de volta a partir do próximo pedido"
+  }
 }

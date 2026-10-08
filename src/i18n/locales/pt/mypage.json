@@ -29,6 +29,10 @@
     "customOrders": {
       "label": "Pedidos Personalizados",
       "description": "Verifique o status de suas solicitações de pedido personalizado."
+    },
+    "points": {
+      "label": "Recompensas",
+      "description": "Veja seu saldo de recompensas e o que expira em breve."
     }
   },
   "stats": {
@@ -43,9 +47,9 @@
     "memberInfo": "Informações do Membro",
     "nameNotSet": "Nome não definido",
     "joinedOn": "Membro desde",
-    "cashBalance": "Saldo Disponível",
+    "cashBalance": "Créditos",
     "cashBalanceDescription": "Disponível para sua próxima compra de partitura.",
-    "chargeCash": "Recarregar Saldo",
+    "chargeCash": "Comprar créditos",
     "email": "E-mail",
     "name": "Nome",
     "namePlaceholder": "Digite seu nome",
@@ -53,7 +57,8 @@
     "phonePlaceholder": "Digite seu número de telefone",
     "joinDate": "Data de Cadastro",
     "saving": "Salvando...",
-    "updateProfile": "Atualizar Perfil"
+    "updateProfile": "Atualizar Perfil",
+    "cashNotice": "Use créditos para comprar partituras. Quanto maior o pacote, maior o bônus."
   },
   "purchases": {
     "title": "Histórico de Compras",
@@ -286,5 +291,40 @@
     "bankTransfer": "Transferência Bancária",
     "preparing": "Preparando"
   },
-  "cart": "Carrinho"
+  "cart": "Carrinho",
+  "points": {
+    "balance": "Saldo de recompensas",
+    "expiringSoon": "Expira em 30 dias",
+    "lastUsableDate": "Use até {{date}}",
+    "ruleEarn": "Ganhe {{rate}}% do valor pago em partituras como recompensas.",
+    "ruleUse": "As recompensas são aplicadas no pagamento e o restante é cobrado na sua forma de pagamento.",
+    "ruleExpiry": "As recompensas expiram {{days}} dias após serem ganhas e não podem ser trocadas por dinheiro.",
+    "history": "Histórico de recompensas",
+    "loading": "Carregando...",
+    "empty": "Ainda não há atividade de recompensas.",
+    "balanceAfter": "Saldo {{points}}",
+    "viewHistory": "Ver histórico de recompensas",
+    "type": {
+      "earn": "Ganhas",
+      "signup": "Bônus de boas-vindas",
+      "use": "Usadas",
+      "release": "Devolvidas",
+      "revoke": "Estornadas",
+      "expire": "Expiradas",
+      "admin_add": "Adicionadas",
+      "admin_deduct": "Descontadas"
+    }
+  },
+  "membership": {
+    "tier": {
+      "rookie": "Rookie",
+      "session": "Session",
+      "master": "Master"
+    },
+    "earnRate": "{{rate}}% de volta",
+    "lifetimeSpend": "Total gasto {{amount}}",
+    "toNext": "Gaste mais {{amount}} para chegar a {{tier}} e ganhar {{rate}}% de volta.",
+    "top": "Você está no nível mais alto. Obrigado!",
+    "rule": "Seu nível é baseado no total gasto e nunca diminui. (Rookie 3% · Session a partir de {{session}} 5% · Master a partir de {{master}} 7%)"
+  }
 }

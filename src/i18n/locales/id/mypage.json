@@ -29,6 +29,10 @@
     "customOrders": {
       "label": "Pesanan Kustom",
       "description": "Periksa status permintaan pesanan kustom Anda."
+    },
+    "points": {
+      "label": "Reward",
+      "description": "Lihat saldo reward dan reward yang segera kedaluwarsa."
     }
   },
   "stats": {
@@ -43,9 +47,9 @@
     "memberInfo": "Informasi Anggota",
     "nameNotSet": "Nama tidak diatur",
     "joinedOn": "Bergabung pada",
-    "cashBalance": "Saldo Cash",
+    "cashBalance": "Saldo",
     "cashBalanceDescription": "Tersedia untuk pembelian lembaran musik Anda berikutnya.",
-    "chargeCash": "Isi Cash",
+    "chargeCash": "Isi saldo",
     "email": "Email",
     "name": "Nama",
     "namePlaceholder": "Masukkan nama Anda",
@@ -53,7 +57,8 @@
     "phonePlaceholder": "Masukkan nomor telepon Anda",
     "joinDate": "Tanggal Bergabung",
     "saving": "Menyimpan...",
-    "updateProfile": "Perbarui Profil"
+    "updateProfile": "Perbarui Profil",
+    "cashNotice": "Gunakan saldo untuk membeli partitur. Makin besar paket isi saldo, makin besar bonusnya."
   },
   "purchases": {
     "title": "Riwayat Pembelian",
@@ -286,5 +291,40 @@
     "bankTransfer": "Transfer Bank",
     "preparing": "Mempersiapkan"
   },
-  "cart": "Keranjang"
+  "cart": "Keranjang",
+  "points": {
+    "balance": "Saldo reward",
+    "expiringSoon": "Kedaluwarsa dalam 30 hari",
+    "lastUsableDate": "Gunakan sebelum {{date}}",
+    "ruleEarn": "Dapatkan reward {{rate}}% dari jumlah yang Anda bayar untuk partitur.",
+    "ruleUse": "Reward dipakai saat pembayaran, sisanya dibayar dengan metode pembayaran Anda.",
+    "ruleExpiry": "Reward kedaluwarsa {{days}} hari setelah diperoleh dan tidak dapat ditukar dengan uang.",
+    "history": "Riwayat reward",
+    "loading": "Memuat...",
+    "empty": "Belum ada aktivitas reward.",
+    "balanceAfter": "Saldo {{points}}",
+    "viewHistory": "Lihat riwayat reward",
+    "type": {
+      "earn": "Diperoleh",
+      "signup": "Bonus selamat datang",
+      "use": "Digunakan",
+      "release": "Dikembalikan",
+      "revoke": "Ditarik",
+      "expire": "Kedaluwarsa",
+      "admin_add": "Ditambahkan",
+      "admin_deduct": "Dikurangi"
+    }
+  },
+  "membership": {
+    "tier": {
+      "rookie": "Rookie",
+      "session": "Session",
+      "master": "Master"
+    },
+    "earnRate": "Cashback {{rate}}%",
+    "lifetimeSpend": "Total belanja {{amount}}",
+    "toNext": "Belanja {{amount}} lagi untuk naik ke {{tier}} dan dapat cashback {{rate}}%.",
+    "top": "Anda sudah di level tertinggi. Terima kasih!",
+    "rule": "Level ditentukan dari total belanja dan tidak pernah turun. (Rookie 3% · Session mulai {{session}} 5% · Master mulai {{master}} 7%)"
+  }
 }

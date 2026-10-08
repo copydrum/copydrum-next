@@ -14,11 +14,11 @@
   "paypalDesc": "Thanh toán nhanh và an toàn với PayPal",
   "kakaopay": "Kakao Pay",
   "kakaopayDesc": "Thanh toán với Kakao Pay",
-  "usePoints": "Sử dụng điểm",
-  "usePointsDesc": "Thanh toán bằng điểm của bạn (Số dư: {{balance}})",
-  "availablePoints": "Điểm khả dụng",
-  "pointsToUse": "Điểm sử dụng",
-  "insufficientPoints": "Không đủ điểm",
+  "usePoints": "Thanh toán bằng số dư",
+  "usePointsDesc": "Dùng số dư của bạn (số dư: {{balance}})",
+  "availablePoints": "Số dư của bạn",
+  "pointsToUse": "Số tiền thanh toán",
+  "insufficientPoints": "Số dư không đủ",
   "enterCardDetails": "Nhập thông tin thẻ",
   "cardNumber": "Số thẻ",
   "expiryDate": "Ngày hết hạn",
@@ -47,5 +47,67 @@
   "creditDebitWallets": "Thẻ Tín dụng/Ghi nợ & Ví điện tử",
   "localCardsSupported": "+ Hỗ trợ thẻ nội địa",
   "preorderConsentTitle": "Giỏ hàng của bạn chứa các sản phẩm đặt trước.",
-  "preorderConsentDescription": "Các sản phẩm đặt trước bắt đầu công việc phiên âm tùy chỉnh 1:1 ngay sau khi thanh toán, do đó việc hủy đơn hàng và hoàn tiền do đơn giản thay đổi ý định là không thể. Bạn có đồng ý với điều này không?"
+  "preorderConsentDescription": "Các sản phẩm đặt trước bắt đầu công việc phiên âm tùy chỉnh 1:1 ngay sau khi thanh toán, do đó việc hủy đơn hàng và hoàn tiền do đơn giản thay đổi ý định là không thể. Bạn có đồng ý với điều này không?",
+  "cashShortBy": "Bạn còn thiếu {{amount}}",
+  "cashRemaining": "Số dư sau thanh toán",
+  "cashPay": {
+    "bonusHint": "Nhận thêm tới 25% khi nạp tiền",
+    "chargeAndPay": "Nạp phần còn thiếu và thanh toán ngay",
+    "charge": "Nạp tiền",
+    "chargedReady": "Đã nạp tiền vào số dư. Nhấn nút bên dưới để hoàn tất thanh toán."
+  },
+  "cashCharge": {
+    "title": "Nạp tiền",
+    "subtitle": "Gói càng lớn, thưởng càng nhiều",
+    "currentBalance": "Số dư của bạn",
+    "shortfall": "Chúng tôi đã chọn gói đủ bù {{amount}} còn thiếu",
+    "payToCharge": "Trả {{pay}} → Nhận {{total}} vào số dư",
+    "bonus": "Thưởng {{bonus}}",
+    "sheets": "Khoảng {{count}} bản nhạc",
+    "popular": "Phổ biến",
+    "best": "Lợi nhất",
+    "methodTitle": "Phương thức thanh toán",
+    "method": {
+      "lemonsqueezy": "Thẻ",
+      "paypal": "PayPal"
+    },
+    "agree": "[Bắt buộc] Tôi đồng ý với chính sách hoàn tiền nạp (tiền thưởng không được hoàn lại)",
+    "viewPolicy": "Xem",
+    "submit": "Thanh toán {{pay}}",
+    "paypalHint": "Nhấn nút PayPal bên dưới để hoàn tất giao dịch.",
+    "back": "Chọn gói khác",
+    "confirming": "Đang xác nhận thanh toán...",
+    "doneTitle": "Nạp tiền thành công",
+    "doneMessage": "Đã cộng {{amount}} vào số dư",
+    "newBalance": "Số dư: {{balance}}",
+    "close": "Đóng",
+    "continueCheckout": "Tiếp tục thanh toán",
+    "goMypage": "Đến Trang của tôi",
+    "error": {
+      "agreeRequired": "Vui lòng đồng ý với chính sách hoàn tiền.",
+      "authRequired": "Vui lòng đăng nhập trước.",
+      "createFailed": "Không thể bắt đầu giao dịch. Vui lòng thử lại sau giây lát.",
+      "invalidAmount": "Gói này không còn khả dụng. Vui lòng tải lại trang và thử lại.",
+      "invalidMethod": "Phương thức thanh toán này hiện không khả dụng.",
+      "payFailed": "Không thể hoàn tất thanh toán. {{message}}",
+      "cancelled": "Đã hủy thanh toán.",
+      "delayed": "Thanh toán đã thành công nhưng việc cộng số dư đang chậm hơn bình thường. Vui lòng kiểm tra số dư trong Trang của tôi sau ít phút và liên hệ hỗ trợ nếu chưa thấy.",
+      "failed": "Thanh toán chưa hoàn tất. Vui lòng thử lại."
+    }
+  },
+  "rewardPoints": {
+    "balance": "Có {{points}}",
+    "discount": "Điểm thưởng",
+    "payable": "Tổng thanh toán",
+    "earnPreview": "Bạn sẽ nhận {{points}} điểm thưởng từ đơn hàng này",
+    "payWithPoints": "Thanh toán bằng điểm thưởng",
+    "applyFailed": "Không thể áp dụng điểm thưởng",
+    "insufficient": "Không đủ điểm thưởng. Vui lòng tải lại trang và thử lại.",
+    "notice": "Điểm thưởng được trừ trước, phần còn lại thanh toán bằng phương thức bên dưới.",
+    "apply": "Dùng {{amount}} điểm thưởng"
+  },
+  "membership": {
+    "toNext": "Chi thêm {{amount}} để lên hạng {{tier}} (hoàn {{rate}}%)",
+    "upgradeNow": "Đơn hàng này giúp bạn lên hạng {{tier}}! Nhận hoàn {{rate}}% từ đơn tiếp theo"
+  }
 }

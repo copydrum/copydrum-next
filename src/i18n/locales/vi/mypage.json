@@ -29,6 +29,10 @@
     "customOrders": {
       "label": "Đặt hàng tùy chỉnh",
       "description": "Kiểm tra trạng thái yêu cầu đặt hàng tùy chỉnh của bạn."
+    },
+    "points": {
+      "label": "Điểm thưởng",
+      "description": "Xem số dư điểm thưởng và điểm sắp hết hạn."
     }
   },
   "stats": {
@@ -43,9 +47,9 @@
     "memberInfo": "Thông tin thành viên",
     "nameNotSet": "Tên chưa được đặt",
     "joinedOn": "Tham gia vào",
-    "cashBalance": "Số dư tiền mặt",
+    "cashBalance": "Số dư",
     "cashBalanceDescription": "Có sẵn cho lần mua sheet music tiếp theo của bạn.",
-    "chargeCash": "Nạp tiền mặt",
+    "chargeCash": "Nạp tiền",
     "email": "Email",
     "name": "Tên",
     "namePlaceholder": "Nhập tên của bạn",
@@ -53,7 +57,8 @@
     "phonePlaceholder": "Nhập số điện thoại của bạn",
     "joinDate": "Ngày tham gia",
     "saving": "Đang lưu...",
-    "updateProfile": "Cập nhật hồ sơ"
+    "updateProfile": "Cập nhật hồ sơ",
+    "cashNotice": "Dùng số dư để mua bản nhạc. Gói nạp càng lớn, thưởng càng nhiều."
   },
   "purchases": {
     "title": "Lịch sử mua hàng",
@@ -286,5 +291,40 @@
     "bankTransfer": "Chuyển khoản ngân hàng",
     "preparing": "Đang chuẩn bị"
   },
-  "cart": "Giỏ hàng"
+  "cart": "Giỏ hàng",
+  "points": {
+    "balance": "Số dư điểm thưởng",
+    "expiringSoon": "Hết hạn trong 30 ngày",
+    "lastUsableDate": "Dùng trước {{date}}",
+    "ruleEarn": "Nhận {{rate}}% số tiền mua bản nhạc dưới dạng điểm thưởng.",
+    "ruleUse": "Điểm thưởng được trừ khi thanh toán, phần còn lại trả bằng phương thức thanh toán của bạn.",
+    "ruleExpiry": "Điểm thưởng hết hạn sau {{days}} ngày kể từ khi nhận và không thể đổi thành tiền.",
+    "history": "Lịch sử điểm thưởng",
+    "loading": "Đang tải...",
+    "empty": "Chưa có hoạt động điểm thưởng.",
+    "balanceAfter": "Số dư {{points}}",
+    "viewHistory": "Xem lịch sử điểm thưởng",
+    "type": {
+      "earn": "Tích lũy",
+      "signup": "Thưởng chào mừng",
+      "use": "Đã dùng",
+      "release": "Hoàn lại",
+      "revoke": "Thu hồi",
+      "expire": "Hết hạn",
+      "admin_add": "Cộng thêm",
+      "admin_deduct": "Trừ bớt"
+    }
+  },
+  "membership": {
+    "tier": {
+      "rookie": "Rookie",
+      "session": "Session",
+      "master": "Master"
+    },
+    "earnRate": "Hoàn {{rate}}%",
+    "lifetimeSpend": "Tổng chi tiêu {{amount}}",
+    "toNext": "Chi thêm {{amount}} để lên hạng {{tier}} và nhận hoàn {{rate}}%.",
+    "top": "Bạn đang ở hạng cao nhất. Cảm ơn bạn!",
+    "rule": "Hạng thành viên dựa trên tổng chi tiêu và không bao giờ bị hạ. (Rookie 3% · Session từ {{session}} 5% · Master từ {{master}} 7%)"
+  }
 }

@@ -16,6 +16,11 @@ interface PayPalPaymentButtonProps {
   orderId: string;
   amount: number; // KRW 금액
   items: CheckoutItem[];
+  /** 이미 DB 에 있는 주문이면 true (캐쉬 충전 등) — 주문 생성 단계를 건너뛴다 */
+  orderReady?: boolean;
+  orderName?: string;
+  /** 버튼을 그리기 전에 주문에 포인트를 적용하고 PayPal 로 결제할 금액(KRW)을 돌려준다 */
+  prepareOrder?: (dbOrderId: string) => Promise<number>;
   onSuccess: (paymentId: string, dbOrderId?: string) => void;
   onError: (error: Error) => void;
   onProcessing: () => void;
@@ -66,12 +71,15 @@ export default function PayPalPaymentButton({
   orderId,
   amount,
   items,
+  orderReady,
+  orderName,
+  prepareOrder,
   onSuccess,
   onError,
   onProcessing,
   compact,
 }: PayPalPaymentButtonProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [failCategory, setFailCategory] = useState<PayPalFailCategory | null>(null);
@@ -177,49 +185,56 @@ export default function PayPalPaymentButton({
       //   페이지 재진입 시 중복 생성 없음
       // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
       let dbOrderId = orderId;
-      try {
-        const orderDescription = items.length === 1
-          ? items[0].title
-          : `${items[0].title} 외 ${items.length - 1}건`;
+      if (!orderReady) {
+        try {
+          const orderDescription = items.length === 1
+            ? items[0].title
+            : `${items[0].title} 외 ${items.length - 1}건`;
 
-        const createResponse = await fetch('/api/orders/create', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            userId: user.id,
-            items: items.map((item) => ({
-              sheetId: item.sheet_id,
-              title: item.title,
-              price: item.price,
-            })),
-            amount,
-            description: orderDescription,
-            paymentMethod: 'paypal',
-          }),
-        });
-
-        const createResult = await createResponse.json();
-
-        if (createResult.success && createResult.orderId) {
-          dbOrderId = createResult.orderId;
-          dbOrderIdRef.current = dbOrderId;
-          console.log('[PayPal-SDK] ✅ DB 주문 생성/재활용 완료:', {
-            dbOrderId,
-            orderNumber: createResult.orderNumber,
-            reused: createResult.reused,
+          const createResponse = await fetch('/api/orders/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              userId: user.id,
+              items: items.map((item) => ({
+                sheetId: item.sheet_id,
+                title: item.title,
+                price: item.price,
+              })),
+              amount,
+              description: orderDescription,
+              paymentMethod: 'paypal',
+            }),
           });
 
-          // 동일 상품의 기존 결제가 이미 PAID — 재결제·새 주문 없이 성공 화면으로
-          if (createResult.alreadyPaid) {
-            console.warn('[PayPal-SDK] 동일 상품 기존 결제가 이미 완료됨 — 성공 화면으로 이동');
-            onSuccess('', dbOrderId);
-            return;
+          const createResult = await createResponse.json();
+
+          if (createResult.success && createResult.orderId) {
+            dbOrderId = createResult.orderId;
+            dbOrderIdRef.current = dbOrderId;
+            console.log('[PayPal-SDK] ✅ DB 주문 생성/재활용 완료:', {
+              dbOrderId,
+              orderNumber: createResult.orderNumber,
+              reused: createResult.reused,
+            });
+
+            // 동일 상품의 기존 결제가 이미 PAID — 재결제·새 주문 없이 성공 화면으로
+            if (createResult.alreadyPaid) {
+              console.warn('[PayPal-SDK] 동일 상품 기존 결제가 이미 완료됨 — 성공 화면으로 이동');
+              onSuccess('', dbOrderId);
+              return;
+            }
+          } else {
+            console.warn('[PayPal-SDK] ⚠️ 주문 생성 실패, 기존 orderId 사용:', createResult.error);
           }
-        } else {
-          console.warn('[PayPal-SDK] ⚠️ 주문 생성 실패, 기존 orderId 사용:', createResult.error);
+        } catch (createErr) {
+          console.warn('[PayPal-SDK] ⚠️ 주문 생성 중 오류, 기존 orderId 사용:', createErr);
         }
-      } catch (createErr) {
-        console.warn('[PayPal-SDK] ⚠️ 주문 생성 중 오류, 기존 orderId 사용:', createErr);
+      }
+
+      const payableKrw = prepareOrder ? await prepareOrder(dbOrderId) : amount;
+      if (!(payableKrw > 0)) {
+        throw new Error(t('checkout.paypalError.generic'));
       }
 
       // ─── 결제 고유 ID 생성 ───
@@ -259,7 +274,8 @@ export default function PayPalPaymentButton({
       // 포트원 문서: currency별 scale factor 적용
       // USD: scale factor 2 → 1.50달러 = 150 전달
       // JPY: scale factor 0 → 100엔 = 100 전달
-      const convertedAmount = convertFromKrw(amount, paypalCurrency);
+      // 화면에 표시한 가격과 같도록 언어별 환율(1,000원/1,500원 = $1)을 쓴다
+      const convertedAmount = convertFromKrw(payableKrw, paypalCurrency, i18n.language);
       let finalAmount: number;
       if (paypalCurrency === 'USD') {
         finalAmount = Math.round(Number(convertedAmount.toFixed(2)) * 100);
@@ -269,16 +285,17 @@ export default function PayPalPaymentButton({
       const portOneCurrency = paypalCurrency === 'USD' ? 'CURRENCY_USD' : 'CURRENCY_JPY';
 
       console.log('[PayPal-SDK] 금액 변환:', {
-        originalKRW: amount,
+        originalKRW: payableKrw,
         convertedAmount,
         finalAmount,
         currency: portOneCurrency,
       });
 
       // ─── 상품명 생성 ───
-      const description = items.length === 1
-        ? items[0].title
-        : `${items[0].title} 외 ${items.length - 1}건`;
+      const description = orderName
+        || (items.length === 1
+          ? items[0].title
+          : `${items[0]?.title ?? 'CopyDrum'} 외 ${items.length - 1}건`);
 
       // ─── PortOne loadPaymentUI 호출 ───
       // ⚠️ PayPal 연동 핵심 사항:
@@ -494,7 +511,7 @@ export default function PayPalPaymentButton({
       setLoading(false);
       loadedRef.current = false; // 재시도 허용
     }
-  }, [user?.id, orderId, amount, items, onSuccess, onError, onProcessing]);
+  }, [user?.id, orderId, amount, items, orderReady, orderName, prepareOrder, i18n.language, onSuccess, onError, onProcessing, t]);
 
   useEffect(() => {
     loadPayPalButton();

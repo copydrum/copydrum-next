@@ -83,7 +83,7 @@
     "nameNotSet": "이름 미설정",
     "joinedOn": "가입일",
     "cashBalance": "보유 캐쉬",
-    "cashLegacyNotice": "* 캐쉬는 예전에 충전한 금액만 사용할 수 있으며, 현재 새로운 충전은 제공되지 않습니다.",
+    "cashNotice": "캐쉬로 악보를 구매할 수 있어요. 많이 충전할수록 보너스가 커져요.",
     "cashBalanceDescription": "다음 악보 구매 시 사용 가능합니다.",
     "chargeCash": "캐쉬 충전",
     "email": "이메일",

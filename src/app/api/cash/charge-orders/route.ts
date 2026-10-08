@@ -1,39 +1,41 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuthenticatedUser } from '@/lib/auth/requireUser';
 import { createServiceRoleClient } from '@/lib/supabase/admin';
-import { findCashChargePackage } from '@/lib/payments/cashPackages';
+import {
+  findCashChargePackage,
+  getCashChargeMethods,
+  getCashChargeRegion,
+  type CashChargeMethod,
+} from '@/lib/payments/cashPackages';
 import { generateOrderNumber } from '@/lib/payments/orderUtils';
 
-const CHARGE_METHODS = new Set(['card', 'bank_transfer', 'paypal', 'kakaopay']);
-
 /**
- * 캐쉬 충전 주문 생성. 충전 금액은 패키지 금액만 허용하고, 보너스는 서버 패키지표로 정한다.
+ * 캐쉬 충전 주문 생성. 사이트 언어로 정한 지역의 충전 상품·결제수단만 허용한다.
+ * 보너스는 결제 완료 때 DB 충전 상품 표로 정해진다.
  */
 export async function POST(request: NextRequest) {
   const authUser = await getAuthenticatedUser();
   if (!authUser) {
-    return NextResponse.json({ success: false, error: 'Authentication required' }, { status: 401 });
+    return NextResponse.json({ success: false, error: 'AUTH_REQUIRED' }, { status: 401 });
   }
 
-  let body: { amount?: number; paymentMethod?: string; depositorName?: string };
+  let body: { amount?: number; paymentMethod?: string; locale?: string };
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ success: false, error: 'Invalid request body' }, { status: 400 });
+    return NextResponse.json({ success: false, error: 'INVALID_REQUEST' }, { status: 400 });
   }
 
-  const chargePackage = findCashChargePackage(Number(body.amount));
+  const region = getCashChargeRegion(body.locale);
+  const chargePackage = findCashChargePackage(region, Number(body.amount));
   if (!chargePackage) {
-    return NextResponse.json({ success: false, error: 'Invalid charge amount' }, { status: 400 });
+    return NextResponse.json({ success: false, error: 'INVALID_AMOUNT' }, { status: 400 });
   }
 
-  const paymentMethod = String(body.paymentMethod ?? '');
-  if (!CHARGE_METHODS.has(paymentMethod)) {
-    return NextResponse.json({ success: false, error: 'Invalid payment method' }, { status: 400 });
+  const paymentMethod = String(body.paymentMethod ?? '') as CashChargeMethod;
+  if (!getCashChargeMethods(region).includes(paymentMethod)) {
+    return NextResponse.json({ success: false, error: 'INVALID_METHOD' }, { status: 400 });
   }
-
-  const isBankTransfer = paymentMethod === 'bank_transfer';
-  const depositorName = body.depositorName?.trim().slice(0, 50) || null;
 
   const supabase = createServiceRoleClient();
   const { data, error } = await supabase
@@ -43,19 +45,23 @@ export async function POST(request: NextRequest) {
       order_number: generateOrderNumber(),
       total_amount: chargePackage.amount,
       status: 'pending',
-      payment_status: isBankTransfer ? 'awaiting_deposit' : 'pending',
-      raw_status: isBankTransfer ? 'awaiting_deposit' : 'pending',
+      payment_status: 'pending',
+      raw_status: 'pending',
       payment_method: paymentMethod,
       order_type: 'cash',
-      depositor_name: depositorName,
-      metadata: { type: 'cash_charge', bonusAmount: chargePackage.bonus },
+      metadata: {
+        type: 'cash_charge',
+        bonusAmount: chargePackage.bonus,
+        region,
+        locale: body.locale ?? null,
+      },
     })
     .select('id, order_number')
     .single();
 
   if (error || !data) {
     console.error('[cash-charge-orders] 주문 생성 실패:', error);
-    return NextResponse.json({ success: false, error: 'Failed to create charge order' }, { status: 500 });
+    return NextResponse.json({ success: false, error: 'CREATE_FAILED' }, { status: 500 });
   }
 
   return NextResponse.json({

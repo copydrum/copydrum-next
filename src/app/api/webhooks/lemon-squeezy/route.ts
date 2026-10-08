@@ -3,6 +3,8 @@ import crypto from 'crypto';
 import { createClient } from '@supabase/supabase-js';
 import { completeOrderAfterPayment } from '@/lib/payments/completeOrderAfterPayment';
 import { LEMON_SQUEEZY_METHOD } from '@/lib/payments/lemonSqueezy';
+import { isPgAmountAcceptable } from '@/lib/payments/amountCheck';
+import { getPayableAmount } from '@/lib/points/server';
 
 // 웹훅은 원문(raw body)으로 서명을 검증해야 하므로 Edge가 아닌 Node 런타임 사용
 export const runtime = 'nodejs';
@@ -98,7 +100,7 @@ export async function POST(request: NextRequest) {
     // 주문 존재/소유 확인 (custom_data 위조 대비: user_id 일치 확인)
     const { data: order, error: orderError } = await supabase
       .from('orders')
-      .select('id, user_id, status, payment_status')
+      .select('id, user_id, status, payment_status, total_amount, points_used, metadata')
       .eq('id', orderId)
       .maybeSingle();
 
@@ -119,6 +121,34 @@ export async function POST(request: NextRequest) {
     if (order.status === 'completed' || order.payment_status === 'paid') {
       console.log('[ls-webhook] ✅ 이미 완료된 주문(멱등):', orderId);
       return NextResponse.json({ received: true, alreadyCompleted: true });
+    }
+
+    // 🔒 실제 결제 금액이 이 주문 금액을 덮는지 확인한다.
+    //   custom_data 는 결제 링크 쿼리로 덮어쓸 수 있어, 싼 결제로 비싼 주문을 완료시키는 것을 막는다.
+    //   구매자 통화로 결제될 수 있으므로 달러 환산값(total_usd, 센트)을 쓴다.
+    //   세금 포함 가격이면 subtotal 이 세금을 뺀 값일 수 있어 실제 청구액(total)으로 본다.
+    const attrs = payload?.data?.attributes || {};
+    const hasUsd = attrs.total_usd !== undefined && attrs.total_usd !== null;
+    const paidUnits = Number(hasUsd ? attrs.total_usd : attrs.total ?? 0);
+    const paidCurrency = hasUsd ? 'USD' : String(attrs.currency || '');
+    if (!isPgAmountAcceptable(paidUnits, paidCurrency, getPayableAmount(order))) {
+      console.error('[ls-webhook] ⛔ 결제 금액 부족 — 완료 보류:', {
+        orderId,
+        lsOrderId,
+        paidUnits,
+        paidCurrency,
+        payableKrw: getPayableAmount(order),
+      });
+      await supabase
+        .from('orders')
+        .update({
+          metadata: {
+            ...((order.metadata as Record<string, unknown> | null) || {}),
+            ls_amount_mismatch: { lsOrderId, paidUnits, currency: paidCurrency },
+          },
+        })
+        .eq('id', orderId);
+      return NextResponse.json({ received: true, error: 'amount mismatch' });
     }
 
     // 주문 완료 처리: 상태 paid/completed + purchases 기록(다운로드 권한 부여)

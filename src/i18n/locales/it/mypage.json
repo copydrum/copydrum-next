@@ -29,6 +29,10 @@
     "customOrders": {
       "label": "Ordini personalizzati",
       "description": "Controlla lo stato delle tue richieste di ordine personalizzato."
+    },
+    "points": {
+      "label": "Premi",
+      "description": "Controlla il saldo dei premi e quelli in scadenza."
     }
   },
   "stats": {
@@ -43,9 +47,9 @@
     "memberInfo": "Informazioni membro",
     "nameNotSet": "Nome non impostato",
     "joinedOn": "Iscritto il",
-    "cashBalance": "Saldo cash",
+    "cashBalance": "Crediti",
     "cashBalanceDescription": "Disponibile per il tuo prossimo acquisto di spartito.",
-    "chargeCash": "Ricarica cash",
+    "chargeCash": "Acquista crediti",
     "email": "Email",
     "name": "Nome",
     "namePlaceholder": "Inserisci il tuo nome",
@@ -53,7 +57,8 @@
     "phonePlaceholder": "Inserisci il tuo numero di telefono",
     "joinDate": "Data di iscrizione",
     "saving": "Salvataggio in corso...",
-    "updateProfile": "Aggiorna profilo"
+    "updateProfile": "Aggiorna profilo",
+    "cashNotice": "Usa i crediti per acquistare spartiti. Più grande è il pacchetto, più alto è il bonus."
   },
   "purchases": {
     "title": "Cronologia acquisti",
@@ -286,5 +291,40 @@
     "bankTransfer": "Bonifico bancario",
     "preparing": "In preparazione"
   },
-  "cart": "Carrello"
+  "cart": "Carrello",
+  "points": {
+    "balance": "Saldo premi",
+    "expiringSoon": "In scadenza entro 30 giorni",
+    "lastUsableDate": "Da usare entro il {{date}}",
+    "ruleEarn": "Guadagni in premi il {{rate}}% di quanto paghi per gli spartiti.",
+    "ruleUse": "I premi vengono applicati al pagamento e il resto viene addebitato con il tuo metodo di pagamento.",
+    "ruleExpiry": "I premi scadono {{days}} giorni dopo essere stati ottenuti e non possono essere convertiti in denaro.",
+    "history": "Cronologia premi",
+    "loading": "Caricamento...",
+    "empty": "Ancora nessuna attività sui premi.",
+    "balanceAfter": "Saldo {{points}}",
+    "viewHistory": "Vedi la cronologia premi",
+    "type": {
+      "earn": "Guadagnati",
+      "signup": "Bonus di benvenuto",
+      "use": "Usati",
+      "release": "Restituiti",
+      "revoke": "Annullati",
+      "expire": "Scaduti",
+      "admin_add": "Aggiunti",
+      "admin_deduct": "Detratti"
+    }
+  },
+  "membership": {
+    "tier": {
+      "rookie": "Rookie",
+      "session": "Session",
+      "master": "Master"
+    },
+    "earnRate": "{{rate}}% di ritorno",
+    "lifetimeSpend": "Spesa totale {{amount}}",
+    "toNext": "Spendi altri {{amount}} per diventare {{tier}} e guadagnare il {{rate}}%.",
+    "top": "Sei al livello più alto. Grazie!",
+    "rule": "Il tuo livello dipende dalla spesa totale e non scende mai. (Rookie 3% · Session da {{session}} 5% · Master da {{master}} 7%)"
+  }
 }

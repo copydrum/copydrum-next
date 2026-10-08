@@ -536,7 +536,27 @@ const getOrderStatusMetaSafe = (status: string | null | undefined) => {
   );
 };
 
-type CashTransactionType = 'charge' | 'use' | 'admin_add' | 'admin_deduct';
+// supabase.functions.invoke 의 non-2xx 오류는 message 가 일반 문구라서 응답 본문의 message 를 꺼내 쓴다
+const readFunctionErrorMessage = async (error: any, fallback: string): Promise<string> => {
+  const response = error?.context;
+  if (response && typeof response.text === 'function') {
+    try {
+      const text = await response.clone().text();
+      try {
+        const parsed = JSON.parse(text);
+        if (parsed?.message) return String(parsed.message);
+        if (parsed?.error) return String(parsed.error);
+      } catch {
+        if (text) return text;
+      }
+    } catch {
+      // 본문을 읽지 못하면 아래 기본 문구로
+    }
+  }
+  return error?.message || fallback;
+};
+
+type CashTransactionType = 'charge' | 'use' | 'refund' | 'admin_add' | 'admin_deduct' | 'charge_refund';
 
 interface CashTransactionRecord {
   id: string;
@@ -566,8 +586,10 @@ interface CashStats {
 const CASH_TRANSACTION_TYPE_META: Record<CashTransactionType, { label: string; className: string }> = {
   charge: { label: '충전', className: 'bg-emerald-100 text-emerald-700' },
   use: { label: '사용', className: 'bg-blue-100 text-blue-700' },
+  refund: { label: '주문 환불', className: 'bg-amber-100 text-amber-700' },
   admin_add: { label: '관리자 추가', className: 'bg-purple-100 text-purple-700' },
   admin_deduct: { label: '관리자 차감', className: 'bg-rose-100 text-rose-700' },
+  charge_refund: { label: '충전 환불', className: 'bg-orange-100 text-orange-700' },
 };
 
 type CustomOrderStatus = 'pending' | 'quoted' | 'payment_confirmed' | 'in_progress' | 'completed' | 'cancelled';
@@ -1315,6 +1337,16 @@ const AdminPage: React.FC = () => {
   const [cashAdjustType, setCashAdjustType] = useState<'admin_add' | 'admin_deduct'>('admin_add');
   const [cashAdjustAmount, setCashAdjustAmount] = useState<number>(0);
   const [cashAdjustReason, setCashAdjustReason] = useState('');
+  const [chargeRefundTarget, setChargeRefundTarget] = useState<{
+    member: Profile;
+    credits: number;
+    paid: number;
+    bonus: number;
+    legacy: number;
+  } | null>(null);
+  const [chargeRefundAmount, setChargeRefundAmount] = useState<number>(0);
+  const [chargeRefundReason, setChargeRefundReason] = useState('');
+  const [chargeRefundSubmitting, setChargeRefundSubmitting] = useState(false);
   const [showCashHistoryModal, setShowCashHistoryModal] = useState(false);
   const [cashHistory, setCashHistory] = useState<CashTransactionRecord[]>([]);
   const [cashHistoryLoading, setCashHistoryLoading] = useState(false);
@@ -1575,7 +1607,7 @@ const AdminPage: React.FC = () => {
 
       const { data, error } = await supabase
         .from('orders')
-        .select('created_at, total_amount')
+        .select('created_at, total_amount, points_used')
         .eq('status', 'completed')
         .gte('created_at', startIso)
         .lte('created_at', endIso)
@@ -1593,7 +1625,7 @@ const AdminPage: React.FC = () => {
         const month = date.getMonth() + 1;
         const key = `${year}-${month}`;
         const existing = monthMap.get(key) ?? { revenue: 0, orderCount: 0 };
-        existing.revenue += order.total_amount ?? 0;
+        existing.revenue += Math.max(0, (order.total_amount ?? 0) - (order.points_used ?? 0));
         existing.orderCount += 1;
         monthMap.set(key, existing);
       });
@@ -1949,12 +1981,13 @@ const AdminPage: React.FC = () => {
 
       const { data: revenueData } = await supabase
         .from('orders')
-        .select('total_amount')
+        .select('total_amount, points_used')
         .eq('status', 'completed');
 
       const totalRevenue =
         revenueData?.reduce(
-          (sum: number, order: { total_amount: number | null }) => sum + (order.total_amount ?? 0),
+          (sum: number, order: { total_amount: number | null; points_used: number | null }) =>
+            sum + Math.max(0, (order.total_amount ?? 0) - (order.points_used ?? 0)),
           0
         ) ?? 0;
 
@@ -2161,39 +2194,91 @@ const AdminPage: React.FC = () => {
         cashAdjustReason.trim() ||
         (cashAdjustType === 'admin_add' ? '관리자 캐쉬 추가' : '관리자 캐쉬 차감');
 
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ credits: newBalance })
-        .eq('id', selectedCashMember.id);
+      const { error: rpcError } = await supabase.rpc('wallet_apply_cash', {
+        p_user_id: selectedCashMember.id,
+        p_amount: diff,
+        p_bonus: 0,
+        p_type: cashAdjustType,
+        p_description: description,
+        p_created_by: user?.id ?? null,
+      });
 
-      if (updateError) {
-        throw updateError;
-      }
-
-      const { error: insertError } = await supabase
-        .from('cash_transactions')
-        .insert([
-          {
-            user_id: selectedCashMember.id,
-            transaction_type: cashAdjustType,
-            amount: diff,
-            bonus_amount: 0,
-            balance_after: newBalance,
-            description,
-            created_by: user?.id ?? null,
-          },
-        ]);
-
-      if (insertError) {
-        throw insertError;
+      if (rpcError) {
+        throw rpcError;
       }
 
       alert('캐쉬가 업데이트되었습니다.');
       handleCloseCashAdjustModal();
       await loadCashOverview();
-    } catch (error) {
+    } catch (error: any) {
       console.error('캐쉬 수정 오류:', error);
-      alert('캐쉬 수정 중 오류가 발생했습니다.');
+      if (String(error?.message ?? '').includes('INSUFFICIENT_CREDIT')) {
+        alert('차감 후 잔액이 0 미만이 될 수 없습니다.');
+      } else {
+        alert('캐쉬 수정 중 오류가 발생했습니다.');
+      }
+    }
+  };
+
+  const handleOpenChargeRefund = async (member: Profile) => {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('credits, cash_paid, cash_bonus')
+      .eq('id', member.id)
+      .maybeSingle();
+    if (error || !data) {
+      alert('캐쉬 정보를 불러오지 못했습니다. (DB 업데이트 전이면 충전 캐쉬 구분이 아직 없습니다)');
+      return;
+    }
+    const credits = data.credits ?? 0;
+    const paid = data.cash_paid ?? 0;
+    const bonus = data.cash_bonus ?? 0;
+    setChargeRefundTarget({ member, credits, paid, bonus, legacy: Math.max(0, credits - paid - bonus) });
+    setChargeRefundAmount(paid);
+    setChargeRefundReason('');
+  };
+
+  const handleSubmitChargeRefund = async () => {
+    if (!chargeRefundTarget) return;
+    const amount = Math.floor(chargeRefundAmount);
+    if (!amount || amount <= 0 || amount > chargeRefundTarget.paid) {
+      alert(`환불 금액은 1원 이상, 남은 결제 캐쉬(${chargeRefundTarget.paid.toLocaleString('ko-KR')}원) 이하여야 합니다.`);
+      return;
+    }
+    const confirmed = window.confirm(
+      `${chargeRefundTarget.member.email ?? ''}\n\n` +
+        `결제 캐쉬 ${amount.toLocaleString('ko-KR')}원을 환불 처리하고\n` +
+        `보너스 캐쉬 ${chargeRefundTarget.bonus.toLocaleString('ko-KR')}원은 소멸합니다.\n\n` +
+        `실제 돈은 PG 관리자 화면이나 계좌이체로 따로 돌려줘야 합니다. 진행할까요?`
+    );
+    if (!confirmed) return;
+
+    setChargeRefundSubmitting(true);
+    try {
+      const { data, error } = await supabase.rpc('wallet_refund_charge', {
+        p_user_id: chargeRefundTarget.member.id,
+        p_amount: amount,
+        p_description: chargeRefundReason.trim() || '충전 캐쉬 환불',
+        p_created_by: user?.id ?? null,
+      });
+      if (error) throw error;
+      const result = (data ?? {}) as { refund_amount?: number; forfeited_bonus?: number; balance_after?: number };
+      alert(
+        `환불 처리 완료\n환불 금액: ${(result.refund_amount ?? amount).toLocaleString('ko-KR')}원\n` +
+          `소멸 보너스: ${(result.forfeited_bonus ?? 0).toLocaleString('ko-KR')}원\n` +
+          `남은 잔액: ${(result.balance_after ?? 0).toLocaleString('ko-KR')}원`
+      );
+      setChargeRefundTarget(null);
+      await loadCashOverview();
+    } catch (error: any) {
+      console.error('충전 캐쉬 환불 오류:', error);
+      if (String(error?.message ?? '').includes('REFUND_EXCEEDS_PAID')) {
+        alert('남은 결제 캐쉬보다 많이 환불할 수 없습니다.');
+      } else {
+        alert('충전 캐쉬 환불 중 오류가 발생했습니다.');
+      }
+    } finally {
+      setChargeRefundSubmitting(false);
     }
   };
   const fetchCashHistory = async (memberId: string, page = 1) => {
@@ -2687,7 +2772,7 @@ const AdminPage: React.FC = () => {
       handleCloseOrderDetail();
     } catch (error: any) {
       console.error('주문 취소 오류:', error);
-      alert(error?.message || '주문 취소 중 오류가 발생했습니다.');
+      alert(await readFunctionErrorMessage(error, '주문 취소 중 오류가 발생했습니다.'));
     } finally {
       setOrderActionLoading(null);
     }
@@ -2810,7 +2895,7 @@ const AdminPage: React.FC = () => {
       handleCloseOrderDetail();
     } catch (error: any) {
       console.error('주문 환불 오류:', error);
-      alert(error?.message || '주문 환불 처리 중 오류가 발생했습니다.');
+      alert(await readFunctionErrorMessage(error, '주문 환불 처리 중 오류가 발생했습니다.'));
     } finally {
       setOrderActionLoading(null);
     }
@@ -7366,6 +7451,14 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
                             <span className="hidden sm:inline">내역 보기</span>
                             <span className="sm:hidden">내역</span>
                           </button>
+                          <button
+                            onClick={() => handleOpenChargeRefund(member)}
+                            className="inline-flex items-center gap-1 md:gap-2 rounded-lg border border-rose-200 bg-white px-2 md:px-3 py-1.5 md:py-1.5 text-xs md:text-sm font-semibold text-rose-600 hover:bg-rose-50 transition-colors"
+                          >
+                            <i className="ri-refund-2-line w-3.5 h-3.5 md:w-4 md:h-4"></i>
+                            <span className="hidden sm:inline">충전 환불</span>
+                            <span className="sm:hidden">환불</span>
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -7436,6 +7529,98 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
             </div>
           )}
         </div>
+
+        {chargeRefundTarget && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-6">
+            <div className="w-full max-w-lg rounded-2xl bg-white shadow-xl">
+              <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  충전 캐쉬 환불 · {chargeRefundTarget.member.name || chargeRefundTarget.member.email}
+                </h3>
+                <button
+                  onClick={() => setChargeRefundTarget(null)}
+                  className="text-gray-400 transition-colors hover:text-gray-600"
+                >
+                  <i className="ri-close-line text-xl"></i>
+                </button>
+              </div>
+
+              <div className="space-y-5 px-6 py-6">
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div className="rounded-xl bg-gray-50 p-3">
+                    <p className="text-gray-500">전체 잔액</p>
+                    <p className="mt-1 text-lg font-bold text-gray-900">{formatCurrency(chargeRefundTarget.credits)}</p>
+                  </div>
+                  <div className="rounded-xl bg-emerald-50 p-3">
+                    <p className="text-emerald-700">결제 캐쉬 (환불 가능)</p>
+                    <p className="mt-1 text-lg font-bold text-gray-900">{formatCurrency(chargeRefundTarget.paid)}</p>
+                  </div>
+                  <div className="rounded-xl bg-amber-50 p-3">
+                    <p className="text-amber-700">보너스 캐쉬 (환불 시 소멸)</p>
+                    <p className="mt-1 text-lg font-bold text-gray-900">{formatCurrency(chargeRefundTarget.bonus)}</p>
+                  </div>
+                  <div className="rounded-xl bg-gray-50 p-3">
+                    <p className="text-gray-500">기존 캐쉬 (환불 대상 아님)</p>
+                    <p className="mt-1 text-lg font-bold text-gray-900">{formatCurrency(chargeRefundTarget.legacy)}</p>
+                  </div>
+                </div>
+
+                {chargeRefundTarget.paid <= 0 ? (
+                  <p className="rounded-xl bg-gray-50 p-4 text-sm text-gray-600">환불할 결제 캐쉬가 없습니다.</p>
+                ) : (
+                  <>
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-gray-700">환불 금액 (원)</label>
+                      <input
+                        type="number"
+                        min={1}
+                        max={chargeRefundTarget.paid}
+                        value={chargeRefundAmount}
+                        onChange={(e) => setChargeRefundAmount(Number(e.target.value))}
+                        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      />
+                      <p className="mt-1 text-xs text-gray-500">
+                        기본값은 남은 결제 캐쉬 전액입니다. 환불하면 보너스 캐쉬 {formatCurrency(chargeRefundTarget.bonus)}는 모두 소멸합니다.
+                      </p>
+                    </div>
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-gray-700">메모</label>
+                      <input
+                        type="text"
+                        value={chargeRefundReason}
+                        onChange={(e) => setChargeRefundReason(e.target.value)}
+                        placeholder="예: 고객 요청 환불 (카드 부분취소 완료)"
+                        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      />
+                    </div>
+                    <p className="rounded-xl bg-rose-50 p-3 text-xs text-rose-700">
+                      이 버튼은 사이트 캐쉬 잔액만 정리합니다. 실제 돈은 PortOne·PayPal·Lemon Squeezy 관리자 화면에서
+                      부분취소하거나 계좌로 보내야 합니다.
+                    </p>
+                  </>
+                )}
+              </div>
+
+              <div className="flex justify-end gap-2 border-t border-gray-100 px-6 py-4">
+                <button
+                  onClick={() => setChargeRefundTarget(null)}
+                  className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                >
+                  닫기
+                </button>
+                {chargeRefundTarget.paid > 0 && (
+                  <button
+                    onClick={handleSubmitChargeRefund}
+                    disabled={chargeRefundSubmitting}
+                    className="rounded-lg bg-rose-600 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-700 disabled:opacity-50"
+                  >
+                    {chargeRefundSubmitting ? '처리 중...' : '환불 처리'}
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {showCashAdjustModal && selectedCashMember && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-6">

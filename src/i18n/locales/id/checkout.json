@@ -14,11 +14,11 @@
   "paypalDesc": "Pembayaran cepat dan aman dengan PayPal",
   "kakaopay": "Kakao Pay",
   "kakaopayDesc": "Bayar dengan Kakao Pay",
-  "usePoints": "Gunakan Poin",
-  "usePointsDesc": "Bayar dengan poin Anda (Saldo: {{balance}})",
-  "availablePoints": "Poin Tersedia",
-  "pointsToUse": "Poin untuk Digunakan",
-  "insufficientPoints": "Poin tidak mencukupi",
+  "usePoints": "Bayar dengan saldo",
+  "usePointsDesc": "Gunakan saldo Anda (saldo: {{balance}})",
+  "availablePoints": "Saldo Anda",
+  "pointsToUse": "Jumlah yang dibayar",
+  "insufficientPoints": "Saldo tidak cukup",
   "enterCardDetails": "Masukkan Detail Kartu",
   "cardNumber": "Nomor Kartu",
   "expiryDate": "Tanggal Kedaluwarsa",
@@ -47,5 +47,67 @@
   "creditDebitWallets": "Kartu Kredit/Debit & Dompet Digital",
   "localCardsSupported": "+ Kartu lokal didukung",
   "preorderConsentTitle": "Keranjang Anda berisi item pra-pesanan.",
-  "preorderConsentDescription": "Item pra-pesanan memulai pekerjaan transkripsi kustom 1:1 segera setelah pembayaran, sehingga pembatalan pesanan dan pengembalian dana karena perubahan pikiran sederhana tidak mungkin dilakukan. Apakah Anda setuju dengan ini?"
+  "preorderConsentDescription": "Item pra-pesanan memulai pekerjaan transkripsi kustom 1:1 segera setelah pembayaran, sehingga pembatalan pesanan dan pengembalian dana karena perubahan pikiran sederhana tidak mungkin dilakukan. Apakah Anda setuju dengan ini?",
+  "cashShortBy": "Kurang {{amount}}",
+  "cashRemaining": "Saldo setelah pembayaran",
+  "cashPay": {
+    "bonusHint": "Dapatkan bonus hingga 25% saat isi saldo",
+    "chargeAndPay": "Isi kekurangannya dan bayar sekarang",
+    "charge": "Isi saldo",
+    "chargedReady": "Saldo sudah terisi. Klik tombol di bawah untuk menyelesaikan pembayaran."
+  },
+  "cashCharge": {
+    "title": "Isi saldo",
+    "subtitle": "Makin besar paketnya, makin besar bonusnya",
+    "currentBalance": "Saldo Anda",
+    "shortfall": "Kami sudah memilih paket yang menutup kekurangan {{amount}}",
+    "payToCharge": "Bayar {{pay}} → Dapat saldo {{total}}",
+    "bonus": "Bonus {{bonus}}",
+    "sheets": "Sekitar {{count}} partitur",
+    "popular": "Populer",
+    "best": "Paling hemat",
+    "methodTitle": "Metode pembayaran",
+    "method": {
+      "lemonsqueezy": "Kartu",
+      "paypal": "PayPal"
+    },
+    "agree": "[Wajib] Saya menyetujui kebijakan pengembalian dana isi saldo (saldo bonus tidak dapat dikembalikan)",
+    "viewPolicy": "Lihat",
+    "submit": "Bayar {{pay}}",
+    "paypalHint": "Klik tombol PayPal di bawah untuk menyelesaikan pembelian.",
+    "back": "Pilih paket lain",
+    "confirming": "Mengonfirmasi pembayaran...",
+    "doneTitle": "Saldo berhasil diisi",
+    "doneMessage": "Saldo {{amount}} telah ditambahkan",
+    "newBalance": "Saldo: {{balance}}",
+    "close": "Tutup",
+    "continueCheckout": "Lanjutkan pembayaran",
+    "goMypage": "Ke Halaman Saya",
+    "error": {
+      "agreeRequired": "Harap setujui kebijakan pengembalian dana.",
+      "authRequired": "Silakan masuk terlebih dahulu.",
+      "createFailed": "Pembelian tidak dapat dimulai. Silakan coba lagi sebentar lagi.",
+      "invalidAmount": "Paket ini sudah tidak tersedia. Muat ulang halaman dan coba lagi.",
+      "invalidMethod": "Metode pembayaran ini sedang tidak tersedia.",
+      "payFailed": "Pembayaran tidak dapat diselesaikan. {{message}}",
+      "cancelled": "Pembayaran dibatalkan.",
+      "delayed": "Pembayaran Anda berhasil, tetapi penambahan saldo memakan waktu lebih lama dari biasanya. Silakan cek saldo di Halaman Saya sebentar lagi dan hubungi dukungan jika belum muncul.",
+      "failed": "Pembayaran tidak selesai. Silakan coba lagi."
+    }
+  },
+  "rewardPoints": {
+    "balance": "{{points}} tersedia",
+    "discount": "Reward",
+    "payable": "Total bayar",
+    "earnPreview": "Anda akan mendapat reward {{points}} dari pesanan ini",
+    "payWithPoints": "Bayar dengan reward",
+    "applyFailed": "Reward tidak dapat digunakan",
+    "insufficient": "Reward tidak cukup. Muat ulang halaman dan coba lagi.",
+    "notice": "Reward dipakai terlebih dahulu, sisanya dibayar dengan metode pembayaran di bawah.",
+    "apply": "Gunakan reward {{amount}}"
+  },
+  "membership": {
+    "toNext": "Belanja {{amount}} lagi untuk naik ke {{tier}} (cashback {{rate}}%)",
+    "upgradeNow": "Pesanan ini membawa Anda ke {{tier}}! Dapatkan cashback {{rate}}% mulai pesanan berikutnya"
+  }
 }

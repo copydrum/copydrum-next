@@ -29,6 +29,10 @@
     "customOrders": {
       "label": "Özel Siparişler",
       "description": "Özel sipariş taleplerinizin durumunu kontrol edin."
+    },
+    "points": {
+      "label": "Ödüller",
+      "description": "Ödül bakiyeni ve yakında sona erecek ödülleri gör."
     }
   },
   "stats": {
@@ -45,7 +49,7 @@
     "joinedOn": "Katılım tarihi",
     "cashBalance": "Bakiye",
     "cashBalanceDescription": "Bir sonraki nota satın alımınız için kullanılabilir.",
-    "chargeCash": "Bakiye Yükle",
+    "chargeCash": "Bakiye yükle",
     "email": "E-posta",
     "name": "Ad",
     "namePlaceholder": "Adınızı girin",
@@ -53,7 +57,8 @@
     "phonePlaceholder": "Telefon numaranızı girin",
     "joinDate": "Katılım Tarihi",
     "saving": "Kaydediliyor...",
-    "updateProfile": "Profili Güncelle"
+    "updateProfile": "Profili Güncelle",
+    "cashNotice": "Nota almak için bakiyeni kullan. Paket büyüdükçe bonus da büyür."
   },
   "purchases": {
     "title": "Satın Alma Geçmişi",
@@ -286,5 +291,40 @@
     "bankTransfer": "Banka Havalesi",
     "preparing": "Hazırlanıyor"
   },
-  "cart": "Sepet"
+  "cart": "Sepet",
+  "points": {
+    "balance": "Ödül bakiyesi",
+    "expiringSoon": "30 gün içinde sona erecek",
+    "lastUsableDate": "Son kullanım: {{date}}",
+    "ruleEarn": "Nota alımlarında ödediğin tutarın %{{rate}} oranında ödül kazanırsın.",
+    "ruleUse": "Ödüller ödeme sırasında kullanılır, kalan tutar ödeme yönteminle ödenir.",
+    "ruleExpiry": "Ödüller kazanıldıktan {{days}} gün sonra sona erer ve nakde çevrilemez.",
+    "history": "Ödül geçmişi",
+    "loading": "Yükleniyor...",
+    "empty": "Henüz ödül hareketi yok.",
+    "balanceAfter": "Bakiye {{points}}",
+    "viewHistory": "Ödül geçmişini gör",
+    "type": {
+      "earn": "Kazanıldı",
+      "signup": "Hoş geldin bonusu",
+      "use": "Kullanıldı",
+      "release": "İade edildi",
+      "revoke": "Geri alındı",
+      "expire": "Süresi doldu",
+      "admin_add": "Eklendi",
+      "admin_deduct": "Düşüldü"
+    }
+  },
+  "membership": {
+    "tier": {
+      "rookie": "Rookie",
+      "session": "Session",
+      "master": "Master"
+    },
+    "earnRate": "%{{rate}} geri kazanım",
+    "lifetimeSpend": "Toplam harcama {{amount}}",
+    "toNext": "{{tier}} seviyesine ulaşıp %{{rate}} geri kazanmak için {{amount}} daha harca.",
+    "top": "En üst seviyedesin. Teşekkürler!",
+    "rule": "Seviyen toplam harcamana göre belirlenir ve asla düşmez. (Rookie %3 · Session {{session}}+ %5 · Master {{master}}+ %7)"
+  }
 }

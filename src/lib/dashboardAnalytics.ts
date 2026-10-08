@@ -77,7 +77,11 @@ type PageViewRow = {
   referrer?: string | null;
   user_agent?: string | null;
 };
-type OrderRow = { created_at: string | null; total_amount: number | null };
+type OrderRow = { created_at: string | null; total_amount: number | null; points_used?: number | null };
+
+// 적립 포인트로 낸 금액은 실제 받은 돈이 아니므로 매출에서 뺀다
+const orderRevenue = (row: OrderRow): number =>
+  Math.max(0, (row.total_amount ?? 0) - (row.points_used ?? 0));
 type ProfileRow = { created_at: string | null };
 type InquiryRow = { created_at: string | null };
 
@@ -261,7 +265,7 @@ const getReferrerName = (referrer: string): string => {
 };
 
 const sumRevenue = (rows: OrderRow[]): number =>
-  rows.reduce((acc, row) => acc + (row.total_amount ?? 0), 0);
+  rows.reduce((acc, row) => acc + orderRevenue(row), 0);
 
 const generateSeries = (
   buckets: Bucket[],
@@ -325,7 +329,7 @@ const generateSeries = (
     const bucketIndex = locateBucket(new Date(row.created_at));
     if (bucketIndex >= 0) {
       series[bucketIndex].orderCount += 1;
-      series[bucketIndex].revenue += row.total_amount ?? 0;
+      series[bucketIndex].revenue += orderRevenue(row);
     }
   });
 
@@ -633,7 +637,7 @@ const fetchOrders = async (
   while (hasMore) {
     const { data, error } = await client
       .from('orders')
-      .select('created_at,total_amount')
+      .select('created_at,total_amount,points_used')
       .eq('status', 'completed')
       .gte('created_at', startIso)
       .lt('created_at', endIso)

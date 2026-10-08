@@ -29,6 +29,10 @@
     "customOrders": {
       "label": "Commandes Personnalisées",
       "description": "Consultez le statut de vos demandes de commandes personnalisées."
+    },
+    "points": {
+      "label": "Récompenses",
+      "description": "Consultez votre solde de récompenses et celles qui expirent bientôt."
     }
   },
   "stats": {
@@ -43,9 +47,9 @@
     "memberInfo": "Informations du Membre",
     "nameNotSet": "Nom non défini",
     "joinedOn": "Rejoint le",
-    "cashBalance": "Solde d'Espèces",
+    "cashBalance": "Crédits",
     "cashBalanceDescription": "Disponible pour votre prochain achat de partitions.",
-    "chargeCash": "Recharger des Espèces",
+    "chargeCash": "Acheter des crédits",
     "email": "E-mail",
     "name": "Nom",
     "namePlaceholder": "Entrez votre nom",
@@ -53,7 +57,8 @@
     "phonePlaceholder": "Entrez votre numéro de téléphone",
     "joinDate": "Date d'Inscription",
     "saving": "Enregistrement...",
-    "updateProfile": "Mettre à Jour le Profil"
+    "updateProfile": "Mettre à Jour le Profil",
+    "cashNotice": "Utilisez vos crédits pour acheter des partitions. Plus le pack est grand, plus le bonus est important."
   },
   "purchases": {
     "title": "Historique des Achats",
@@ -286,5 +291,40 @@
     "bankTransfer": "Virement Bancaire",
     "preparing": "En Préparation"
   },
-  "cart": "Panier"
+  "cart": "Panier",
+  "points": {
+    "balance": "Solde de récompenses",
+    "expiringSoon": "Expire dans 30 jours",
+    "lastUsableDate": "À utiliser avant le {{date}}",
+    "ruleEarn": "Gagnez {{rate}} % du montant payé pour vos partitions en récompenses.",
+    "ruleUse": "Les récompenses sont appliquées au paiement, le reste est réglé avec votre mode de paiement.",
+    "ruleExpiry": "Les récompenses expirent {{days}} jours après leur obtention et ne peuvent pas être converties en argent.",
+    "history": "Historique des récompenses",
+    "loading": "Chargement...",
+    "empty": "Aucune activité de récompenses pour le moment.",
+    "balanceAfter": "Solde {{points}}",
+    "viewHistory": "Voir l'historique des récompenses",
+    "type": {
+      "earn": "Gagnées",
+      "signup": "Bonus de bienvenue",
+      "use": "Utilisées",
+      "release": "Restituées",
+      "revoke": "Annulées",
+      "expire": "Expirées",
+      "admin_add": "Ajoutées",
+      "admin_deduct": "Déduites"
+    }
+  },
+  "membership": {
+    "tier": {
+      "rookie": "Rookie",
+      "session": "Session",
+      "master": "Master"
+    },
+    "earnRate": "{{rate}} % en récompenses",
+    "lifetimeSpend": "Total dépensé {{amount}}",
+    "toNext": "Encore {{amount}} pour atteindre {{tier}} et gagner {{rate}} % en récompenses.",
+    "top": "Vous êtes au niveau le plus élevé. Merci !",
+    "rule": "Votre niveau dépend de vos dépenses totales et ne baisse jamais. (Rookie 3 % · Session dès {{session}} 5 % · Master dès {{master}} 7 %)"
+  }
 }

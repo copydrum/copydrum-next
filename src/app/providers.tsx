@@ -7,6 +7,7 @@ import i18n from '@/i18n';
 import { useRouter, usePathname } from 'next/navigation';
 import GlobalDialog from '@/components/ui/GlobalDialog';
 import GuestCheckoutModal from '@/components/checkout/GuestCheckoutModal';
+import CashChargeModalHost from '@/components/cash/CashChargeModalHost';
 import { supabase, IS_PASSWORD_RECOVERY_CODE_LINK } from '@/lib/supabase';
 
 // 비밀번호 재설정 메일의 토큰은 URL 해시(#access_token=...&type=recovery)로 전달된다.
@@ -100,6 +101,7 @@ export function Providers({
         <RecoveryRedirector />
         <GlobalDialog />
         <GuestCheckoutModal />
+        <CashChargeModalHost />
         {children}
       </I18nextProvider>
     </QueryClientProvider>

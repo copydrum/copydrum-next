@@ -29,6 +29,10 @@
     "customOrders": {
       "label": "Individuelle Bestellungen",
       "description": "Überprüfen Sie den Status Ihrer individuellen Bestellungsanfragen."
+    },
+    "points": {
+      "label": "Prämien",
+      "description": "Prämienstand und bald ablaufende Prämien ansehen."
     }
   },
   "stats": {
@@ -43,7 +47,7 @@
     "memberInfo": "Mitgliedsinformationen",
     "nameNotSet": "Name nicht festgelegt",
     "joinedOn": "Beigetreten am",
-    "cashBalance": "Guthaben-Guthaben",
+    "cashBalance": "Guthaben",
     "cashBalanceDescription": "Verfügbar für Ihren nächsten Notenblatt-Kauf.",
     "chargeCash": "Guthaben aufladen",
     "email": "E-Mail",
@@ -53,7 +57,8 @@
     "phonePlaceholder": "Geben Sie Ihre Telefonnummer ein",
     "joinDate": "Beitrittsdatum",
     "saving": "Wird gespeichert...",
-    "updateProfile": "Profil aktualisieren"
+    "updateProfile": "Profil aktualisieren",
+    "cashNotice": "Mit Guthaben kaufen Sie Noten. Je größer das Paket, desto größer der Bonus."
   },
   "purchases": {
     "title": "Kaufhistorie",
@@ -286,5 +291,40 @@
     "bankTransfer": "Banküberweisung",
     "preparing": "Wird vorbereitet"
   },
-  "cart": "Warenkorb"
+  "cart": "Warenkorb",
+  "points": {
+    "balance": "Prämienstand",
+    "expiringSoon": "Läuft in 30 Tagen ab",
+    "lastUsableDate": "Gültig bis {{date}}",
+    "ruleEarn": "Sie erhalten {{rate}} % Ihrer Notenkäufe als Prämien.",
+    "ruleUse": "Prämien werden an der Kasse angerechnet, der Rest wird über Ihre Zahlungsmethode bezahlt.",
+    "ruleExpiry": "Prämien verfallen {{days}} Tage nach der Gutschrift und können nicht in Geld umgetauscht werden.",
+    "history": "Prämienverlauf",
+    "loading": "Wird geladen...",
+    "empty": "Noch keine Prämienaktivität.",
+    "balanceAfter": "Stand {{points}}",
+    "viewHistory": "Prämienverlauf ansehen",
+    "type": {
+      "earn": "Erhalten",
+      "signup": "Willkommensbonus",
+      "use": "Verwendet",
+      "release": "Zurückgegeben",
+      "revoke": "Storniert",
+      "expire": "Abgelaufen",
+      "admin_add": "Hinzugefügt",
+      "admin_deduct": "Abgezogen"
+    }
+  },
+  "membership": {
+    "tier": {
+      "rookie": "Rookie",
+      "session": "Session",
+      "master": "Master"
+    },
+    "earnRate": "{{rate}} % zurück",
+    "lifetimeSpend": "Gesamtausgaben {{amount}}",
+    "toNext": "Noch {{amount}} bis {{tier}} – dann erhalten Sie {{rate}} % zurück.",
+    "top": "Sie haben die höchste Stufe erreicht. Vielen Dank!",
+    "rule": "Ihre Stufe richtet sich nach Ihren Gesamtausgaben und sinkt nie. (Rookie 3 % · Session ab {{session}} 5 % · Master ab {{master}} 7 %)"
+  }
 }
