@@ -86,7 +86,7 @@
   "alreadyPurchased": "{{title}}은(는) 이미 구매하신 악보입니다.",
   "alreadyPurchasedGeneric": "이미 구매하신 악보입니다.",
   "purchaseComplete": "구매가 완료되었습니다!",
-  "purchaseSuccess": "포인트 결제가 완료되었습니다! 마이페이지에서 악보를 다운로드할 수 있습니다.",
+  "purchaseSuccess": "캐쉬 결제가 완료되었습니다! 마이페이지에서 악보를 다운로드할 수 있습니다.",
   "purchaseError": "구매 처리 중 오류가 발생했습니다. 다시 시도해주세요.",
   "purchaseCheckError": "구매 이력 확인 중 오류가 발생했습니다. 다시 시도해주세요.",
   "insufficientCash": "현금 잔액이 부족합니다. 현재 잔액: {{amount}}",

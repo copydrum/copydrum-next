@@ -269,7 +269,7 @@ export default function CartPageWithCheckout() {
           userId={user.id}
           userEmail={user.email || undefined}
           userName={user.user_metadata?.name || undefined}
-          userPoints={credits}
+          userCash={credits}
           onPaymentSuccess={handlePaymentSuccess}
           onPaymentError={handlePaymentError}
           onRemoveItem={handleRemoveCheckoutItem}

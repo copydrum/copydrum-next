@@ -15,6 +15,8 @@ interface CardPaymentButtonProps {
   userId: string;
   customerEmail?: string;
   customerName?: string;
+  /** 결제 직전 주문에 포인트를 적용하고 PG 에 요청할 금액을 돌려준다 */
+  prepareOrder?: (dbOrderId: string) => Promise<number>;
   onSuccess: (paymentId: string, dbOrderId?: string) => void;
   onError: (error: Error) => void;
   onProcessing: () => void;
@@ -33,6 +35,7 @@ export default function CardPaymentButton({
   userId,
   customerEmail,
   customerName,
+  prepareOrder,
   onSuccess,
   onError,
   onProcessing,
@@ -98,10 +101,12 @@ export default function CardPaymentButton({
         }
       }
 
+      const payAmount = prepareOrder ? await prepareOrder(dbOrderId) : amount;
+
       // 2단계: PortOne 카드 결제 요청
       const result = await requestPortonePayment({
         userId: user?.id ?? userId,
-        amount,
+        amount: payAmount,
         orderId: dbOrderId,
         description: orderName,
         buyerEmail: customerEmail,

@@ -2741,7 +2741,7 @@ const AdminPage: React.FC = () => {
       error: latestOrderError,
     } = await supabase
       .from('orders')
-      .select('status,total_amount,order_number')
+      .select('status,total_amount,points_used,order_number')
       .eq('id', selectedOrder.id)
       .single();
 
@@ -2761,13 +2761,15 @@ const AdminPage: React.FC = () => {
       return;
     }
 
-    const refundAmount = Math.max(0, latestOrder?.total_amount ?? selectedOrder.total_amount ?? 0);
+    const orderTotal = latestOrder?.total_amount ?? selectedOrder.total_amount ?? 0;
+    const pointsUsed = Math.max(0, latestOrder?.points_used ?? 0);
+    const refundAmount = Math.max(0, orderTotal - pointsUsed);
     const displayNumber =
       latestOrder?.order_number ??
       selectedOrder.order_number ??
       selectedOrder.id.slice(0, 8).toUpperCase();
 
-    if (refundAmount === 0) {
+    if (refundAmount === 0 && pointsUsed === 0) {
       const confirmedZero = window.confirm(
         `환불 가능한 금액이 없습니다. 주문 상태만 '환불 완료'로 변경하시겠습니까?`,
       );
@@ -2776,8 +2778,12 @@ const AdminPage: React.FC = () => {
       }
     }
 
+    const refundLines = [
+      `캐쉬 환불: ${formatCurrency(refundAmount)}`,
+      ...(pointsUsed > 0 ? [`포인트 복원: ${pointsUsed.toLocaleString('ko-KR')}P`] : []),
+    ].join('\n');
     const confirmed = window.confirm(
-      `이 주문을 환불 처리하고 상태를 '환불 완료'로 변경하시겠습니까?\n환불 금액: ${formatCurrency(refundAmount)}P`,
+      `이 주문을 환불 처리하고 상태를 '환불 완료'로 변경하시겠습니까?\n${refundLines}\n(이 주문으로 적립된 포인트는 회수됩니다)`,
     );
     if (!confirmed) {
       return;
@@ -11414,8 +11420,8 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
                   <h4 className="text-lg font-semibold text-rose-900">관리자 작업</h4>
                   <p className="text-sm text-rose-700">
                     환불 여부를 선택해 주문을 정리할 수 있습니다. 환불 없이 취소하면 주문 상태가 &lsquo;취소됨&rsquo;으로
-                    변경되고 악보 다운로드가 차단되며, 환불 처리 시 주문 상태가 &lsquo;환불 완료&rsquo;로 변경되고 고객
-                    캐시가 복원됩니다.
+                    변경되고 악보 다운로드가 차단되며, 환불 처리 시 주문 상태가 &lsquo;환불 완료&rsquo;로 변경되고 실제
+                    결제 금액은 캐쉬로, 사용한 포인트는 포인트로 복원됩니다.
                   </p>
                   <div className="flex flex-col gap-2 sm:flex-row">
                     <button

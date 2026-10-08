@@ -138,6 +138,7 @@ const getPaymentMethodLabel = (method: string | null | undefined, t: (key: strin
     virtual_account: t('myOrders.paymentMethod.virtualAccount'),
     cash: t('myOrders.paymentMethod.cash'),
     points: t('myOrders.paymentMethod.points'),
+    reward_points: t('myOrders.paymentMethod.reward_points'),
   };
   return methodMap[key] ?? method;
 };

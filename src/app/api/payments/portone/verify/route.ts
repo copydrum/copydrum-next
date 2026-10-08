@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { getPayableAmount } from '@/lib/points/server';
 
 // ✅ Service Role Key로 Admin 클라이언트 생성 (RLS 우회)
 // API Route는 서버에서 실행되므로 인증 세션이 없음 → anon key로는 업데이트 실패 가능
@@ -568,7 +569,7 @@ export async function POST(request: NextRequest) {
     try {
       const pgAmountRaw = portonePayment.amount?.total ?? portonePayment.amount ?? 0;
       const pgCurrency = portonePayment.amount?.currency ?? 'CURRENCY_KRW';
-      const orderTotalKRW = Math.round(Number(order.total_amount) || 0);
+      const orderTotalKRW = getPayableAmount(order);
       const isKRW = pgCurrency === 'CURRENCY_KRW' || pgCurrency === 'KRW';
 
       if (orderTotalKRW > 0 && isKRW) {

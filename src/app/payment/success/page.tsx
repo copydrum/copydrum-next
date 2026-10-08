@@ -55,6 +55,8 @@ interface OrderItem {
 const METHOD_KEY_MAP: Record<string, string> = {
   points: 'methodPoints',
   point: 'methodPoints',
+  cash: 'methodPoints',
+  reward_points: 'methodRewardPoints',
   kakaopay: 'methodKakaopay',
   card: 'methodCard',
   inicis: 'methodInicis',
@@ -170,7 +172,7 @@ export default function PaymentSuccessPage() {
               setPollingPending(true);
               pollStartedAtRef.current = Date.now();
             }
-          } else if (actualMethod !== 'point' && actualMethod !== 'points' && actualMethod !== 'dodo') {
+          } else if (!['point', 'points', 'reward_points', 'cash', 'dodo'].includes(actualMethod)) {
             // URL의 paymentId(PayPal-SDK가 전달)를 우선 사용, 없으면 DB 값 사용
             const paymentIdForVerify = urlPaymentId || orderData.transaction_id;
 

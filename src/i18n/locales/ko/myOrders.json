@@ -29,8 +29,9 @@
     "card": "카드 결제",
     "bankTransfer": "무통장입금",
     "virtualAccount": "가상계좌",
-    "cash": "보유 캐시",
-    "points": "포인트"
+    "cash": "캐쉬",
+    "points": "캐쉬",
+    "reward_points": "포인트"
   },
   "empty": {
     "title": "구매한 악보가 없습니다",

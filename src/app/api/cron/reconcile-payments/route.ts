@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { completeOrderAfterPayment } from '@/lib/payments/completeOrderAfterPayment';
 import type { PaymentMethod } from '@/lib/payments/types';
+import { getPayableAmount } from '@/lib/points/server';
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // 결제 재조정(reconciliation) 크론
@@ -194,7 +195,7 @@ async function handleReconcile(request: NextRequest) {
   // 재조정 후보 조회: pending + transaction_id 있음 + 최근 생성
   const { data: candidates, error: queryError } = await supabase
     .from('orders')
-    .select('id, order_number, status, payment_status, payment_method, transaction_id, total_amount, created_at, user_id, metadata, order_items ( drum_sheet_id )')
+    .select('id, order_number, status, payment_status, payment_method, transaction_id, total_amount, points_used, created_at, user_id, metadata, order_items ( drum_sheet_id )')
     .eq('status', 'pending')
     .not('transaction_id', 'is', null)
     .gte('created_at', sinceIso)
@@ -255,12 +256,13 @@ async function handleReconcile(request: NextRequest) {
 
       if (PAID_STATUSES.includes(pg.status)) {
         // 금액 검증 (KRW 위변조 차단)
-        if (!isAmountValid(pg.amountTotal, pg.currency, Math.round(Number(order.total_amount) || 0))) {
+        if (!isAmountValid(pg.amountTotal, pg.currency, getPayableAmount(order))) {
           console.error('[reconcile-payments] ⛔ 금액 불일치 — 완료 보류:', {
             orderId: order.id,
             paymentId,
             pgAmount: pg.amountTotal,
             orderTotalKRW: order.total_amount,
+            pointsUsed: order.points_used,
           });
           result.skipped++;
           result.details.push({ orderId: order.id, action: 'amount_mismatch' });

@@ -9,7 +9,7 @@
  * - transfer: 실시간 계좌이체 (KG이니시스)
  * - cash: 보유 캐시로 결제
  */
-export type PaymentMethod = 'card' | 'kakaopay' | 'bank_transfer' | 'virtual_account' | 'cash' | 'paypal' | 'transfer';
+export type PaymentMethod = 'card' | 'kakaopay' | 'bank_transfer' | 'virtual_account' | 'cash' | 'paypal' | 'transfer' | 'reward_points';
 
 /**
  * 결제 제공자 타입

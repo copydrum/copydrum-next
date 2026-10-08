@@ -12,6 +12,8 @@ interface KakaoPayButtonProps {
   orderName: string;
   items?: { sheet_id: string; title: string; price: number }[];
   userEmail?: string;
+  /** 결제 직전 주문에 포인트를 적용하고 PG 에 요청할 금액을 돌려준다 */
+  prepareOrder?: (dbOrderId: string) => Promise<number>;
   onSuccess: (paymentId: string, dbOrderId?: string) => void;
   onError: (error: Error) => void;
   onProcessing: () => void;
@@ -24,6 +26,7 @@ export default function KakaoPayButton({
   orderName,
   items,
   userEmail,
+  prepareOrder,
   onSuccess,
   onError,
   onProcessing,
@@ -120,10 +123,12 @@ export default function KakaoPayButton({
         }
       }
 
+      const payAmount = prepareOrder ? await prepareOrder(dbOrderId) : amount;
+
       // ─── 2단계: PortOne 카카오페이 결제 요청 ───
       const result = await requestKakaoPayPayment({
         userId: user.id,
-        amount: amount,
+        amount: payAmount,
         orderId: dbOrderId, // DB에 실제 존재하는 주문 ID 사용
         buyerEmail: userEmail || user.email || undefined,
         buyerName: user.user_metadata?.name || undefined,

@@ -1007,7 +1007,11 @@ serve(async (req) => {
     {
       const pgAmount = portonePayment.amount?.total ?? portonePayment.amount ?? 0;
       const pgCurrency = portonePayment.amount?.currency ?? "CURRENCY_KRW";
-      const orderTotalKRW = Math.round(Number(order.total_amount) || 0);
+      // 포인트를 쓴 주문은 남은 금액만 PG로 결제된다
+      const orderTotalKRW = Math.max(
+        0,
+        Math.round(Number(order.total_amount) || 0) - Math.round(Number(order.points_used) || 0),
+      );
       if (!compareAmounts(pgAmount, pgCurrency, orderTotalKRW)) {
         console.error("[portone-payment-confirm] ⛔ 결제 금액 불일치 — 주문 승인 거부:", {
           orderId: order.id,

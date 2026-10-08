@@ -180,7 +180,7 @@ export default function PaymentPage() {
         userId={user.id}
         userEmail={user.email || undefined}
         userName={user.user_metadata?.name || undefined}
-        userPoints={userProfile?.credits || 0}
+        userCash={userProfile?.credits || 0}
         onPaymentSuccess={handlePaymentSuccess}
         onPaymentError={handlePaymentError}
       />

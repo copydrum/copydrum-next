@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { validateOrderPricing } from '@/lib/pricing/validateOrderPricing';
 import { getAuthenticatedUser } from '@/lib/auth/requireUser';
+import { releaseOrderPoints } from '@/lib/points/server';
 
 // ✅ Service Role Key가 있으면 Admin 권한으로 RLS 우회
 // 없으면 Anon Key로 폴백 (이 경우 RLS 정책에 의존)
@@ -95,6 +96,7 @@ export async function POST(request: NextRequest) {
         order_number,
         total_amount,
         transaction_id,
+        points_used,
         order_items (
           drum_sheet_id
         )
@@ -128,6 +130,16 @@ export async function POST(request: NextRequest) {
               payment_method: paymentMethod || null, // 결제수단이 바뀔 수 있으므로 갱신
             })
             .eq('id', existingOrder.id);
+
+          // 이전 시도에서 묶인 포인트는 되돌린다. 포인트를 쓸 결제 화면은 결제 직전에 다시 적용한다.
+          if ((existingOrder.points_used ?? 0) > 0) {
+            try {
+              await releaseOrderPoints(supabase, existingOrder.id);
+            } catch (releaseError) {
+              console.error('[create-order] 재활용 주문 포인트 복구 실패:', { orderId: existingOrder.id, releaseError });
+              continue;
+            }
+          }
 
           console.log('[create-order] ♻️ 기존 pending 주문 재활용 (transaction_id NULL):', {
             orderId: existingOrder.id,

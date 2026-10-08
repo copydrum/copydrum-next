@@ -109,7 +109,8 @@ async function ensureUserId(supabase: any, rawEmail: string): Promise<string> {
     const { data, error } = await supabase.auth.admin.createUser({
       email: email,
       password: crypto.randomUUID(),
-      email_confirm: true
+      email_confirm: true,
+      user_metadata: { bulk_import: true }
     });
 
     if (error) {

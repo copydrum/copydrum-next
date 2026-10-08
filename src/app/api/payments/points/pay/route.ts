@@ -8,6 +8,7 @@ import {
   DuplicateCashTransactionError,
   InsufficientCashError,
 } from '@/lib/payments/wallet';
+import { getPayableAmount } from '@/lib/points/server';
 
 export async function POST(request: NextRequest) {
   try {
@@ -41,7 +42,7 @@ export async function POST(request: NextRequest) {
     // 🔒 주문 소유권 및 금액 검증: 본인 주문이고, 결제 금액이 주문 총액과 일치해야 한다.
     const { data: orderRow, error: orderLookupError } = await supabase
       .from('orders')
-      .select('id, user_id, total_amount, status, payment_status')
+      .select('id, user_id, total_amount, points_used, status, payment_status')
       .eq('id', orderId)
       .single();
 
@@ -64,8 +65,8 @@ export async function POST(request: NextRequest) {
         orderId,
       });
     }
-    // 서버가 신뢰하는 주문 총액을 기준으로 결제 금액을 강제한다 (클라이언트 amount 신뢰 금지).
-    const serverAmount = Math.max(0, Math.round(Number(orderRow.total_amount) || 0));
+    // 서버가 신뢰하는 결제할 금액(주문 총액 - 사용 포인트)을 강제한다 (클라이언트 amount 신뢰 금지).
+    const serverAmount = getPayableAmount(orderRow);
     if (serverAmount <= 0 || Math.round(Number(amount)) !== serverAmount) {
       return NextResponse.json(
         { success: false, error: 'Amount mismatch' },

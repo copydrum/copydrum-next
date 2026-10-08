@@ -73,7 +73,7 @@ serve(async (req) => {
 
     const { data: order, error: orderError } = await adminClient
       .from("orders")
-      .select("id, user_id, status, total_amount, order_number")
+      .select("id, user_id, status, total_amount, points_used, order_number")
       .eq("id", orderId)
       .maybeSingle();
 
@@ -109,54 +109,23 @@ serve(async (req) => {
     const nowIso = new Date().toISOString();
 
     if (doRefund) {
-      const refundAmount = Math.max(0, order.total_amount ?? 0);
+      // 포인트로 낸 부분은 주문 상태가 refunded 로 바뀔 때 DB 트리거가 포인트로 되돌린다.
+      const refundAmount = Math.max(0, (order.total_amount ?? 0) - (order.points_used ?? 0));
 
       if (refundAmount > 0) {
-        const { data: userProfile, error: userProfileError } = await adminClient
-          .from("profiles")
-          .select("credits")
-          .eq("id", order.user_id)
-          .maybeSingle();
+        const { error: refundError } = await adminClient.rpc("wallet_apply_cash", {
+          p_user_id: order.user_id,
+          p_amount: refundAmount,
+          p_bonus: 0,
+          p_type: "refund",
+          p_description: `주문 환불: ${order.order_number ?? order.id}`,
+          p_order_id: order.id,
+          p_sheet_id: null,
+          p_created_by: user.id,
+        });
 
-        if (userProfileError) {
-          return new Response(JSON.stringify(userProfileError), {
-            status: 400,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
-        }
-
-        const currentCredits = userProfile?.credits ?? 0;
-        const newCredits = currentCredits + refundAmount;
-
-        const { error: updateCreditsError } = await adminClient
-          .from("profiles")
-          .update({ credits: newCredits })
-          .eq("id", order.user_id);
-
-        if (updateCreditsError) {
-          return new Response(JSON.stringify(updateCreditsError), {
-            status: 400,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
-        }
-
-        const { error: transactionError } = await adminClient.from("cash_transactions").insert([
-          {
-            user_id: order.user_id,
-            transaction_type: "admin_add",
-            amount: refundAmount,
-            bonus_amount: 0,
-            balance_after: newCredits,
-            description: `주문 환불: ${order.order_number ?? order.id}`,
-            sheet_id: null,
-            order_id: order.id,
-            created_by: user.id,
-            created_at: nowIso,
-          },
-        ]);
-
-        if (transactionError) {
-          return new Response(JSON.stringify(transactionError), {
+        if (refundError && refundError.code !== "23505") {
+          return new Response(JSON.stringify(refundError), {
             status: 400,
             headers: { ...corsHeaders, "Content-Type": "application/json" },
           });
