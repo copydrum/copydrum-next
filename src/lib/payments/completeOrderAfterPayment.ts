@@ -12,6 +12,9 @@ import { supabase as defaultSupabase } from '../supabase';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { PaymentMethod } from './types';
 import { calculateExpectedCompletionDate, formatDateToYMD } from '@/utils/businessDays';
+import { getSiteUrl } from '@/lib/siteUrl';
+import { getCashChargeBonus } from './cashPackages';
+import { applyCash, DuplicateCashTransactionError } from './wallet';
 
 interface CompleteOrderAfterPaymentOptions {
   /** 트랜잭션 ID (PG사 거래 ID 또는 수동 확인 ID) */
@@ -169,60 +172,31 @@ export const completeOrderAfterPayment = async (
   // 1. 캐시 충전 처리
   if (isCashCharge) {
     const chargeAmount = Math.max(0, order.total_amount ?? 0);
-    const bonusAmount = Number(
-      (order.metadata as Record<string, unknown> | null)?.bonusAmount ?? 0,
-    );
+    const bonusAmount = getCashChargeBonus(chargeAmount);
 
-    // 사용자 캐시 잔액 조회
-    const {
-      data: profile,
-      error: profileError,
-    } = await supabase.from('profiles').select('credits').eq('id', order.user_id).single();
-
-    if (profileError) {
-      console.error('[completeOrderAfterPayment] 프로필 조회 실패', profileError);
-      throw new Error('사용자 정보를 조회할 수 없습니다.');
-    }
-
-    const currentCredits = profile?.credits ?? 0;
-    const newCredits = currentCredits + chargeAmount + bonusAmount;
-
-    // 캐시 잔액 업데이트
-    const { error: updateProfileError } = await supabase
-      .from('profiles')
-      .update({ credits: newCredits })
-      .eq('id', order.user_id);
-
-    if (updateProfileError) {
-      console.error('[completeOrderAfterPayment] 캐시 업데이트 실패', updateProfileError);
-      throw new Error('캐시 충전에 실패했습니다.');
-    }
-
-    // 캐시 거래 내역 기록
-    const { error: cashTxError } = await supabase.from('cash_transactions').insert([
-      {
-        user_id: order.user_id,
-        transaction_type: 'charge',
+    try {
+      const newCredits = await applyCash(supabase, {
+        userId: order.user_id,
         amount: chargeAmount,
-        bonus_amount: bonusAmount,
-        balance_after: newCredits,
+        bonus: bonusAmount,
+        type: 'charge',
         description: `결제 완료: ${paymentMethod}`,
-        created_by: order.user_id,
-        order_id: order.id,
-      },
-    ]);
-
-    if (cashTxError) {
-      console.warn('[completeOrderAfterPayment] 캐시 거래 내역 기록 실패', cashTxError);
-      // 거래 내역 기록 실패는 치명적이지 않으므로 경고만 출력
+        orderId: order.id,
+      });
+      console.log('[completeOrderAfterPayment] 캐시 충전 완료', {
+        orderId,
+        chargeAmount,
+        bonusAmount,
+        newCredits,
+      });
+    } catch (error) {
+      if (!(error instanceof DuplicateCashTransactionError)) {
+        console.error('[completeOrderAfterPayment] 캐시 충전 실패', error);
+        throw new Error('캐시 충전에 실패했습니다.');
+      }
+      // 같은 주문의 충전이 이미 반영됨 (웹훅 중복 등) → 주문 상태만 마저 갱신
+      console.warn('[completeOrderAfterPayment] 이미 충전된 주문', { orderId });
     }
-
-    console.log('[completeOrderAfterPayment] 캐시 충전 완료', {
-      orderId,
-      chargeAmount,
-      bonusAmount,
-      newCredits,
-    });
   }
 
   // 2. 악보 구매 처리 (purchases 테이블에 기록)
@@ -499,7 +473,11 @@ export const completeOrderAfterPayment = async (
     }
 
     // 서버 사이드 API route로 알림 전송 (nodemailer는 서버에서만 실행 가능)
-    fetch('/api/notifications/preorder', {
+    const notifyUrl =
+      typeof window === 'undefined'
+        ? `${getSiteUrl()}/api/notifications/preorder`
+        : '/api/notifications/preorder';
+    fetch(notifyUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

@@ -181,7 +181,6 @@ async function processUser(supabase: any, userData: any): Promise<{ success: boo
         phone: userData.phone || null,
         kakao_id: userData.kakao_id || null,
         google_id: userData.google_id || null,
-        role: userData.role || 'user',
         updated_at: new Date().toISOString()
       }, { 
         onConflict: 'id' 
@@ -217,6 +216,21 @@ serve(async (req) => {
 
     if (!supabaseUrl || !supabaseServiceKey) {
       throw new Error('Supabase 환경 변수가 설정되지 않았습니다');
+    }
+
+    const accessToken = (req.headers.get('Authorization') ?? '').replace('Bearer ', '').trim();
+    const authClient = createClient(supabaseUrl, Deno.env.get('SUPABASE_ANON_KEY') ?? '', {
+      global: { headers: { Authorization: `Bearer ${accessToken}` } },
+    });
+    const { data: { user: caller } } = await authClient.auth.getUser();
+    const { data: callerProfile } = caller
+      ? await authClient.from('profiles').select('role, is_admin').eq('id', caller.id).maybeSingle()
+      : { data: null };
+    if (!callerProfile || (callerProfile.is_admin !== true && callerProfile.role !== 'admin')) {
+      return new Response(JSON.stringify({ success: false, error: 'Forbidden' }), {
+        status: 403,
+        headers: { ...cors(origin), 'Content-Type': 'application/json' },
+      });
     }
 
     // Supabase 클라이언트 초기화 (안정적인 설정)

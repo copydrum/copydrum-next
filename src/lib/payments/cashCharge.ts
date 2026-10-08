@@ -1,4 +1,3 @@
-import { createPendingOrder } from './orderUtils';
 import {
   createInicisPaymentIntent,
   ensureInicisSdkLoaded,
@@ -6,8 +5,7 @@ import {
   getInicisReturnUrl,
 } from './inicis';
 import { requestPayPalPayment, requestKakaoPayPayment } from './portone';
-import type { PaymentIntentResponse, PaymentStatus, VirtualAccountInfo } from './types';
-import { updateOrderPaymentStatus } from './paymentService';
+import type { PaymentIntentResponse, VirtualAccountInfo } from './types';
 
 type SupportedChargeMethod = 'card' | 'bank_transfer' | 'paypal' | 'kakaopay';
 
@@ -34,13 +32,32 @@ interface StartCashChargeResult {
   virtualAccountInfo?: VirtualAccountInfo | null;
 }
 
-const mapToPaymentStatus = (method: SupportedChargeMethod): PaymentStatus =>
-  method === 'bank_transfer' ? 'awaiting_deposit' : 'pending';
+const createCashChargeOrder = async (
+  amount: number,
+  paymentMethod: SupportedChargeMethod,
+  depositorName?: string,
+) => {
+  const response = await fetch('/api/cash/charge-orders', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ amount, paymentMethod, depositorName }),
+  });
+  const result = await response.json().catch(() => null);
+  if (!result?.success || !result.orderId) {
+    throw new Error(result?.error || '충전 주문 생성에 실패했습니다.');
+  }
+  return {
+    orderId: result.orderId as string,
+    orderNumber: (result.orderNumber as string | null) ?? null,
+  };
+};
 
+/**
+ * 캐쉬 충전 시작. 보너스는 서버가 패키지표로 정하므로 bonusAmount 는 화면 표시용으로만 쓰인다.
+ */
 export const startCashCharge = async ({
   userId,
   amount,
-  bonusAmount = 0,
   paymentMethod,
   description,
   buyerName,
@@ -52,33 +69,10 @@ export const startCashCharge = async ({
 }: StartCashChargeParams): Promise<StartCashChargeResult> => {
   const trimmedDepositorName = depositorName?.trim();
 
-  const { orderId, orderNumber } = await createPendingOrder({
-    userId,
-    amount,
-    paymentMethod,
-    description,
-    paymentStatus: mapToPaymentStatus(paymentMethod),
-    metadata: {
-      type: 'cash_charge',
-      bonusAmount,
-    },
-    orderType: 'cash', // 주문 타입 추가
-    depositorName: trimmedDepositorName, // 입금자명 전달
-  });
+  const { orderId, orderNumber } = await createCashChargeOrder(amount, paymentMethod, trimmedDepositorName);
 
   if (paymentMethod === 'bank_transfer') {
     // 페이액션 연동 제거, 간단한 무통장 입금 처리
-    // depositor_name 추가 - 입금자명 저장
-    // depositorName이 전달되었고 빈 문자열이 아닐 때 저장
-    if (depositorName !== undefined && depositorName !== null && trimmedDepositorName) {
-      console.log('[startCashCharge] 입금자명 저장:', { depositorName, trimmedDepositorName, orderId });
-      await updateOrderPaymentStatus(orderId, 'awaiting_deposit', {
-        depositorName: trimmedDepositorName,
-      });
-    } else {
-      console.warn('[startCashCharge] 입금자명이 저장되지 않음:', { depositorName, trimmedDepositorName, orderId });
-    }
-
     // 고정 계좌 정보 반환
     const bankInfo: VirtualAccountInfo = {
       bankName: '카카오뱅크',
@@ -183,7 +177,6 @@ export const startCashCharge = async ({
     description,
     method: 'card',
     orderId,
-    bonusAmount,
     returnUrl: finalReturnUrl,
     buyerName: buyerName ?? undefined,
     buyerEmail: buyerEmail ?? undefined,

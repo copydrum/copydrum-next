@@ -1,5 +1,4 @@
-import { supabase } from '../supabase';
-import type { PaymentMethod, PaymentStatus } from './types';
+import type { PaymentMethod } from './types';
 
 export const generateOrderNumber = () => {
   const now = new Date();
@@ -13,115 +12,62 @@ export const generateOrderNumber = () => {
   return `ORD${yyyy}${MM}${dd}${hh}${mm}${ss}${random}`;
 };
 
-interface CreatePendingOrderParams {
-  userId: string;
-  amount: number;
-  paymentMethod: PaymentMethod;
-  description: string;
-  paymentStatus?: PaymentStatus;
-  metadata?: Record<string, unknown>;
-  orderType?: 'product' | 'cash'; // 주문 타입 추가
-  depositorName?: string; // 입금자명 추가
-}
-
-export const createPendingOrder = async ({
-  userId,
-  amount,
-  paymentMethod,
-  description: _description,
-  paymentStatus = 'pending',
-  metadata = {},
-  orderType, // 주문 타입 추가
-  depositorName, // 입금자명 추가
-}: CreatePendingOrderParams) => {
-  const orderNumber = generateOrderNumber();
-  const normalizedAmount = Math.max(0, Math.round(amount));
-
-  const { data, error } = await supabase
-    .from('orders')
-    .insert([
-      {
-        user_id: userId,
-        order_number: orderNumber,
-        total_amount: normalizedAmount,
-        status: paymentStatus === 'awaiting_deposit' ? 'pending' : 'pending',
-        payment_method: paymentMethod,
-        payment_status: paymentStatus,
-        raw_status: paymentStatus,
-        metadata,
-        order_type: orderType, // 주문 타입 추가
-        depositor_name: depositorName, // 입금자명 저장
-      },
-    ])
-    .select('id, order_number')
-    .single();
-
-  if (error) {
-    throw error;
-  }
-
-  return {
-    orderId: data.id as string,
-    orderNumber: data.order_number as string | null,
-    amount: normalizedAmount,
-  };
-};
-
 interface OrderItemInput {
   sheetId: string;
   price: number;
   title?: string | null;
 }
 
-interface CreateOrderWithItemsParams extends CreatePendingOrderParams {
+interface CreateOrderWithItemsParams {
+  userId: string;
+  amount: number;
+  paymentMethod: PaymentMethod | string;
+  description: string;
   items: OrderItemInput[];
 }
 
+/**
+ * 악보 주문 생성. 가격 검증과 주문 저장은 서버(/api/orders/create)가 처리한다.
+ * 생성된 주문은 payment_status = 'pending' 이며, 무통장 입금 표시는 호출부에서 갱신한다.
+ */
 export const createOrderWithItems = async ({
   userId,
   amount,
   paymentMethod,
   description,
   items,
-  paymentStatus = 'pending',
-  metadata = {},
-  orderType = 'product', // 주문 타입 추가 (기본값: product)
-  depositorName, // 입금자명 추가
 }: CreateOrderWithItemsParams) => {
-  const { orderId, orderNumber } = await createPendingOrder({
-    userId,
-    amount,
-    paymentMethod,
-    description,
-    paymentStatus,
-    metadata: {
-      ...metadata,
-      itemCount: items.length,
-    },
-    orderType, // 주문 타입 추가
-    depositorName, // 입금자명 전달
+  const normalizedAmount = Math.max(0, Math.round(amount));
+
+  const response = await fetch('/api/orders/create', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      userId,
+      amount: normalizedAmount,
+      description,
+      paymentMethod,
+      items: items.map((item) => ({
+        sheetId: item.sheetId,
+        title: item.title ?? '제목 미확인',
+        price: Math.max(0, Math.round(item.price)),
+      })),
+    }),
   });
 
-  if (items.length > 0) {
-    const orderItems = items.map((item) => ({
-      order_id: orderId,
-      drum_sheet_id: item.sheetId,
-      sheet_title: item.title ?? '제목 미확인',
-      price: Math.max(0, Math.round(item.price)),
-    }));
+  const result = await response.json().catch(() => null);
 
-    const { error: orderItemsError } = await supabase.from('order_items').insert(orderItems);
+  if (!result?.success || !result.orderId) {
+    throw new Error(result?.error || '주문 생성에 실패했습니다.');
+  }
 
-    if (orderItemsError) {
-      await supabase.from('orders').delete().eq('id', orderId);
-      throw orderItemsError;
-    }
+  if (result.alreadyPaid) {
+    throw new Error('이미 결제가 완료된 주문입니다. 구매내역을 확인해 주세요.');
   }
 
   return {
-    orderId,
-    orderNumber,
-    amount,
+    orderId: result.orderId as string,
+    orderNumber: (result.orderNumber as string | null) ?? null,
+    amount: normalizedAmount,
   };
 };
-

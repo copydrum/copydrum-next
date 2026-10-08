@@ -1,22 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 import { calculateExpectedCompletionDate, formatDateToYMD } from '@/utils/businessDays';
 import { sendPreorderNotification } from '@/lib/email/sendPreorderNotification';
 import { getAuthenticatedUser } from '@/lib/auth/requireUser';
-
-// ✅ Service Role Key가 있으면 Admin 권한으로 RLS 우회
-function createAdminClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
-  if (serviceRoleKey) {
-    return createClient(url, serviceRoleKey);
-  }
-
-  console.warn('[points-pay] ⚠️ Service Role Key 없음 → Anon Key 사용');
-  return createClient(url, anonKey);
-}
+import { createServiceRoleClient } from '@/lib/supabase/admin';
+import {
+  applyCash,
+  DuplicateCashTransactionError,
+  InsufficientCashError,
+} from '@/lib/payments/wallet';
 
 export async function POST(request: NextRequest) {
   try {
@@ -45,7 +36,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const supabase = createAdminClient();
+    const supabase = createServiceRoleClient();
 
     // 🔒 주문 소유권 및 금액 검증: 본인 주문이고, 결제 금액이 주문 총액과 일치해야 한다.
     const { data: orderRow, error: orderLookupError } = await supabase
@@ -75,53 +66,44 @@ export async function POST(request: NextRequest) {
     }
     // 서버가 신뢰하는 주문 총액을 기준으로 결제 금액을 강제한다 (클라이언트 amount 신뢰 금지).
     const serverAmount = Math.max(0, Math.round(Number(orderRow.total_amount) || 0));
-    if (serverAmount > 0 && Math.round(Number(amount)) !== serverAmount) {
+    if (serverAmount <= 0 || Math.round(Number(amount)) !== serverAmount) {
       return NextResponse.json(
         { success: false, error: 'Amount mismatch' },
         { status: 400 }
       );
     }
 
-    // 사용자 포인트 확인
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('credits')
-      .eq('id', userId)
-      .single();
-
-    if (profileError || !profile) {
-      return NextResponse.json(
-        { success: false, error: 'User profile not found' },
-        { status: 404 }
-      );
-    }
-
-    if (profile.credits < pointsToUse) {
-      return NextResponse.json(
-        { success: false, error: 'Insufficient points' },
-        { status: 400 }
-      );
-    }
-
-    if (pointsToUse < (serverAmount || amount)) {
+    if (Math.round(Number(pointsToUse)) < serverAmount) {
       return NextResponse.json(
         { success: false, error: 'Points amount is less than order amount' },
         { status: 400 }
       );
     }
 
-    // 트랜잭션 시작: 포인트 차감 및 주문 완료 처리
-    const { data: updatedProfile, error: updateError } = await supabase
-      .from('profiles')
-      .update({
-        credits: profile.credits - pointsToUse,
-      })
-      .eq('id', userId)
-      .select()
-      .single();
-
-    if (updateError) {
-      console.error('[Points Payment] Profile update error:', updateError);
+    // 포인트 차감 (잔액 확인·차감·거래내역 기록을 DB에서 한 번에 처리)
+    let remainingPoints: number;
+    try {
+      remainingPoints = await applyCash(supabase, {
+        userId,
+        amount: -serverAmount,
+        type: 'use',
+        description: `Points payment for order ${orderId}`,
+        orderId,
+      });
+    } catch (deductError) {
+      if (deductError instanceof InsufficientCashError) {
+        return NextResponse.json(
+          { success: false, error: 'Insufficient points' },
+          { status: 400 }
+        );
+      }
+      if (deductError instanceof DuplicateCashTransactionError) {
+        return NextResponse.json(
+          { success: false, error: 'Payment already in progress for this order' },
+          { status: 409 }
+        );
+      }
+      console.error('[Points Payment] Deduct error:', deductError);
       return NextResponse.json(
         { success: false, error: 'Failed to deduct points' },
         { status: 500 }
@@ -193,7 +175,7 @@ export async function POST(request: NextRequest) {
                 orderId,
                 userId,
                 userEmail,
-                totalAmount: amount,
+                totalAmount: serverAmount,
                 paymentMethod: 'points',
                 items: preorderItems,
                 expectedCompletionDate: expectedCompletionDateStr,
@@ -232,34 +214,22 @@ export async function POST(request: NextRequest) {
     if (orderError) {
       console.error('[Points Payment] Order update error:', orderError);
 
-      // 포인트 롤백
-      await supabase
-        .from('profiles')
-        .update({
-          credits: profile.credits,
-        })
-        .eq('id', userId);
+      try {
+        await applyCash(supabase, {
+          userId,
+          amount: serverAmount,
+          type: 'refund',
+          description: `Refund: order update failed (${orderId})`,
+          orderId,
+        });
+      } catch (refundError) {
+        console.error('[Points Payment] 포인트 환불 실패 (수동 확인 필요):', { orderId, refundError });
+      }
 
       return NextResponse.json(
         { success: false, error: 'Failed to update order status' },
         { status: 500 }
       );
-    }
-
-    // 캐시 트랜잭션 기록
-    const { error: transactionError } = await supabase
-      .from('cash_transactions')
-      .insert({
-        user_id: userId,
-        amount: -pointsToUse,
-        transaction_type: 'use',
-        description: `Points payment for order ${orderId}`,
-        balance_after: updatedProfile.credits,
-        order_id: orderId,
-      });
-
-    if (transactionError) {
-      console.error('[Points Payment] Transaction log error:', transactionError);
     }
 
     // ✅ purchases 테이블에 구매 기록 삽입 (구매내역 페이지에서 조회 + 재다운로드 지원)
@@ -299,7 +269,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      remainingPoints: updatedProfile.credits,
+      remainingPoints,
     });
   } catch (error) {
     console.error('[Points Payment] Error:', error);

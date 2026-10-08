@@ -78,27 +78,16 @@ export const startSheetPurchase = async ({
       ...item,
       title: item.sheetTitle,
     })),
-    paymentStatus: paymentMethod === 'bank_transfer' ? 'awaiting_deposit' : 'pending',
-    metadata: {
-      type: 'sheet_purchase',
-      sheetIds: items.map((item) => item.sheetId),
-    },
-    depositorName: trimmedDepositorName, // 입금자명 전달
-    orderType: 'product', // 주문 타입 추가
   });
 
   if (paymentMethod === 'bank_transfer') {
     // 페이액션 연동 제거, 간단한 무통장 입금 처리
-    // depositor_name 추가 - 입금자명 저장
-    // depositorName이 전달되었고 빈 문자열이 아닐 때 저장
-    if (depositorName !== undefined && depositorName !== null && trimmedDepositorName) {
-      console.log('[startSheetPurchase] 입금자명 저장:', { depositorName, trimmedDepositorName, orderId });
-      await updateOrderPaymentStatus(orderId, 'awaiting_deposit', {
-        depositorName: trimmedDepositorName,
-      });
-    } else {
-      console.warn('[startSheetPurchase] 입금자명이 저장되지 않음:', { depositorName, trimmedDepositorName, orderId });
+    if (!trimmedDepositorName) {
+      console.warn('[startSheetPurchase] 입금자명이 저장되지 않음:', { depositorName, orderId });
     }
+    await updateOrderPaymentStatus(orderId, 'awaiting_deposit', {
+      depositorName: trimmedDepositorName || undefined,
+    });
 
     // 고정 계좌 정보 반환
     const bankInfo: VirtualAccountInfo = {

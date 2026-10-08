@@ -7,14 +7,46 @@ const corsHeaders = {
         "authorization, x-client-info, apikey, content-type",
 };
 
+// src/lib/payments/cashPackages.ts 와 같은 표를 유지한다.
+const CASH_CHARGE_BONUS_BY_AMOUNT: Record<number, number> = {
+    3000: 0,
+    5000: 500,
+    10000: 1500,
+    30000: 6000,
+    50000: 11000,
+    100000: 25000,
+};
+
+const jsonResponse = (status: number, body: Record<string, unknown>) =>
+    new Response(JSON.stringify(body), {
+        status,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+
 serve(async (req) => {
     if (req.method === "OPTIONS") {
         return new Response("ok", { headers: corsHeaders });
     }
 
     try {
+        const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+        const anonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
+        const accessToken = (req.headers.get("Authorization") ?? "").replace("Bearer ", "").trim();
+        if (!accessToken) return jsonResponse(401, { error: "Unauthorized" });
+
+        const authClient = createClient(supabaseUrl, anonKey, {
+            global: { headers: { Authorization: `Bearer ${accessToken}` } },
+        });
+        const { data: { user }, error: userError } = await authClient.auth.getUser();
+        if (userError || !user) return jsonResponse(401, { error: "Unauthorized" });
+
+        const { data: callerProfile } = await authClient
+            .from("profiles").select("role, is_admin").eq("id", user.id).maybeSingle();
+        const isAdmin = !!callerProfile && (callerProfile.is_admin === true || callerProfile.role === "admin");
+        if (!isAdmin) return jsonResponse(403, { error: "Forbidden" });
+
         const supabaseClient = createClient(
-            Deno.env.get("SUPABASE_URL") ?? "",
+            supabaseUrl,
             Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
         );
 
@@ -50,47 +82,24 @@ serve(async (req) => {
         // 2. Handle Cash Charge
         if (order.order_type === "cash") {
             console.log("[admin-complete-order] Processing cash charge");
-            // Calculate bonus (logic from completeOrderAfterPayment.ts)
-            // Assuming simple logic for now or fetching from metadata if available.
-            // For now, let's trust total_amount as the charge amount.
-            // If there's bonus logic, it should ideally be in the order creation or metadata.
-            // Let's look at metadata for 'bonusCredits' if it exists, otherwise 0.
+            const chargeAmount = Math.max(0, Math.round(Number(order.total_amount) || 0));
+            const bonusAmount = CASH_CHARGE_BONUS_BY_AMOUNT[chargeAmount] ?? 0;
 
-            const chargeAmount = order.total_amount;
-            const bonusCredits = order.metadata?.bonusCredits || 0;
-            const totalCredits = chargeAmount + bonusCredits;
-
-            // Update user profile
-            const { error: profileError } = await supabaseClient.rpc("increment_user_credit", {
-                user_id_param: order.user_id,
-                amount_param: totalCredits
+            const { error: chargeError } = await supabaseClient.rpc("wallet_apply_cash", {
+                p_user_id: order.user_id,
+                p_amount: chargeAmount,
+                p_bonus: bonusAmount,
+                p_type: "charge",
+                p_description: `캐시 충전 (주문번호: ${order.order_number || order.id})`,
+                p_order_id: order.id,
+                p_created_by: user.id,
             });
 
-            if (profileError) {
-                // Fallback to direct update if RPC fails or doesn't exist (though RPC is safer for concurrency)
-                console.warn("[admin-complete-order] RPC failed, trying direct update:", profileError);
-                const { data: profile } = await supabaseClient
-                    .from("profiles")
-                    .select("credit_amount")
-                    .eq("id", order.user_id)
-                    .single();
-
-                if (profile) {
-                    await supabaseClient
-                        .from("profiles")
-                        .update({ credit_amount: (profile.credit_amount || 0) + totalCredits })
-                        .eq("id", order.user_id);
-                }
+            // 23505: 같은 주문의 충전이 이미 반영됨 → 주문 상태만 마저 갱신
+            if (chargeError && chargeError.code !== "23505") {
+                console.error("[admin-complete-order] Cash charge error:", chargeError);
+                throw new Error("Failed to charge cash");
             }
-
-            // Record point history
-            await supabaseClient.from("point_history").insert({
-                user_id: order.user_id,
-                amount: totalCredits,
-                type: "charge",
-                description: `캐시 충전 (주문번호: ${order.order_number || order.id})`,
-                metadata: { order_id: order.id }
-            });
         }
 
         // 3. Handle Sheet Purchase (Product)
@@ -128,6 +137,7 @@ serve(async (req) => {
                 metadata: {
                     ...order.metadata,
                     completed_by: completedBy,
+                    completed_by_user_id: user.id,
                     completed_at: now,
                     manual_override: true
                 }
