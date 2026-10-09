@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { orderRevenue } from './payments/revenue';
 
 export type AnalyticsPeriod = 'today' | '7d' | '30d' | '365d' | 'all';
 
@@ -18,12 +19,9 @@ interface RawOrder {
   status: string | null;
   total_amount: number | null;
   points_used?: number | null;
+  payment_method?: string | null;
   user_id?: string | null;
 }
-
-// 적립 포인트로 낸 금액은 실제 받은 돈이 아니므로 매출에서 뺀다
-const orderRevenue = (order: RawOrder): number =>
-  Math.max(0, safeNumber(order.total_amount) - safeNumber(order.points_used));
 
 interface RawOrderItem {
   id: string;
@@ -309,7 +307,7 @@ export const fetchAnalyticsData = async (period: AnalyticsPeriod = '30d'): Promi
 
   const ordersQuery = supabase
     .from('orders')
-    .select('id, created_at, status, total_amount, points_used, user_id')
+    .select('id, created_at, status, total_amount, points_used, payment_method, user_id')
     .eq('status', 'completed')
     .order('created_at', { ascending: true });
 
@@ -324,7 +322,7 @@ export const fetchAnalyticsData = async (period: AnalyticsPeriod = '30d'): Promi
     previousStartIso && previousEndIso
       ? supabase
           .from('orders')
-          .select('id, created_at, status, total_amount, points_used')
+          .select('id, created_at, status, total_amount, points_used, payment_method')
           .eq('status', 'completed')
           .gte('created_at', previousStartIso)
           .lte('created_at', previousEndIso)

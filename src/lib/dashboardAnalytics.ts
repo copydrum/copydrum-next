@@ -3,6 +3,7 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import { supabase } from './supabase';
+import { orderRevenue, REVENUE_ORDER_COLUMNS, type RevenueOrderRow } from './payments/revenue';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -77,11 +78,7 @@ type PageViewRow = {
   referrer?: string | null;
   user_agent?: string | null;
 };
-type OrderRow = { created_at: string | null; total_amount: number | null; points_used?: number | null };
-
-// 적립 포인트로 낸 금액은 실제 받은 돈이 아니므로 매출에서 뺀다
-const orderRevenue = (row: OrderRow): number =>
-  Math.max(0, (row.total_amount ?? 0) - (row.points_used ?? 0));
+type OrderRow = RevenueOrderRow;
 type ProfileRow = { created_at: string | null };
 type InquiryRow = { created_at: string | null };
 
@@ -637,7 +634,7 @@ const fetchOrders = async (
   while (hasMore) {
     const { data, error } = await client
       .from('orders')
-      .select('created_at,total_amount,points_used')
+      .select(REVENUE_ORDER_COLUMNS)
       .eq('status', 'completed')
       .gte('created_at', startIso)
       .lt('created_at', endIso)

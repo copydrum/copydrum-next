@@ -27,6 +27,7 @@ import {
   type DashboardAnalyticsResult,
 } from '../../lib/dashboardAnalytics';
 import { fetchAnalyticsData, type AnalyticsPeriod, type AnalyticsData } from '../../lib/analytics';
+import { fetchCompletedRevenueOrders, orderRevenue } from '../../lib/payments/revenue';
 import { fetchDrumLessonAnalytics, type DrumLessonAnalyticsData } from '../../lib/drumLessonAnalytics';
 import type { VirtualAccountInfo } from '../../lib/payments';
 import { tryGenerateNormalizedKey } from '../../lib/utils/normalizedKey';
@@ -135,6 +136,7 @@ interface Order {
   order_number?: string | null;
   user_id: string;
   total_amount: number;
+  points_used?: number | null;
   status: OrderStatus;
   raw_status?: string | null;
   payment_method: string | null;
@@ -470,6 +472,7 @@ const PAYMENT_METHOD_LABELS: Record<string, string> = {
   payco: '페이코',
   naverpay: '네이버페이',
   cash: '보유 캐시',
+  reward_points: '적립 포인트',
   paypal: 'PayPal',
   inicis: 'KG이니시스',
   transfer: '계좌이체',
@@ -495,8 +498,15 @@ const normalizeOrderStatus = (status: string | null | undefined): OrderStatus =>
   return 'pending';
 };
 
-const normalizePaymentMethodKey = (method: string) =>
-  method.toLowerCase().replace(/\s+/g, '_').replace(/-+/g, '_');
+const PAYMENT_METHOD_ALIASES: Record<string, string> = {
+  points: 'cash',
+  point: 'cash',
+};
+
+const normalizePaymentMethodKey = (method: string) => {
+  const key = method.toLowerCase().replace(/\s+/g, '_').replace(/-+/g, '_');
+  return PAYMENT_METHOD_ALIASES[key] ?? key;
+};
 
 const getPaymentMethodLabel = (method: string | null | undefined, order?: Order | null) => {
   if (!method) {
@@ -514,7 +524,12 @@ const getPaymentMethodLabel = (method: string | null | undefined, order?: Order 
     return '미확인';
   }
   const key = normalizePaymentMethodKey(method);
-  return PAYMENT_METHOD_LABELS[key] ?? method;
+  const label = PAYMENT_METHOD_LABELS[key] ?? method;
+  const pointsUsed = Math.max(0, Number(order?.points_used) || 0);
+  if (pointsUsed > 0 && key !== 'reward_points') {
+    return `${label} + ${PAYMENT_METHOD_LABELS.reward_points} ${pointsUsed.toLocaleString('ko-KR')}P`;
+  }
+  return label;
 };
 
 const getOrderStatusMetaSafe = (status: string | null | undefined) => {
@@ -1605,27 +1620,19 @@ const AdminPage: React.FC = () => {
       const startIso = `${startYear}-01-01T00:00:00.000Z`;
       const endIso = `${currentYear}-12-31T23:59:59.999Z`;
 
-      const { data, error } = await supabase
-        .from('orders')
-        .select('created_at, total_amount, points_used')
-        .eq('status', 'completed')
-        .gte('created_at', startIso)
-        .lte('created_at', endIso)
-        .order('created_at', { ascending: true });
-
-      if (error) throw error;
+      const data = await fetchCompletedRevenueOrders(supabase, { startIso, endIso });
 
       // 연도-월별로 집계
       const monthMap = new Map<string, { revenue: number; orderCount: number }>();
 
-      (data ?? []).forEach((order) => {
+      data.forEach((order) => {
         if (!order.created_at) return;
         const date = new Date(order.created_at);
         const year = date.getFullYear();
         const month = date.getMonth() + 1;
         const key = `${year}-${month}`;
         const existing = monthMap.get(key) ?? { revenue: 0, orderCount: 0 };
-        existing.revenue += Math.max(0, (order.total_amount ?? 0) - (order.points_used ?? 0));
+        existing.revenue += orderRevenue(order);
         existing.orderCount += 1;
         monthMap.set(key, existing);
       });
@@ -1979,17 +1986,8 @@ const AdminPage: React.FC = () => {
         .from('orders')
         .select('*', { count: 'exact', head: true });
 
-      const { data: revenueData } = await supabase
-        .from('orders')
-        .select('total_amount, points_used')
-        .eq('status', 'completed');
-
-      const totalRevenue =
-        revenueData?.reduce(
-          (sum: number, order: { total_amount: number | null; points_used: number | null }) =>
-            sum + Math.max(0, (order.total_amount ?? 0) - (order.points_used ?? 0)),
-          0
-        ) ?? 0;
+      const revenueData = await fetchCompletedRevenueOrders(supabase);
+      const totalRevenue = revenueData.reduce((sum, order) => sum + orderRevenue(order), 0);
 
       setDashboardStats({
         totalUsers: userCount || 0,
@@ -2525,6 +2523,7 @@ const AdminPage: React.FC = () => {
           order_number,
           user_id,
           total_amount,
+          points_used,
           status,
           payment_method,
           payment_status,
