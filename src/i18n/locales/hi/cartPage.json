@@ -47,5 +47,7 @@
     "cartUpdateAfterPurchaseError": "खरीदारी के बाद कार्ट अपडेट करने में विफल।",
     "paymentProcessingError": "कार्ट भुगतान प्रसंस्करण त्रुटि:",
     "bankTransferProcessingError": "बैंक ट्रांसफर भुगतान प्रसंस्करण त्रुटि:"
-  }
+  },
+  "alreadyOwned": "पहले से खरीदा गया",
+  "goToMySheets": "मेरी खरीदारी देखें"
 }

@@ -47,5 +47,7 @@
     "cartUpdateAfterPurchaseError": "Не удалось обновить корзину после покупки.",
     "paymentProcessingError": "Ошибка обработки платежа корзины:",
     "bankTransferProcessingError": "Ошибка обработки банковского перевода:"
-  }
+  },
+  "alreadyOwned": "Уже куплено",
+  "goToMySheets": "Мои покупки"
 }

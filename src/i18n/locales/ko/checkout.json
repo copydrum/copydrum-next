@@ -136,5 +136,10 @@
   "creditDebitWallets": "신용/체크카드 & 간편결제",
   "localCardsSupported": "+ 지역 카드 지원",
   "preorderConsentTitle": "장바구니에 선주문 상품이 포함되어 있습니다.",
-  "preorderConsentDescription": "선주문 상품은 결제 즉시 1:1 맞춤 채보가 시작되므로 단순 변심에 의한 주문 취소 및 환불이 불가능합니다. 이에 동의하십니까?"
+  "preorderConsentDescription": "선주문 상품은 결제 즉시 1:1 맞춤 채보가 시작되므로 단순 변심에 의한 주문 취소 및 환불이 불가능합니다. 이에 동의하십니까?",
+  "clearAll": "전체 삭제",
+  "confirmRemoveItem": "'{{title}}'을(를) 장바구니에서 삭제하시겠습니까?",
+  "confirmClearAll": "장바구니의 모든 상품을 삭제하시겠습니까?",
+  "purchasedExcludedBanner": "이미 구매한 악보 {{count}}곡은 결제에서 제외했어요.",
+  "removePurchasedFromCart": "장바구니에서 지우기"
 }

@@ -137,5 +137,10 @@
   "creditDebitWallets": "Credit/Debit Card & Wallets",
   "localCardsSupported": "+ Local Cards Supported",
   "preorderConsentTitle": "Your cart contains pre-order items.",
-  "preorderConsentDescription": "Pre-order items begin 1:1 custom transcription immediately upon payment, so order cancellation and refunds due to simple change of mind are not possible. Do you agree to this?"
+  "preorderConsentDescription": "Pre-order items begin 1:1 custom transcription immediately upon payment, so order cancellation and refunds due to simple change of mind are not possible. Do you agree to this?",
+  "clearAll": "Remove all",
+  "confirmRemoveItem": "Remove '{{title}}' from your cart?",
+  "confirmClearAll": "Remove all items from your cart?",
+  "purchasedExcludedBanner": "{{count}} sheet(s) you already own were excluded from this order.",
+  "removePurchasedFromCart": "Remove from cart"
 }

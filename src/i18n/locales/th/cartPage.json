@@ -47,5 +47,7 @@
     "cartUpdateAfterPurchaseError": "อัปเดตตะกร้าหลังการซื้อล้มเหลว",
     "paymentProcessingError": "ข้อผิดพลาดการประมวลผลการชำระเงินตะกร้า:",
     "bankTransferProcessingError": "ข้อผิดพลาดการประมวลผลการชำระเงินโอนเงิน:"
-  }
+  },
+  "alreadyOwned": "ซื้อแล้ว",
+  "goToMySheets": "ดูประวัติการซื้อ"
 }

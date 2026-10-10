@@ -47,7 +47,9 @@
     "cartUpdateAfterPurchaseError": "구매 후 장바구니 업데이트에 실패했습니다.",
     "paymentProcessingError": "장바구니 결제 처리 오류:",
     "bankTransferProcessingError": "무통장입금 결제 처리 오류:"
-  }
+  },
+  "alreadyOwned": "구매 완료",
+  "goToMySheets": "구매 내역 보기"
 }
 
 

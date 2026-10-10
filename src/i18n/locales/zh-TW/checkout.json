@@ -119,5 +119,10 @@
   "membership": {
     "toNext": "再消費 {{amount}} 即可升級為 {{tier}}（回饋 {{rate}}%）",
     "upgradeNow": "此筆訂單完成後升級為 {{tier}}！下一筆起回饋 {{rate}}%"
-  }
+  },
+  "clearAll": "全部刪除",
+  "confirmRemoveItem": "確定要從購物車中刪除「{{title}}」嗎？",
+  "confirmClearAll": "確定要刪除購物車中的所有商品嗎？",
+  "purchasedExcludedBanner": "已購買的 {{count}} 份樂譜已從本次訂單中排除。",
+  "removePurchasedFromCart": "從購物車中刪除"
 }

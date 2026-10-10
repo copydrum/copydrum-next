@@ -47,5 +47,7 @@
     "cartUpdateAfterPurchaseError": "Impossibile aggiornare il carrello dopo l'acquisto.",
     "paymentProcessingError": "Errore nell'elaborazione del pagamento del carrello:",
     "bankTransferProcessingError": "Errore nell'elaborazione del pagamento tramite bonifico bancario:"
-  }
+  },
+  "alreadyOwned": "Già acquistato",
+  "goToMySheets": "Vedi i miei acquisti"
 }

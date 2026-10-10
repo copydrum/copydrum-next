@@ -47,5 +47,7 @@
     "cartUpdateAfterPurchaseError": "Satın alma sonrası sepet güncellenemedi.",
     "paymentProcessingError": "Sepet ödeme işleme hatası:",
     "bankTransferProcessingError": "Banka havalesi ödeme işleme hatası:"
-  }
+  },
+  "alreadyOwned": "Zaten satın alındı",
+  "goToMySheets": "Satın alımlarımı gör"
 }

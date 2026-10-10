@@ -47,5 +47,7 @@
     "cartUpdateAfterPurchaseError": "Gagal memperbarui keranjang setelah pembelian.",
     "paymentProcessingError": "Kesalahan pemrosesan pembayaran keranjang:",
     "bankTransferProcessingError": "Kesalahan pemrosesan pembayaran transfer bank:"
-  }
+  },
+  "alreadyOwned": "Sudah dibeli",
+  "goToMySheets": "Lihat pembelian saya"
 }

@@ -47,5 +47,10 @@
   "creditDebitWallets": "Creditcard/Debetkaart & Wallets",
   "localCardsSupported": "+ Lokale kaarten ondersteund",
   "preorderConsentTitle": "Uw winkelwagen bevat pre-order artikelen.",
-  "preorderConsentDescription": "Pre-order artikelen beginnen onmiddellijk na betaling met 1:1 aangepaste transcriptie, daarom zijn orderannulering en terugbetalingen vanwege eenvoudige verandering van gedachten niet mogelijk. Gaat u hiermee akkoord?"
+  "preorderConsentDescription": "Pre-order artikelen beginnen onmiddellijk na betaling met 1:1 aangepaste transcriptie, daarom zijn orderannulering en terugbetalingen vanwege eenvoudige verandering van gedachten niet mogelijk. Gaat u hiermee akkoord?",
+  "clearAll": "Alles verwijderen",
+  "confirmRemoveItem": "'{{title}}' uit je winkelwagen verwijderen?",
+  "confirmClearAll": "Alle artikelen uit je winkelwagen verwijderen?",
+  "purchasedExcludedBanner": "{{count}} bladmuziek die je al bezit is uitgesloten van deze bestelling.",
+  "removePurchasedFromCart": "Verwijderen uit winkelwagen"
 }

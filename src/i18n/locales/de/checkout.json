@@ -119,5 +119,10 @@
   "membership": {
     "toNext": "Noch {{amount}} bis {{tier}} ({{rate}} % zurück)",
     "upgradeNow": "Mit dieser Bestellung erreichen Sie {{tier}}! Ab der nächsten Bestellung erhalten Sie {{rate}} % zurück"
-  }
+  },
+  "clearAll": "Alle entfernen",
+  "confirmRemoveItem": "'{{title}}' aus dem Warenkorb entfernen?",
+  "confirmClearAll": "Alle Artikel aus dem Warenkorb entfernen?",
+  "purchasedExcludedBanner": "{{count}} bereits gekaufte Noten wurden aus dieser Bestellung ausgeschlossen.",
+  "removePurchasedFromCart": "Aus dem Warenkorb entfernen"
 }

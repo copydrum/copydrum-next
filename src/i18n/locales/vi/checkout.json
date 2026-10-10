@@ -119,5 +119,10 @@
   "membership": {
     "toNext": "Chi thêm {{amount}} để lên hạng {{tier}} (hoàn {{rate}}%)",
     "upgradeNow": "Đơn hàng này giúp bạn lên hạng {{tier}}! Nhận hoàn {{rate}}% từ đơn tiếp theo"
-  }
+  },
+  "clearAll": "Xóa tất cả",
+  "confirmRemoveItem": "Xóa '{{title}}' khỏi giỏ hàng?",
+  "confirmClearAll": "Xóa tất cả sản phẩm khỏi giỏ hàng?",
+  "purchasedExcludedBanner": "{{count}} bản nhạc bạn đã mua đã được loại khỏi đơn hàng này.",
+  "removePurchasedFromCart": "Xóa khỏi giỏ hàng"
 }

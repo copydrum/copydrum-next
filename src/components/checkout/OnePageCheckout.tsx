@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatCurrency, getSiteCurrency, convertFromKrw } from '@/lib/currency';
 import { supabase } from '@/lib/supabase';
@@ -42,6 +42,9 @@ export interface OnePageCheckoutProps {
   onPaymentSuccess: (method: string, paymentId?: string, dbOrderId?: string) => void;
   onPaymentError?: (error: Error) => void;
   onRemoveItem?: (itemId: string) => void;
+  onClearAll?: () => void;
+  /** 상품 목록 위에 표시할 안내 영역 (예: 이미 구매한 악보 제외 안내) */
+  notice?: ReactNode;
 }
 
 export default function OnePageCheckout({
@@ -55,6 +58,8 @@ export default function OnePageCheckout({
   onPaymentSuccess,
   onPaymentError,
   onRemoveItem,
+  onClearAll,
+  notice,
 }: OnePageCheckoutProps) {
   const { t, i18n } = useTranslation();
   const [processing, setProcessing] = useState(false);
@@ -247,17 +252,32 @@ export default function OnePageCheckout({
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-8">{t('checkout.title')}</h1>
 
+        {notice && <div className="mb-6">{notice}</div>}
+
         {/* PC: 2-column, Mobile: 1-column */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* 왼쪽: 상품 리스트 (PC), 상단 (모바일) */}
           <div className="lg:col-span-2">
             <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
               {/* 헤더 */}
-              <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
-                <h2 className="text-lg font-bold text-gray-800">{t('checkout.orderSummary')}</h2>
-                <p className="text-sm text-gray-600 mt-1">
-                  {items.length} {t('checkout.items')}
-                </p>
+              <div className="bg-gray-50 px-6 py-4 border-b border-gray-200 flex items-start justify-between gap-4">
+                <div>
+                  <h2 className="text-lg font-bold text-gray-800">{t('checkout.orderSummary')}</h2>
+                  <p className="text-sm text-gray-600 mt-1">
+                    {items.length} {t('checkout.items')}
+                  </p>
+                </div>
+                {onClearAll && (
+                  <button
+                    type="button"
+                    onClick={onClearAll}
+                    disabled={processing}
+                    className="flex items-center gap-1 px-3 py-1.5 text-sm text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <i className="ri-delete-bin-line"></i>
+                    <span>{t('checkout.clearAll')}</span>
+                  </button>
+                )}
               </div>
 
               {/* 상품 목록 */}
@@ -295,10 +315,12 @@ export default function OnePageCheckout({
                       <p className="font-bold text-gray-900">
                         {formatCurrency(convertFromKrw(item.price * (item.quantity || 1), currency, i18n.language), currency)}
                       </p>
-                      {onRemoveItem && items.length > 1 && (
+                      {onRemoveItem && (
                         <button
+                          type="button"
                           onClick={() => onRemoveItem(item.id)}
-                          className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                          disabled={processing}
+                          className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                           title={t('checkout.removeItem', 'Remove')}
                         >
                           <i className="ri-close-line text-lg"></i>

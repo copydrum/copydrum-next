@@ -47,5 +47,7 @@
     "cartUpdateAfterPurchaseError": "Không thể cập nhật giỏ hàng sau mua hàng.",
     "paymentProcessingError": "Lỗi xử lý thanh toán giỏ hàng:",
     "bankTransferProcessingError": "Lỗi xử lý thanh toán chuyển khoản ngân hàng:"
-  }
+  },
+  "alreadyOwned": "Đã mua",
+  "goToMySheets": "Xem lịch sử mua"
 }

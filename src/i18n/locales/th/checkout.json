@@ -119,5 +119,10 @@
   "membership": {
     "toNext": "ใช้จ่ายอีก {{amount}} เพื่อเลื่อนเป็น {{tier}} (รับคืน {{rate}}%)",
     "upgradeNow": "คำสั่งซื้อนี้ทำให้คุณเลื่อนเป็น {{tier}}! รับคืน {{rate}}% ตั้งแต่คำสั่งซื้อถัดไป"
-  }
+  },
+  "clearAll": "ลบทั้งหมด",
+  "confirmRemoveItem": "ลบ '{{title}}' ออกจากตะกร้าหรือไม่?",
+  "confirmClearAll": "ลบสินค้าทั้งหมดออกจากตะกร้าหรือไม่?",
+  "purchasedExcludedBanner": "โน้ตที่คุณซื้อแล้ว {{count}} รายการถูกนำออกจากคำสั่งซื้อนี้",
+  "removePurchasedFromCart": "ลบออกจากตะกร้า"
 }

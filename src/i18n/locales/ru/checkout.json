@@ -119,5 +119,10 @@
   "membership": {
     "toNext": "Потратьте ещё {{amount}}, чтобы получить уровень {{tier}} ({{rate}}% бонусами)",
     "upgradeNow": "С этим заказом вы получаете уровень {{tier}}! Со следующего заказа — {{rate}}% бонусами"
-  }
+  },
+  "clearAll": "Удалить всё",
+  "confirmRemoveItem": "Удалить «{{title}}» из корзины?",
+  "confirmClearAll": "Удалить все товары из корзины?",
+  "purchasedExcludedBanner": "Уже купленные ноты ({{count}}) исключены из этого заказа.",
+  "removePurchasedFromCart": "Удалить из корзины"
 }

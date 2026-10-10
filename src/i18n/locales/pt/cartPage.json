@@ -47,5 +47,7 @@
     "cartUpdateAfterPurchaseError": "Falha ao atualizar o carrinho após a compra.",
     "paymentProcessingError": "Erro no processamento do pagamento do carrinho:",
     "bankTransferProcessingError": "Erro no processamento do pagamento por transferência bancária:"
-  }
+  },
+  "alreadyOwned": "Já comprado",
+  "goToMySheets": "Ver minhas compras"
 }

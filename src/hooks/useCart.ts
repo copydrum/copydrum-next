@@ -5,6 +5,7 @@ import { useAuthStore } from '../stores/authStore';
 import { useTranslation } from 'react-i18next';
 import { useDialogStore } from '../stores/dialogStore';
 import { useGuestCartStore } from '../stores/guestCartStore';
+import { useCartSyncStore } from '../stores/cartSyncStore';
 
 export interface CartItem {
   id: string;
@@ -29,6 +30,8 @@ export const useCart = () => {
   const { showAlert, showConfirm } = useDialogStore();
   // 비회원 장바구니(localStorage). ids 가 바뀌면 목록을 다시 로드한다.
   const guestIds = useGuestCartStore((s) => s.ids);
+  const cartVersion = useCartSyncStore((s) => s.version);
+  const notifyCartChanged = useCartSyncStore((s) => s.bump);
 
   // 비회원 장바구니 로드: localStorage 의 id 로 DB 에서 상세 정보를 조회
   const loadGuestCartItems = async () => {
@@ -216,6 +219,7 @@ export const useCart = () => {
         ]);
 
       if (insertError) throw insertError;
+      notifyCartChanged();
 
       // 4. 커스텀 확인 다이얼로그 (번역된 버튼 표시)
       const goToCart = await showConfirm(t('cart.addedConfirm'));
@@ -246,7 +250,8 @@ export const useCart = () => {
 
       if (error) throw error;
 
-      await loadCartItems();
+      setCartItems((prev) => prev.filter((item) => item.id !== cartItemId));
+      notifyCartChanged();
       return true;
     } catch (error) {
       console.error('장바구니 제거 실패:', error);
@@ -271,7 +276,8 @@ export const useCart = () => {
 
       if (error) throw error;
 
-      await loadCartItems();
+      setCartItems((prev) => prev.filter((item) => !cartItemIds.includes(item.id)));
+      notifyCartChanged();
       return true;
     } catch (error) {
       console.error('선택 아이템 제거 실패:', error);
@@ -296,6 +302,7 @@ export const useCart = () => {
       if (error) throw error;
 
       setCartItems([]);
+      notifyCartChanged();
       return true;
     } catch (error) {
       console.error('장바구니 비우기 실패:', error);
@@ -318,9 +325,9 @@ export const useCart = () => {
 
   useEffect(() => {
     loadCartItems();
-    // user 가 바뀌거나(로그인/로그아웃) 비회원 장바구니(guestIds)가 바뀌면 다시 로드
+    // user 가 바뀌거나(로그인/로그아웃) 비회원 장바구니(guestIds)·회원 장바구니(cartVersion)가 바뀌면 다시 로드
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, guestIds]);
+  }, [user, guestIds, cartVersion]);
 
   return {
     cartItems,

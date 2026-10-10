@@ -119,5 +119,10 @@
   "membership": {
     "toNext": "再消费 {{amount}} 即可升级为 {{tier}}（返 {{rate}}%）",
     "upgradeNow": "本单完成后升级为 {{tier}}！下一单起返 {{rate}}%"
-  }
+  },
+  "clearAll": "全部删除",
+  "confirmRemoveItem": "确定要从购物车中删除“{{title}}”吗？",
+  "confirmClearAll": "确定要删除购物车中的所有商品吗？",
+  "purchasedExcludedBanner": "已购买的 {{count}} 份乐谱已从本次订单中排除。",
+  "removePurchasedFromCart": "从购物车中删除"
 }

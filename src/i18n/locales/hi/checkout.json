@@ -119,5 +119,10 @@
   "membership": {
     "toNext": "{{tier}} तक पहुंचने के लिए {{amount}} और खर्च करें ({{rate}}% वापस)",
     "upgradeNow": "इस ऑर्डर से आप {{tier}} बन जाएंगे! अगले ऑर्डर से {{rate}}% वापस पाएं"
-  }
+  },
+  "clearAll": "सभी हटाएँ",
+  "confirmRemoveItem": "क्या '{{title}}' को कार्ट से हटाना है?",
+  "confirmClearAll": "क्या कार्ट से सभी आइटम हटाने हैं?",
+  "purchasedExcludedBanner": "आपके पास पहले से मौजूद {{count}} शीट इस ऑर्डर से हटा दी गई हैं।",
+  "removePurchasedFromCart": "कार्ट से हटाएँ"
 }

@@ -119,5 +119,10 @@
   "membership": {
     "toNext": "あと{{amount}}のご利用で{{tier}}にランクアップ（{{rate}}%還元）",
     "upgradeNow": "このご注文で{{tier}}にランクアップ！次のご注文から{{rate}}%還元"
-  }
+  },
+  "clearAll": "すべて削除",
+  "confirmRemoveItem": "「{{title}}」をカートから削除しますか？",
+  "confirmClearAll": "カート内のすべての商品を削除しますか？",
+  "purchasedExcludedBanner": "購入済みの楽譜{{count}}件は決済から除外されました。",
+  "removePurchasedFromCart": "カートから削除"
 }

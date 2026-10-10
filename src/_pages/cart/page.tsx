@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { useCart } from '../../hooks/useCart';
+import { useCart, type CartItem } from '../../hooks/useCart';
 import { useAuthStore } from '../../stores/authStore';
 import { useUserCredits } from '../../hooks/useUserCredits';
 import { useLocaleRouter } from '@/hooks/useLocaleRouter';
@@ -10,19 +10,73 @@ import { splitPurchasedSheetIds } from '../../lib/purchaseCheck';
 import OnePageCheckout from '@/components/checkout/OnePageCheckout';
 import type { CheckoutItem } from '@/components/checkout/OnePageCheckout';
 import { useGuestCheckoutStore } from '../../stores/guestCheckoutStore';
+import { useDialogStore } from '../../stores/dialogStore';
+import { formatCurrency, getSiteCurrency, convertFromKrw } from '@/lib/currency';
+
+const toCheckoutItem = (item: CartItem): CheckoutItem => ({
+  id: item.id,
+  sheet_id: item.sheet_id, // 실제 악보 ID (drum_sheets.id)
+  title: item.title,
+  artist: item.artist,
+  price: item.price,
+  thumbnail_url: item.image,
+  quantity: 1,
+  sales_type: item.sales_type || 'INSTANT',
+});
 
 export default function CartPageWithCheckout() {
-  const { cartItems, loading, removeFromCart, removeSelectedItems, getTotalPrice } = useCart();
+  const { cartItems, loading, removeFromCart, removeSelectedItems, clearCart, getTotalPrice } = useCart();
   const { user } = useAuthStore();
   const { credits } = useUserCredits(user);
+  const { showAlert, showConfirm } = useDialogStore();
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [showCheckout, setShowCheckout] = useState(false);
   const [checkoutItems, setCheckoutItems] = useState<CheckoutItem[]>([]);
   const [orderId, setOrderId] = useState<string>('');
+  // 결제에서 제외된 이미 구매한 장바구니 항목 (결제 화면 안내 배너용)
+  const [excludedOwnedItems, setExcludedOwnedItems] = useState<CartItem[]>([]);
+  // 이미 구매한 악보 id (장바구니 목록의 "구매 완료" 배지용)
+  const [ownedSheetIds, setOwnedSheetIds] = useState<string[]>([]);
   const router = useLocaleRouter();
-  const { t: _t } = useTranslation();
-  const t = (key: string, options?: any) => _t(`cartPage.${key}`, options);
+  const { t: _t, i18n } = useTranslation();
+  const t = (key: string, options?: Record<string, unknown>): string => String(_t(`cartPage.${key}`, options));
   const autoCheckoutTriggered = useRef(false);
+
+  const currency = getSiteCurrency(undefined, i18n.language);
+  const formatPrice = (krw: number) => formatCurrency(convertFromKrw(krw, currency, i18n.language), currency);
+
+  /**
+   * 이미 구매한 악보를 걸러낸 뒤 결제 화면을 연다.
+   * 전부 이미 구매한 악보면 결제 화면 대신 장바구니 목록(구매 완료 배지)에 머문다.
+   */
+  const startCheckout = async (items: CartItem[], { notifyIfAllOwned }: { notifyIfAllOwned: boolean }) => {
+    if (!user) return;
+
+    const { purchasedSheetIds } = await splitPurchasedSheetIds(
+      user.id,
+      items.map((item) => item.sheet_id)
+    );
+    const owned = items.filter((item) => purchasedSheetIds.includes(item.sheet_id));
+    const toBuy = items.filter((item) => !purchasedSheetIds.includes(item.sheet_id));
+
+    setOwnedSheetIds((prev) => Array.from(new Set([...prev, ...purchasedSheetIds])));
+
+    if (toBuy.length === 0) {
+      setSelectedItems([]);
+      if (notifyIfAllOwned) {
+        await showAlert(
+          [t('onlyPurchasedItems'), '', t('duplicateSheets'), ...owned.map((item) => `- ${item.title}`)].join('\n')
+        );
+      }
+      return;
+    }
+
+    setExcludedOwnedItems(owned);
+    setCheckoutItems(toBuy.map(toCheckoutItem));
+    setOrderId(crypto.randomUUID());
+    setSelectedItems(toBuy.map((item) => item.id));
+    setShowCheckout(true);
+  };
 
   // 자동으로 체크아웃 화면으로 이동
   useEffect(() => {
@@ -32,73 +86,14 @@ export default function CartPageWithCheckout() {
 
     autoCheckoutTriggered.current = true;
 
-    const autoCheckout = async () => {
-      try {
-        const sheetIds = cartItems.map((item) => item.sheet_id);
-        const { purchasedSheetIds, notPurchasedSheetIds } = await splitPurchasedSheetIds(
-          user.id,
-          sheetIds
-        );
+    startCheckout(cartItems, { notifyIfAllOwned: false }).catch((error) => {
+      console.error(t('console.purchaseCheckError'), error);
+      showAlert(t('purchaseCheckError'));
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, user, cartItems, showCheckout]);
 
-        let itemsToCheckout = cartItems;
-
-        if (purchasedSheetIds.length > 0) {
-          const duplicateItems = cartItems.filter((item) =>
-            purchasedSheetIds.includes(item.sheet_id)
-          );
-
-          if (notPurchasedSheetIds.length === 0) {
-            const duplicateList =
-              duplicateItems.length > 0
-                ? duplicateItems.map((item) => `- ${item.title}`).join('\n')
-                : purchasedSheetIds.map((id) => `- ${id}`).join('\n');
-            alert(
-              [t('onlyPurchasedItems'), '', t('duplicateSheets'), duplicateList].join('\n')
-            );
-            return;
-          }
-
-          itemsToCheckout = cartItems.filter((item) =>
-            notPurchasedSheetIds.includes(item.sheet_id)
-          );
-
-          const duplicateList =
-            duplicateItems.length > 0
-              ? duplicateItems.map((item) => `- ${item.title}`).join('\n')
-              : purchasedSheetIds.map((id) => `- ${id}`).join('\n');
-
-          alert(
-            [t('excludePurchased'), '', t('excludedSheets'), duplicateList].join('\n')
-          );
-        }
-
-        const checkoutData: CheckoutItem[] = itemsToCheckout.map((item) => ({
-          id: item.id,
-          sheet_id: item.sheet_id,  // 실제 악보 ID (drum_sheets.id)
-          title: item.title,
-          artist: item.artist,
-          price: item.price,
-          thumbnail_url: item.image,
-          quantity: 1,
-          sales_type: item.sales_type || 'INSTANT',
-        }));
-
-        const newOrderId = crypto.randomUUID();
-
-        setCheckoutItems(checkoutData);
-        setOrderId(newOrderId);
-        setSelectedItems(itemsToCheckout.map((item) => item.id));
-        setShowCheckout(true);
-      } catch (error) {
-        console.error(t('console.purchaseCheckError'), error);
-        alert(t('purchaseCheckError'));
-      }
-    };
-
-    autoCheckout();
-  }, [loading, user, cartItems, showCheckout, t]);
-
-  if (loading) {
+  if (loading && cartItems.length === 0 && !showCheckout) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -122,7 +117,7 @@ export default function CartPageWithCheckout() {
 
   const handleProceedToCheckout = async () => {
     if (selectedItems.length === 0) {
-      alert(t('selectItemsToPurchase'));
+      await showAlert(t('selectItemsToPurchase'));
       return;
     }
 
@@ -135,90 +130,65 @@ export default function CartPageWithCheckout() {
       return;
     }
 
-    const itemsToPurchase = cartItems.filter((item) => selectedItems.includes(item.id));
-
     try {
-      // 이미 구매한 악보 체크
-      const sheetIds = itemsToPurchase.map((item) => item.sheet_id);
-      const { purchasedSheetIds, notPurchasedSheetIds } = await splitPurchasedSheetIds(
-        user.id,
-        sheetIds
+      await startCheckout(
+        cartItems.filter((item) => selectedItems.includes(item.id)),
+        { notifyIfAllOwned: true }
       );
-
-      if (purchasedSheetIds.length > 0) {
-        const duplicateItems = itemsToPurchase.filter((item) =>
-          purchasedSheetIds.includes(item.sheet_id)
-        );
-
-        if (notPurchasedSheetIds.length === 0) {
-          const duplicateList =
-            duplicateItems.length > 0
-              ? duplicateItems.map((item) => `- ${item.title}`).join('\n')
-              : purchasedSheetIds.map((id) => `- ${id}`).join('\n');
-          alert(
-            [t('onlyPurchasedItems'), '', t('duplicateSheets'), duplicateList].join('\n')
-          );
-          return;
-        }
-
-        const filteredItems = itemsToPurchase.filter((item) =>
-          notPurchasedSheetIds.includes(item.sheet_id)
-        );
-
-        const duplicateList =
-          duplicateItems.length > 0
-            ? duplicateItems.map((item) => `- ${item.title}`).join('\n')
-            : purchasedSheetIds.map((id) => `- ${id}`).join('\n');
-
-        alert(
-          [t('excludePurchased'), '', t('excludedSheets'), duplicateList].join('\n')
-        );
-
-        // 필터링된 항목으로 계속 진행
-        const checkoutData: CheckoutItem[] = filteredItems.map((item) => ({
-          id: item.id,
-          sheet_id: item.sheet_id,  // 실제 악보 ID (drum_sheets.id)
-          title: item.title,
-          artist: item.artist,
-          price: item.price,
-          thumbnail_url: item.image,
-          quantity: 1,
-          sales_type: item.sales_type || 'INSTANT',
-        }));
-
-        setCheckoutItems(checkoutData);
-      } else {
-        // 중복 없음 - 그대로 진행
-        const checkoutData: CheckoutItem[] = itemsToPurchase.map((item) => ({
-          id: item.id,
-          sheet_id: item.sheet_id,  // 실제 악보 ID (drum_sheets.id)
-          title: item.title,
-          artist: item.artist,
-          price: item.price,
-          thumbnail_url: item.image,
-          quantity: 1,
-          sales_type: item.sales_type || 'INSTANT',
-        }));
-
-        setCheckoutItems(checkoutData);
-      }
-
-      // 주문 ID 생성 (UUID 형식으로 생성하여 Supabase id 타입과 호환)
-      const newOrderId = crypto.randomUUID();
-      setOrderId(newOrderId);
-      setShowCheckout(true);
     } catch (error) {
       console.error(t('console.purchaseCheckError'), error);
-      alert(t('purchaseCheckError'));
+      await showAlert(t('purchaseCheckError'));
     }
+  };
+
+  const handleDeleteSelected = async () => {
+    if (!(await showConfirm(t('confirmDelete', { count: selectedItems.length })))) return;
+    await removeSelectedItems(selectedItems);
+    setSelectedItems([]);
+  };
+
+  const handleDeleteAll = async () => {
+    if (!(await showConfirm(t('confirmClear')))) return;
+    await clearCart();
+    setSelectedItems([]);
+  };
+
+  const handleDeleteListItem = async (item: CartItem) => {
+    if (!(await showConfirm(t('confirmDeleteItem', { title: item.title })))) return;
+    await removeFromCart(item.id);
+    setSelectedItems((prev) => prev.filter((id) => id !== item.id));
   };
 
   // 체크아웃 화면에서 개별 아이템 삭제
   const handleRemoveCheckoutItem = async (itemId: string) => {
-    // 장바구니 DB에서 제거
-    await removeFromCart(itemId);
-    // 체크아웃 아이템 목록에서 제거
-    setCheckoutItems((prev) => prev.filter((item) => item.id !== itemId));
+    const target = checkoutItems.find((item) => item.id === itemId);
+    if (!(await showConfirm(_t('checkout.confirmRemoveItem', { title: target?.title ?? '' })))) return;
+
+    const removed = await removeFromCart(itemId);
+    if (!removed) return;
+
+    const remaining = checkoutItems.filter((item) => item.id !== itemId);
+    setCheckoutItems(remaining);
+    setSelectedItems((prev) => prev.filter((id) => id !== itemId));
+    if (remaining.length === 0) setShowCheckout(false);
+  };
+
+  // 체크아웃 화면에서 장바구니 전체 비우기
+  const handleClearAll = async () => {
+    if (!(await showConfirm(_t('checkout.confirmClearAll')))) return;
+
+    const cleared = await clearCart();
+    if (!cleared) return;
+
+    setCheckoutItems([]);
+    setExcludedOwnedItems([]);
+    setSelectedItems([]);
+    setShowCheckout(false);
+  };
+
+  const handleRemoveOwnedFromCart = async () => {
+    const removed = await removeSelectedItems(excludedOwnedItems.map((item) => item.id));
+    if (removed) setExcludedOwnedItems([]);
   };
 
   const handlePaymentSuccess = async (method: string, paymentId?: string, dbOrderId?: string) => {
@@ -233,13 +203,37 @@ export default function CartPageWithCheckout() {
     router.push(`/payment/success?orderId=${finalOrderId}&method=${method}`);
   };
 
+  // 사용자 알림은 OnePageCheckout 이 이미 띄우므로 여기서는 기록만 한다.
   const handlePaymentError = (error: Error) => {
     console.error('[Cart] Payment error:', error);
-    alert(t('paymentError') + ': ' + error.message);
   };
 
   // 체크아웃 화면 표시 (로그인 사용자 전용)
   if (showCheckout && checkoutItems.length > 0 && user) {
+    const ownedNotice =
+      excludedOwnedItems.length > 0 ? (
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 px-5 py-4">
+          <div className="flex items-start gap-3">
+            <i className="ri-information-line text-xl text-amber-600 mt-0.5"></i>
+            <div>
+              <p className="font-medium text-amber-900">
+                {_t('checkout.purchasedExcludedBanner', { count: excludedOwnedItems.length })}
+              </p>
+              <p className="text-sm text-amber-800 mt-1">
+                {excludedOwnedItems.map((item) => item.title).join(', ')}
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={handleRemoveOwnedFromCart}
+            className="flex-shrink-0 px-4 py-2 text-sm font-medium text-amber-900 bg-white border border-amber-300 rounded-lg hover:bg-amber-100 transition-colors"
+          >
+            {_t('checkout.removePurchasedFromCart')}
+          </button>
+        </div>
+      ) : null;
+
     return (
       <div>
         {/* 뒤로가기 버튼 */}
@@ -273,6 +267,8 @@ export default function CartPageWithCheckout() {
           onPaymentSuccess={handlePaymentSuccess}
           onPaymentError={handlePaymentError}
           onRemoveItem={handleRemoveCheckoutItem}
+          onClearAll={handleClearAll}
+          notice={ownedNotice}
         />
       </div>
     );
@@ -320,72 +316,91 @@ export default function CartPageWithCheckout() {
                   </span>
                 </label>
 
-                {selectedItems.length > 0 && (
+                <div className="flex items-center gap-1">
+                  {selectedItems.length > 0 && (
+                    <button
+                      onClick={handleDeleteSelected}
+                      className="flex items-center gap-1 px-3 py-1.5 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                    >
+                      <i className="ri-delete-bin-line"></i>
+                      <span>{t('deleteSelected')} ({selectedItems.length})</span>
+                    </button>
+                  )}
                   <button
-                    onClick={async () => {
-                      if (!confirm(t('confirmDelete', { count: selectedItems.length }))) return;
-                      await removeSelectedItems(selectedItems);
-                      setSelectedItems([]);
-                    }}
-                    className="flex items-center gap-1 px-3 py-1.5 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                    onClick={handleDeleteAll}
+                    className="flex items-center gap-1 px-3 py-1.5 text-sm text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                   >
-                    <i className="ri-delete-bin-line"></i>
-                    <span>{t('deleteSelected')} ({selectedItems.length})</span>
+                    <span>{t('deleteAll')}</span>
                   </button>
-                )}
+                </div>
               </div>
 
               {/* 장바구니 아이템 목록 */}
               <div className="divide-y divide-gray-200">
-                {cartItems.map((item) => (
-                  <div key={item.id} className="p-6 flex items-center space-x-4">
-                    <input
-                      type="checkbox"
-                      checked={selectedItems.includes(item.id)}
-                      onChange={() => handleSelectItem(item.id)}
-                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                    />
+                {cartItems.map((item) => {
+                  const owned = ownedSheetIds.includes(item.sheet_id);
+                  return (
+                    <div key={item.id} className="p-6 flex items-center space-x-4">
+                      <input
+                        type="checkbox"
+                        checked={selectedItems.includes(item.id)}
+                        onChange={() => handleSelectItem(item.id)}
+                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      />
 
-                    <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center overflow-hidden">
-                      {item.image ? (
-                        <img
-                          src={item.image}
-                          alt={item.title}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <i className="ri-music-2-line text-2xl text-white"></i>
-                      )}
-                    </div>
-
-                    <div className="flex-1">
-                      <h3 className="font-medium text-gray-900">{item.title}</h3>
-                      <p className="text-sm text-gray-600">{item.artist}</p>
-                      <p className="text-xs text-gray-500 mt-1">{item.category}</p>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      <div className="text-right">
-                        <p className="text-lg font-bold text-gray-900">
-                          {item.price.toLocaleString()}원
-                        </p>
+                      <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center overflow-hidden">
+                        {item.image ? (
+                          <img
+                            src={item.image}
+                            alt={item.title}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <i className="ri-music-2-line text-2xl text-white"></i>
+                        )}
                       </div>
 
-                      <button
-                        onClick={async (e) => {
-                          e.stopPropagation();
-                          if (!confirm(t('confirmDeleteItem', { title: item.title }))) return;
-                          await removeFromCart(item.id);
-                          setSelectedItems((prev) => prev.filter((id) => id !== item.id));
-                        }}
-                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                        title={t('removeItem')}
-                      >
-                        <i className="ri-close-line text-xl"></i>
-                      </button>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-medium text-gray-900">{item.title}</h3>
+                        <p className="text-sm text-gray-600">{item.artist}</p>
+                        <p className="text-xs text-gray-500 mt-1">{item.category}</p>
+                        {owned && (
+                          <div className="flex flex-wrap items-center gap-2 mt-2">
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium text-emerald-700 bg-emerald-50 rounded-full">
+                              <i className="ri-check-line"></i>
+                              {t('alreadyOwned')}
+                            </span>
+                            <button
+                              onClick={() => router.push('/mypage?tab=purchases')}
+                              className="text-xs text-blue-600 hover:underline"
+                            >
+                              {t('goToMySheets')}
+                            </button>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-3">
+                        <div className="text-right">
+                          <p className={`text-lg font-bold ${owned ? 'text-gray-400 line-through' : 'text-gray-900'}`}>
+                            {formatPrice(item.price)}
+                          </p>
+                        </div>
+
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteListItem(item);
+                          }}
+                          className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                          title={t('removeItem')}
+                        >
+                          <i className="ri-close-line text-xl"></i>
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               {/* 결제 정보 */}
@@ -396,7 +411,7 @@ export default function CartPageWithCheckout() {
                   </span>
                   <div className="flex flex-col items-end">
                     <span className="text-2xl font-bold text-blue-600">
-                      {getTotalPrice(selectedItems).toLocaleString()}원
+                      {formatPrice(getTotalPrice(selectedItems))}
                     </span>
                   </div>
                 </div>

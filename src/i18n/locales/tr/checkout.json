@@ -119,5 +119,10 @@
   "membership": {
     "toNext": "{{tier}} seviyesine ulaşmak için {{amount}} daha harca (%{{rate}} geri kazanım)",
     "upgradeNow": "Bu siparişle {{tier}} seviyesine ulaşıyorsun! Sonraki siparişinden itibaren %{{rate}} geri kazan"
-  }
+  },
+  "clearAll": "Tümünü kaldır",
+  "confirmRemoveItem": "'{{title}}' sepetten kaldırılsın mı?",
+  "confirmClearAll": "Sepetteki tüm ürünler kaldırılsın mı?",
+  "purchasedExcludedBanner": "Zaten sahip olduğunuz {{count}} nota bu siparişten çıkarıldı.",
+  "removePurchasedFromCart": "Sepetten kaldır"
 }

@@ -47,7 +47,9 @@
     "cartUpdateAfterPurchaseError": "Failed to update cart after purchase.",
     "paymentProcessingError": "Cart payment processing error:",
     "bankTransferProcessingError": "Bank transfer payment processing error:"
-  }
+  },
+  "alreadyOwned": "Already owned",
+  "goToMySheets": "View my purchases"
 }
 
 

@@ -119,5 +119,10 @@
   "membership": {
     "toNext": "Gasta {{amount}} más para llegar a {{tier}} ({{rate}} % de vuelta)",
     "upgradeNow": "¡Con este pedido llegas a {{tier}}! Gana un {{rate}} % de vuelta desde tu próximo pedido"
-  }
+  },
+  "clearAll": "Eliminar todo",
+  "confirmRemoveItem": "¿Eliminar '{{title}}' del carrito?",
+  "confirmClearAll": "¿Eliminar todos los artículos del carrito?",
+  "purchasedExcludedBanner": "Se excluyeron de este pedido {{count}} partitura(s) que ya compraste.",
+  "removePurchasedFromCart": "Eliminar del carrito"
 }

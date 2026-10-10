@@ -119,5 +119,10 @@
   "membership": {
     "toNext": "Витратьте ще {{amount}}, щоб отримати рівень {{tier}} ({{rate}}% бонусами)",
     "upgradeNow": "З цим замовленням ви отримуєте рівень {{tier}}! З наступного замовлення — {{rate}}% бонусами"
-  }
+  },
+  "clearAll": "Видалити все",
+  "confirmRemoveItem": "Видалити «{{title}}» з кошика?",
+  "confirmClearAll": "Видалити всі товари з кошика?",
+  "purchasedExcludedBanner": "Уже придбані ноти ({{count}}) виключено з цього замовлення.",
+  "removePurchasedFromCart": "Видалити з кошика"
 }

@@ -119,5 +119,10 @@
   "membership": {
     "toNext": "Spendi altri {{amount}} per diventare {{tier}} ({{rate}}% di ritorno)",
     "upgradeNow": "Con questo ordine diventi {{tier}}! Dal prossimo ordine guadagni il {{rate}}%"
-  }
+  },
+  "clearAll": "Rimuovi tutto",
+  "confirmRemoveItem": "Rimuovere '{{title}}' dal carrello?",
+  "confirmClearAll": "Rimuovere tutti gli articoli dal carrello?",
+  "purchasedExcludedBanner": "{{count}} spartiti già acquistati sono stati esclusi da questo ordine.",
+  "removePurchasedFromCart": "Rimuovi dal carrello"
 }

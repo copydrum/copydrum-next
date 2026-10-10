@@ -47,5 +47,10 @@
   "creditDebitWallets": "Karta Kredytowa/Debetowa & Portfele",
   "localCardsSupported": "+ Obsługa kart lokalnych",
   "preorderConsentTitle": "Twój koszyk zawiera produkty przedpłaty.",
-  "preorderConsentDescription": "Produkty przedpłaty rozpoczynają spersonalizowaną transkrypcję 1:1 natychmiast po płatności, dlatego anulowanie zamówienia i zwroty z powodu prostej zmiany zdania nie są możliwe. Czy się z tym zgadzasz?"
+  "preorderConsentDescription": "Produkty przedpłaty rozpoczynają spersonalizowaną transkrypcję 1:1 natychmiast po płatności, dlatego anulowanie zamówienia i zwroty z powodu prostej zmiany zdania nie są możliwe. Czy się z tym zgadzasz?",
+  "clearAll": "Usuń wszystko",
+  "confirmRemoveItem": "Usunąć '{{title}}' z koszyka?",
+  "confirmClearAll": "Usunąć wszystkie produkty z koszyka?",
+  "purchasedExcludedBanner": "Wykluczono z zamówienia {{count}} już zakupionych nut.",
+  "removePurchasedFromCart": "Usuń z koszyka"
 }

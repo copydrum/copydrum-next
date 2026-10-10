@@ -119,5 +119,10 @@
   "membership": {
     "toNext": "Belanja {{amount}} lagi untuk naik ke {{tier}} (cashback {{rate}}%)",
     "upgradeNow": "Pesanan ini membawa Anda ke {{tier}}! Dapatkan cashback {{rate}}% mulai pesanan berikutnya"
-  }
+  },
+  "clearAll": "Hapus semua",
+  "confirmRemoveItem": "Hapus '{{title}}' dari keranjang?",
+  "confirmClearAll": "Hapus semua item dari keranjang?",
+  "purchasedExcludedBanner": "{{count}} partitur yang sudah Anda miliki dikecualikan dari pesanan ini.",
+  "removePurchasedFromCart": "Hapus dari keranjang"
 }

@@ -47,5 +47,7 @@
     "cartUpdateAfterPurchaseError": "购买后更新购物车失败。",
     "paymentProcessingError": "购物车支付处理错误：",
     "bankTransferProcessingError": "银行转账支付处理错误："
-  }
+  },
+  "alreadyOwned": "已购买",
+  "goToMySheets": "查看购买记录"
 }

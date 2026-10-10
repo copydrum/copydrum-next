@@ -47,5 +47,7 @@
     "cartUpdateAfterPurchaseError": "購入後のカート更新に失敗しました。",
     "paymentProcessingError": "カート決済処理エラー:",
     "bankTransferProcessingError": "銀行振込決済処理エラー:"
-  }
+  },
+  "alreadyOwned": "購入済み",
+  "goToMySheets": "購入履歴を見る"
 }

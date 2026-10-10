@@ -119,5 +119,10 @@
   "membership": {
     "toNext": "Encore {{amount}} pour atteindre {{tier}} ({{rate}} % en récompenses)",
     "upgradeNow": "Avec cette commande, vous passez au niveau {{tier}} ! Gagnez {{rate}} % en récompenses dès votre prochaine commande"
-  }
+  },
+  "clearAll": "Tout supprimer",
+  "confirmRemoveItem": "Supprimer « {{title}} » du panier ?",
+  "confirmClearAll": "Supprimer tous les articles du panier ?",
+  "purchasedExcludedBanner": "{{count}} partition(s) déjà achetée(s) ont été exclues de cette commande.",
+  "removePurchasedFromCart": "Retirer du panier"
 }

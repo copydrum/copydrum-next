@@ -47,5 +47,7 @@
     "cartUpdateAfterPurchaseError": "Не вдалося оновити кошик після покупки.",
     "paymentProcessingError": "Помилка обробки оплати кошика:",
     "bankTransferProcessingError": "Помилка обробки оплати банківським переказом:"
-  }
+  },
+  "alreadyOwned": "Уже придбано",
+  "goToMySheets": "Мої покупки"
 }

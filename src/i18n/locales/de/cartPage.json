@@ -47,5 +47,7 @@
     "cartUpdateAfterPurchaseError": "Fehler beim Aktualisieren des Warenkorbs nach dem Kauf.",
     "paymentProcessingError": "Fehler bei der Warenkorb-Zahlungsabwicklung:",
     "bankTransferProcessingError": "Fehler bei der Banküberweisungs-Zahlungsabwicklung:"
-  }
+  },
+  "alreadyOwned": "Bereits gekauft",
+  "goToMySheets": "Meine Käufe ansehen"
 }

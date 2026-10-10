@@ -47,5 +47,7 @@
     "cartUpdateAfterPurchaseError": "購買後更新購物車失敗。",
     "paymentProcessingError": "購物車付款處理錯誤：",
     "bankTransferProcessingError": "銀行轉帳付款處理錯誤："
-  }
+  },
+  "alreadyOwned": "已購買",
+  "goToMySheets": "查看購買紀錄"
 }

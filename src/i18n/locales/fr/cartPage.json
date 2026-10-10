@@ -47,5 +47,7 @@
     "cartUpdateAfterPurchaseError": "Échec de la mise à jour du panier après l'achat.",
     "paymentProcessingError": "Erreur de traitement du paiement du panier :",
     "bankTransferProcessingError": "Erreur de traitement du paiement par virement bancaire :"
-  }
+  },
+  "alreadyOwned": "Déjà acheté",
+  "goToMySheets": "Voir mes achats"
 }
