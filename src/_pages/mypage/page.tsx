@@ -1926,7 +1926,7 @@ export default function MyPage() {
 
       <button
         onClick={() => router.push('/cart')}
-        className="hidden md:fixed md:bottom-6 md:right-6 md:z-40 md:flex items-center gap-2 rounded-full bg-blue-600 text-white px-5 py-3 shadow-lg hover:bg-blue-700"
+        className="hidden md:fixed md:bottom-6 md:right-24 md:z-40 md:flex items-center gap-2 rounded-full bg-blue-600 text-white px-5 py-3 shadow-lg hover:bg-blue-700"
       >
         <i className="ri-shopping-cart-line text-lg" />
         {t('mypage.cart')}
