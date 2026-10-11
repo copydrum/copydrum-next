@@ -2,151 +2,43 @@ import type { ChatSettings } from '@/lib/settings';
 
 /** 언어별 환영 / 오프라인 안내 (관리자 한국어 설정은 ko 사이트에서만 덮어씀) */
 const WELCOME: Record<string, string> = {
-  ko: `안녕하세요! 카피드럼 악보 플랫폼에 오신 것을 환영합니다 :)
-결제나 악보 다운로드에 문제가 있으신가요? 빠르고 정확한 확인을 위해 '가입하신 이메일 주소'와 '결제하신 악보 제목'을 함께 남겨주시면 확인 후 신속하게 도와드리겠습니다!`,
-
-  en: `Hello! Welcome to the CopyDrum sheet music platform :)
-Having trouble with payment or downloading your sheet? For a quick and accurate check, please leave your registered email address and the title of the sheet you purchased — we'll help you right away!`,
-
-  ja: `こんにちは！CopyDrum 楽譜プラットフォームへようこそ :)
-お支払いや楽譜のダウンロードでお困りですか？迅速かつ正確に確認するため、ご登録のメールアドレスとご購入の楽譜タイトルを一緒にお知らせください。確認後、すぐに対応いたします！`,
-
-  'zh-CN': `您好！欢迎来到 CopyDrum 乐谱平台 :)
-支付或乐谱下载遇到问题了吗？为快速准确核实，请一并留下您注册的邮箱地址和所购乐谱标题，我们会在确认后尽快为您处理！`,
-
-  'zh-TW': `您好！歡迎來到 CopyDrum 樂譜平台 :)
-付款或樂譜下載遇到問題了嗎？為快速準確確認，請一併留下您註冊的電子郵件與所購樂譜標題，我們會在確認後盡快為您處理！`,
-
-  de: `Hallo! Willkommen auf der CopyDrum-Notenplattform :)
-Probleme mit der Zahlung oder dem Download Ihrer Noten? Bitte geben Sie zur schnellen und genauen Prüfung Ihre registrierte E-Mail-Adresse und den Titel der gekauften Noten an — wir helfen Ihnen umgehend!`,
-
-  fr: `Bonjour ! Bienvenue sur la plateforme de partitions CopyDrum :)
-Un problème de paiement ou de téléchargement ? Pour une vérification rapide et précise, merci d'indiquer votre adresse e-mail d'inscription et le titre de la partition achetée — nous vous aiderons rapidement !`,
-
-  es: `¡Hola! Bienvenido a la plataforma de partituras CopyDrum :)
-¿Problemas con el pago o la descarga de tu partitura? Para una verificación rápida y precisa, deja tu correo registrado y el título de la partitura comprada — ¡te ayudaremos enseguida!`,
-
-  vi: `Xin chào! Chào mừng bạn đến với nền tảng sheet nhạc CopyDrum :)
-Gặp sự cố thanh toán hoặc tải sheet? Để xác minh nhanh và chính xác, vui lòng để lại email đăng ký và tên sheet đã mua — chúng tôi sẽ hỗ trợ ngay!`,
-
-  th: `สวัสดี! ยินดีต้อนรับสู่แพลตฟอร์มโน้ตดนตรี CopyDrum :)
-มีปัญหาเรื่องการชำระเงินหรือดาวน์โหลดโน้ตหรือไม่? เพื่อตรวจสอบอย่างรวดเร็วและแม่นยำ กรุณาแจ้งอีเมลที่สมัครและชื่อโน้ตที่ซื้อ — เราจะช่วยเหลือทันที!`,
-
-  hi: `नमस्ते! CopyDrum शीट संगीत प्लेटफ़ॉर्म में आपका स्वागत है :)
-भुगतान या शीट डाउनलोड में समस्या है? त्वरित और सटीक जाँच के लिए कृपया अपना पंजीकृत ईमेल और खरीदी गई शीट का शीर्षक बताएं — हम जल्दी मदद करेंगे!`,
-
-  id: `Halo! Selamat datang di platform partitur CopyDrum :)
-Ada masalah pembayaran atau unduhan partitur? Untuk pemeriksaan cepat dan akurat, mohon cantumkan email terdaftar dan judul partitur yang dibeli — kami akan segera membantu!`,
-
-  pt: `Olá! Bem-vindo à plataforma de partituras CopyDrum :)
-Problemas com pagamento ou download da partitura? Para uma verificação rápida e precisa, informe seu e-mail cadastrado e o título da partitura comprada — ajudaremos em breve!`,
-
-  ru: `Здравствуйте! Добро пожаловать на платформу нот CopyDrum :)
-Проблемы с оплатой или загрузкой нот? Для быстрой и точной проверки укажите зарегистрированный e-mail и название купленных нот — мы оперативно поможем!`,
-
-  it: `Ciao! Benvenuto sulla piattaforma di spartiti CopyDrum :)
-Problemi con il pagamento o il download dello spartito? Per una verifica rapida e precisa, indica l'e-mail registrata e il titolo dello spartito acquistato — ti aiuteremo subito!`,
-
-  tr: `Merhaba! CopyDrum nota platformuna hoş geldiniz :)
-Ödeme veya nota indirme sorunu mu var? Hızlı ve doğru kontrol için kayıtlı e-posta adresinizi ve satın aldığınız notanın başlığını birlikte bırakın — hemen yardımcı olacağız!`,
-
-  uk: `Вітаємо! Ласкаво просимо на платформу нот CopyDrum :)
-Проблеми з оплатою чи завантаженням нот? Для швидкої та точної перевірки залиште зареєстровану e-mail адресу та назву придбаних нот — ми оперативно допоможемо!`,
+  ko: '안녕하세요, 카피드럼입니다! :)\n무엇이든 편하게 물어보세요.',
+  en: "Hi, this is CopyDrum! :)\nFeel free to ask us anything.",
+  ja: 'こんにちは、CopyDrumです！:)\nなんでもお気軽にお問い合わせください。',
+  'zh-CN': '您好，这里是 CopyDrum！:)\n有任何问题都可以随时问我们。',
+  'zh-TW': '您好，這裡是 CopyDrum！:)\n有任何問題都歡迎隨時詢問。',
+  de: 'Hallo, hier ist CopyDrum! :)\nFragen Sie uns gerne alles.',
+  fr: "Bonjour, ici CopyDrum ! :)\nN'hésitez pas à nous poser toutes vos questions.",
+  es: '¡Hola, somos CopyDrum! :)\nPregúntanos lo que quieras.',
+  vi: 'Xin chào, đây là CopyDrum! :)\nBạn cứ thoải mái hỏi bất cứ điều gì nhé.',
+  th: 'สวัสดีค่ะ CopyDrum ยินดีให้บริการ! :)\nสอบถามได้ทุกเรื่องเลยนะคะ',
+  hi: 'नमस्ते, यह CopyDrum है! :)\nबेझिझक कुछ भी पूछें।',
+  id: 'Halo, ini CopyDrum! :)\nSilakan tanyakan apa saja.',
+  pt: 'Olá, aqui é a CopyDrum! :)\nFique à vontade para perguntar o que quiser.',
+  ru: 'Здравствуйте, это CopyDrum! :)\nСпрашивайте о чём угодно.',
+  it: 'Ciao, siamo CopyDrum! :)\nChiedici pure qualsiasi cosa.',
+  tr: 'Merhaba, burası CopyDrum! :)\nAklınıza takılan her şeyi sorabilirsiniz.',
+  uk: 'Вітаємо, це CopyDrum! :)\nПитайте про що завгодно.',
 };
 
 const OFFLINE: Record<string, string> = {
-  ko: `현재는 관리자 오프라인 시간입니다.
-글로벌 시차로 인해 즉각적인 답변은 어렵지만, 문의 내용과 함께 '이메일 주소', '결제하신 악보 제목'을 남겨주시면 업무 시작 후 최우선으로 처리해 드리겠습니다. 고객님의 결제 내역은 안전하게 기록되고 있으니 안심하시고 조금만 기다려주세요! :)`,
-
-  en: `Our support team is currently offline.
-Due to global time zones, we may not reply instantly. Please leave your message along with your email address and the title of the sheet you purchased — we'll prioritize your request when we're back. Your payment is safely recorded, so please rest assured and wait a little while! :)`,
-
-  ja: `現在、管理者はオフラインです。
-時差のため即時の返信は難しい場合がありますが、お問い合わせ内容とともにメールアドレスとご購入の楽譜タイトルをお知らせください。業務開始後、優先的に対応いたします。お支払い情報は安全に記録されていますので、ご安心ください。少々お待ちください！ :)`,
-
-  'zh-CN': `管理员目前不在线。
-由于全球时差，我们可能无法立即回复。请留下咨询内容、您的邮箱地址和所购乐谱标题，我们将在开始工作后优先处理。您的付款记录已安全保存，请放心稍候！ :)`,
-
-  'zh-TW': `管理員目前離線中。
-因全球時差，我們可能無法立即回覆。請留下諮詢內容、您的電子郵件與所購樂譜標題，我們將在開始工作後優先處理。您的付款紀錄已安全保存，請放心稍候！ :)`,
-
-  de: `Unser Support ist derzeit offline.
-Aufgrund globaler Zeitzonen können wir nicht sofort antworten. Bitte hinterlassen Sie Ihre Nachricht mit E-Mail-Adresse und Titel der gekauften Noten — wir bearbeiten Ihre Anfrage nach Arbeitsbeginn vorrangig. Ihre Zahlung ist sicher erfasst, bitte haben Sie etwas Geduld! :)`,
-
-  fr: `Notre équipe est actuellement hors ligne.
-En raison des fuseaux horaires, une réponse immédiate peut être difficile. Laissez votre message avec votre e-mail et le titre de la partition achetée — nous traiterons votre demande en priorité à la reprise. Votre paiement est enregistré en toute sécurité, merci de patienter un peu ! :)`,
-
-  es: `Nuestro equipo de soporte está fuera de línea.
-Por la diferencia horaria global, puede que no respondamos al instante. Deja tu consulta con tu correo y el título de la partitura comprada — la atenderemos con prioridad al volver. Tu pago está registrado de forma segura, ¡ten un poco de paciencia! :)`,
-
-  vi: `Đội ngũ hỗ trợ hiện đang offline.
-Do múi giờ toàn cầu, chúng tôi có thể không trả lời ngay. Vui lòng để lại nội dung kèm email và tên sheet đã mua — chúng tôi sẽ ưu tiên xử lý khi bắt đầu làm việc. Thanh toán của bạn đã được ghi nhận an toàn, xin hãy kiên nhẫn chờ! :)`,
-
-  th: `ทีมงานออฟไลน์อยู่ในขณะนี้
-เนื่องจากความต่างของเขตเวลา เราอาจไม่ตอบทันที กรุณาแจ้งข้อความพร้อมอีเมลและชื่อโน้ตที่ซื้อ — เราจะดำเนินการเป็นลำดับแรกเมื่อเริ่มงาน การชำระเงินของคุณถูกบันทึกอย่างปลอดภัย กรุณารอสักครู่! :)`,
-
-  hi: `हमारी सहायता टीम अभी ऑफ़लाइन है।
-वैश्विक समय क्षेत्र के कारण तुरंत जवाब मुश्किल हो सकता है। कृपया अपना संदेश, ईमेल और खरीदी गई शीट का शीर्षक छोड़ें — कार्य शुरू होते ही प्राथमिकता से देखेंगे। आपका भुगतान सुरक्षित रूप से दर्ज है, कृपया थोड़ा प्रतीक्षा करें! :)`,
-
-  id: `Tim dukungan kami sedang offline.
-Karena perbedaan zona waktu global, kami mungkin tidak dapat membalas segera. Silakan tinggalkan pesan beserta email dan judul partitur yang dibeli — kami akan memprioritaskan saat jam kerja dimulai. Pembayaran Anda tercatat dengan aman, mohon bersabar sebentar! :)`,
-
-  pt: `Nossa equipe de suporte está offline no momento.
-Devido ao fuso horário global, talvez não respondamos imediatamente. Deixe sua mensagem com e-mail e título da partitura comprada — priorizaremos ao retomar o expediente. Seu pagamento está registrado com segurança, aguarde um pouco! :)`,
-
-  ru: `Служба поддержки сейчас офлайн.
-Из-за часовых поясов мы можем не ответить сразу. Оставьте сообщение с e-mail и названием купленных нот — обработаем в приоритете при начале работы. Ваш платёж надёжно зафиксирован, пожалуйста, подождите немного! :)`,
-
-  it: `Il nostro supporto è attualmente offline.
-Per i fusi orari globali potremmo non rispondere subito. Lascia il messaggio con e-mail e titolo dello spartito acquistato — lo gestiremo in priorità all'inizio dell'orario lavorativo. Il pagamento è registrato in sicurezza, attendi un momento! :)`,
-
-  tr: `Destek ekibimiz şu anda çevrimdışı.
-Küresel saat farkı nedeniyle anında yanıt veremeyebiliriz. Mesajınızla birlikte e-posta adresinizi ve satın aldığınız notanın başlığını bırakın — işe başladığımızda öncelikli işleme alacağız. Ödemeniz güvenle kayıtlıdır, lütfen biraz bekleyin! :)`,
-
-  uk: `Наша підтримка зараз офлайн.
-Через глобальні часові пояси ми можемо не відповісти одразу. Залиште повідомлення з e-mail та назвою придбаних нот — опрацюємо в пріоритеті на початку робочого дня. Ваш платіж надійно зафіксовано, зачекайте трохи! :)`,
-};
-
-/** 결제 자동확인 버튼 문구 */
-const PAY_BOT_BUTTON: Record<string, string> = {
-  ko: '결제 후 악보가 안 보인다면? (이 버튼을 클릭해주세요)',
-  en: "Can't see your sheet after payment? (Please click this button)",
-  ja: 'お支払い後に楽譜が表示されませんか？（このボタンをクリックしてください）',
-  'zh-CN': '付款后看不到乐谱？（请点击此按钮）',
-  'zh-TW': '付款後看不到樂譜？（請點擊此按鈕）',
-  de: 'Partitur nach der Zahlung nicht sichtbar? (Bitte klicken Sie auf diese Schaltfläche)',
-  fr: 'La partition n\'apparaît pas après le paiement ? (Cliquez sur ce bouton)',
-  es: '¿No ves la partitura después del pago? (Haz clic en este botón)',
-  vi: 'Không thấy sheet sau khi thanh toán? (Vui lòng nhấn nút này)',
-  th: 'ไม่เห็นโน้ตหลังชำระเงิน? (กรุณาคลิกปุ่มนี้)',
-  hi: 'भुगतान के बाद शीट नहीं दिख रही? (कृपया इस बटन पर क्लिक करें)',
-  id: 'Partitur tidak muncul setelah pembayaran? (Silakan klik tombol ini)',
-  pt: 'Não vê a partitura após o pagamento? (Clique neste botão)',
-  ru: 'Не видите ноты после оплаты? (Нажмите эту кнопку)',
-  it: 'Non vedi lo spartito dopo il pagamento? (Clicca questo pulsante)',
-  tr: 'Ödemeden sonra nota görünmüyor mu? (Lütfen bu düğmeye tıklayın)',
-  uk: 'Не бачите ноти після оплати? (Натисніть цю кнопку)',
-};
-
-/** 운영시간 표시 접두사 (일요일=0 … 토요일=6) */
-const BUSINESS_HOURS_LABEL: Record<string, string> = {
-  ko: '운영시간:',
-  en: 'Business hours:',
-  ja: '営業時間:',
-  'zh-CN': '营业时间:',
-  'zh-TW': '營業時間:',
-  de: 'Öffnungszeiten:',
-  fr: "Heures d'ouverture :",
-  es: 'Horario:',
-  vi: 'Giờ làm việc:',
-  th: 'เวลาทำการ:',
-  hi: 'कार्य समय:',
-  id: 'Jam operasional:',
-  pt: 'Horário de atendimento:',
-  ru: 'Часы работы:',
-  it: 'Orari:',
-  tr: 'Çalışma saatleri:',
-  uk: 'Години роботи:',
+  ko: '지금은 운영시간 외예요.\n메시지를 남겨주시면 확인 후 답변드릴게요. :)',
+  en: "We're currently outside business hours.\nLeave us a message and we'll get back to you. :)",
+  ja: '現在は営業時間外です。\nメッセージを残していただければ、確認後にお返事します。:)',
+  'zh-CN': '目前是非营业时间。\n请留言，我们确认后会回复您。:)',
+  'zh-TW': '目前是非營業時間。\n請留言，我們確認後會回覆您。:)',
+  de: 'Wir sind gerade außerhalb unserer Geschäftszeiten.\nHinterlassen Sie uns eine Nachricht – wir melden uns bei Ihnen. :)',
+  fr: "Nous sommes actuellement en dehors des heures d'ouverture.\nLaissez-nous un message, nous vous répondrons. :)",
+  es: 'Ahora estamos fuera del horario de atención.\nDéjanos un mensaje y te responderemos. :)',
+  vi: 'Hiện đang ngoài giờ làm việc.\nHãy để lại tin nhắn, chúng tôi sẽ kiểm tra và trả lời bạn. :)',
+  th: 'ขณะนี้อยู่นอกเวลาทำการค่ะ\nฝากข้อความไว้ได้เลย เราจะตรวจสอบและตอบกลับค่ะ :)',
+  hi: 'अभी हमारा कार्य समय नहीं है।\nअपना संदेश छोड़ें, हम देखकर जवाब देंगे। :)',
+  id: 'Saat ini di luar jam operasional.\nTinggalkan pesan, kami akan memeriksa dan membalasnya. :)',
+  pt: 'No momento estamos fora do horário de atendimento.\nDeixe uma mensagem e responderemos em breve. :)',
+  ru: 'Сейчас нерабочее время.\nОставьте сообщение — мы проверим и ответим. :)',
+  it: "Al momento siamo fuori dall'orario di assistenza.\nLasciaci un messaggio e ti risponderemo. :)",
+  tr: 'Şu anda çalışma saatleri dışındayız.\nMesajınızı bırakın, kontrol edip yanıtlayacağız. :)',
+  uk: 'Зараз неробочий час.\nЗалиште повідомлення — ми перевіримо й відповімо. :)',
 };
 
 const WEEKDAY_SHORT: Record<string, string[]> = {
@@ -169,14 +61,7 @@ const WEEKDAY_SHORT: Record<string, string[]> = {
   uk: ['Нд', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'],
 };
 
-function pickLocale(map: Record<string, string>, locale: string): string {
-  if (map[locale]) return map[locale];
-  const base = locale.split('-')[0];
-  if (map[base]) return map[base];
-  return map.en;
-}
-
-function pickLocaleArray(map: Record<string, string[]>, locale: string): string[] {
+function pickLocale<T>(map: Record<string, T>, locale: string): T {
   if (map[locale]) return map[locale];
   const base = locale.split('-')[0];
   if (map[base]) return map[base];
@@ -199,18 +84,138 @@ export function getChatOfflineMessage(locale: string, settings?: ChatSettings | 
   return pickLocale(OFFLINE, locale);
 }
 
-/** 결제 자동확인 버튼 문구 */
-export function getPayBotButtonLabel(locale: string): string {
-  return pickLocale(PAY_BOT_BUTTON, locale);
+const pad2 = (n: number) => String(n).padStart(2, '0');
+
+function parseHHmm(hhmm: string): [number, number] | null {
+  const m = /^(\d{1,2}):(\d{2})$/.exec(hhmm ?? '');
+  if (!m) return null;
+  return [Number(m[1]), Number(m[2])];
 }
 
-/** 운영시간 요약 (오프라인 화면 하단) */
+/** 해당 시각의 timeZone UTC 오프셋(분) */
+function tzOffsetMinutes(timeZone: string, date: Date): number {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    hourCycle: 'h23',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  }).formatToParts(date);
+  const get = (type: string) => Number(parts.find((p) => p.type === type)?.value ?? 0);
+  const asUtc = Date.UTC(get('year'), get('month') - 1, get('day'), get('hour'), get('minute'), get('second'));
+  return Math.round((asUtc - date.getTime()) / 60000);
+}
+
+/** timeZone 기준 벽시계 시각 → UTC 타임스탬프 */
+function zonedTimeToUtc(timeZone: string, y: number, mo: number, d: number, h: number, mi: number): number {
+  const guess = Date.UTC(y, mo, d, h, mi);
+  const offset = tzOffsetMinutes(timeZone, new Date(guess));
+  const utc = guess - offset * 60000;
+  const offset2 = tzOffsetMinutes(timeZone, new Date(utc));
+  return offset2 === offset ? utc : guess - offset2 * 60000;
+}
+
+interface DaySlot {
+  /** 0(일)~6(토) */
+  weekday: number;
+  hours: string;
+}
+
+/** 운영 요일·시간을 고객 브라우저 시간대로 변환 (이번 주 기준이라 서머타임도 반영) */
+function toLocalSlots(settings: ChatSettings, sourceTz: string): DaySlot[] {
+  const now = new Date();
+  const todayParts = new Intl.DateTimeFormat('en-US', {
+    timeZone: sourceTz,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    weekday: 'short',
+  }).formatToParts(now);
+  const get = (type: string) => todayParts.find((p) => p.type === type)?.value ?? '';
+  const weekdayMap: Record<string, number> = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+  const todayWeekday = weekdayMap[get('weekday')] ?? 0;
+  const y = Number(get('year'));
+  const mo = Number(get('month')) - 1;
+  const d = Number(get('day'));
+
+  const slots: DaySlot[] = [];
+  settings.businessHours.forEach((day, idx) => {
+    if (!day?.enabled) return;
+    const from = parseHHmm(day.from);
+    const to = parseHHmm(day.to);
+    if (!from || !to) return;
+    const ref = new Date(Date.UTC(y, mo, d + ((idx - todayWeekday + 7) % 7)));
+    const [ry, rm, rd] = [ref.getUTCFullYear(), ref.getUTCMonth(), ref.getUTCDate()];
+    const start = new Date(zonedTimeToUtc(sourceTz, ry, rm, rd, from[0], from[1]));
+    const end = new Date(zonedTimeToUtc(sourceTz, ry, rm, rd, to[0], to[1]));
+    slots.push({
+      weekday: start.getDay(),
+      hours: `${pad2(start.getHours())}:${pad2(start.getMinutes())}~${pad2(end.getHours())}:${pad2(end.getMinutes())}`,
+    });
+  });
+  return slots;
+}
+
+/**
+ * 운영시간 요약. 고객 브라우저 시간대로 변환하고, 같은 시간대의 연속된 요일은 묶어서 표시한다.
+ * 예) "월~금 10:00~17:00", 해외: "Sun–Thu 18:00~01:00 (PDT)"
+ */
 export function getBusinessHoursHint(locale: string, settings?: ChatSettings | null): string | null {
-  if (!settings || !Array.isArray(settings.businessHours)) return null;
-  const dayLabels = pickLocaleArray(WEEKDAY_SHORT, locale);
-  const prefix = pickLocale(BUSINESS_HOURS_LABEL, locale);
-  const openDays = settings.businessHours
-    .map((d, i) => (d.enabled ? `${dayLabels[i]} ${d.from}~${d.to}` : null))
-    .filter(Boolean);
-  return openDays.length ? `${prefix} ${openDays.join(', ')}` : null;
+  if (!settings || !Array.isArray(settings.businessHours) || settings.businessHours.length !== 7) return null;
+  const dayLabels = pickLocale(WEEKDAY_SHORT, locale);
+  const sourceTz = settings.timezone || 'Asia/Seoul';
+
+  let slots: DaySlot[];
+  let tzLabel = '';
+  try {
+    const now = new Date();
+    const isSameOffset = tzOffsetMinutes(sourceTz, now) === -now.getTimezoneOffset();
+    if (isSameOffset) {
+      slots = settings.businessHours.flatMap((day, idx) =>
+        day?.enabled ? [{ weekday: idx, hours: `${day.from}~${day.to}` }] : [],
+      );
+    } else {
+      slots = toLocalSlots(settings, sourceTz);
+      tzLabel =
+        new Intl.DateTimeFormat(locale, { timeZoneName: 'short' })
+          .formatToParts(now)
+          .find((p) => p.type === 'timeZoneName')?.value ?? '';
+    }
+  } catch {
+    return null;
+  }
+
+  // 월요일부터 묶되, 운영 요일이 일요일부터 이어지면(예: 해외 시간대의 일~목) 그 요일부터 시작
+  const byWeekday = new Map(slots.map((s) => [s.weekday, s.hours]));
+  const mondayFirst = [1, 2, 3, 4, 5, 6, 0];
+  const startPos = mondayFirst.findIndex(
+    (day) => byWeekday.has(day) && !byWeekday.has(mondayFirst[(mondayFirst.indexOf(day) + 6) % 7]),
+  );
+  const order = startPos > 0
+    ? [...mondayFirst.slice(startPos), ...mondayFirst.slice(0, startPos)]
+    : mondayFirst;
+  const groups: { start: number; end: number; hours: string }[] = [];
+  for (const idx of order) {
+    const hours = byWeekday.get(idx);
+    if (!hours) continue;
+    const last = groups[groups.length - 1];
+    const prevPos = last ? order.indexOf(last.end) : -2;
+    if (last && last.hours === hours && order.indexOf(idx) === prevPos + 1) {
+      last.end = idx;
+    } else {
+      groups.push({ start: idx, end: idx, hours });
+    }
+  }
+  if (!groups.length) return null;
+  const summary = groups
+    .map((g) =>
+      g.start === g.end
+        ? `${dayLabels[g.start]} ${g.hours}`
+        : `${dayLabels[g.start]}~${dayLabels[g.end]} ${g.hours}`,
+    )
+    .join(', ');
+  return tzLabel ? `${summary} (${tzLabel})` : summary;
 }

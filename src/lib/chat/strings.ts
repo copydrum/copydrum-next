@@ -1,134 +1,146 @@
+import type { ChatTypicalReply } from '@/lib/settings';
+
 // 채팅 위젯 UI 다국어 문자열(자체 사전). 관리자 작성 환영/오프라인 문구는 설정값을 그대로 사용.
 export interface ChatStrings {
   headerTitle: string;
   statusOnline: string;
   statusOffline: string;
-  guestStartHint: string;
-  name: string;
-  email: string;
-  emailForReply: string;
-  startChat: string;
+  agentName: string;
+  launcherLabel: string;
+  teaser: string;
   inputPlaceholder: string;
   send: string;
-  offlineSubmit: string;
-  offlinePlaceholder: string;
-  offlineSentTitle: string;
-  offlineSentDesc: string;
-  catPayment: string;
-  catDownload: string;
-  catRefund: string;
-  catEtc: string;
+  quickRepliesTitle: string;
   quickReplies: string[];
+  typicalReply: Record<Exclude<ChatTypicalReply, 'none'>, string>;
+  emailAsk: string;
+  emailAskOptional: string;
+  emailAskHint: string;
+  emailPlaceholder: string;
+  emailConfirm: string;
+  emailSkip: string;
+  emailInvalid: string;
+  emailSaved: string;
+  startFailed: string;
+  attachImage: string;
+  attachTooLarge: string;
+  attachFailed: string;
+  uploading: string;
+  imageAlt: string;
   ariaOpen: string;
   close: string;
-  payBotRunning: string;
-  payBotNeedEmail: string;
   sendFailed: string;
 }
 
 const ko: ChatStrings = {
-  headerTitle: 'CopyDrum 상담',
-  statusOnline: '상담 가능',
+  headerTitle: '카피드럼 고객센터',
+  statusOnline: '지금 상담 가능해요',
   statusOffline: '운영시간 외',
-  guestStartHint: '상담을 시작하려면 정보를 입력해 주세요.',
-  name: '이름',
-  email: '이메일',
-  emailForReply: '이메일 (답변 받을 주소)',
-  startChat: '상담 시작',
+  agentName: '카피드럼',
+  launcherLabel: '문의하기',
+  teaser: '결제·다운로드 문제, 여기서 바로 물어보세요!',
   inputPlaceholder: '메시지를 입력하세요',
   send: '전송',
-  offlineSubmit: '문의 남기기',
-  offlinePlaceholder: '문의 내용을 남겨주세요.',
-  offlineSentTitle: '문의가 접수되었습니다.',
-  offlineSentDesc: '운영시간에 순차적으로 확인 후 입력하신 이메일로 답변드리겠습니다.',
-  catPayment: '결제/주문 문의',
-  catDownload: '다운로드 문의',
-  catRefund: '주문제작 요청',
-  catEtc: '기타',
-  quickReplies: ['결제했는데 악보가 안 보여요', '다운로드가 안 돼요', '요청하고 싶은 악보가 있어요', '기타 다른 궁금한 점이 있어요'],
+  quickRepliesTitle: '이런 문의가 많아요',
+  quickReplies: ['결제·다운로드 문의', '악보 제작 요청', '기타 문의'],
+  typicalReply: {
+    minutes: '보통 몇 분 안에 답변드려요',
+    hour: '보통 1시간 안에 답변드려요',
+    hours: '보통 몇 시간 안에 답변드려요',
+    day: '보통 하루 안에 답변드려요',
+  },
+  emailAsk: '답변을 받으실 이메일 주소를 알려주세요.',
+  emailAskOptional: '답변이 오면 이메일로 알려드릴까요?',
+  emailAskHint: '로그인하시면 이 과정 없이 바로 상담할 수 있어요.',
+  emailPlaceholder: 'example@email.com',
+  emailConfirm: '확인',
+  emailSkip: '나중에 할게요',
+  emailInvalid: '올바른 이메일 주소를 입력해 주세요.',
+  emailSaved: '이메일이 등록됐어요. 답변이 오면 알려드릴게요.',
+  startFailed: '상담을 시작하지 못했어요. 잠시 후 다시 시도해 주세요.',
+  attachImage: '사진 첨부',
+  attachTooLarge: '5MB 이하의 사진만 보낼 수 있어요.',
+  attachFailed: '사진을 보내지 못했어요. 잠시 후 다시 시도해 주세요.',
+  uploading: '사진 보내는 중...',
+  imageAlt: '첨부한 사진',
   ariaOpen: '고객 상담 채팅',
   close: '닫기',
-  payBotRunning: '결제 확인 중...',
-  payBotNeedEmail: '결제하신 이메일을 먼저 입력해 주세요.',
   sendFailed: '메시지 전송에 실패했습니다. 잠시 후 다시 시도해 주세요.',
 };
 
 const en: ChatStrings = {
   headerTitle: 'CopyDrum Support',
-  statusOnline: 'Online',
-  statusOffline: 'Offline',
-  guestStartHint: 'Please enter your details to start a chat.',
-  name: 'Name',
-  email: 'Email',
-  emailForReply: 'Email (for our reply)',
-  startChat: 'Start chat',
+  statusOnline: "We're online",
+  statusOffline: 'Outside business hours',
+  agentName: 'CopyDrum',
+  launcherLabel: 'Help',
+  teaser: 'Payment or download issue? Ask us right here!',
   inputPlaceholder: 'Type a message',
   send: 'Send',
-  offlineSubmit: 'Leave a message',
-  offlinePlaceholder: 'Leave your message.',
-  offlineSentTitle: 'Your message has been received.',
-  offlineSentDesc: 'We will review it during business hours and reply to your email.',
-  catPayment: 'Payment / Order',
-  catDownload: 'Download issue',
-  catRefund: 'Custom order request',
-  catEtc: 'Other',
-  quickReplies: ["I paid but can't see my sheet", "I can't download", "I'd like to request a sheet", 'I have other questions'],
+  quickRepliesTitle: 'Common questions',
+  quickReplies: ['Payment / download', 'Request a sheet', 'Something else'],
+  typicalReply: {
+    minutes: 'Typically replies in a few minutes',
+    hour: 'Typically replies within an hour',
+    hours: 'Typically replies in a few hours',
+    day: 'Typically replies within a day',
+  },
+  emailAsk: 'Which email should we reply to?',
+  emailAskOptional: 'Want an email when we reply?',
+  emailAskHint: 'Sign in to skip this step next time.',
+  emailPlaceholder: 'example@email.com',
+  emailConfirm: 'OK',
+  emailSkip: 'Maybe later',
+  emailInvalid: 'Please enter a valid email address.',
+  emailSaved: "Got it! We'll email you when we reply.",
+  startFailed: "We couldn't start the chat. Please try again in a moment.",
+  attachImage: 'Attach a photo',
+  attachTooLarge: 'Photos must be 5MB or smaller.',
+  attachFailed: "We couldn't send your photo. Please try again.",
+  uploading: 'Sending photo...',
+  imageAlt: 'Attached photo',
   ariaOpen: 'Customer support chat',
   close: 'Close',
-  payBotRunning: 'Checking your payment…',
-  payBotNeedEmail: 'Please enter the email you paid with first.',
   sendFailed: 'Failed to send your message. Please try again.',
 };
 
 const ja: ChatStrings = {
   headerTitle: 'CopyDrum サポート',
-  statusOnline: '対応可能',
+  statusOnline: 'ただいま対応中',
   statusOffline: '営業時間外',
-  guestStartHint: 'チャットを開始するには情報を入力してください。',
-  name: 'お名前',
-  email: 'メール',
-  emailForReply: 'メール（返信先）',
-  startChat: 'チャット開始',
+  agentName: 'CopyDrum',
+  launcherLabel: 'お問い合わせ',
+  teaser: '決済・ダウンロードのお困りごとは、こちらでお気軽に！',
   inputPlaceholder: 'メッセージを入力',
   send: '送信',
-  offlineSubmit: 'メッセージを残す',
-  offlinePlaceholder: 'お問い合わせ内容をご記入ください。',
-  offlineSentTitle: 'お問い合わせを受け付けました。',
-  offlineSentDesc: '営業時間内に順次確認し、ご入力のメールへ返信いたします。',
-  catPayment: '決済・注文',
-  catDownload: 'ダウンロード',
-  catRefund: 'オーダー制作依頼',
-  catEtc: 'その他',
-  quickReplies: ['支払ったのに楽譜が見えません', 'ダウンロードできません', 'リクエストしたい楽譜があります', 'その他のご質問があります'],
+  quickRepliesTitle: 'よくあるお問い合わせ',
+  quickReplies: ['決済・ダウンロード', '楽譜制作のご依頼', 'その他'],
+  typicalReply: {
+    minutes: '通常数分以内に返信します',
+    hour: '通常1時間以内に返信します',
+    hours: '通常数時間以内に返信します',
+    day: '通常1日以内に返信します',
+  },
+  emailAsk: '返信先のメールアドレスを教えてください。',
+  emailAskOptional: '返信が届いたらメールでお知らせしましょうか？',
+  emailAskHint: 'ログインすると、この手順なしですぐにご相談いただけます。',
+  emailPlaceholder: 'example@email.com',
+  emailConfirm: 'OK',
+  emailSkip: 'あとで',
+  emailInvalid: '正しいメールアドレスを入力してください。',
+  emailSaved: 'メールアドレスを登録しました。返信が届いたらお知らせします。',
+  startFailed: 'チャットを開始できませんでした。しばらくしてから再度お試しください。',
+  attachImage: '写真を添付',
+  attachTooLarge: '5MB以下の写真のみ送信できます。',
+  attachFailed: '写真を送信できませんでした。しばらくしてから再度お試しください。',
+  uploading: '写真を送信中...',
+  imageAlt: '添付した写真',
   ariaOpen: 'カスタマーサポートチャット',
   close: '閉じる',
-  payBotRunning: '決済を確認中...',
-  payBotNeedEmail: 'お支払いに使用したメールを先に入力してください。',
   sendFailed: 'メッセージの送信に失敗しました。しばらくしてから再度お試しください。',
 };
 
 const DICT: Record<string, ChatStrings> = { ko, en, ja };
-
-/** 문의 유형: 주문제작 요청 (17개 언어) */
-const CAT_REFUND: Record<string, string> = {
-  ko: '주문제작 요청',
-  en: 'Custom order request',
-  ja: 'オーダー制作依頼',
-  'zh-CN': '定制订单请求',
-  'zh-TW': '客製訂單請求',
-  de: 'Individuelle Bestellung anfragen',
-  fr: 'Demande de commande personnalisée',
-  es: 'Solicitud de pedido personalizado',
-  vi: 'Yêu cầu đặt hàng tùy chỉnh',
-  th: 'ขอสั่งทำแบบกำหนดเอง',
-  hi: 'कस्टम ऑर्डर अनुरोध',
-  id: 'Permintaan pesanan kustom',
-  pt: 'Solicitação de pedido personalizado',
-  ru: 'Запрос на индивидуальный заказ',
-  it: 'Richiesta ordine personalizzato',
-  tr: 'Özel sipariş talebi',
-  uk: 'Запит на індивідуальне замовлення',
-};
 
 const SEND_FAILED: Record<string, string> = {
   ko: '메시지 전송에 실패했습니다. 잠시 후 다시 시도해 주세요.',
@@ -150,27 +162,6 @@ const SEND_FAILED: Record<string, string> = {
   uk: 'Не вдалося надіслати повідомлення. Спробуйте ще раз.',
 };
 
-/** 오프라인 문의 입력 placeholder (17개 언어) */
-const OFFLINE_PLACEHOLDER: Record<string, string> = {
-  ko: '문의 내용을 남겨주세요.',
-  en: 'Leave your message.',
-  ja: 'お問い合わせ内容をご記入ください。',
-  'zh-CN': '请留下您的咨询内容。',
-  'zh-TW': '請留下您的諮詢內容。',
-  de: 'Bitte hinterlassen Sie Ihre Nachricht.',
-  fr: 'Laissez votre message.',
-  es: 'Deja tu consulta.',
-  vi: 'Vui lòng để lại nội dung câu hỏi.',
-  th: 'กรุณาแจ้งข้อความของคุณ',
-  hi: 'कृपया अपना संदेश छोड़ें।',
-  id: 'Silakan tinggalkan pesan Anda.',
-  pt: 'Deixe sua mensagem.',
-  ru: 'Оставьте ваше сообщение.',
-  it: 'Lascia il tuo messaggio.',
-  tr: 'Mesajınızı bırakın.',
-  uk: 'Залиште ваше повідомлення.',
-};
-
 function pickLocale(map: Record<string, string>, locale: string): string {
   if (map[locale]) return map[locale];
   const base = locale.split('-')[0];
@@ -183,8 +174,6 @@ export function getChatStrings(lang?: string): ChatStrings {
   const base = DICT[locale] ?? DICT[locale.split('-')[0]] ?? en;
   return {
     ...base,
-    catRefund: pickLocale(CAT_REFUND, locale),
-    offlinePlaceholder: pickLocale(OFFLINE_PLACEHOLDER, locale),
     sendFailed: pickLocale(SEND_FAILED, locale),
   };
 }

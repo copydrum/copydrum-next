@@ -20,6 +20,7 @@ import SheetBookManagement from '../../components/admin/SheetBookManagement';
 import RichTextEditor from '../../components/admin/RichTextEditor';
 import DashboardTab from '../../components/admin/DashboardTab';
 import ChatInbox from '../../components/admin/ChatInbox';
+import ChatMetrics from '../../components/admin/ChatMetrics';
 import ChatSettingsPanel from '../../components/admin/ChatSettingsPanel';
 import LegacyLookupModal from '../../components/admin/LegacyLookupModal';
 import {
@@ -15327,7 +15328,12 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
       case 'inquiries':
         return renderInquiryManagement();
       case 'chat':
-        return <ChatInbox />;
+        return (
+          <>
+            <ChatMetrics />
+            <ChatInbox />
+          </>
+        );
       case 'chat-settings':
         return <ChatSettingsPanel updatedBy={user?.id ?? null} />;
       case 'custom-orders':

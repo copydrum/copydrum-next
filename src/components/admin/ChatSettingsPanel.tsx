@@ -1,10 +1,18 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { fetchSettings, updateSettings, type ChatSettings } from '@/lib/settings';
+import { fetchSettings, updateSettings, type ChatSettings, type ChatTypicalReply } from '@/lib/settings';
 import { isChatOnline } from '@/lib/chat/online';
 
 const DAY_LABELS = ['일', '월', '화', '수', '목', '금', '토'];
+
+const TYPICAL_REPLY_OPTIONS: { v: ChatTypicalReply; label: string }[] = [
+  { v: 'minutes', label: '보통 몇 분 안에 답변드려요' },
+  { v: 'hour', label: '보통 1시간 안에 답변드려요' },
+  { v: 'hours', label: '보통 몇 시간 안에 답변드려요' },
+  { v: 'day', label: '보통 하루 안에 답변드려요' },
+  { v: 'none', label: '표시 안 함' },
+];
 
 export default function ChatSettingsPanel({ updatedBy }: { updatedBy?: string | null }) {
   const [chat, setChat] = useState<ChatSettings | null>(null);
@@ -134,11 +142,28 @@ export default function ChatSettingsPanel({ updatedBy }: { updatedBy?: string | 
         <p className="mt-2 text-xs text-gray-400">타임존: {chat.timezone}</p>
       </div>
 
+      {/* 응답 예상시간 */}
+      <div className="rounded-lg border border-gray-200 p-4">
+        <p className="mb-1 text-sm font-semibold text-gray-700">응답 예상시간</p>
+        <p className="mb-2 text-xs text-gray-400">채팅창 상단에 표시되며, 각 언어 사이트에 맞게 번역되어 보입니다.</p>
+        <select
+          value={chat.typicalReply ?? 'hours'}
+          onChange={(e) => update({ typicalReply: e.target.value as ChatTypicalReply })}
+          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+        >
+          {TYPICAL_REPLY_OPTIONS.map((opt) => (
+            <option key={opt.v} value={opt.v}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+      </div>
+
       {/* 문구 */}
       <div className="space-y-3">
         <p className="rounded-lg bg-blue-50 px-3 py-2 text-xs text-blue-800">
-          아래 문구는 <strong>한국어(/ko) 사이트</strong>에 표시됩니다. 영어·일본어 등 다른 언어 사이트에는
-          동일 내용이 각 언어로 자동 번역되어 표시됩니다.
+          아래 문구는 <strong>한국어(/ko) 사이트</strong>에만 표시됩니다. 영어·일본어 등 다른 언어 사이트는
+          코드에 미리 번역해 둔 문구가 표시되므로, 여기서 문구를 바꿔도 자동으로 번역되지 않습니다.
         </p>
         <div>
           <label className="mb-1 block text-sm font-semibold text-gray-700">환영 메시지 (한국어)</label>

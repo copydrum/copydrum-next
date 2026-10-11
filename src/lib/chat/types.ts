@@ -30,6 +30,9 @@ export interface ChatConversation {
   rating: number | null;
   created_at: string;
   updated_at: string;
+  locale?: string | null;
+  user_last_seen_at?: string | null;
+  reply_email_sent_at?: string | null;
 }
 
 export interface GuestIdentity {

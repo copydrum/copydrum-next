@@ -47,6 +47,7 @@ export default function ChatInbox() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [reply, setReply] = useState('');
   const [sending, setSending] = useState(false);
+  const [replyEmailNote, setReplyEmailNote] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | 'open' | 'closed'>('all');
   const [showContext, setShowContext] = useState(true);
   const [soundOn, setSoundOn] = useState(true);
@@ -213,6 +214,7 @@ export default function ChatInbox() {
   useEffect(() => {
     if (!selectedId) return;
     let mounted = true;
+    setReplyEmailNote(null);
     (async () => {
       const { data } = await supabase
         .from('chat_messages')
@@ -251,9 +253,11 @@ export default function ChatInbox() {
     const body = reply.trim();
     if (!body || !selectedId || sending) return;
     setSending(true);
+    setReplyEmailNote(null);
     try {
-      await callAdminChat('send', selectedId, body);
+      const result = await callAdminChat('send', selectedId, body);
       setReply('');
+      if (result?.replyEmail === 'sent') setReplyEmailNote('고객이 자리를 비워 답변 알림 이메일을 보냈어요.');
     } catch {
       alert('전송 실패');
     } finally {
@@ -382,6 +386,12 @@ export default function ChatInbox() {
                           : 'mx-auto bg-gray-100 text-gray-500'
                     }`}
                   >
+                    {m.attachment_url && (
+                      <a href={m.attachment_url} target="_blank" rel="noopener noreferrer" className="mb-1 block">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={m.attachment_url} alt="첨부 사진" className="max-h-60 max-w-full rounded-lg object-contain" />
+                      </a>
+                    )}
                     {m.body}
                     <div className={`mt-1 text-[10px] ${m.sender_type === 'admin' ? 'text-indigo-200' : 'text-gray-400'}`}>
                       {new Date(m.created_at).toLocaleTimeString('ko-KR')}
@@ -404,6 +414,7 @@ export default function ChatInbox() {
                 </button>
               ))}
             </div>
+            {replyEmailNote && <p className="px-3 pt-1 text-[11px] text-emerald-600">{replyEmailNote}</p>}
             <div className="flex items-center gap-2 p-2">
               <input
                 value={reply}

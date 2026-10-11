@@ -68,7 +68,11 @@ export interface ChatSettings {
   welcomeMessage: string;
   /** 오프라인 안내 문구 */
   offlineMessage: string;
+  /** 위젯 헤더에 표시할 응답 예상시간 (언어별 문구는 위젯이 번역) */
+  typicalReply: ChatTypicalReply;
 }
+
+export type ChatTypicalReply = 'none' | 'minutes' | 'hour' | 'hours' | 'day';
 
 export interface SiteSettings {
   general: GeneralSettings;
@@ -140,10 +144,9 @@ export const SITE_SETTING_DEFAULTS: SiteSettings = {
       { enabled: true, from: '10:00', to: '18:00' }, // 금
       { enabled: false, from: '10:00', to: '18:00' }, // 토
     ],
-    welcomeMessage:
-      "안녕하세요! 카피드럼 악보 플랫폼에 오신 것을 환영합니다 :)\n결제나 악보 다운로드에 문제가 있으신가요? 빠르고 정확한 확인을 위해 '가입하신 이메일 주소'와 '결제하신 악보 제목'을 함께 남겨주시면 확인 후 신속하게 도와드리겠습니다!",
-    offlineMessage:
-      "현재는 관리자 오프라인 시간입니다.\n글로벌 시차로 인해 즉각적인 답변은 어렵지만, 문의 내용과 함께 '이메일 주소', '결제하신 악보 제목'을 남겨주시면 업무 시작 후 최우선으로 처리해 드리겠습니다. 고객님의 결제 내역은 안전하게 기록되고 있으니 안심하시고 조금만 기다려주세요! :)",
+    welcomeMessage: '안녕하세요, 카피드럼입니다! :)\n무엇이든 편하게 물어보세요.',
+    offlineMessage: '지금은 운영시간 외예요.\n메시지를 남겨주시면 확인 후 답변드릴게요. :)',
+    typicalReply: 'hours',
   },
 };
 
