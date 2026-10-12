@@ -20,6 +20,12 @@
     "submit": "회원가입",
     "submitting": "가입 중..."
   },
+  "bonus": {
+    "badge": "+{{points}}",
+    "headline": "지금 가입하면 {{points}} 즉시 지급",
+    "detail": "첫 구매부터 1P = 1원으로 바로 쓸 수 있어요. (지급일로부터 {{days}}일간 사용 가능)",
+    "short": "가입 즉시 {{points}} 지급"
+  },
   "divider": "또는",
   "social": {
     "google": "Google",

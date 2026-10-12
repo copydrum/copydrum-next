@@ -1,6 +1,10 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
-import { COLLECTIONS_PUBLIC_ENABLED, SHEET_BOOKS_PUBLIC_ENABLED } from '@/config/featureFlags';
+import {
+  COLLECTIONS_PUBLIC_ENABLED,
+  FREE_LESSONS_PUBLIC_ENABLED,
+  SHEET_BOOKS_PUBLIC_ENABLED,
+} from '@/config/featureFlags';
 
 /**
  * 언어별 Sitemap - /sitemap/{lang}.xml
@@ -47,6 +51,7 @@ const STATIC_PAGES = [
   { path: '/', priority: '1.0', changefreq: 'daily' },
   { path: '/categories', priority: '0.9', changefreq: 'daily' },
   { path: '/collections', priority: '0.9', changefreq: 'weekly' },
+  { path: '/free-lessons', priority: '0.8', changefreq: 'weekly' },
   { path: '/free-sheets', priority: '0.7', changefreq: 'weekly' },
   { path: '/sheet-books', priority: '0.8', changefreq: 'weekly' },
   { path: '/guide', priority: '0.6', changefreq: 'monthly' },
@@ -122,6 +127,7 @@ export async function GET(
   for (const page of STATIC_PAGES) {
     if (!COLLECTIONS_PUBLIC_ENABLED && page.path === '/collections') continue;
     if (!SHEET_BOOKS_PUBLIC_ENABLED && page.path === '/sheet-books') continue;
+    if (!FREE_LESSONS_PUBLIC_ENABLED && page.path === '/free-lessons') continue;
     const loc = page.path === '/'
       ? `${baseUrl}/`
       : `${baseUrl}${page.path}`;
@@ -166,6 +172,26 @@ export async function GET(
 
       offset += sheets.length;
       hasMore = sheets.length === BATCH_SIZE;
+    }
+
+    // ─── 2-1. 무료 드럼 레슨 ───
+    if (FREE_LESSONS_PUBLIC_ENABLED) {
+      const { data: lessons } = await supabase
+        .from('free_lessons')
+        .select('slug, updated_at')
+        .eq('is_published', true)
+        .limit(1000);
+
+      for (const lesson of lessons || []) {
+        const relativePath = `/free-lessons/${encodeURIComponent(lesson.slug)}`;
+        urls += `  <url>\n`;
+        urls += `    <loc>${escapeXml(`${baseUrl}${relativePath}`)}</loc>\n`;
+        urls += buildAlternatesXml(relativePath);
+        urls += `    <lastmod>${formatDate(lesson.updated_at)}</lastmod>\n`;
+        urls += `    <changefreq>weekly</changefreq>\n`;
+        urls += `    <priority>0.7</priority>\n`;
+        urls += `  </url>\n`;
+      }
     }
 
     // ─── 3. 카테고리 (Categories) ───

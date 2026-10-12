@@ -1,0 +1,120 @@
+{
+  "nav": {
+    "label": "무료 레슨"
+  },
+  "seo": {
+    "title": "무료 드럼 레슨 | 영상 보고 PDF 악보로 연습하기 - COPYDRUM",
+    "description": "카피드럼 유튜브 드럼 레슨 영상과 연습용 PDF 악보를 무료로 받아보세요. 기초 비트부터 필인, 루디먼트, 그루브까지 난이도별로 정리되어 있습니다."
+  },
+  "hero": {
+    "badge": "FREE DRUM LESSONS",
+    "title": "무료 드럼 레슨",
+    "subtitle": "유튜브 레슨 영상을 보고, 같은 내용의 연습용 PDF 악보를 무료로 받아 바로 연습하세요.",
+    "stepWatch": "영상으로 배우기",
+    "stepDownload": "PDF 무료로 받기",
+    "stepPractice": "악보 보며 연습하기",
+    "lessonCount": "레슨 {{count}}개",
+    "downloadCount": "누적 {{count}}명 다운로드"
+  },
+  "banner": {
+    "guestTitle": "회원이면 모든 레슨 PDF가 무료",
+    "guestDescription": "가입은 1분이면 끝나요. 로그인하면 원하는 레슨 PDF를 바로 받을 수 있어요.",
+    "signup": "무료 회원가입",
+    "login": "로그인"
+  },
+  "filters": {
+    "all": "전체",
+    "searchPlaceholder": "레슨 제목이나 주제로 검색",
+    "category": "주제",
+    "level": "난이도",
+    "allLevels": "전체 난이도",
+    "sortLatest": "추천·최신순",
+    "sortPopular": "인기순",
+    "myDownloads": "내가 받은 자료",
+    "reset": "필터 초기화"
+  },
+  "categories": {
+    "basics": "기초·입문",
+    "groove": "리듬·그루브",
+    "fill": "필인",
+    "rudiment": "루디먼트",
+    "technique": "테크닉",
+    "song": "곡 레슨",
+    "reading": "악보 읽기"
+  },
+  "levels": {
+    "beginner": "초급",
+    "intermediate": "중급",
+    "advanced": "고급"
+  },
+  "card": {
+    "pdf": "PDF",
+    "pages": "{{count}}쪽",
+    "downloads": "{{count}}명 받음",
+    "downloaded": "받은 자료",
+    "new": "NEW",
+    "featured": "추천",
+    "watch": "영상 보기"
+  },
+  "list": {
+    "count": "레슨 {{count}}개",
+    "featuredTitle": "추천 레슨",
+    "allTitle": "전체 레슨",
+    "empty": "아직 공개된 레슨이 없어요. 곧 새로운 레슨으로 찾아올게요!",
+    "emptyFiltered": "조건에 맞는 레슨이 없어요. 다른 주제나 난이도를 골라보세요."
+  },
+  "detail": {
+    "back": "무료 레슨 목록",
+    "downloadPdf": "PDF 무료 다운로드",
+    "downloadAgain": "PDF 다시 받기",
+    "downloading": "다운로드 준비 중...",
+    "downloadStarted": "다운로드를 시작했어요. 즐거운 연습 되세요!",
+    "memberOnly": "회원 전용 · 무료",
+    "loginToDownload": "로그인하고 PDF 받기",
+    "noPdf": "PDF 준비 중이에요",
+    "pdfPages": "PDF {{count}}쪽",
+    "bpm": "연습 템포",
+    "level": "난이도",
+    "category": "주제",
+    "downloads": "다운로드",
+    "downloadsValue": "{{count}}명",
+    "watchOnYoutube": "유튜브에서 보기",
+    "aboutLesson": "레슨 소개",
+    "pdfPreview": "PDF 미리보기",
+    "pdfPreviewLocked": "회원가입하면 전체 PDF를 무료로 받을 수 있어요",
+    "howToPractice": "이렇게 연습해 보세요",
+    "practiceStep1": "영상을 끝까지 보면서 손발 동작과 소리를 먼저 익혀요.",
+    "practiceStep2": "PDF 악보를 출력하거나 태블릿에 띄워 두세요.",
+    "practiceStep3": "메트로놈을 느린 템포로 켜고, 틀리지 않는 속도로 정확하게 연주해요.",
+    "practiceStep4": "편해지면 템포를 5~10씩 올려 목표 템포까지 연습해요.",
+    "relatedSheets": "이 레슨과 함께 연습하기 좋은 악보",
+    "relatedLessons": "다른 무료 레슨",
+    "moreLessons": "레슨 더 보기",
+    "share": "링크 복사",
+    "linkCopied": "링크를 복사했어요.",
+    "ctaTitle": "레슨으로 익힌 패턴, 실제 곡에서 써 보세요",
+    "ctaDescription": "카피드럼에는 가요·팝·락·CCM 드럼 악보가 준비되어 있어요.",
+    "browseSheets": "드럼 악보 둘러보기"
+  },
+  "gate": {
+    "title": "무료 회원가입하고 PDF를 받아보세요",
+    "description": "레슨 PDF는 카피드럼 회원이면 누구나 무료로 받을 수 있어요.",
+    "benefit1": "모든 무료 레슨 PDF 다운로드",
+    "benefit2": "받은 자료는 언제든 다시 받기",
+    "benefit3": "구매한 악보도 평생 다시 다운로드",
+    "signup": "무료 회원가입",
+    "login": "이미 회원이에요 · 로그인",
+    "close": "닫기"
+  },
+  "errors": {
+    "downloadFailed": "다운로드에 실패했어요. 잠시 후 다시 시도해주세요.",
+    "rateLimited": "짧은 시간에 너무 많이 받았어요. 잠시 후 다시 시도해주세요.",
+    "notFound": "PDF를 찾을 수 없어요. 고객센터로 문의해주세요."
+  },
+  "home": {
+    "title": "무료 드럼 레슨",
+    "badge": "FREE",
+    "description": "영상 보고, PDF 악보 받아서 바로 연습하세요",
+    "viewAll": "전체 보기"
+  }
+}

@@ -1,0 +1,120 @@
+{
+  "nav": {
+    "label": "Free Lessons"
+  },
+  "seo": {
+    "title": "Free Drum Lessons | Watch the Video, Practice with the PDF - COPYDRUM",
+    "description": "Free drum lesson videos with matching practice PDFs from COPYDRUM. Beats, fills, rudiments and grooves organized by level."
+  },
+  "hero": {
+    "badge": "FREE DRUM LESSONS",
+    "title": "Free Drum Lessons",
+    "subtitle": "Watch the lesson video, then download the matching practice PDF for free and start playing.",
+    "stepWatch": "Learn from the video",
+    "stepDownload": "Get the free PDF",
+    "stepPractice": "Practice with the sheet",
+    "lessonCount": "{{count}} lessons",
+    "downloadCount": "{{count}} downloads"
+  },
+  "banner": {
+    "guestTitle": "All lesson PDFs are free for members",
+    "guestDescription": "Signing up takes a minute. Log in and download any lesson PDF right away.",
+    "signup": "Sign up free",
+    "login": "Log in"
+  },
+  "filters": {
+    "all": "All",
+    "searchPlaceholder": "Search lessons by title or topic",
+    "category": "Topic",
+    "level": "Level",
+    "allLevels": "All levels",
+    "sortLatest": "Featured & newest",
+    "sortPopular": "Most popular",
+    "myDownloads": "My downloads",
+    "reset": "Reset filters"
+  },
+  "categories": {
+    "basics": "Basics",
+    "groove": "Grooves",
+    "fill": "Fills",
+    "rudiment": "Rudiments",
+    "technique": "Technique",
+    "song": "Song Lessons",
+    "reading": "Reading"
+  },
+  "levels": {
+    "beginner": "Beginner",
+    "intermediate": "Intermediate",
+    "advanced": "Advanced"
+  },
+  "card": {
+    "pdf": "PDF",
+    "pages": "{{count}}p",
+    "downloads": "{{count}} downloads",
+    "downloaded": "Downloaded",
+    "new": "NEW",
+    "featured": "Featured",
+    "watch": "Watch"
+  },
+  "list": {
+    "count": "{{count}} lessons",
+    "featuredTitle": "Featured lessons",
+    "allTitle": "All lessons",
+    "empty": "No lessons yet. New lessons are coming soon!",
+    "emptyFiltered": "No lessons match these filters. Try another topic or level."
+  },
+  "detail": {
+    "back": "Free lessons",
+    "downloadPdf": "Download free PDF",
+    "downloadAgain": "Download PDF again",
+    "downloading": "Preparing download...",
+    "downloadStarted": "Your download has started. Enjoy practicing!",
+    "memberOnly": "Members only · Free",
+    "loginToDownload": "Log in to download",
+    "noPdf": "PDF coming soon",
+    "pdfPages": "PDF · {{count}} pages",
+    "bpm": "Practice tempo",
+    "level": "Level",
+    "category": "Topic",
+    "downloads": "Downloads",
+    "downloadsValue": "{{count}}",
+    "watchOnYoutube": "Watch on YouTube",
+    "aboutLesson": "About this lesson",
+    "pdfPreview": "PDF preview",
+    "pdfPreviewLocked": "Sign up to download the full PDF for free",
+    "howToPractice": "How to practice",
+    "practiceStep1": "Watch the whole video first and get familiar with the motions and sound.",
+    "practiceStep2": "Print the PDF or open it on a tablet.",
+    "practiceStep3": "Start the metronome slow and play accurately without mistakes.",
+    "practiceStep4": "Once it feels easy, raise the tempo by 5–10 BPM until you reach the target.",
+    "relatedSheets": "Sheet music to practice with this lesson",
+    "relatedLessons": "More free lessons",
+    "moreLessons": "See more lessons",
+    "share": "Copy link",
+    "linkCopied": "Link copied.",
+    "ctaTitle": "Put what you learned into real songs",
+    "ctaDescription": "COPYDRUM has drum sheet music for K-pop, pop, rock, CCM and more.",
+    "browseSheets": "Browse drum sheets"
+  },
+  "gate": {
+    "title": "Sign up free to get the PDF",
+    "description": "Lesson PDFs are free for every COPYDRUM member.",
+    "benefit1": "Download every free lesson PDF",
+    "benefit2": "Re-download your lessons anytime",
+    "benefit3": "Lifetime re-downloads for purchased sheets",
+    "signup": "Sign up free",
+    "login": "I already have an account · Log in",
+    "close": "Close"
+  },
+  "errors": {
+    "downloadFailed": "Download failed. Please try again in a moment.",
+    "rateLimited": "Too many downloads in a short time. Please try again later.",
+    "notFound": "The PDF could not be found. Please contact support."
+  },
+  "home": {
+    "title": "Free Drum Lessons",
+    "badge": "FREE",
+    "description": "Watch the video, grab the PDF, and start practicing",
+    "viewAll": "View all"
+  }
+}

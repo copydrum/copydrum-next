@@ -9,7 +9,11 @@ import type { Profile } from '../../lib/supabase';
 import { googleAuth } from '../../lib/google';
 import { getUserDisplayName } from '../../utils/userDisplayName';
 import { isKoreanSiteHost } from '../../config/hostType';
-import { COLLECTIONS_PUBLIC_ENABLED, SHEET_BOOKS_PUBLIC_ENABLED } from '@/config/featureFlags';
+import {
+  COLLECTIONS_PUBLIC_ENABLED,
+  FREE_LESSONS_PUBLIC_ENABLED,
+  SHEET_BOOKS_PUBLIC_ENABLED,
+} from '@/config/featureFlags';
 import { CashChargeMenuCard } from '../cash/CashChargeEntry';
 
 interface Category {
@@ -33,6 +37,7 @@ interface NavItem {
 const baseMenuItems: NavItem[] = [
   { labelKey: 'nav.categories', href: '/categories', icon: 'ri-apps-line' },
   { labelKey: 'sidebar.nav.collections', href: '/collections', icon: 'ri-stack-line' },
+  { labelKey: 'freeLessons.nav.label', href: '/free-lessons', icon: 'ri-play-circle-line' },
   { labelKey: 'sidebar.nav.drumLesson', href: '/free-sheets', icon: 'ri-book-2-line' },
   { labelKey: 'sidebar.nav.sheetBooks', href: '/sheet-books', icon: 'ri-book-mark-line' },
   { labelKey: 'nav.customOrder', href: '/custom-order', icon: 'ri-edit-line' },
@@ -107,6 +112,9 @@ export default function MobileMenuSidebar({
     }
     if (!SHEET_BOOKS_PUBLIC_ENABLED) {
       items = items.filter((item) => item.href !== '/sheet-books');
+    }
+    if (!FREE_LESSONS_PUBLIC_ENABLED) {
+      items = items.filter((item) => item.href !== '/free-lessons');
     }
     if (isKoreanSite) {
       return items.filter(item => item.labelKey !== 'nav.categories');

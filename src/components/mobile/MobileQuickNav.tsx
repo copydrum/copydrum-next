@@ -4,7 +4,11 @@ import { useLocaleRouter } from '@/hooks/useLocaleRouter';
 import { usePathname } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { removeLocaleFromPathname } from '@/lib/localeUrl';
-import { COLLECTIONS_PUBLIC_ENABLED, SHEET_BOOKS_PUBLIC_ENABLED } from '@/config/featureFlags';
+import {
+  COLLECTIONS_PUBLIC_ENABLED,
+  FREE_LESSONS_PUBLIC_ENABLED,
+  SHEET_BOOKS_PUBLIC_ENABLED,
+} from '@/config/featureFlags';
 
 interface QuickNavItem {
   key: string;
@@ -17,6 +21,7 @@ const quickNavItems: QuickNavItem[] = [
   { key: 'home', labelKey: 'nav.home', href: '/', icon: 'ri-home-4-line' },
   { key: 'categories', labelKey: 'nav.categories', href: '/categories', icon: 'ri-apps-line' },
   { key: 'collections', labelKey: 'nav.collections', href: '/collections', icon: 'ri-stack-line' },
+  { key: 'freeLessons', labelKey: 'freeLessons.nav.label', href: '/free-lessons', icon: 'ri-play-circle-line' },
   { key: 'lesson', labelKey: 'nav.drumLesson', href: '/free-sheets', icon: 'ri-book-2-line' },
   { key: 'sheetBooks', labelKey: 'nav.sheetBooks', href: '/sheet-books', icon: 'ri-book-mark-line' },
   { key: 'customOrder', labelKey: 'nav.customOrder', href: '/custom-order', icon: 'ri-edit-line' },
@@ -39,6 +44,7 @@ export default function MobileQuickNav() {
           .filter((item) => {
             if (item.key === 'collections' && !COLLECTIONS_PUBLIC_ENABLED) return false;
             if (item.key === 'sheetBooks' && !SHEET_BOOKS_PUBLIC_ENABLED) return false;
+            if (item.key === 'freeLessons' && !FREE_LESSONS_PUBLIC_ENABLED) return false;
             return true;
           })
           .map((item) => {

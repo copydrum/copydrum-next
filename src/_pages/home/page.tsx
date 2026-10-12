@@ -14,7 +14,12 @@ import { getSiteCurrency, convertFromKrw, formatCurrency as formatCurrencyUtil }
 import { useSiteLanguage } from '../../hooks/useSiteLanguage';
 import Seo from '../../components/Seo';
 import { languageDomainMap } from '../../config/languageDomainMap';
-import { COLLECTIONS_PUBLIC_ENABLED, SHEET_BOOKS_PUBLIC_ENABLED } from '@/config/featureFlags';
+import {
+  COLLECTIONS_PUBLIC_ENABLED,
+  FREE_LESSONS_PUBLIC_ENABLED,
+  SHEET_BOOKS_PUBLIC_ENABLED,
+} from '@/config/featureFlags';
+import FreeLessonsHomeSection from '@/components/freeLessons/FreeLessonsHomeSection';
 import {
   SHEET_BOOK_GENRE_I18N_KEYS,
   SHEET_BOOK_GENRE_NAMES,
@@ -1566,6 +1571,8 @@ export default function Home() {
             </div>
           </section>
         )}
+
+        {FREE_LESSONS_PUBLIC_ENABLED && <FreeLessonsHomeSection />}
 
         {/* Drum Lesson Books Section (책표지형 카드) — 무료/레슨 상위 노출 */}
         {freeLessonSheets.length > 0 && (

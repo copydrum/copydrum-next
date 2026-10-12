@@ -16,6 +16,7 @@ import CustomOrderDetail from '../../components/admin/CustomOrderDetail';
 import MarketingSettings from '../../components/admin/MarketingSettings';
 import MarketingStatus from '../../components/admin/MarketingStatus';
 import DrumLessonManagement from '../../components/admin/DrumLessonManagement';
+import FreeLessonManagement from '../../components/admin/FreeLessonManagement';
 import SheetBookManagement from '../../components/admin/SheetBookManagement';
 import RichTextEditor from '../../components/admin/RichTextEditor';
 import DashboardTab from '../../components/admin/DashboardTab';
@@ -15355,6 +15356,8 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
         return renderMarketing();
       case 'drum-lessons':
         return <DrumLessonManagement />;
+      case 'free-lessons':
+        return <FreeLessonManagement />;
       case 'sheet-books':
         return <SheetBookManagement />;
       case 'popularity':
@@ -15441,6 +15444,15 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
           >
             <i className="ri-music-line w-5 h-5"></i>
             <span className="text-sm md:text-base">악보 관리</span>
+          </button>
+
+          <button
+            onClick={() => handleMenuClick('free-lessons')}
+            className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-left transition-colors ${activeMenu === 'free-lessons' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100'
+              }`}
+          >
+            <i className="ri-play-circle-line w-5 h-5"></i>
+            <span className="text-sm md:text-base">무료 드럼레슨 관리</span>
           </button>
 
           <button
@@ -15635,6 +15647,7 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
                   {activeMenu === 'dashboard' ? '대시보드' :
                     activeMenu === 'member-list' ? '회원 관리' :
                       activeMenu === 'sheets' ? '악보 관리' :
+                        activeMenu === 'free-lessons' ? '무료 드럼레슨 관리' :
                         activeMenu === 'drum-lessons' ? '드럼레슨 교재 관리' :
                           activeMenu === 'sheet-books' ? '악보집 관리' :
                             activeMenu === 'categories' ? '카테고리 관리' :

@@ -9,3 +9,9 @@ export const COLLECTIONS_PUBLIC_ENABLED = false;
  * false: 메뉴·홈·사이트맵에서 숨김 (/sheet-books URL·관리자·기존 구매자 다운로드는 유지)
  */
 export const SHEET_BOOKS_PUBLIC_ENABLED = true;
+
+/**
+ * 고객-facing 사이트에서 무료 드럼 레슨 코너(/free-lessons) 노출 여부.
+ * false: 메뉴·홈·사이트맵에서 숨김 (/free-lessons URL·관리자 등록은 유지)
+ */
+export const FREE_LESSONS_PUBLIC_ENABLED = true;

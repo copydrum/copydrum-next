@@ -9,7 +9,11 @@ import LanguageSelector from './LanguageSelector';
 import { useLocaleRouter } from '@/hooks/useLocaleRouter';
 import { getLocaleFromPathname, removeLocaleFromPathname } from '@/lib/localeUrl';
 import { useCart } from '../../hooks/useCart';
-import { COLLECTIONS_PUBLIC_ENABLED, SHEET_BOOKS_PUBLIC_ENABLED } from '@/config/featureFlags';
+import {
+  COLLECTIONS_PUBLIC_ENABLED,
+  FREE_LESSONS_PUBLIC_ENABLED,
+  SHEET_BOOKS_PUBLIC_ENABLED,
+} from '@/config/featureFlags';
 import { CashChargeHeaderButton } from '@/components/cash/CashChargeEntry';
 
 interface MainHeaderProps {
@@ -328,6 +332,19 @@ export default function MainHeader({ user }: MainHeaderProps) {
               </a>
             );
           })}
+          {FREE_LESSONS_PUBLIC_ENABLED && (
+            <button
+              onClick={() => router.push('/free-lessons')}
+              className={`font-semibold text-lg whitespace-nowrap cursor-pointer transition-all duration-200 ${
+                removeLocaleFromPathname(pathname).startsWith('/free-lessons')
+                  ? 'text-purple-300 underline'
+                  : 'text-white hover:text-purple-300 hover:underline'
+              }`}
+              suppressHydrationWarning
+            >
+              {t('freeLessons.nav.label')}
+            </button>
+          )}
           {/* Drum Lesson Menu */}
           <button
             onClick={() => router.push('/free-sheets?tab=books')}
