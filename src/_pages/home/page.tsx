@@ -1,7 +1,7 @@
 'use client';
 import { useLocaleRouter } from '@/hooks/useLocaleRouter';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { preload } from 'react-dom';
 import { supabase } from '../../lib/supabase';
 import type { User } from '@supabase/supabase-js';
@@ -17,6 +17,7 @@ import Seo from '../../components/Seo';
 import { languageDomainMap } from '../../config/languageDomainMap';
 import {
   COLLECTIONS_PUBLIC_ENABLED,
+  DRUM_LESSON_BOOKS_PUBLIC_ENABLED,
   FREE_LESSONS_PUBLIC_ENABLED,
   SHEET_BOOKS_PUBLIC_ENABLED,
 } from '@/config/featureFlags';
@@ -87,6 +88,9 @@ interface HomeSheetBook {
   genres: string[];
 }
 
+// 글로벌 사이트(비한국어)에서 메인 레일에 노출하지 않을 한국 장르
+const GLOBAL_HIDDEN_GENRES = ['가요', '트로트/성인가요', 'CCM', 'OST'];
+const POPULAR_GENRE_LIST = ['가요', '팝', '락'];
 
 export default function Home() {
   // LCP 개선: 최상단 히어로 배너 이미지를 우선 프리로드
@@ -116,12 +120,20 @@ export default function Home() {
   const { i18n, t } = useTranslation();
   const { isKoreanSite } = useSiteLanguage();
 
-  // 글로벌 사이트(비한국어)에서 메인 레일에 노출하지 않을 한국 장르
-  const GLOBAL_HIDDEN_GENRES = ['가요', '트로트/성인가요', 'CCM', 'OST'];
-  const latestGenreListBase = ['가요', '팝', '락', 'CCM', '트로트/성인가요', '재즈', 'J-POP', 'OST'];
+  const latestGenreListBase = ['가요', '팝', '락', '트로트/성인가요', '재즈', 'J-POP', 'OST'];
   const latestGenreList = isKoreanSite
     ? latestGenreListBase
     : latestGenreListBase.filter((g) => !GLOBAL_HIDDEN_GENRES.includes(g));
+
+  const popularGenreCategories = useMemo(
+    () =>
+      categories.filter(
+        (c) =>
+          POPULAR_GENRE_LIST.includes(c.name) &&
+          (isKoreanSite || !GLOBAL_HIDDEN_GENRES.includes(c.name))
+      ),
+    [categories, isKoreanSite]
+  );
 
   const loadLatestSheets = useCallback(async (genreId?: string) => {
     try {
@@ -385,31 +397,10 @@ export default function Home() {
 
   useEffect(() => {
     // Popular Sheets에서 첫 번째 장르를 자동 선택 (카테고리 로드 후, selectedGenre가 비어있을 때만)
-    if (categories.length > 0 && !selectedGenre) {
-      // 글로벌 사이트용 장르 순서 정의
-      const globalGenreOrder = ['팝', '락', '가요', '재즈', 'J-POP', 'OST', 'CCM', '트로트/성인가요', '드럼솔로', '드럼커버'];
-      
-      // 한국 사이트는 기존 categories 순서 사용, 글로벌 사이트는 새로운 순서 사용
-      const sortedCategories = isKoreanSite
-        ? categories
-        : [...categories]
-            .filter((c) => !GLOBAL_HIDDEN_GENRES.includes(c.name))
-            .sort((a, b) => {
-              const indexA = globalGenreOrder.indexOf(a.name);
-              const indexB = globalGenreOrder.indexOf(b.name);
-              // 순서에 없는 항목은 끝으로
-              if (indexA === -1 && indexB === -1) return 0;
-              if (indexA === -1) return 1;
-              if (indexB === -1) return -1;
-              return indexA - indexB;
-            });
-      
-      // 첫 번째 장르 자동 선택
-      if (sortedCategories.length > 0) {
-        setSelectedGenre(sortedCategories[0].id);
-      }
+    if (popularGenreCategories.length > 0 && !selectedGenre) {
+      setSelectedGenre(popularGenreCategories[0].id);
     }
-  }, [categories, isKoreanSite, selectedGenre]);
+  }, [popularGenreCategories, selectedGenre]);
 
 
   useEffect(() => {
@@ -1142,25 +1133,7 @@ export default function Home() {
               {/* Genre filter */}
               <div className="mb-6 flex flex-wrap gap-2">
                 {(() => {
-                  // 글로벌 사이트용 장르 순서 정의
-                  const globalGenreOrder = ['팝', '락', '가요', '재즈', 'J-POP', 'OST', 'CCM', '트로트/성인가요', '드럼솔로', '드럼커버'];
-                  
-                  // 한국 사이트는 기존 categories 순서 사용, 글로벌 사이트는 새로운 순서 사용
-                  const sortedCategories = isKoreanSite
-                    ? categories
-                    : [...categories]
-                        .filter((c) => !GLOBAL_HIDDEN_GENRES.includes(c.name))
-                        .sort((a, b) => {
-                          const indexA = globalGenreOrder.indexOf(a.name);
-                          const indexB = globalGenreOrder.indexOf(b.name);
-                          // 순서에 없는 항목은 끝으로
-                          if (indexA === -1 && indexB === -1) return 0;
-                          if (indexA === -1) return 1;
-                          if (indexB === -1) return -1;
-                          return indexA - indexB;
-                        });
-
-                  return sortedCategories.map((category) => {
+                  return popularGenreCategories.map((category) => {
                     // ✅ 장르 이름을 번역하는 함수 (Sheet Detail Page와 동일한 로직)
                     const getGenreName = (categoryName: string | null | undefined): string => {
                       if (!categoryName) return '';
@@ -1578,7 +1551,7 @@ export default function Home() {
         {FREE_LESSONS_PUBLIC_ENABLED && <FreeLessonsHomeSection />}
 
         {/* Drum Lesson Books Section (책표지형 카드) — 무료/레슨 상위 노출 */}
-        {freeLessonSheets.length > 0 && (
+        {DRUM_LESSON_BOOKS_PUBLIC_ENABLED && freeLessonSheets.length > 0 && (
           <section className="py-8 md:py-16">
             <div className="max-w-7xl mx-auto">
               {/* Section Header */}
@@ -1893,7 +1866,7 @@ export default function Home() {
         )}
 
         {/* Drum Lesson Materials Section (개별 자료) — 교재와 분리 노출, 무료 유입 */}
-        {lessonMaterials.length > 0 && (
+        {DRUM_LESSON_BOOKS_PUBLIC_ENABLED && lessonMaterials.length > 0 && (
           <section className="py-8 md:py-16">
             <div className="max-w-7xl mx-auto">
               <div className="mb-5 md:mb-8 flex items-center justify-between">
@@ -2200,6 +2173,7 @@ export default function Home() {
       </div>
 
       {/* Drum Lesson Books CTA — 교재 판매 컨셉 */}
+      {DRUM_LESSON_BOOKS_PUBLIC_ENABLED && (
       <section className="py-10 md:py-16 bg-gradient-to-br from-amber-600 via-orange-600 to-rose-600 text-white relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-5 left-10 w-24 h-24 border-2 border-white rounded-2xl rotate-12"></div>
@@ -2251,6 +2225,7 @@ export default function Home() {
           </div>
         </div>
       </section>
+      )}
 
       {/* Custom Order CTA */}
       <div className="">
