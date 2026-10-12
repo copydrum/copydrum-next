@@ -7,6 +7,10 @@
   "orderNumber": "Số đơn hàng",
   "categoryNotSet": "Chưa đặt danh mục",
   "deletedSheet": "Bản nhạc đã xóa",
+  "tabs": {
+    "downloadable": "Có thể tải xuống",
+    "pending": "Chờ thanh toán"
+  },
   "status": {
     "pending": "Đang chờ thanh toán",
     "pendingDesc": "Đang chờ xác nhận thanh toán.",

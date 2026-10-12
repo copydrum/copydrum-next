@@ -7,6 +7,10 @@
   "orderNumber": "注文番号",
   "categoryNotSet": "カテゴリ未設定",
   "deletedSheet": "削除された楽譜",
+  "tabs": {
+    "downloadable": "ダウンロード可能",
+    "pending": "お支払い待ち"
+  },
   "status": {
     "pending": "決済待ち",
     "pendingDesc": "決済確認を待っています。",

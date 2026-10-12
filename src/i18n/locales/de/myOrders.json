@@ -7,6 +7,10 @@
   "orderNumber": "Bestellnummer",
   "categoryNotSet": "Kategorie nicht festgelegt",
   "deletedSheet": "Gelöschte Noten",
+  "tabs": {
+    "downloadable": "Herunterladbar",
+    "pending": "Zahlung ausstehend"
+  },
   "status": {
     "pending": "Zahlung ausstehend",
     "pendingDesc": "Warten auf Zahlungsbestätigung.",

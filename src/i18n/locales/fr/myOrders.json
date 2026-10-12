@@ -7,6 +7,10 @@
   "orderNumber": "Numéro de commande",
   "categoryNotSet": "Catégorie non définie",
   "deletedSheet": "Partition supprimée",
+  "tabs": {
+    "downloadable": "Téléchargeables",
+    "pending": "Paiement en attente"
+  },
   "status": {
     "pending": "Paiement en attente",
     "pendingDesc": "En attente de confirmation du paiement.",

@@ -7,6 +7,10 @@
   "orderNumber": "Nomor Pesanan",
   "categoryNotSet": "Kategori Tidak Ditetapkan",
   "deletedSheet": "Partitur Dihapus",
+  "tabs": {
+    "downloadable": "Dapat diunduh",
+    "pending": "Menunggu pembayaran"
+  },
   "status": {
     "pending": "Pembayaran Tertunda",
     "pendingDesc": "Menunggu konfirmasi pembayaran.",

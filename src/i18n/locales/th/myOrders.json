@@ -7,6 +7,10 @@
   "orderNumber": "หมายเลขคำสั่งซื้อ",
   "categoryNotSet": "ไม่ได้ตั้งหมวดหมู่",
   "deletedSheet": "โน้ตเพลงที่ถูกลบ",
+  "tabs": {
+    "downloadable": "ดาวน์โหลดได้",
+    "pending": "รอชำระเงิน"
+  },
   "status": {
     "pending": "รอการชำระเงิน",
     "pendingDesc": "กำลังรอการยืนยันการชำระเงิน",

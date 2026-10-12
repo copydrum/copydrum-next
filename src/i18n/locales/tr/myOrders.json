@@ -7,6 +7,10 @@
   "orderNumber": "Sipariş Numarası",
   "categoryNotSet": "Kategori Belirlenmemiş",
   "deletedSheet": "Silinmiş Nota",
+  "tabs": {
+    "downloadable": "İndirilebilir",
+    "pending": "Ödeme bekleniyor"
+  },
   "status": {
     "pending": "Ödeme Bekleniyor",
     "pendingDesc": "Ödeme onayı bekleniyor.",

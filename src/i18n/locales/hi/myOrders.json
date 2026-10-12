@@ -7,6 +7,10 @@
   "orderNumber": "ऑर्डर नंबर",
   "categoryNotSet": "श्रेणी सेट नहीं की गई",
   "deletedSheet": "हटाया गया शीट",
+  "tabs": {
+    "downloadable": "डाउनलोड योग्य",
+    "pending": "भुगतान लंबित"
+  },
   "status": {
     "pending": "भुगतान लंबित",
     "pendingDesc": "भुगतान पुष्टि की प्रतीक्षा कर रहे हैं।",

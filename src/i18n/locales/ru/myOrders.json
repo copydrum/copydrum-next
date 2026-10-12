@@ -7,6 +7,10 @@
   "orderNumber": "Номер заказа",
   "categoryNotSet": "Категория не установлена",
   "deletedSheet": "Удаленная нота",
+  "tabs": {
+    "downloadable": "Доступно для скачивания",
+    "pending": "Ожидает оплаты"
+  },
   "status": {
     "pending": "Ожидание оплаты",
     "pendingDesc": "Ожидание подтверждения оплаты.",

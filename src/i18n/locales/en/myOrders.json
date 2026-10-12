@@ -7,6 +7,10 @@
   "orderNumber": "Order Number",
   "categoryNotSet": "Category Not Set",
   "deletedSheet": "Deleted Sheet",
+  "tabs": {
+    "downloadable": "Downloadable",
+    "pending": "Pending Payment"
+  },
   "status": {
     "pending": "Payment Pending",
     "pendingDesc": "Waiting for payment confirmation.",

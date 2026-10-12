@@ -1,4 +1,5 @@
 import LocaleSync from './LocaleSync';
+import LocaleI18nProvider from './LocaleI18nProvider';
 import ClientLayout from './layout-client';
 
 export default async function LocaleLayout({
@@ -13,9 +14,11 @@ export default async function LocaleLayout({
   return (
     <div lang={locale}>
       <LocaleSync locale={locale} />
-      <ClientLayout>
-        {children}
-      </ClientLayout>
+      <LocaleI18nProvider locale={locale}>
+        <ClientLayout>
+          {children}
+        </ClientLayout>
+      </LocaleI18nProvider>
     </div>
   );
 }

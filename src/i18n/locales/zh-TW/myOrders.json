@@ -7,6 +7,10 @@
   "orderNumber": "訂單號",
   "categoryNotSet": "未設定類別",
   "deletedSheet": "已刪除的樂譜",
+  "tabs": {
+    "downloadable": "可下載",
+    "pending": "待付款"
+  },
   "status": {
     "pending": "待付款",
     "pendingDesc": "等待付款確認。",

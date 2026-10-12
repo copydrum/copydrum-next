@@ -7,6 +7,10 @@
   "orderNumber": "Numero Ordine",
   "categoryNotSet": "Categoria Non Impostata",
   "deletedSheet": "Spartito Eliminato",
+  "tabs": {
+    "downloadable": "Scaricabili",
+    "pending": "Pagamento in sospeso"
+  },
   "status": {
     "pending": "Pagamento in Attesa",
     "pendingDesc": "In attesa di conferma del pagamento.",

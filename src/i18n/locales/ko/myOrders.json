@@ -7,6 +7,10 @@
   "orderNumber": "주문번호",
   "categoryNotSet": "카테고리 미설정",
   "deletedSheet": "삭제된 악보",
+  "tabs": {
+    "downloadable": "다운로드 가능",
+    "pending": "결제 대기"
+  },
   "status": {
     "pending": "결제 대기",
     "pendingDesc": "결제 확인을 기다리고 있습니다.",
