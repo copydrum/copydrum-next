@@ -6774,7 +6774,7 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
       setDashboardAnalyticsError(null);
 
       try {
-        // 서버 캐시(5분 TTL) + service-role 집계로 IO 절감
+        // 서버 캐시(1분 TTL) + service-role 집계로 IO 절감
         const params = new URLSearchParams({ period });
         if (opts?.force) params.set('force', '1');
         const res = await fetch(`/api/admin/dashboard-analytics?${params.toString()}`, {
@@ -7260,7 +7260,7 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
         period={dashboardAnalyticsPeriod}
         onPeriodChange={setDashboardAnalyticsPeriod}
         onRefresh={() => {
-          void loadDashboardAnalytics(dashboardAnalyticsPeriod);
+          void loadDashboardAnalytics(dashboardAnalyticsPeriod, { force: true });
         }}
         data={dashboardAnalyticsData}
         loading={dashboardAnalyticsLoading}

@@ -10,11 +10,12 @@ import {
 // 어드민 이메일 (admin/page.tsx 와 동일하게 유지)
 const ADMIN_EMAILS = ['copydrum@hanmail.net'];
 
-// 모듈 스코프 in-memory 캐시 (period 별로 5분 TTL)
+// 모듈 스코프 in-memory 캐시 (period 별로 1분 TTL)
 // 서버리스 인스턴스 단위로 동작. 단일 사이트의 어드민 새로고침은
 // 같은 인스턴스에 라우팅될 가능성이 높아 cache hit 률이 매우 높음.
+// 매출 반영 지연이 TTL만큼 생기므로 짧게 유지하고, 수동 새로고침은 force=1로 우회.
 type CacheEntry = { data: DashboardAnalyticsResult; expiresAt: number };
-const CACHE_TTL_MS = 5 * 60 * 1000; // 5분
+const CACHE_TTL_MS = 60 * 1000; // 1분
 const cache = new Map<DashboardAnalyticsPeriod, CacheEntry>();
 
 const VALID_PERIODS: DashboardAnalyticsPeriod[] = ['daily', 'weekly', 'monthly'];
