@@ -40,14 +40,14 @@
       "address": "copydrum@hanmail.net",
       "description": "24시간 접수, 1일 내 답변"
     },
-    "kakao": {
-      "title": "카카오톡 상담",
-      "description": "실시간 채팅 상담을 이용할 수 있습니다.",
-      "button": "카카오톡 상담 바로가기"
+    "chat": {
+      "title": "채팅 상담",
+      "description": "운영시간 외에도 메시지를 남겨주시면 답변드려요.",
+      "button": "채팅 상담하기"
     },
     "hours": {
       "title": "운영 시간",
-      "weekdays": "평일 09:00 - 17:00",
+      "weekdays": "평일 10:00 - 17:00",
       "closed": "주말 및 공휴일 휴무"
     }
   },

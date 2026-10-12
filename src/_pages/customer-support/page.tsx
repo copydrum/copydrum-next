@@ -7,15 +7,14 @@ import { useTranslation } from 'react-i18next';
 import MainHeader from '../../components/common/MainHeader';
 import Footer from '../../components/common/Footer';
 import { supabase } from '../../lib/supabase';
+import { openChatWidget } from '../../lib/chat/openChat';
 import type { User } from '@supabase/supabase-js';
 
 export default function CustomerSupport() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const searchParams = useSearchParams();
   const router = useLocaleRouter();
 
-  // 한국어 여부 확인 (ko 또는 ko-KR)
-  const isKorean = i18n.language === 'ko' || i18n.language === 'ko-KR';
   const [activeTab, setActiveTab] = useState<'faq' | 'contact'>(() =>
     searchParams.get('tab') === 'contact' ? 'contact' : 'faq',
   );
@@ -197,10 +196,6 @@ export default function CustomerSupport() {
       setSubmitting(false);
     }
   };
-
-  const handleOpenKakaoChannel = useCallback(() => {
-    window.open('https://pf.kakao.com/_Hbxezxl/chat', '_blank', 'noopener,noreferrer');
-  }, []);
 
   return (
     <div className="min-h-screen bg-white pb-24 md:pb-0">
@@ -407,7 +402,7 @@ export default function CustomerSupport() {
             </p>
           </div>
           
-          <div className={`grid grid-cols-1 gap-6 md:gap-8 ${isKorean ? 'md:grid-cols-3' : 'md:grid-cols-2'}`}>
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-3 md:gap-8">
             <div className="flex items-start gap-4 rounded-2xl bg-white p-5 shadow-sm md:flex-col md:items-center md:text-center">
               <div className="w-14 h-14 md:w-16 md:h-16 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-xl md:text-2xl">
                 <i className="ri-mail-line" />
@@ -419,24 +414,23 @@ export default function CustomerSupport() {
               </div>
             </div>
 
-            {/* 카카오톡 상담 - 한국어일 때만 표시 */}
-            {isKorean && (
-              <div className="flex items-start gap-4 rounded-2xl bg-white p-5 shadow-sm md:flex-col md:items-center md:text-center">
-                <div className="w-14 h-14 md:w-16 md:h-16 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-600 text-xl md:text-2xl">
-                  <i className="ri-kakao-talk-fill" />
-                </div>
-                <div className="md:space-y-2">
-                  <h3 className="text-base font-semibold text-gray-900 md:text-lg">{t('customerSupport.contactInfo.kakao.title')}</h3>
-                  <p className="text-sm text-gray-600">{t('customerSupport.contactInfo.kakao.description')}</p>
-                  <button
-                    onClick={handleOpenKakaoChannel}
-                    className="mt-3 inline-flex items-center px-4 py-2 border border-transparent text-xs font-semibold rounded-lg text-gray-900 bg-yellow-400 hover:bg-yellow-500 shadow-sm transition-colors md:text-sm"
-                  >
-                    {t('customerSupport.contactInfo.kakao.button')}
-                  </button>
-                </div>
+            <div className="flex items-start gap-4 rounded-2xl bg-white p-5 shadow-sm md:flex-col md:items-center md:text-center">
+              <div className="w-14 h-14 md:w-16 md:h-16 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 text-xl md:text-2xl">
+                <i className="ri-chat-smile-3-line" />
               </div>
-            )}
+              <div className="md:space-y-2">
+                <h3 className="text-base font-semibold text-gray-900 md:text-lg">{t('customerSupport.contactInfo.chat.title')}</h3>
+                <p className="text-sm text-gray-600">{t('customerSupport.contactInfo.chat.description')}</p>
+                <button
+                  type="button"
+                  onClick={openChatWidget}
+                  className="mt-3 inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-lg text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 shadow-sm transition-colors md:text-sm"
+                >
+                  <i className="ri-chat-3-line" />
+                  {t('customerSupport.contactInfo.chat.button')}
+                </button>
+              </div>
+            </div>
 
             <div className="flex items-start gap-4 rounded-2xl bg-white p-5 shadow-sm md:flex-col md:items-center md:text-center">
               <div className="w-14 h-14 md:w-16 md:h-16 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 text-xl md:text-2xl">

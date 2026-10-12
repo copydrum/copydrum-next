@@ -40,14 +40,14 @@
       "address": "copydrum@hanmail.net",
       "description": "24時間受付、1日以内に回答"
     },
-    "kakao": {
-      "title": "カカオトーク相談",
-      "description": "リアルタイムチャット相談をご利用いただけます。",
-      "button": "カカオトークチャットを開く"
+    "chat": {
+      "title": "チャット相談",
+      "description": "営業時間外でもメッセージを残していただけます。",
+      "button": "チャットで相談する"
     },
     "hours": {
       "title": "営業時間",
-      "weekdays": "平日 09:00 - 17:00",
+      "weekdays": "平日 10:00 - 17:00 (KST)",
       "closed": "週末・祝日は休業"
     }
   },

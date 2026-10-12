@@ -40,14 +40,14 @@
       "address": "copydrum@hanmail.net",
       "description": "Tiếp nhận 24/7, phản hồi trong vòng 1 ngày"
     },
-    "kakao": {
-      "title": "Tư vấn KakaoTalk",
-      "description": "Bạn có thể sử dụng tư vấn trò chuyện thời gian thực.",
-      "button": "Mở trò chuyện KakaoTalk"
+    "chat": {
+      "title": "Trò chuyện trực tuyến",
+      "description": "Bạn có thể để lại tin nhắn bất cứ lúc nào, kể cả ngoài giờ làm việc.",
+      "button": "Bắt đầu trò chuyện"
     },
     "hours": {
       "title": "Giờ làm việc",
-      "weekdays": "Ngày trong tuần 09:00 - 17:00",
+      "weekdays": "Ngày trong tuần 10:00 - 17:00 (KST)",
       "closed": "Đóng cửa vào cuối tuần và ngày lễ"
     }
   },

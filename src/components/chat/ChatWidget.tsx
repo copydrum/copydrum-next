@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { supabase } from '@/lib/supabase';
 import { removeLocaleFromPathname } from '@/lib/localeUrl';
 import { isChatOnline } from '@/lib/chat/online';
+import { OPEN_CHAT_EVENT } from '@/lib/chat/openChat';
 import { getChatStrings } from '@/lib/chat/strings';
 import {
   getChatWelcomeMessage,
@@ -185,6 +186,12 @@ export default function ChatWidget() {
     ['chat', 'c', 't'].forEach((k) => params.delete(k));
     const qs = params.toString();
     window.history.replaceState(null, '', `${window.location.pathname}${qs ? `?${qs}` : ''}${window.location.hash}`);
+  }, []);
+
+  useEffect(() => {
+    const handleOpen = () => setOpen(true);
+    window.addEventListener(OPEN_CHAT_EVENT, handleOpen);
+    return () => window.removeEventListener(OPEN_CHAT_EVENT, handleOpen);
   }, []);
 
   // 로그아웃·계정 전환 시 이전 대화 정리

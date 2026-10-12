@@ -40,14 +40,14 @@
       "address": "copydrum@hanmail.net",
       "description": "24/7接收，1天内回复"
     },
-    "kakao": {
-      "title": "KakaoTalk咨询",
-      "description": "您可以使用实时聊天咨询。",
-      "button": "打开KakaoTalk聊天"
+    "chat": {
+      "title": "在线聊天咨询",
+      "description": "非营业时间也可以给我们留言。",
+      "button": "开始聊天"
     },
     "hours": {
       "title": "营业时间",
-      "weekdays": "工作日 09:00 - 17:00",
+      "weekdays": "工作日 10:00 - 17:00 (KST)",
       "closed": "周末和节假日休息"
     }
   },

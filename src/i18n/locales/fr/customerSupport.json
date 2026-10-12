@@ -40,14 +40,14 @@
       "address": "copydrum@hanmail.net",
       "description": "Réception 24/7, réponse sous 1 jour"
     },
-    "kakao": {
-      "title": "Consultation KakaoTalk",
-      "description": "Vous pouvez utiliser la consultation par chat en temps réel.",
-      "button": "Ouvrir le chat KakaoTalk"
+    "chat": {
+      "title": "Chat en direct",
+      "description": "Laissez-nous un message à tout moment, même en dehors des heures d'ouverture.",
+      "button": "Démarrer le chat"
     },
     "hours": {
       "title": "Heures d'ouverture",
-      "weekdays": "Jours ouvrables 09:00 - 17:00",
+      "weekdays": "Jours ouvrables 10:00 - 17:00 (KST)",
       "closed": "Fermé les week-ends et jours fériés"
     }
   },

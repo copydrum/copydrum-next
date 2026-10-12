@@ -40,14 +40,14 @@
       "address": "copydrum@hanmail.net",
       "description": "7/24 kabul, 1 gün içinde yanıt"
     },
-    "kakao": {
-      "title": "KakaoTalk Danışmanlığı",
-      "description": "Gerçek zamanlı sohbet danışmanlığı kullanabilirsiniz.",
-      "button": "KakaoTalk Sohbetini Aç"
+    "chat": {
+      "title": "Canlı Sohbet",
+      "description": "Çalışma saatleri dışında da bize istediğiniz zaman mesaj bırakabilirsiniz.",
+      "button": "Sohbet Başlat"
     },
     "hours": {
       "title": "Çalışma Saatleri",
-      "weekdays": "Hafta içi 09:00 - 17:00",
+      "weekdays": "Hafta içi 10:00 - 17:00 (KST)",
       "closed": "Hafta sonları ve resmi tatillerde kapalı"
     }
   },

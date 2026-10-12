@@ -40,14 +40,14 @@
       "address": "copydrum@hanmail.net",
       "description": "Penerimaan 24/7, respons dalam 1 hari"
     },
-    "kakao": {
-      "title": "Konsultasi KakaoTalk",
-      "description": "Anda dapat menggunakan konsultasi chat real-time.",
-      "button": "Buka Chat KakaoTalk"
+    "chat": {
+      "title": "Live Chat",
+      "description": "Tinggalkan pesan kapan saja, bahkan di luar jam operasional.",
+      "button": "Mulai Chat"
     },
     "hours": {
       "title": "Jam Operasional",
-      "weekdays": "Hari kerja 09:00 - 17:00",
+      "weekdays": "Hari kerja 10:00 - 17:00 (KST)",
       "closed": "Tutup pada akhir pekan dan hari libur"
     }
   },
