@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { supabase } from '../../lib/supabase';
 import Footer from '../../components/common/Footer';
 import MainHeader from '../../components/common/MainHeader';
+import { SignupBonusBanner } from '../../components/auth/SignupBonus';
 
 export default function Register() {
   const { t } = useTranslation();
@@ -194,6 +195,9 @@ export default function Register() {
 
           <div className="mt-8">
             <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+              <div className="mb-6 empty:hidden">
+                <SignupBonusBanner />
+              </div>
               <form className="space-y-6" onSubmit={handleSubmit}>
                 {error && (
                   <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm">

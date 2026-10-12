@@ -9,6 +9,7 @@ import { isGlobalSiteHost } from '../../config/hostType';
 import { useCart } from '../../hooks/useCart';
 import { getLanguageFromPath } from '../../i18n/languages';
 import { CashChargeMobileHeaderButton } from '../cash/CashChargeEntry';
+import { SignupBonusBadge } from '../auth/SignupBonus';
 
 interface MobileHeaderProps {
   user?: User | null;
@@ -128,10 +129,11 @@ export default function MobileHeader({
               type="button"
               onClick={() => router.push('/auth/register')}
               aria-label={t('header.signup')}
-              className="flex items-center justify-center px-3 py-1.5 rounded-md text-sm font-medium text-white hover:bg-blue-600 transition-colors"
+              className="relative flex items-center justify-center px-3 py-1.5 rounded-md text-sm font-medium text-white hover:bg-blue-600 transition-colors"
               suppressHydrationWarning
             >
               {t('header.signup')}
+              <SignupBonusBadge variant="cornerSm" />
             </button>
           )}
           <button

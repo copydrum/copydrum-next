@@ -16,6 +16,7 @@ import {
   SHEET_BOOKS_PUBLIC_ENABLED,
 } from '@/config/featureFlags';
 import { CashChargeMenuCard } from '../cash/CashChargeEntry';
+import { SignupBonusBadge } from '../auth/SignupBonus';
 import { useEventSales } from '../../hooks/useEventSales';
 
 interface Category {
@@ -400,6 +401,7 @@ export default function MobileMenuSidebar({
                 className="flex w-full items-center justify-center rounded-xl bg-gray-100 px-4 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-200 transition-colors"
               >
                 {t('header.signup')}
+                <SignupBonusBadge variant="inline" />
               </button>
             </>
           )}

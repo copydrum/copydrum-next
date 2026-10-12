@@ -8,6 +8,7 @@ import { supabase } from '../../lib/supabase';
 import { getSiteUrl } from '../../lib/siteUrl';
 import Footer from '../../components/common/Footer';
 import MainHeader from '../../components/common/MainHeader';
+import { SignupBonusBadge } from '../../components/auth/SignupBonus';
 import { useLocaleRouter } from '@/hooks/useLocaleRouter';
 import { removeLocaleFromPathname, getLocalizedUrl } from '@/lib/localeUrl';
 
@@ -431,6 +432,7 @@ export default function Login() {
               {t('authLogin.noAccount')}{' '}
               <Link href="/register" className="font-medium text-blue-600 hover:text-blue-500 cursor-pointer">
                 {t('authLogin.signUp')}
+                <SignupBonusBadge variant="inline" />
               </Link>
             </p>
           </div>

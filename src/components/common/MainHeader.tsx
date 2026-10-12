@@ -17,6 +17,7 @@ import {
   SHEET_BOOKS_PUBLIC_ENABLED,
 } from '@/config/featureFlags';
 import { CashChargeHeaderButton } from '@/components/cash/CashChargeEntry';
+import { SignupBonusBadge } from '@/components/auth/SignupBonus';
 
 interface MainHeaderProps {
   user?: User | null;
@@ -252,10 +253,11 @@ export default function MainHeader({ user }: MainHeaderProps) {
                 </button>
                 <button
                   onClick={() => router.push('/auth/register')}
-                  className="text-white hover:text-purple-300 text-sm font-medium px-3 py-1.5 rounded-md hover:bg-white/10 transition-colors cursor-pointer"
+                  className="relative text-white hover:text-purple-300 text-sm font-medium px-3 py-1.5 rounded-md hover:bg-white/10 transition-colors cursor-pointer"
                   suppressHydrationWarning
                 >
                   {t('sidebar.header.signup')}
+                  <SignupBonusBadge />
                 </button>
               </>
             )}
