@@ -42,6 +42,7 @@ const LOCAL_PREFIX = 'local-';
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const TEASER_STORAGE_KEY = 'cd_chat_teaser_dismissed_v1';
 const TEASER_DELAY_MS = 4000;
+const TEASER_MOBILE_AUTO_HIDE_MS = 6000;
 const GUEST_POLL_MS = 3500;
 const UNREAD_POLL_MS = 30_000;
 const SEEN_HEARTBEAT_MS = 30_000;
@@ -300,6 +301,13 @@ export default function ChatWidget() {
       /* ignore */
     }
   }, []);
+
+  // 모바일에서는 말풍선이 본문 카드를 가리므로 잠시 보여준 뒤 자동으로 닫음
+  useEffect(() => {
+    if (!showTeaser || !isMobile) return;
+    const timer = window.setTimeout(dismissTeaser, TEASER_MOBILE_AUTO_HIDE_MS);
+    return () => window.clearTimeout(timer);
+  }, [showTeaser, isMobile, dismissTeaser]);
 
   const scrollToBottom = useCallback(() => {
     requestAnimationFrame(() => {
@@ -790,7 +798,11 @@ export default function ChatWidget() {
 
       {/* 첫 방문 안내 말풍선 */}
       {showTeaser && !open && (
-        <div className="relative mb-3 max-w-[240px] rounded-2xl rounded-br-md border border-gray-200 bg-white py-3 pl-4 pr-8 text-sm text-gray-800 shadow-lg">
+        <div
+          className={`relative mb-3 rounded-2xl rounded-br-md border border-gray-200 bg-white text-gray-800 shadow-lg ${
+            isMobile ? 'max-w-[200px] py-2 pl-3 pr-7 text-xs' : 'max-w-[240px] py-3 pl-4 pr-8 text-sm'
+          }`}
+        >
           <button
             type="button"
             onClick={() => setOpen(true)}
