@@ -13,6 +13,7 @@ import { useTranslation } from 'react-i18next';
 import { getSiteCurrency } from '../../lib/currency';
 import { getUserDisplayName } from '../../utils/userDisplayName';
 import { getLocalizedUrl } from '@/lib/localeUrl';
+import { openChatWidget } from '@/lib/chat/openChat';
 
 interface UserSidebarProps {
   user: User | null;
@@ -200,10 +201,6 @@ export default function UserSidebar({ user }: UserSidebarProps) {
     },
     [router],
   );
-
-  const handleKakaoChatClick = useCallback(() => {
-    window.open('https://pf.kakao.com/_Hbxezxl/chat', '_blank', 'noopener,noreferrer');
-  }, []);
 
   const sidebarMenuItems = useMemo(
     () => [
@@ -519,20 +516,21 @@ export default function UserSidebar({ user }: UserSidebarProps) {
                 {item.label === t('sidebar.guide') && !isGlobalSite && (
                   <div className="pt-2 pb-2">
                     <button
-                      onClick={handleKakaoChatClick}
-                      className="group w-full rounded-2xl border border-yellow-300 bg-gradient-to-r from-[#FEE500] to-[#FFD43B] p-3 shadow-sm transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-md cursor-pointer"
+                      type="button"
+                      onClick={openChatWidget}
+                      className="group w-full rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 p-3 text-white shadow-sm transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-md cursor-pointer"
                     >
                       <div className="flex items-center justify-between gap-3">
-                        <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-black/85 text-[#FEE500]">
-                          <i className="ri-kakao-talk-fill text-lg"></i>
+                        <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-white/20">
+                          <i className="ri-chat-smile-3-fill text-lg"></i>
                         </div>
-                        <span className="flex-1 text-center text-sm font-semibold text-gray-900">{t('sidebar.kakaoChat')}</span>
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/35 text-gray-900 transition-transform group-hover:translate-x-0.5">
-                          <i className="ri-arrow-right-up-line text-base"></i>
+                        <span className="flex-1 text-center text-sm font-semibold">{t('sidebar.chatSupport')}</span>
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 transition-transform group-hover:translate-x-0.5">
+                          <i className="ri-arrow-right-line text-base"></i>
                         </div>
                       </div>
-                      <p className="mt-3 text-xs font-medium text-gray-900/80">
-                        {t('sidebar.kakaoChatDescription')}
+                      <p className="mt-3 text-xs font-medium text-white/80">
+                        {t('sidebar.chatSupportDescription')}
                       </p>
                     </button>
                   </div>

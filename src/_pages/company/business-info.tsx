@@ -1,5 +1,6 @@
 'use client';
 import { useLocaleRouter } from '@/hooks/useLocaleRouter';
+import { openChatWidget } from '@/lib/chat/openChat';
 
 const infoRows = [
   { label: '회사명', value: 'COPYDRUM' },
@@ -53,7 +54,11 @@ export default function BusinessInfoPage() {
             ))}
           </div>
           <div className="px-6 py-4 text-sm text-gray-500 border-t border-gray-100">
-            작업 중에는 전화 응대가 어려울 수 있습니다. 1:1 문의 또는 카카오톡 채팅을 이용해주세요.
+            작업 중에는 전화 응대가 어려울 수 있습니다. 1:1 문의 또는{' '}
+            <button type="button" onClick={openChatWidget} className="font-semibold text-indigo-600 hover:text-indigo-700 underline underline-offset-2">
+              채팅 상담
+            </button>
+            을 이용해주세요.
           </div>
         </section>
 
