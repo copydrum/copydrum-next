@@ -1572,6 +1572,7 @@ const AdminPage: React.FC = () => {
   const [analyticsError, setAnalyticsError] = useState<string | null>(null);
   const [analyticsExporting, setAnalyticsExporting] = useState(false);
   const analyticsLoadedRef = useRef(false);
+  const analyticsRequestIdRef = useRef(0);
 
   // 월별 매출 데이터
   interface MonthlyRevenueRow {
@@ -1593,19 +1594,23 @@ const AdminPage: React.FC = () => {
 
   const loadAnalyticsData = useCallback(
     async (periodValue: AnalyticsPeriod) => {
+      const requestId = ++analyticsRequestIdRef.current;
+      const isStale = () => requestId !== analyticsRequestIdRef.current;
       setAnalyticsLoading(true);
       setAnalyticsError(null);
       try {
         const data = await fetchAnalyticsData(periodValue);
+        if (isStale()) return;
         setAnalyticsData(data);
         analyticsLoadedRef.current = true;
       } catch (error: unknown) {
+        if (isStale()) return;
         console.error('분석 데이터 로드 오류:', error);
         const message =
           error instanceof Error ? error.message : '분석 데이터를 불러오지 못했습니다.';
         setAnalyticsError(message);
       } finally {
-        setAnalyticsLoading(false);
+        if (!isStale()) setAnalyticsLoading(false);
       }
     },
     [],

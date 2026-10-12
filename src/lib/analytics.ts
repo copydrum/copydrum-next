@@ -266,6 +266,38 @@ const calculateGrowth = (current: number, previous: number | null | undefined): 
 
 const safeNumber = (value: number | null | undefined) => (typeof value === 'number' && Number.isFinite(value) ? value : 0);
 
+const PAGE_SIZE = 1000;
+
+type KeysetQuery<T> = {
+  gt: (column: 'id', value: string) => KeysetQuery<T>;
+  order: (
+    column: 'id',
+    options: { ascending: boolean },
+  ) => { limit: (count: number) => PromiseLike<{ data: T[] | null; error: unknown }> };
+};
+
+/**
+ * Supabase 는 한 번에 최대 1,000행만 돌려주므로 끝까지 나눠 읽는다.
+ * offset 방식은 뒤 페이지일수록 전체 행을 다시 훑어 profiles 처럼 큰 테이블에서 매우 느려서 id 기준으로 이어 읽는다.
+ * 그래서 결과는 id 순이며, buildQuery 에 다른 정렬을 넣으면 안 된다.
+ */
+const fetchAllRows = async <T extends { id: string }>(buildQuery: () => KeysetQuery<T>): Promise<T[]> => {
+  const rows: T[] = [];
+  let lastId: string | null = null;
+  for (;;) {
+    const query: KeysetQuery<T> = lastId ? buildQuery().gt('id', lastId) : buildQuery();
+    const { data, error } = await query.order('id', { ascending: true }).limit(PAGE_SIZE);
+    if (error) {
+      throw error;
+    }
+    rows.push(...(data ?? []));
+    if (!data || data.length < PAGE_SIZE) {
+      return rows;
+    }
+    lastId = data[data.length - 1].id;
+  }
+};
+
 const createEmptySummary = (): AnalyticsSummary => ({
   totalRevenue: 0,
   revenueGrowth: null,
@@ -305,98 +337,95 @@ export const fetchAnalyticsData = async (period: AnalyticsPeriod = '30d'): Promi
 
   const summary = createEmptySummary();
 
-  const ordersQuery = supabase
-    .from('orders')
-    .select('id, created_at, status, total_amount, points_used, payment_method, user_id')
-    .eq('status', 'completed')
-    .order('created_at', { ascending: true });
+  const buildOrdersQuery = () => {
+    const query = supabase
+      .from('orders')
+      .select('id, created_at, status, total_amount, points_used, payment_method, user_id')
+      .eq('status', 'completed');
 
-  if (startIso) {
-    ordersQuery.gte('created_at', startIso);
-  }
-  if (endIso) {
-    ordersQuery.lte('created_at', endIso);
-  }
+    if (startIso) {
+      query.gte('created_at', startIso);
+    }
+    if (endIso) {
+      query.lte('created_at', endIso);
+    }
+    return query;
+  };
 
-  const previousOrdersQuery =
-    previousStartIso && previousEndIso
-      ? supabase
-          .from('orders')
-          .select('id, created_at, status, total_amount, points_used, payment_method')
-          .eq('status', 'completed')
-          .gte('created_at', previousStartIso)
-          .lte('created_at', previousEndIso)
-      : null;
+  const buildPreviousOrdersQuery = () =>
+    supabase
+      .from('orders')
+      .select('id, created_at, status, total_amount, points_used, payment_method')
+      .eq('status', 'completed')
+      .gte('created_at', previousStartIso!)
+      .lte('created_at', previousEndIso!);
 
-  const orderItemsQuery = supabase
-    .from('order_items')
-    .select(
-      `
-        id,
-        sheet_id:drum_sheet_id,
-        price,
-        created_at,
-        orders!inner (
+  const buildOrderItemsQuery = () => {
+    const query = supabase
+      .from('order_items')
+      .select(
+        `
           id,
-          status,
-          created_at
-        ),
-        drum_sheets (
-          id,
-          title,
-          artist,
-          category_id,
-          categories (
+          sheet_id:drum_sheet_id,
+          price,
+          created_at,
+          orders!inner (
             id,
-            name
+            status,
+            created_at
+          ),
+          drum_sheets (
+            id,
+            title,
+            artist,
+            category_id,
+            categories (
+              id,
+              name
+            )
           )
-        )
-      `,
-    )
-    .eq('orders.status', 'completed')
-    .order('created_at', { ascending: true, referencedTable: 'orders' });
+        `,
+      )
+      .eq('orders.status', 'completed');
 
-  if (startIso) {
-    orderItemsQuery.gte('orders.created_at', startIso);
-  }
-  if (endIso) {
-    orderItemsQuery.lte('orders.created_at', endIso);
-  }
+    if (startIso) {
+      query.gte('orders.created_at', startIso);
+    }
+    if (endIso) {
+      query.lte('orders.created_at', endIso);
+    }
+    return query;
+  };
 
-  const customOrdersQuery = supabase
-    .from('custom_orders')
-    .select('id, status, estimated_price, created_at')
-    .order('created_at', { ascending: true });
+  const buildCustomOrdersQuery = () => {
+    const query = supabase
+      .from('custom_orders')
+      .select('id, status, estimated_price, created_at');
 
-  if (startIso) {
-    customOrdersQuery.gte('created_at', startIso);
-  }
-  if (endIso) {
-    customOrdersQuery.lte('created_at', endIso);
-  }
-
-  const previousCustomOrdersQuery =
-    previousStartIso && previousEndIso
-      ? supabase
-          .from('custom_orders')
-          .select('id')
-          .gte('created_at', previousStartIso)
-          .lte('created_at', previousEndIso)
-      : null;
+    if (startIso) {
+      query.gte('created_at', startIso);
+    }
+    if (endIso) {
+      query.lte('created_at', endIso);
+    }
+    return query;
+  };
 
   const totalUsersQuery = supabase.from('profiles').select('*', { count: 'exact', head: true });
 
-  const newUsersQuery = supabase
-    .from('profiles')
-    .select('id, created_at')
-    .order('created_at', { ascending: true });
+  const buildNewUsersQuery = () => {
+    const query = supabase
+      .from('profiles')
+      .select('id, created_at');
 
-  if (startIso) {
-    newUsersQuery.gte('created_at', startIso);
-  }
-  if (endIso) {
-    newUsersQuery.lte('created_at', endIso);
-  }
+    if (startIso) {
+      query.gte('created_at', startIso);
+    }
+    if (endIso) {
+      query.lte('created_at', endIso);
+    }
+    return query;
+  };
 
   const previousNewUsersCountQuery =
     previousStartIso && previousEndIso
@@ -408,43 +437,28 @@ export const fetchAnalyticsData = async (period: AnalyticsPeriod = '30d'): Promi
       : null;
 
   const [
-    { data: currentOrders, error: ordersError },
-    previousOrdersResult,
-    { data: orderItems, error: orderItemsError },
-    { data: customOrders, error: customOrdersError },
-    previousCustomOrdersResult,
+    currentOrders,
+    previousOrders,
+    orderItems,
+    customOrders,
     { count: totalUsersCount, error: totalUsersError },
-    { data: newUsers, error: newUsersError },
+    newUsers,
     previousNewUsersResult,
   ] = await Promise.all([
-    ordersQuery,
-    previousOrdersQuery ?? Promise.resolve({ data: [] as RawOrder[], error: null }),
-    orderItemsQuery,
-    customOrdersQuery,
-    previousCustomOrdersQuery ?? Promise.resolve({ data: [] as RawCustomOrder[], error: null }),
+    fetchAllRows<RawOrder>(buildOrdersQuery),
+    previousStartIso && previousEndIso
+      ? fetchAllRows<RawOrder>(buildPreviousOrdersQuery)
+      : Promise.resolve([] as RawOrder[]),
+    fetchAllRows(buildOrderItemsQuery),
+    fetchAllRows<RawCustomOrder>(buildCustomOrdersQuery),
     totalUsersQuery,
-    newUsersQuery,
+    fetchAllRows<{ id: string; created_at: string | null }>(buildNewUsersQuery),
     previousNewUsersCountQuery ?? Promise.resolve({ count: 0, error: null }),
   ]);
 
-  if (ordersError) {
-    throw ordersError;
-  }
-  if (orderItemsError) {
-    throw orderItemsError;
-  }
-  if (customOrdersError) {
-    throw customOrdersError;
-  }
   if (totalUsersError) {
     throw totalUsersError;
   }
-  if (newUsersError) {
-    throw newUsersError;
-  }
-
-  const previousOrders = (previousOrdersResult?.data ?? []) as RawOrder[];
-  const previousCustomOrders = (previousCustomOrdersResult?.data ?? []) as RawCustomOrder[];
 
   const previousNewUsersCount =
     typeof previousNewUsersResult?.count === 'number' ? previousNewUsersResult.count : 0;
