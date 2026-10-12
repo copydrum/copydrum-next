@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { fetchLegacyPurchasedSheetIds } from './legacyPurchases';
 
 const PURCHASE_VALID_STATUSES = ['payment_confirmed', 'completed'];
 
@@ -49,7 +50,7 @@ export const fetchPurchasedSheetIds = async (
     query = query.in('drum_sheet_id', normalizedSheetIds);
   }
 
-  const { data, error } = await query;
+  const [{ data, error }, legacyIds] = await Promise.all([query, fetchLegacyPurchasedSheetIds()]);
 
   if (error) {
     throw new Error(error.message ?? '구매 내역을 확인하지 못했습니다.');
@@ -57,7 +58,8 @@ export const fetchPurchasedSheetIds = async (
 
   const purchasedIds = (data ?? [])
     .map((item) => item.drum_sheet_id)
-    .filter((id): id is string => Boolean(id));
+    .filter((id): id is string => Boolean(id))
+    .concat(legacyIds);
 
   if (normalizedSheetIds.length === 0) {
     return Array.from(new Set(purchasedIds));

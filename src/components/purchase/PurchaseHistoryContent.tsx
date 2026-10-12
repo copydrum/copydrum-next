@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { generateDefaultThumbnail } from '../../lib/defaultThumbnail';
 import { buildDownloadKey, downloadFile, getDownloadFileName, requestSignedDownloadUrl } from '../../utils/downloadHelpers';
 import { formatDateToKorean } from '@/utils/businessDays';
+import { fetchLegacyPurchaseOrders } from '@/lib/legacyPurchases';
 
 const DOWNLOADABLE_STATUSES = ['completed', 'payment_confirmed', 'paid'];
 
@@ -72,7 +73,7 @@ export default function PurchaseHistoryContent({ user }: PurchaseHistoryContentP
   const loadOrders = useCallback(async () => {
     try {
       // 결제 완료된 주문만 조회 (payment_status = 'paid')
-      const { data: ordersData, error: ordersError } = await supabase
+      const ordersQuery = supabase
         .from('orders')
         .select(
           `
@@ -111,6 +112,12 @@ export default function PurchaseHistoryContent({ user }: PurchaseHistoryContentP
         .eq('payment_status', 'paid')  // 결제 완료된 주문만 필터링
         .order('created_at', { ascending: false });
 
+      // 이전 사이트 구매는 모두 현재 사이트 주문보다 오래되어 뒤에 붙여도 최신순이 유지된다
+      const [{ data: ordersData, error: ordersError }, legacyOrders] = await Promise.all([
+        ordersQuery,
+        fetchLegacyPurchaseOrders(),
+      ]);
+
       if (ordersError) {
         // 상세한 에러 정보 출력
         console.error('[PurchaseHistoryContent] Supabase 쿼리 에러:', {
@@ -122,7 +129,7 @@ export default function PurchaseHistoryContent({ user }: PurchaseHistoryContentP
         throw ordersError;
       }
 
-      const normalizedOrders = (ordersData || []).map((order: any) => {
+      const normalizedOrders = [...(ordersData || []), ...legacyOrders].map((order: any) => {
         try {
           return {
             ...order,

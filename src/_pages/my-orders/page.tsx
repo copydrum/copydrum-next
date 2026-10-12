@@ -9,6 +9,7 @@ import MainHeader from '@/components/common/MainHeader';
 import { useCart } from '@/hooks/useCart';
 import { buildDownloadKey, downloadFile, getDownloadFileName, requestSignedDownloadUrl } from '@/utils/downloadHelpers';
 import type { VirtualAccountInfo } from '@/lib/payments';
+import { fetchLegacyPurchaseOrders } from '@/lib/legacyPurchases';
 import { useTranslation } from 'react-i18next';
 
 interface CategoryInfo {
@@ -210,7 +211,11 @@ const MyOrdersPage = () => {
 
     query = query.order('created_at', { ascending: false });
 
-    const { data, error } = await query;
+    // 이전 사이트 구매는 모두 현재 사이트 주문보다 오래되어 뒤에 붙여도 최신순이 유지된다
+    const [{ data, error }, legacyOrders] = await Promise.all([
+      query,
+      filter === 'paid' ? fetchLegacyPurchaseOrders() : Promise.resolve([]),
+    ]);
 
     if (error) {
       console.error('[my-orders] 주문 조회 오류:', {
@@ -223,7 +228,7 @@ const MyOrdersPage = () => {
       throw error;
     }
 
-    const normalizedOrders: OrderSummary[] = (data ?? []).map((order: any) => ({
+    const normalizedOrders: OrderSummary[] = [...(data ?? []), ...legacyOrders].map((order: any) => ({
       id: order.id,
       order_number: order.order_number ?? null,
       created_at: order.created_at ?? null,
@@ -754,9 +759,11 @@ const MyOrdersPage = () => {
                       <p className="text-xs text-gray-400 mt-1">
                         {formatDateTime(order.created_at)}
                       </p>
-                      <p className="text-xs text-gray-400 mt-1">
-                        {t('payment.method')}: {getPaymentMethodLabel(order.payment_method, t)}
-                      </p>
+                      {order.payment_method ? (
+                        <p className="text-xs text-gray-400 mt-1">
+                          {t('payment.method')}: {getPaymentMethodLabel(order.payment_method, t)}
+                        </p>
+                      ) : null}
                     </div>
                     <div className="flex flex-wrap items-center gap-3">
                       <span

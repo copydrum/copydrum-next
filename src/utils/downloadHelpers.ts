@@ -1,3 +1,5 @@
+import { isLegacyOrderItemId, parseLegacyOrderItemId } from '@/lib/legacyPurchases';
+
 export const buildDownloadKey = (orderId: string | null | undefined, itemId: string) =>
   `${orderId ?? 'unknown-order'}-${itemId}`;
 
@@ -33,6 +35,10 @@ export const requestSignedDownloadUrl = async ({
   orderItemId: string;
   accessToken: string;
 }): Promise<string> => {
+  if (isLegacyOrderItemId(orderItemId)) {
+    return requestLegacySignedDownloadUrl(orderItemId);
+  }
+
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
@@ -74,6 +80,21 @@ export const requestSignedDownloadUrl = async ({
   const payload = await response.json();
   if (!payload?.url) {
     throw new Error('서명 URL을 발급하지 못했습니다. 잠시 후 다시 시도해주세요.');
+  }
+  return payload.url as string;
+};
+
+const requestLegacySignedDownloadUrl = async (orderItemId: string): Promise<string> => {
+  const { legacyOrderId, sheetId } = parseLegacyOrderItemId(orderItemId);
+  const response = await fetch('/api/legacy-purchases/download', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ legacyOrderId, sheetId }),
+  });
+
+  const payload = await response.json().catch(() => null);
+  if (!response.ok || !payload?.url) {
+    throw new Error(payload?.error || '다운로드가 제한된 주문입니다.');
   }
   return payload.url as string;
 };

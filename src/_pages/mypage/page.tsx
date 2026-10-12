@@ -25,6 +25,7 @@ import { useMembership } from '../../hooks/useMembership';
 import MembershipCard from '../../components/membership/MembershipCard';
 import { formatRewardPoints, formatWalletAmount } from '../../lib/wallet/display';
 import { openCashChargeModal } from '../../lib/cashChargeModal';
+import { fetchLegacyPurchaseOrders } from '../../lib/legacyPurchases';
 
 import type { VirtualAccountInfo } from '../../lib/payments';
 
@@ -74,7 +75,7 @@ interface SheetInfo {
 interface OrderItemDetail {
   id: string;
   sheet_id: string;
-  price: number;
+  price: number | null;
   created_at: string;
   drum_sheets: SheetInfo | null;
 }
@@ -83,6 +84,7 @@ const DOWNLOADABLE_STATUSES = ['completed', 'payment_confirmed', 'paid'];
 
 interface OrderSummary {
   id: string;
+  order_number?: string | null;
   created_at: string;
   status: string;
   total_amount: number;
@@ -378,7 +380,7 @@ export default function MyPage() {
     try {
       // order_items 테이블의 실제 컬럼명을 확인하기 위해 먼저 간단한 쿼리 시도
       // sheet_id가 없을 수 있으므로 오류 처리 추가
-      const { data, error } = await supabase
+      const ordersQuery = supabase
         .from('orders')
         .select(`
           id,
@@ -418,6 +420,9 @@ export default function MyPage() {
         .eq('payment_status', 'paid')  // 결제 완료된 주문만 필터링
         .order('created_at', { ascending: false });
 
+      // 이전 사이트 구매는 모두 현재 사이트 주문보다 오래되어 뒤에 붙여도 최신순이 유지된다
+      const [{ data, error }, legacyOrders] = await Promise.all([ordersQuery, fetchLegacyPurchaseOrders()]);
+
       if (error) {
         // 컬럼명 오류인 경우 빈 배열로 설정하고 계속 진행
         if (error.code === '42703' || error.message?.includes('does not exist')) {
@@ -429,8 +434,9 @@ export default function MyPage() {
         throw error;
       }
 
-      const normalizedOrders: OrderSummary[] = (data ?? []).map((order: any) => ({
+      const normalizedOrders: OrderSummary[] = [...(data ?? []), ...legacyOrders].map((order: any) => ({
         id: order.id,
+        order_number: order.order_number ?? null,
         created_at: order.created_at,
         status: order.status,
         total_amount: order.total_amount,
@@ -1401,7 +1407,7 @@ export default function MyPage() {
                                   <div>
                                     <p className="text-sm text-gray-500">{t('mypage.purchases.orderNumber')}</p>
                                     <h4 className="text-lg font-semibold text-gray-900">
-                                      #{order.id.slice(0, 8).toUpperCase()}
+                                      {order.order_number ?? `#${order.id.slice(0, 8).toUpperCase()}`}
                                     </h4>
                                     <p className="text-xs text-gray-400 mt-1">{formatDateTime(order.created_at)}</p>
                                   </div>
@@ -1525,11 +1531,13 @@ export default function MyPage() {
                                           </div>
                                         </div>
                                         <div className="flex items-center gap-3">
-                                          <span className="text-sm font-semibold text-gray-900">
-                                            {order.payment_method === 'cash'
-                                              ? `${(item.price ?? 0).toLocaleString('en-US')} P`
-                                              : formatCurrency(item.price ?? 0)}
-                                          </span>
+                                          {item.price != null ? (
+                                            <span className="text-sm font-semibold text-gray-900">
+                                              {order.payment_method === 'cash'
+                                                ? `${item.price.toLocaleString('en-US')} P`
+                                                : formatCurrency(item.price)}
+                                            </span>
+                                          ) : null}
                                           {(() => {
                                             const isPreorder = item.drum_sheets?.sales_type === 'PREORDER';
                                             const hasPdf = !!item.drum_sheets?.pdf_url;

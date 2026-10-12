@@ -107,7 +107,17 @@ export async function POST(request: NextRequest) {
   if (purchaseErr) {
     return NextResponse.json({ success: false, error: purchaseErr.message }, { status: 500 });
   }
+
+  let legacyPurchase = false;
   if (!purchase) {
+    const { data: legacyRows } = await supabase
+      .rpc('legacy_purchases_for', { p_user_id: authUser.id })
+      .eq('drum_sheet_id', sheetId)
+      .limit(1);
+    legacyPurchase = (legacyRows?.length ?? 0) > 0;
+  }
+
+  if (!purchase && !legacyPurchase) {
     return NextResponse.json(
       { success: false, error: '구매한 악보에만 리뷰를 작성할 수 있습니다.' },
       { status: 403 }
