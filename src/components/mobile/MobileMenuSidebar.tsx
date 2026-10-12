@@ -11,6 +11,7 @@ import { getUserDisplayName } from '../../utils/userDisplayName';
 import { isKoreanSiteHost } from '../../config/hostType';
 import {
   COLLECTIONS_PUBLIC_ENABLED,
+  DRUM_LESSON_BOOKS_PUBLIC_ENABLED,
   FREE_LESSONS_PUBLIC_ENABLED,
   SHEET_BOOKS_PUBLIC_ENABLED,
 } from '@/config/featureFlags';
@@ -114,6 +115,9 @@ export default function MobileMenuSidebar({
     }
     if (!SHEET_BOOKS_PUBLIC_ENABLED) {
       items = items.filter((item) => item.href !== '/sheet-books');
+    }
+    if (!DRUM_LESSON_BOOKS_PUBLIC_ENABLED) {
+      items = items.filter((item) => item.href !== '/free-sheets');
     }
     if (!FREE_LESSONS_PUBLIC_ENABLED) {
       items = items.filter((item) => item.href !== '/free-lessons');

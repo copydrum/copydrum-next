@@ -7,6 +7,7 @@ import { removeLocaleFromPathname } from '@/lib/localeUrl';
 import { useEventSales } from '@/hooks/useEventSales';
 import {
   COLLECTIONS_PUBLIC_ENABLED,
+  DRUM_LESSON_BOOKS_PUBLIC_ENABLED,
   FREE_LESSONS_PUBLIC_ENABLED,
   SHEET_BOOKS_PUBLIC_ENABLED,
 } from '@/config/featureFlags';
@@ -48,6 +49,7 @@ export default function MobileQuickNav() {
             if (item.key === 'eventSale' && !eventSales.hasAny) return false;
             if (item.key === 'collections' && !COLLECTIONS_PUBLIC_ENABLED) return false;
             if (item.key === 'sheetBooks' && !SHEET_BOOKS_PUBLIC_ENABLED) return false;
+            if (item.key === 'lesson' && !DRUM_LESSON_BOOKS_PUBLIC_ENABLED) return false;
             if (item.key === 'freeLessons' && !FREE_LESSONS_PUBLIC_ENABLED) return false;
             return true;
           })

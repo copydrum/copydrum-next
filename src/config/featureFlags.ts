@@ -11,6 +11,12 @@ export const COLLECTIONS_PUBLIC_ENABLED = false;
 export const SHEET_BOOKS_PUBLIC_ENABLED = true;
 
 /**
+ * 고객-facing 사이트에서 드럼레슨 교재(/free-sheets) 노출 여부.
+ * false: 메뉴·홈·사이트맵에서 숨김 (/free-sheets URL·관리자·기존 구매자 다운로드는 유지)
+ */
+export const DRUM_LESSON_BOOKS_PUBLIC_ENABLED = false;
+
+/**
  * 고객-facing 사이트에서 무료 드럼 레슨 코너(/free-lessons) 노출 여부.
  * false: 메뉴·홈·사이트맵에서 숨김 (/free-lessons URL·관리자 등록은 유지)
  */

@@ -12,6 +12,7 @@ import { useCart } from '../../hooks/useCart';
 import { useEventSales } from '../../hooks/useEventSales';
 import {
   COLLECTIONS_PUBLIC_ENABLED,
+  DRUM_LESSON_BOOKS_PUBLIC_ENABLED,
   FREE_LESSONS_PUBLIC_ENABLED,
   SHEET_BOOKS_PUBLIC_ENABLED,
 } from '@/config/featureFlags';
@@ -366,17 +367,19 @@ export default function MainHeader({ user }: MainHeaderProps) {
             </button>
           )}
           {/* Drum Lesson Menu */}
-          <button
-            onClick={() => router.push('/free-sheets?tab=books')}
-            className={`font-semibold text-lg whitespace-nowrap cursor-pointer transition-all duration-200 ${
-              removeLocaleFromPathname(pathname).startsWith('/free-sheets')
-                ? 'text-purple-300 underline'
-                : 'text-white hover:text-purple-300 hover:underline'
-            }`}
-            suppressHydrationWarning
-          >
-            {t('sidebar.nav.drumLesson')}
-          </button>
+          {DRUM_LESSON_BOOKS_PUBLIC_ENABLED && (
+            <button
+              onClick={() => router.push('/free-sheets?tab=books')}
+              className={`font-semibold text-lg whitespace-nowrap cursor-pointer transition-all duration-200 ${
+                removeLocaleFromPathname(pathname).startsWith('/free-sheets')
+                  ? 'text-purple-300 underline'
+                  : 'text-white hover:text-purple-300 hover:underline'
+              }`}
+              suppressHydrationWarning
+            >
+              {t('sidebar.nav.drumLesson')}
+            </button>
+          )}
           {COLLECTIONS_PUBLIC_ENABLED && (
             <button
               onClick={() => router.push('/collections')}

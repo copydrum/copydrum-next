@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
 import {
   COLLECTIONS_PUBLIC_ENABLED,
+  DRUM_LESSON_BOOKS_PUBLIC_ENABLED,
   FREE_LESSONS_PUBLIC_ENABLED,
   SHEET_BOOKS_PUBLIC_ENABLED,
 } from '@/config/featureFlags';
@@ -128,6 +129,7 @@ export async function GET(
   for (const page of STATIC_PAGES) {
     if (!COLLECTIONS_PUBLIC_ENABLED && page.path === '/collections') continue;
     if (!SHEET_BOOKS_PUBLIC_ENABLED && page.path === '/sheet-books') continue;
+    if (!DRUM_LESSON_BOOKS_PUBLIC_ENABLED && page.path === '/free-sheets') continue;
     if (!FREE_LESSONS_PUBLIC_ENABLED && page.path === '/free-lessons') continue;
     const loc = page.path === '/'
       ? `${baseUrl}/`
