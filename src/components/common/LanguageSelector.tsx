@@ -55,13 +55,15 @@ export default function LanguageSelector({ variant = 'desktop', className = '' }
       );
     }
 
-    const dimension = size === 24 ? 'w24' : 'w20';
+    // flagcdn은 w24 같은 임의 너비를 제공하지 않으므로 고정 크기(WxH) 경로를 사용
+    const height = Math.round((size * 3) / 4);
     return (
       <img
-        src={`https://flagcdn.com/${dimension}/${flagCode}.png`}
+        src={`https://flagcdn.com/${size}x${height}/${flagCode}.png`}
+        srcSet={`https://flagcdn.com/${size * 2}x${height * 2}/${flagCode}.png 2x`}
         alt=""
         width={size}
-        height={Math.round((size * 3) / 4)}
+        height={height}
         className="rounded-sm object-cover"
         loading="lazy"
         suppressHydrationWarning
