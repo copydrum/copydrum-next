@@ -125,8 +125,8 @@
       "steps": {
         "event": {
           "title": "Partituras de eventos",
-          "detail": "Consulte las partituras ofrecidas a 100 wones o precios con descuento por tiempo limitado en la sección de superventa.",
-          "highlight": "¡Las partituras de eventos son de cantidad/período limitado, así que verifique rápidamente!"
+          "detail": "En la sección de ofertas flash, las canciones nuevas tienen descuento por tiempo limitado.",
+          "highlight": "El precio vuelve a la normalidad al terminar el contador. ¡Revisa a menudo!"
         },
         "cash": {
           "title": "Recarga de efectivo de partituras",
@@ -138,6 +138,7 @@
         }
       },
       "cta": {
+        "eventSale": "Ver ofertas flash",
         "customOrder": "Solicitar pedido personalizado",
         "customOrders": "Verificar pedidos en curso"
       }

@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
-import { deleteEventDiscountById, fetchEventDiscountList, upsertEventDiscountSheet } from '../../lib/eventDiscounts';
-import type { EventDiscountSheet, EventDiscountStatus } from '../../lib/eventDiscounts';
 import type { AuthChangeEvent, Session, User } from '@supabase/supabase-js';
 import { useAuthStore } from '../../stores/authStore';
 import { searchTrackAndGetCoverWithAlbum } from '../../lib/spotify';
@@ -18,6 +16,7 @@ import MarketingStatus from '../../components/admin/MarketingStatus';
 import DrumLessonManagement from '../../components/admin/DrumLessonManagement';
 import FreeLessonManagement from '../../components/admin/FreeLessonManagement';
 import SheetBookManagement from '../../components/admin/SheetBookManagement';
+import EventDiscountManagement from '../../components/admin/EventDiscountManagement';
 import RichTextEditor from '../../components/admin/RichTextEditor';
 import DashboardTab from '../../components/admin/DashboardTab';
 import ChatInbox from '../../components/admin/ChatInbox';
@@ -1159,58 +1158,6 @@ const renderTranslationEditor = (
   );
 };
 
-interface EventSheetCandidate {
-  id: string;
-  title: string;
-  artist: string;
-  price: number;
-  thumbnail_url?: string | null;
-  category_id?: string | null;
-}
-
-interface EventFormState {
-  event_start: string;
-  event_end: string;
-  discount_price: number;
-  original_price: number;
-  is_active: boolean;
-}
-
-const DEFAULT_EVENT_PRICE = 100;
-
-const EVENT_STATUS_META: Record<EventDiscountStatus, { label: string; className: string }> = {
-  active: { label: '진행 중', className: 'bg-green-100 text-green-700' },
-  scheduled: { label: '예정', className: 'bg-blue-100 text-blue-700' },
-  ended: { label: '종료', className: 'bg-gray-200 text-gray-700' },
-  disabled: { label: '비활성', className: 'bg-gray-300 text-gray-700' },
-};
-
-const toDatetimeLocalString = (value: string | Date | null | undefined) => {
-  if (!value) return '';
-  const date = typeof value === 'string' ? new Date(value) : value;
-  if (Number.isNaN(date.getTime())) {
-    return '';
-  }
-  const offset = date.getTimezoneOffset();
-  const local = new Date(date.getTime() - offset * 60000);
-  return local.toISOString().slice(0, 16);
-};
-
-const datetimeLocalToIsoString = (value: string) => {
-  if (!value) return '';
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return '';
-  }
-  return date.toISOString();
-};
-
-const calculateDiscountPercent = (original: number, discount: number) => {
-  if (!original || original <= 0) return 0;
-  const percent = (1 - discount / original) * 100;
-  return Math.round(percent * 10) / 10;
-};
-
 const formatCurrency = (value: number | null | undefined) => {
   const amount = value ?? 0;
   return `₩${amount.toLocaleString()}`;
@@ -1289,17 +1236,6 @@ const formatPercentChange = (value: number) => {
 const getChangeBadgeClassName = (value: number) =>
   value >= 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600';
 
-const createDefaultEventForm = (): EventFormState => {
-  const start = new Date();
-  const end = new Date(start.getTime() + 3 * 24 * 60 * 60 * 1000);
-  return {
-    event_start: toDatetimeLocalString(start),
-    event_end: toDatetimeLocalString(end),
-    discount_price: DEFAULT_EVENT_PRICE,
-    original_price: 0,
-    is_active: true,
-  };
-};
 const AdminPage: React.FC = () => {
   const { user, setUser } = useAuthStore();
   const [activeMenu, setActiveMenu] = useState('dashboard');
@@ -1554,18 +1490,6 @@ const AdminPage: React.FC = () => {
   const [copyrightReportError, setCopyrightReportError] = useState<string | null>(null);
   const [directSalesData, setDirectSalesData] = useState<DirectSaleRow[]>([]);
   const [cashChargeData, setCashChargeData] = useState<CashChargeRow[]>([]);
-
-  const [eventDiscounts, setEventDiscounts] = useState<EventDiscountSheet[]>([]);
-  const [isLoadingEventDiscounts, setIsLoadingEventDiscounts] = useState(false);
-  const [eventSearchTerm, setEventSearchTerm] = useState('');
-  const [eventSearchResults, setEventSearchResults] = useState<EventSheetCandidate[]>([]);
-  const [isEventSearchLoading, setIsEventSearchLoading] = useState(false);
-  const [selectedEventSheet, setSelectedEventSheet] = useState<EventSheetCandidate | null>(null);
-  const [eventForm, setEventForm] = useState<EventFormState>(() => createDefaultEventForm());
-  const [editingEventId, setEditingEventId] = useState<string | null>(null);
-  const [isSavingEventDiscount, setIsSavingEventDiscount] = useState(false);
-  const [updatingEventId, setUpdatingEventId] = useState<string | null>(null);
-  const [deletingEventId, setDeletingEventId] = useState<string | null>(null);
 
   const [analyticsPeriod, setAnalyticsPeriod] = useState<AnalyticsPeriod>('30d');
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
@@ -3763,22 +3687,6 @@ const AdminPage: React.FC = () => {
     }
   };
 
-  const loadEventDiscounts = async (withLoader = true) => {
-    if (withLoader) {
-      setIsLoadingEventDiscounts(true);
-    }
-    try {
-      const data = await fetchEventDiscountList();
-      setEventDiscounts(data);
-    } catch (error) {
-      console.error('이벤트 할인 악보 로드 오류:', error);
-    } finally {
-      if (withLoader) {
-        setIsLoadingEventDiscounts(false);
-      }
-    }
-  };
-
   const handleAnalyticsRefresh = () => {
     void loadAnalyticsData(analyticsPeriod);
   };
@@ -4199,205 +4107,6 @@ const AdminPage: React.FC = () => {
   const handleAnalyticsPeriodChange = (value: AnalyticsPeriod) => {
     if (value === analyticsPeriod) return;
     setAnalyticsPeriod(value);
-  };
-
-  const searchEventCandidateSheets = async () => {
-    const keyword = eventSearchTerm.trim();
-    if (!keyword) {
-      alert('검색어를 입력해주세요.');
-      return;
-    }
-    setIsEventSearchLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from('drum_sheets')
-        .select('id, title, artist, price, thumbnail_url, category_id')
-        .or(`title.ilike.%${keyword}%,artist.ilike.%${keyword}%`)
-        .order('created_at', { ascending: false })
-        .limit(30);
-
-      if (error) throw error;
-
-      const normalized = (data || []).map((item: any) => ({
-        id: item.id,
-        title: item.title,
-        artist: item.artist,
-        price: item.price ?? 0,
-        thumbnail_url: item.thumbnail_url,
-        category_id: item.category_id,
-      })) as EventSheetCandidate[];
-
-      setEventSearchResults(normalized);
-    } catch (error) {
-      console.error('이벤트 할인 악보 검색 오류:', error);
-      alert('악보 검색 중 오류가 발생했습니다.');
-    } finally {
-      setIsEventSearchLoading(false);
-    }
-  };
-
-  const resetEventFormState = () => {
-    setSelectedEventSheet(null);
-    setEventForm(createDefaultEventForm());
-    setEditingEventId(null);
-    setEventSearchResults([]);
-  };
-
-  const updateEventForm = <K extends keyof EventFormState>(key: K, value: EventFormState[K]) => {
-    setEventForm((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
-  };
-
-  const clearSelectedEventSheet = () => {
-    setSelectedEventSheet(null);
-    setEditingEventId(null);
-    setEventForm(createDefaultEventForm());
-  };
-
-  const handleSelectEventCandidate = (sheet: EventSheetCandidate) => {
-    setSelectedEventSheet(sheet);
-    const existing = eventDiscounts.find((item) => item.sheet_id === sheet.id);
-
-    if (existing) {
-      setEditingEventId(existing.id);
-      setEventForm({
-        event_start: toDatetimeLocalString(existing.event_start),
-        event_end: toDatetimeLocalString(existing.event_end),
-        discount_price: existing.discount_price ?? DEFAULT_EVENT_PRICE,
-        original_price: existing.original_price ?? sheet.price ?? 0,
-        is_active: existing.is_active,
-      });
-    } else {
-      const defaultForm = createDefaultEventForm();
-      setEditingEventId(null);
-      setEventForm({
-        ...defaultForm,
-        original_price: sheet.price ?? 0,
-      });
-    }
-  };
-  const handleEditEventDiscount = (event: EventDiscountSheet) => {
-    setEditingEventId(event.id);
-    setSelectedEventSheet({
-      id: event.sheet_id,
-      title: event.title || '',
-      artist: event.artist || '',
-      price: event.original_price ?? DEFAULT_EVENT_PRICE,
-      thumbnail_url: event.thumbnail_url ?? undefined,
-      category_id: event.category_id ?? undefined,
-    });
-    setEventForm({
-      event_start: toDatetimeLocalString(event.event_start),
-      event_end: toDatetimeLocalString(event.event_end),
-      discount_price: event.discount_price ?? DEFAULT_EVENT_PRICE,
-      original_price: event.original_price ?? DEFAULT_EVENT_PRICE,
-      is_active: event.is_active,
-    });
-  };
-
-  const handleDeleteEventDiscount = async (eventId: string) => {
-    if (!window.confirm('해당 이벤트 할인 악보를 삭제하시겠습니까?')) {
-      return;
-    }
-    setDeletingEventId(eventId);
-    try {
-      await deleteEventDiscountById(eventId);
-      await loadEventDiscounts();
-      if (editingEventId === eventId) {
-        resetEventFormState();
-      }
-      alert('이벤트 할인 악보가 삭제되었습니다.');
-    } catch (error) {
-      console.error('이벤트 할인 악보 삭제 오류:', error);
-      alert('이벤트 할인 악보 삭제 중 오류가 발생했습니다.');
-    } finally {
-      setDeletingEventId(null);
-    }
-  };
-
-  const handleToggleEventDiscount = async (event: EventDiscountSheet) => {
-    setUpdatingEventId(event.id);
-    try {
-      await upsertEventDiscountSheet({
-        id: event.id,
-        sheet_id: event.sheet_id,
-        discount_price: event.discount_price ?? DEFAULT_EVENT_PRICE,
-        original_price: event.original_price ?? DEFAULT_EVENT_PRICE,
-        event_start: event.event_start,
-        event_end: event.event_end,
-        is_active: !event.is_active,
-      });
-      await loadEventDiscounts(false);
-      if (editingEventId === event.id) {
-        setEventForm((prev) => ({
-          ...prev,
-          is_active: !event.is_active,
-        }));
-      }
-    } catch (error) {
-      console.error('이벤트 할인 악보 상태 변경 오류:', error);
-      alert('이벤트 상태 변경 중 오류가 발생했습니다.');
-    } finally {
-      setUpdatingEventId(null);
-    }
-  };
-
-  const handleSaveEventDiscount = async () => {
-    if (!selectedEventSheet) {
-      alert('이벤트로 등록할 악보를 먼저 선택해주세요.');
-      return;
-    }
-
-    const { event_start, event_end, original_price, is_active } = eventForm;
-
-    if (!event_start || !event_end) {
-      alert('이벤트 시작 시간과 종료 시간을 모두 입력해주세요.');
-      return;
-    }
-
-    const startIso = datetimeLocalToIsoString(event_start);
-    const endIso = datetimeLocalToIsoString(event_end);
-
-    if (!startIso || !endIso) {
-      alert('이벤트 기간 값이 올바르지 않습니다.');
-      return;
-    }
-
-    if (new Date(startIso) >= new Date(endIso)) {
-      alert('이벤트 종료 시간은 시작 시간보다 늦어야 합니다.');
-      return;
-    }
-
-    if (!original_price || original_price <= DEFAULT_EVENT_PRICE) {
-      if (!window.confirm('정가가 100원 이하입니다. 그래도 이벤트를 등록하시겠습니까?')) {
-        return;
-      }
-    }
-
-    setIsSavingEventDiscount(true);
-    try {
-      await upsertEventDiscountSheet({
-        id: editingEventId ?? undefined,
-        sheet_id: selectedEventSheet.id,
-        original_price: original_price,
-        discount_price: DEFAULT_EVENT_PRICE,
-        event_start: startIso,
-        event_end: endIso,
-        is_active,
-      });
-
-      await loadEventDiscounts();
-      alert(editingEventId ? '이벤트 할인 악보가 수정되었습니다.' : '이벤트 할인 악보가 등록되었습니다.');
-      resetEventFormState();
-      setEventSearchTerm('');
-    } catch (error) {
-      console.error('이벤트 할인 악보 저장 오류:', error);
-      alert('이벤트 할인 악보 저장 중 오류가 발생했습니다.');
-    } finally {
-      setIsSavingEventDiscount(false);
-    }
   };
 
   const loadCollections = async () => {
@@ -6839,9 +6548,6 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
         break;
       case 'points':
         loadCashOverview();
-        break;
-      case 'event-discounts':
-        loadEventDiscounts();
         break;
       case 'settings':
         loadSiteSettings();
@@ -12554,356 +12260,6 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
       ) : null}
     </div>
   );
-  const renderEventDiscountManagement = () => {
-    const activeCount = eventDiscounts.filter((item) => item.status === 'active').length;
-    const scheduledCount = eventDiscounts.filter((item) => item.status === 'scheduled').length;
-    const endedCount = eventDiscounts.filter((item) => item.status === 'ended').length;
-    const totalCount = eventDiscounts.length;
-    const discountPercent = calculateDiscountPercent(eventForm.original_price, DEFAULT_EVENT_PRICE);
-
-    const formatDateTime = (value: string) =>
-      new Date(value).toLocaleString('ko-KR', {
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-      });
-
-    const renderStatusBadge = (status: EventDiscountStatus) => {
-      const meta = EVENT_STATUS_META[status];
-      return (
-        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${meta.className}`}>
-          {meta.label}
-        </span>
-      );
-    };
-
-    return (
-      <div className="space-y-6">
-        <div className="space-y-2">
-          <h2 className="text-2xl font-bold text-gray-900">이벤트 할인악보 관리</h2>
-          <p className="text-gray-500">
-            100원 특가 이벤트 악보를 등록하고 이벤트 기간과 활성 상태를 관리하세요. 등록된 악보는 이용자 화면의
-            &lsquo;이벤트 할인악보&rsquo; 코너에 노출됩니다.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white border border-green-100 rounded-xl p-4 shadow-sm">
-            <p className="text-sm font-medium text-gray-600">진행 중</p>
-            <p className="text-2xl font-bold text-green-600 mt-1">{activeCount}</p>
-          </div>
-          <div className="bg-white border border-blue-100 rounded-xl p-4 shadow-sm">
-            <p className="text-sm font-medium text-gray-600">예정</p>
-            <p className="text-2xl font-bold text-blue-600 mt-1">{scheduledCount}</p>
-          </div>
-          <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm">
-            <p className="text-sm font-medium text-gray-600">종료</p>
-            <p className="text-2xl font-bold text-gray-700 mt-1">{endedCount}</p>
-          </div>
-          <div className="bg-white border border-orange-100 rounded-xl p-4 shadow-sm">
-            <p className="text-sm font-medium text-gray-600">총 등록</p>
-            <p className="text-2xl font-bold text-orange-600 mt-1">{totalCount}</p>
-          </div>
-        </div>
-
-        <div className="grid gap-6 lg:grid-cols-3">
-          <div className="lg:col-span-2">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900">등록된 이벤트 악보</h3>
-                  <p className="text-sm text-gray-500 mt-1">
-                    이벤트 기간, 할인율, 활성 여부를 빠르게 확인하고 수정할 수 있습니다.
-                  </p>
-                </div>
-                <button
-                  onClick={() => loadEventDiscounts()}
-                  className="inline-flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm"
-                >
-                  <i className="ri-refresh-line text-base"></i>
-                  새로고침
-                </button>
-              </div>
-
-              {isLoadingEventDiscounts ? (
-                <div className="py-16 flex flex-col items-center justify-center gap-3 text-gray-500">
-                  <i className="ri-loader-4-line w-8 h-8 animate-spin text-blue-600"></i>
-                  <p>이벤트 악보를 불러오는 중입니다...</p>
-                </div>
-              ) : eventDiscounts.length === 0 ? (
-                <div className="py-16 text-center text-gray-500">
-                  아직 등록된 이벤트 할인 악보가 없습니다. 오른쪽 폼을 사용해 첫 이벤트를 등록해보세요.
-                </div>
-              ) : (
-                <ul className="divide-y divide-gray-100">
-                  {eventDiscounts.map((event) => {
-                    const percent = calculateDiscountPercent(
-                      event.original_price ?? DEFAULT_EVENT_PRICE,
-                      event.discount_price ?? DEFAULT_EVENT_PRICE
-                    );
-                    return (
-                      <li key={event.id} className="px-6 py-5">
-                        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                          <div className="flex items-start gap-4">
-                            <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
-                              {event.thumbnail_url ? (
-                                <img
-                                  src={event.thumbnail_url}
-                                  alt={event.title || '이벤트 악보'}
-                                  className="w-full h-full object-cover"
-                                />
-                              ) : (
-                                <i className="ri-music-2-line text-2xl text-gray-400"></i>
-                              )}
-                            </div>
-                            <div>
-                              <div className="flex flex-wrap items-center gap-2">
-                                <h4 className="text-lg font-semibold text-gray-900">{event.title}</h4>
-                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-600">
-                                  100원 특가
-                                </span>
-                                {renderStatusBadge(event.status)}
-                                {editingEventId === event.id && (
-                                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-600">
-                                    편집 중
-                                  </span>
-                                )}
-                              </div>
-                              <p className="text-sm text-gray-500 mt-1">{event.artist}</p>
-                              <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
-                                <span className="line-through text-gray-400">{formatCurrency(event.original_price)}</span>
-                                <span className="text-lg font-bold text-red-600">
-                                  {formatCurrency(event.discount_price)}
-                                </span>
-                                {percent > 0 && (
-                                  <span className="px-2 py-0.5 text-xs font-semibold text-red-600 bg-red-50 rounded-full">
-                                    {percent}% 할인
-                                  </span>
-                                )}
-                              </div>
-                              <p className="text-xs text-gray-500 mt-3">
-                                {formatDateTime(event.event_start)} ~ {formatDateTime(event.event_end)}
-                              </p>
-                            </div>
-                          </div>
-                          <div className="flex flex-wrap items-center gap-2 lg:flex-col lg:items-end lg:gap-3">
-                            <button
-                              onClick={() => handleEditEventDiscount(event)}
-                              className="px-3 py-2 text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors"
-                            >
-                              편집
-                            </button>
-                            <button
-                              onClick={() => handleToggleEventDiscount(event)}
-                              disabled={updatingEventId === event.id}
-                              className={`px-3 py-2 text-sm font-semibold rounded-lg transition-colors ${event.is_active
-                                ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                : 'bg-green-100 text-green-700 hover:bg-green-200'
-                                } ${updatingEventId === event.id ? 'opacity-70 cursor-not-allowed' : ''}`}
-                            >
-                              {event.is_active ? '비활성화' : '활성화'}
-                            </button>
-                            <button
-                              onClick={() => handleDeleteEventDiscount(event.id)}
-                              disabled={deletingEventId === event.id}
-                              className={`px-3 py-2 text-sm font-semibold text-red-600 hover:text-red-700 transition-colors ${deletingEventId === event.id ? 'opacity-60 cursor-not-allowed' : ''
-                                }`}
-                            >
-                              삭제
-                            </button>
-                          </div>
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </div>
-          </div>
-
-          <div>
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-              <div className="px-6 py-4 border-b border-gray-100">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900">이벤트 등록 / 수정</h3>
-                    <p className="text-sm text-gray-500 mt-1">악보를 검색해 선택하고 이벤트 기간을 설정하세요.</p>
-                  </div>
-                  {editingEventId && (
-                    <span className="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-1 rounded-full">수정 중</span>
-                  )}
-                </div>
-              </div>
-
-              <div className="px-6 py-6 space-y-6">
-                <div className="space-y-3">
-                  <label className="block text-sm font-medium text-gray-700">이벤트 악보 검색</label>
-                  <div className="flex flex-col sm:flex-row gap-2">
-                    <input
-                      type="text"
-                      value={eventSearchTerm}
-                      onChange={(e) => setEventSearchTerm(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          searchEventCandidateSheets();
-                        }
-                      }}
-                      placeholder="악보 제목 또는 아티스트를 입력하세요."
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                    <div className="flex gap-2">
-                      <button
-                        onClick={searchEventCandidateSheets}
-                        disabled={isEventSearchLoading}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
-                      >
-                        {isEventSearchLoading ? '검색 중...' : '검색'}
-                      </button>
-                      <button
-                        onClick={resetEventFormState}
-                        className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-semibold"
-                      >
-                        초기화
-                      </button>
-                    </div>
-                  </div>
-
-                  {eventSearchResults.length > 0 && (
-                    <div className="border border-gray-200 rounded-lg max-h-64 overflow-y-auto divide-y divide-gray-100">
-                      {eventSearchResults.map((sheet) => {
-                        const alreadyRegistered = eventDiscounts.some((event) => event.sheet_id === sheet.id);
-                        return (
-                          <button
-                            key={sheet.id}
-                            onClick={() => handleSelectEventCandidate(sheet)}
-                            className={`w-full text-left px-4 py-3 hover:bg-blue-50 transition-colors ${selectedEventSheet?.id === sheet.id ? 'bg-blue-50' : ''
-                              }`}
-                          >
-                            <div className="flex items-center justify-between gap-3">
-                              <div>
-                                <p className="font-semibold text-gray-900">{sheet.title}</p>
-                                <p className="text-sm text-gray-500">{sheet.artist}</p>
-                              </div>
-                              <div className="text-right">
-                                <p className="text-sm font-semibold text-gray-800">{formatCurrency(sheet.price)}</p>
-                                {alreadyRegistered && (
-                                  <span className="inline-flex items-center px-2 py-0.5 text-xs font-semibold rounded-full bg-orange-100 text-orange-600 mt-1">
-                                    이미 등록됨
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-
-                {selectedEventSheet ? (
-                  <div className="rounded-lg border border-orange-200 bg-orange-50 p-4 space-y-2">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <p className="text-sm font-semibold text-orange-700">선택된 악보</p>
-                        <p className="text-lg font-bold text-gray-900">{selectedEventSheet.title}</p>
-                        <p className="text-sm text-gray-600">{selectedEventSheet.artist}</p>
-                      </div>
-                      <button
-                        onClick={clearSelectedEventSheet}
-                        className="text-xs font-semibold text-gray-500 hover:text-gray-700 transition-colors"
-                      >
-                        선택 해제
-                      </button>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-2 text-sm">
-                      <span className="text-gray-600">정가</span>
-                      <span className="font-semibold text-gray-900">{formatCurrency(eventForm.original_price)}</span>
-                      <span className="text-gray-400">{'→'}</span>
-                      <span className="text-red-600 font-bold">{formatCurrency(DEFAULT_EVENT_PRICE)}</span>
-                      {discountPercent > 0 && (
-                        <span className="px-2 py-0.5 text-xs font-semibold text-red-600 bg-red-100 rounded-full">
-                          {discountPercent}% 할인
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="rounded-lg border border-dashed border-gray-300 p-4 text-sm text-gray-500">
-                    이벤트로 등록할 악보를 먼저 검색해 선택해주세요.
-                  </div>
-                )}
-
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">이벤트 기간</label>
-                    <div className="grid grid-cols-1 gap-3">
-                      <div className="flex items-center gap-3">
-                        <span className="text-xs text-gray-500 w-16">시작</span>
-                        <input
-                          type="datetime-local"
-                          value={eventForm.event_start}
-                          onChange={(e) => updateEventForm('event_start', e.target.value)}
-                          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        />
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <span className="text-xs text-gray-500 w-16">종료</span>
-                        <input
-                          type="datetime-local"
-                          value={eventForm.event_end}
-                          onChange={(e) => updateEventForm('event_end', e.target.value)}
-                          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">이벤트 가격</label>
-                    <div className="grid grid-cols-1 gap-2 text-sm text-gray-600">
-                      <p>
-                        정가{' '}
-                        <span className="font-semibold text-gray-900">
-                          {formatCurrency(eventForm.original_price)}
-                        </span>{' '}
-                        → 이벤트가{' '}
-                        <span className="font-semibold text-red-600">
-                          {formatCurrency(DEFAULT_EVENT_PRICE)}
-                        </span>
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        할인가는 100원으로 고정되며, 할인율은 정가 기준으로 자동 계산됩니다.
-                      </p>
-                    </div>
-                  </div>
-
-                  <label className="flex items-center gap-3 text-sm font-medium text-gray-700">
-                    <input
-                      type="checkbox"
-                      checked={eventForm.is_active}
-                      onChange={(e) => updateEventForm('is_active', e.target.checked)}
-                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                    />
-                    이벤트를 즉시 활성화
-                  </label>
-                </div>
-
-                <button
-                  onClick={handleSaveEventDiscount}
-                  disabled={isSavingEventDiscount}
-                  className="w-full py-3 bg-red-500 text-white rounded-lg font-semibold text-sm hover:bg-red-600 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-                >
-                  {isSavingEventDiscount ? '저장 중...' : editingEventId ? '이벤트 수정하기' : '이벤트 등록하기'}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
   const renderSettings = () => {
     if (isLoadingSettings) {
       return (
@@ -15326,7 +14682,7 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
       case 'collections':
         return renderCollectionManagement();
       case 'event-discounts':
-        return renderEventDiscountManagement();
+        return <EventDiscountManagement />;
       case 'member-list':
         return renderMemberManagement();
       case 'orders':
@@ -15497,7 +14853,7 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
               }`}
           >
             <i className="ri-fire-line w-5 h-5"></i>
-            <span className="text-sm md:text-base">이벤트 할인악보</span>
+            <span className="text-sm md:text-base">타임특가</span>
           </button>
 
           <button
@@ -15652,7 +15008,7 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
                           activeMenu === 'sheet-books' ? '악보집 관리' :
                             activeMenu === 'categories' ? '카테고리 관리' :
                             activeMenu === 'collections' ? '악보모음집 관리' :
-                              activeMenu === 'event-discounts' ? '이벤트 할인악보 관리' :
+                              activeMenu === 'event-discounts' ? '타임특가 관리' :
                                 activeMenu === 'orders' ? '주문 관리' :
                                   activeMenu === 'inquiries' ? '문의 관리' :
                                     activeMenu === 'chat' ? '실시간 채팅' :

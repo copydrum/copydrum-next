@@ -125,8 +125,8 @@
       "steps": {
         "event": {
           "title": "Event Sheets",
-          "detail": "Check out sheet music offered at 100 won or discounted prices for a limited time in the special sale section.",
-          "highlight": "Event sheets are limited quantity/period, so check quickly!"
+          "detail": "In the Flash Sale corner, new songs are available at a discount for a limited time.",
+          "highlight": "Prices return to normal when the timer ends. Check back often!"
         },
         "cash": {
           "title": "Sheet Cash Recharge",
@@ -138,6 +138,7 @@
         }
       },
       "cta": {
+        "eventSale": "View flash sales",
         "customOrder": "Apply for Custom Order",
         "customOrders": "Check Ongoing Orders"
       }

@@ -1,61 +1,63 @@
 {
-  "header": {
-    "badge": "Ottieni spartiti per batteria popolari per soli 100 won!",
-    "title": "Evento speciale 100 won",
-    "description": "Non perdere questi spartiti per batteria in super promozione a tempo limitato. Ottieni canzoni popolari per soli 100 won e inizia a suonare oggi!"
+  "nav": "Offerte lampo",
+  "badge": {
+    "sale": "Offerta",
+    "percentOff": "Sconto {{percent}}%",
+    "live": "In corso",
+    "soon": "In arrivo"
   },
-  "countdownNotice": "Controlla il timer del countdown in tempo reale!",
-  "loading": "Caricamento informazioni evento...",
-  "countdown": {
-    "startingSoon": "Inizio imminente",
+  "timer": {
+    "endsIn": "Termina tra",
     "startsIn": "Inizia tra",
-    "timeLeft": "⏰ Tempo rimanente",
-    "dayUnit": "g",
-    "starts": "Inizia"
+    "dayCount": "{{count}} g",
+    "ended": "Terminata",
+    "days": "Giorni",
+    "hours": "Ore",
+    "minutes": "Min",
+    "seconds": "Sec"
   },
-  "buttons": {
-    "only100Won": "Solo 100 won!",
-    "addToFavorites": "Aggiungi ai preferiti",
-    "removeFromFavorites": "Rimuovi dai preferiti",
-    "viewDetails": "Visualizza dettagli",
-    "buyNow": "Acquista ora",
-    "processing": "Elaborazione in corso...",
-    "saleEnded": "Promozione terminata"
+  "price": {
+    "original": "Prezzo pieno",
+    "sale": "Prezzo scontato"
   },
-  "labels": {
-    "eventSheet": "Spartito evento",
-    "saleEnded": "Promozione terminata",
-    "only100WonBadge": "Solo 100 won!",
-    "100Won": "100 won",
-    "discount": "di sconto",
-    "startingSoon": "Inizio imminente"
+  "page": {
+    "title": "Offerte lampo",
+    "subtitle": "Nuovi spartiti per batteria a prezzo speciale, solo per un tempo limitato. Allo scadere del timer torna il prezzo pieno.",
+    "soonestEnd": "La prossima offerta termina tra",
+    "nextOpen": "La prossima offerta inizia tra",
+    "liveTitle": "Offerte in corso",
+    "liveCount": "{{count}} spartiti in offerta",
+    "upcomingTitle": "In arrivo",
+    "upcomingDesc": "Torna quando l'offerta si apre.",
+    "emptyTitle": "Nessuna offerta lampo al momento",
+    "emptyDesc": "Lanciamo brevi offerte a ogni nuova canzone. Torna spesso!",
+    "browseLatest": "Vedi gli ultimi spartiti",
+    "noticeTitle": "Informazioni sull'offerta",
+    "notice1": "I prezzi scontati valgono solo nel periodo indicato e tornano al prezzo pieno allo scadere del timer.",
+    "notice2": "Gli articoli nel carrello vengono addebitati a prezzo pieno se l'offerta è terminata al momento del pagamento.",
+    "notice3": "Puoi riscaricare gli spartiti acquistati in qualsiasi momento da La mia pagina > Acquisti."
   },
-  "sections": {
-    "ongoing": {
-      "title": "Promozione speciale 100 won in corso",
-      "description": "Spartiti evento disponibili per l'acquisto ora.",
-      "activeCount": "{{count}} attivi",
-      "noEvents": "Non ci sono eventi in corso. Controlla gli eventi programmati qui sotto!"
-    },
-    "scheduled": {
-      "title": "Eventi programmati",
-      "description": "Controlla gli eventi imminenti e preparati per le notifiche.",
-      "scheduledCount": "{{count}} programmati"
-    },
-    "ended": {
-      "title": "Eventi terminati"
-    }
+  "actions": {
+    "buyNow": "Acquista in offerta",
+    "addToCart": "Aggiungi al carrello",
+    "inCart": "Nel carrello",
+    "viewDetail": "Vedi dettagli",
+    "viewAll": "Vedi tutto",
+    "purchased": "Acquistato"
   },
-  "messages": {
-    "loginRequired": "Accesso richiesto.",
-    "loginRequiredConfirm": "Accesso richiesto. Vai alla pagina di accesso?",
-    "checkDownloadPage": "Controlla il tuo spartito nella pagina di download.",
-    "paymentError": "Si è verificato un errore durante il pagamento.",
-    "favoriteError": "Si è verificato un errore durante l'elaborazione del tuo preferito. Riprova più tardi."
+  "home": {
+    "title": "Offerte lampo",
+    "subtitle": "I prezzi risalgono allo scadere del timer. Approfittane ora!",
+    "upcomingSubtitle": "Una nuova offerta sta per iniziare. Controlla l'orario di apertura!"
   },
-  "console": {
-    "loadEventsError": "Errore nel caricamento dell'elenco spartiti in promozione evento:",
-    "loadFavoritesError": "Errore nel caricamento dell'elenco preferiti:",
-    "toggleFavoriteError": "Errore nell'elaborazione del toggle preferito:"
+  "detail": {
+    "liveBanner": "Offerta lampo in corso",
+    "endsIn": "L'offerta termina tra",
+    "upcomingBanner": "Offerta lampo in arrivo",
+    "upcomingInfo": "Disponibile a {{price}} dal {{date}}.",
+    "saleNotice": "Allo scadere del timer torna il prezzo pieno."
+  },
+  "cart": {
+    "saleApplied": "Sconto applicato"
   }
 }

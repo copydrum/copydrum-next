@@ -1,4 +1,8 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { EVENT_CHECKOUT_GRACE_MS, EVENT_PRICE_EXPIRED_MESSAGE } from '@/lib/eventDiscountRules';
+
+/** 이 기간 안에 끝난 이벤트 할인가로 들어온 주문에는 "이벤트 종료" 안내를 돌려준다 */
+const RECENTLY_ENDED_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
 
 export interface PricedOrderItem {
   sheetId: string;
@@ -68,17 +72,23 @@ export async function validateOrderPricing(
   }
 
   // 활성 이벤트 할인가 적용 → 곡별 최저 정당 가격
-  const nowIso = new Date().toISOString();
+  // 결제 도중 이벤트가 끝난 손님을 위해 종료 후 EVENT_CHECKOUT_GRACE_MS 까지는 할인가를 인정한다.
+  const now = Date.now();
   const { data: discountRows } = await supabase
     .from('event_discount_sheet_view')
     .select('sheet_id, discount_price, is_active, event_start, event_end')
     .in('sheet_id', requestedIds)
     .eq('is_active', true)
-    .lte('event_start', nowIso)
-    .gte('event_end', nowIso);
+    .lte('event_start', new Date(now).toISOString())
+    .gte('event_end', new Date(now - RECENTLY_ENDED_WINDOW_MS).toISOString());
 
   const discountMap = new Map<string, number>();
+  let hasRecentlyEndedEvent = false;
   for (const row of discountRows || []) {
+    if (new Date(row.event_end).getTime() + EVENT_CHECKOUT_GRACE_MS < now) {
+      hasRecentlyEndedEvent = true;
+      continue;
+    }
     const dp = Math.max(0, Math.round(Number(row.discount_price) || 0));
     discountMap.set(row.sheet_id, dp);
   }
@@ -128,5 +138,8 @@ export async function validateOrderPricing(
     }
   }
 
+  if (hasRecentlyEndedEvent) {
+    return EVENT_PRICE_EXPIRED_MESSAGE;
+  }
   return '주문 금액이 정상 가격보다 낮습니다.';
 }

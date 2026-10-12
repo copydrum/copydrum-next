@@ -10,6 +10,7 @@ import type { PaymentMethod, PaymentMethodOption } from '../components/payments'
 import { processCashPurchase } from '../lib/cashPurchases';
 import { supabase } from '../lib/supabase'; // ✅ DB 직접 조회용
 import { useGuestCheckoutStore } from '../stores/guestCheckoutStore';
+import { resolveSheetPrice } from '../lib/eventDiscounts';
 
 // 은행 코드 한글 변환 맵
 const BANK_CODE_MAP: Record<string, string> = {
@@ -79,7 +80,11 @@ export function useBuyNow(user: User | null): UseBuyNowReturn {
   const [pendingSheet, setPendingSheet] = useState<SheetForBuyNow | null>(null);
 
   const handleBuyNow = useCallback(
-    async (sheet: SheetForBuyNow) => {
+    async (rawSheet: SheetForBuyNow) => {
+      // 화면에 표시된 가격과 무관하게, 주문 직전에 진행 중인 특가를 다시 확인해 결제 금액을 정한다.
+      const { price: resolvedPrice } = await resolveSheetPrice(rawSheet.id, rawSheet.price);
+      const sheet: SheetForBuyNow = { ...rawSheet, price: resolvedPrice };
+
       if (!user) {
         // 비로그인 시: 로그인 페이지로 보내는 대신 게스트 결제 모달을 띄운다.
         // 바로구매하려던 상품을 함께 넘겨, 이메일 입력 후 세션이 수립되면

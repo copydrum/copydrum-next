@@ -125,8 +125,8 @@
       "steps": {
         "event": {
           "title": "Partituras de Eventos",
-          "detail": "Confira partituras oferecidas a 100 won ou preços com desconto por tempo limitado na seção de super promoção.",
-          "highlight": "As partituras de eventos são de quantidade/período limitado, então verifique rapidamente!"
+          "detail": "Na seção de ofertas relâmpago, músicas novas ficam com desconto por tempo limitado.",
+          "highlight": "O preço volta ao normal quando o cronômetro zerar. Confira sempre!"
         },
         "cash": {
           "title": "Recarga de Saldo",
@@ -138,6 +138,7 @@
         }
       },
       "cta": {
+        "eventSale": "Ver ofertas relâmpago",
         "customOrder": "Solicitar Pedido Personalizado",
         "customOrders": "Verificar Pedidos em Andamento"
       }

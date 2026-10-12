@@ -21,6 +21,9 @@ import { sanitizeLessonDetailHtml } from '@/lib/sanitizeLessonDetailHtml';
 import RelatedSheets from './RelatedSheets';
 import ReviewSection from './ReviewSection';
 import { generateDefaultThumbnail } from '@/lib/defaultThumbnail';
+import { useEventSales } from '@/hooks/useEventSales';
+import EventSaleDetailBanner from '@/components/event-sale/EventSaleDetailBanner';
+import SalePrice from '@/components/event-sale/SalePrice';
 
 interface DrumSheet {
   id: string;
@@ -318,6 +321,10 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
 
   const isFreeSheet = getSheetPrice() === 0;
 
+  const eventSales = useEventSales();
+  const activeEvent = isFreeSheet ? null : eventSales.getActiveEvent(sheet.id);
+  const scheduledEvent = isFreeSheet || activeEvent ? null : eventSales.getScheduledEvent(sheet.id);
+
   // 무료 악보 직접 다운로드
   const [downloadingFree, setDownloadingFree] = useState(false);
   const handleFreeDownload = async () => {
@@ -575,9 +582,14 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
                     </div>
                   </div>
                   <div className="text-right flex-shrink-0 flex flex-col items-end gap-2">
-                    <span className="text-2xl font-bold text-blue-600">
-                      {formatCurrency(displayPrice)}
-                    </span>
+                    <SalePrice
+                      price={displayPrice}
+                      event={activeEvent}
+                      size="lg"
+                      stacked
+                      align="end"
+                      regularClassName="text-2xl font-bold text-blue-600"
+                    />
                     <button
                       type="button"
                       onClick={handleToggleFavorite}
@@ -594,6 +606,16 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
                   </div>
                 </div>
               </div>
+
+              {(activeEvent || scheduledEvent) && (
+                <EventSaleDetailBanner
+                  className="lg:hidden"
+                  event={(activeEvent || scheduledEvent)!}
+                  mode={activeEvent ? 'active' : 'scheduled'}
+                  price={displayPrice}
+                  showPrice={false}
+                />
+              )}
 
               {/* 3. 모바일: 악보 미리보기 */}
               {sheet.preview_image_url && (
@@ -741,6 +763,13 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
               </div>
 
               {/* Price */}
+              {activeEvent ? (
+                <EventSaleDetailBanner event={activeEvent} mode="active" price={displayPrice} />
+              ) : (
+              <>
+              {scheduledEvent && (
+                <EventSaleDetailBanner event={scheduledEvent} mode="scheduled" price={displayPrice} />
+              )}
               <div className={`rounded-lg p-6 ${isFreeSheet ? 'bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200' : 'bg-gray-50'}`}>
                 <div className="flex items-center justify-between">
                   <div className="space-y-2">
@@ -762,6 +791,8 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
                   </div>
                 </div>
               </div>
+              </>
+              )}
 
               {/* Action Buttons */}
               <div className="space-y-4">
@@ -819,12 +850,16 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
                       <button
                         onClick={handleBuyNow}
                         disabled={buyingNow}
-                        className="sheet-action-btn btn-buy px-4 py-2.5 sm:px-6 sm:py-3 text-sm sm:text-base w-1/2 sm:w-auto h-auto min-w-0 sm:min-w-[120px]"
+                        className={`sheet-action-btn btn-buy px-4 py-2.5 sm:px-6 sm:py-3 text-sm sm:text-base w-1/2 sm:w-auto h-auto min-w-0 sm:min-w-[120px] ${
+                          activeEvent ? 'btn-buy-sale' : ''
+                        }`}
                       >
                         <span>
                           {buyingNow
                             ? t('sheetDetail.purchaseProcessing') || t('sheet.buyNowProcessing') || '처리 중...'
-                            : t('categoriesPage.buyNow')}
+                            : activeEvent
+                              ? t('eventSale.actions.buyNow')
+                              : t('categoriesPage.buyNow')}
                         </span>
                       </button>
                     </div>
@@ -1093,7 +1128,14 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
               <div className="flex items-center gap-3 px-4 py-3">
                 {/* 가격 */}
                 <div className="flex-shrink-0 min-w-0">
-                  <span className="text-lg font-bold text-blue-600 leading-tight">{formatCurrency(displayPrice)}</span>
+                  <SalePrice
+                    price={displayPrice}
+                    event={activeEvent}
+                    size="md"
+                    stacked
+                    showPercent={false}
+                    regularClassName="text-lg font-bold text-blue-600 leading-tight"
+                  />
                 </div>
                 {/* 장바구니 아이콘 버튼 */}
                 <button
@@ -1112,12 +1154,18 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
                 <button
                   onClick={handleBuyNow}
                   disabled={buyingNow}
-                  className="flex-1 flex items-center justify-center py-3 rounded-xl bg-blue-600 text-white text-sm font-bold hover:bg-blue-700 active:bg-blue-800 active:scale-95 transition-all disabled:opacity-60"
+                  className={`flex-1 flex items-center justify-center py-3 rounded-xl text-white text-sm font-bold active:scale-95 transition-all disabled:opacity-60 ${
+                    activeEvent
+                      ? 'bg-red-600 hover:bg-red-700 active:bg-red-800'
+                      : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800'
+                  }`}
                 >
                   <span className="truncate">
                     {buyingNow
                       ? (t('sheetDetail.purchaseProcessing') || '...')
-                      : t('categoriesPage.buyNow')}
+                      : activeEvent
+                        ? t('eventSale.actions.buyNow')
+                        : t('categoriesPage.buyNow')}
                   </span>
                 </button>
               </div>

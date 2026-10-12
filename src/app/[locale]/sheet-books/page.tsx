@@ -7,7 +7,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const canonical = canonicalFor(locale, '/sheet-books');
 
   return {
-    title: locale === 'ko' ? '악보집 | COPYDRUM' : 'Sheet Books | COPYDRUM',
+    title: locale === 'ko' ? '악보집' : 'Sheet Books',
     description:
       locale === 'ko'
         ? '여러 곡이 한 권으로 담긴 PDF 드럼 악보집을 만나보세요.'

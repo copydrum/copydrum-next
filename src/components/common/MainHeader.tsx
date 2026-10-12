@@ -9,6 +9,7 @@ import LanguageSelector from './LanguageSelector';
 import { useLocaleRouter } from '@/hooks/useLocaleRouter';
 import { getLocaleFromPathname, removeLocaleFromPathname } from '@/lib/localeUrl';
 import { useCart } from '../../hooks/useCart';
+import { useEventSales } from '../../hooks/useEventSales';
 import {
   COLLECTIONS_PUBLIC_ENABLED,
   FREE_LESSONS_PUBLIC_ENABLED,
@@ -30,6 +31,7 @@ export default function MainHeader({ user }: MainHeaderProps) {
   const isGlobalSite = currentLocale !== 'ko';
   const isKoreanSite = currentLocale === 'ko';
   const { cartItems } = useCart();
+  const eventSales = useEventSales();
   // location.search dependency is implicit because usePathname() triggers re-render
 
   // 장르 목록 (순서대로) - 한글 원본 (한글 사이트용)
@@ -311,6 +313,24 @@ export default function MainHeader({ user }: MainHeaderProps) {
 
         {/* Navigation Menu */}
         <nav className="flex items-center justify-center space-x-8 pb-2" suppressHydrationWarning>
+          {eventSales.hasAny && (
+            <button
+              onClick={() => router.push('/event-sale')}
+              className={`relative inline-flex items-center gap-1.5 font-bold text-lg whitespace-nowrap cursor-pointer transition-all duration-200 ${
+                removeLocaleFromPathname(pathname).startsWith('/event-sale')
+                  ? 'text-red-300 underline'
+                  : 'text-red-400 hover:text-red-300 hover:underline'
+              }`}
+            >
+              {eventSales.hasActive && (
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500" />
+                </span>
+              )}
+              {t('eventSale.nav')}
+            </button>
+          )}
           {navItems.map((item) => {
             const isActive = activeCategoryId === item.id;
             return (

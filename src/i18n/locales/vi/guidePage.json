@@ -125,8 +125,8 @@
       "steps": {
         "event": {
           "title": "Sheet sự kiện",
-          "detail": "Kiểm tra sheet music được cung cấp với giá 100 won hoặc giá giảm trong thời gian có hạn trong phần bán đặc biệt.",
-          "highlight": "Sheet sự kiện có số lượng/thời gian giới hạn, vì vậy hãy kiểm tra nhanh!"
+          "detail": "Tại mục Flash Sale, bài mới được giảm giá trong thời gian giới hạn.",
+          "highlight": "Hết giờ giá sẽ trở về bình thường. Hãy ghé thường xuyên!"
         },
         "cash": {
           "title": "Nạp tiền Sheet Cash",
@@ -138,6 +138,7 @@
         }
       },
       "cta": {
+        "eventSale": "Xem flash sale",
         "customOrder": "Đăng ký đặt hàng tùy chỉnh",
         "customOrders": "Kiểm tra đơn hàng đang diễn ra"
       }

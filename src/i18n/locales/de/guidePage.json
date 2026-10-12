@@ -125,8 +125,8 @@
       "steps": {
         "event": {
           "title": "Event-Notenblätter",
-          "detail": "Schauen Sie sich Notenblätter an, die für eine begrenzte Zeit zu 100 Won oder reduzierten Preisen im Sonderverkaufsbereich angeboten werden.",
-          "highlight": "Event-Notenblätter sind begrenzte Menge/Zeitraum, also schnell überprüfen!"
+          "detail": "Im Flash-Sale-Bereich gibt es neue Songs für kurze Zeit zum reduzierten Preis.",
+          "highlight": "Nach Ablauf des Timers gilt wieder der Normalpreis. Schau oft vorbei!"
         },
         "cash": {
           "title": "Notenblatt-Guthaben aufladen",
@@ -138,6 +138,7 @@
         }
       },
       "cta": {
+        "eventSale": "Flash Sales ansehen",
         "customOrder": "Individuelle Bestellung beantragen",
         "customOrders": "Laufende Bestellungen überprüfen"
       }

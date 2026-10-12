@@ -24,6 +24,8 @@ export interface CheckoutItem {
   title: string;
   artist?: string;
   price: number;
+  /** 특가 적용 시 정가 (표시용) */
+  original_price?: number;
   thumbnail_url?: string | null;
   quantity?: number;
   sales_type?: 'INSTANT' | 'PREORDER';
@@ -312,9 +314,21 @@ export default function OnePageCheckout({
 
                     {/* 가격 + 삭제 */}
                     <div className="flex items-center gap-2 flex-shrink-0">
-                      <p className="font-bold text-gray-900">
-                        {formatCurrency(convertFromKrw(item.price * (item.quantity || 1), currency, i18n.language), currency)}
-                      </p>
+                      <div className="text-right">
+                        {item.original_price && item.original_price > item.price && (
+                          <p className="text-xs text-gray-400">
+                            <span className="mr-1 rounded bg-red-50 px-1 py-px font-semibold text-red-600">
+                              {t('eventSale.badge.sale')}
+                            </span>
+                            <span className="line-through">
+                              {formatCurrency(convertFromKrw(item.original_price * (item.quantity || 1), currency, i18n.language), currency)}
+                            </span>
+                          </p>
+                        )}
+                        <p className={`font-bold ${item.original_price && item.original_price > item.price ? 'text-red-600' : 'text-gray-900'}`}>
+                          {formatCurrency(convertFromKrw(item.price * (item.quantity || 1), currency, i18n.language), currency)}
+                        </p>
+                      </div>
                       {onRemoveItem && (
                         <button
                           type="button"

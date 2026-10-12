@@ -181,6 +181,7 @@ export default function GuidePage() {
         }
       ],
       cta: [
+        { label: t('guidePage.sections.discounts.cta.eventSale'), href: '/event-sale' },
         { label: t('guidePage.sections.discounts.cta.customOrder'), href: '/custom-order' },
         { label: t('guidePage.sections.discounts.cta.customOrders'), href: '/custom-orders' }
       ]

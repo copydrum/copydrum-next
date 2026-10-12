@@ -5,13 +5,10 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { createClient } from '@/lib/supabase/client';
-import {
-  getSiteCurrency,
-  convertFromKrw,
-  formatCurrency as formatCurrencyUtil,
-} from '@/lib/currency';
 import { generateDefaultThumbnail } from '@/lib/defaultThumbnail';
 import StarRating from '@/components/reviews/StarRating';
+import SalePrice from '@/components/event-sale/SalePrice';
+import { useEventSales } from '@/hooks/useEventSales';
 import { fetchReviewStatsMap, type ReviewStatsMap } from '@/lib/reviews/reviewStats';
 
 interface RelatedSheet {
@@ -43,13 +40,10 @@ export default function RelatedSheets({
   const [sheets, setSheets] = useState<RelatedSheet[]>([]);
   const [reviewStats, setReviewStats] = useState<ReviewStatsMap>({});
   const [loading, setLoading] = useState(true);
+  const eventSales = useEventSales();
 
   // 현재 URL 의 첫 세그먼트(= locale path)를 그대로 사용해 리다이렉트 hop 을 방지
   const localePrefix = (pathname?.split('/').filter(Boolean)[0]) || 'en';
-
-  const currency = getSiteCurrency(undefined, i18n.language);
-  const formatPrice = (value: number) =>
-    formatCurrencyUtil(convertFromKrw(value, currency, i18n.language), currency);
 
   useEffect(() => {
     let active = true;
@@ -162,11 +156,16 @@ export default function RelatedSheets({
                 className="mt-1"
               />
               <p className="text-sm font-bold text-blue-600 mt-1">
-                {(s.price ?? 0) === 0
-                  ? i18n.language === 'ko'
-                    ? '무료'
-                    : 'Free'
-                  : formatPrice(s.price ?? 0)}
+                {(s.price ?? 0) === 0 ? (
+                  i18n.language === 'ko' ? '무료' : 'Free'
+                ) : (
+                  <SalePrice
+                    price={s.price ?? 0}
+                    event={eventSales.getActiveEvent(s.id)}
+                    size="sm"
+                    regularClassName="text-blue-600 font-bold"
+                  />
+                )}
               </p>
             </div>
           </Link>

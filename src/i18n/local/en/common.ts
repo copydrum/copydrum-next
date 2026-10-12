@@ -278,19 +278,11 @@ export default {
   'home.banner.browseButton': 'Browse Sheet Music',
   'home.latestSheets': 'Latest Sheets',
   'home.popularSheets': 'Popular Sheets',
-  'home.eventSale': '100 Won Sale',
   'home.favorite': 'Add to Favorites',
   'home.unfavorite': 'Remove from Favorites',
   'home.loginRequired': 'Login is required.',
   'home.favoriteError': 'An error occurred while processing your favorite. Please try again later.',
   'home.originalPrice': 'Original Price',
-  'home.eventSaleTitle': '100 Won Sale Event',
-  'home.eventSaleSubtitle': 'Get Popular Drum Sheet Music for Just 100 Won',
-  'home.eventSaleDescription': 'Don\'t miss out on this limited-time super sale event.',
-  'home.viewAllEvents': 'View All Events',
-  'home.loadingEvents': 'Loading 100 Won sale sheets...',
-  'home.noActiveEvents': 'There are currently no active 100 Won sale events.',
-  'home.noActiveEventsSub': 'New sales will be available soon. Please wait a moment!',
   'home.saleEnded': 'Sale Ended',
   'home.discount': '{{percent}}% Off',
 
@@ -438,13 +430,7 @@ export default {
   'footer.globalService': 'Global Service | English / Japanese / Vietnamese / French / German / Spanish / Portuguese',
 
   // Home Page - Additional translations
-  'home.eventSaleEvent': '100 Won Sale Event',
-  'home.eventSaleSubtitleFull': 'Get Popular Drum Sheet Music for Just 100 Won',
-  'home.eventSaleDescriptionFull': 'This is a limited-time super sale event. Check the real-time timer and add your desired sheet music right away.',
 
-  'home.loadingEventsFull': 'Loading 100 Won sale sheets...',
-  'home.noActiveEventsFull': 'There are currently no active 100 Won sale events.',
-  'home.noActiveEventsSubFull': 'New sales will be available soon. Please wait a moment!',
   'home.prevSlide': 'Previous slide',
   'home.nextSlide': 'Next slide',
   'home.slideNumber': 'Go to slide {{number}}',
@@ -504,8 +490,6 @@ export default {
   'categories.alreadyInCart': 'Already in Cart',
   'categories.buyNow': 'Buy Now',
   'categories.buyNowInstant': 'Buy Now',
-  'categories.eventBuyNow': 'Buy for 100 Won',
-  
   // Sheet
   'sheet.buyNow': 'Buy Now',
   'sheet.buyNowProcessing': 'Processing...',

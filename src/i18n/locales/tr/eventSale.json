@@ -1,61 +1,63 @@
 {
-  "header": {
-    "badge": "Popüler Davul Notalarını Sadece 100 Won'a Alın!",
-    "title": "100 Won Özel Satış ETKİNLİĞİ",
-    "description": "Bu sınırlı süreli süper indirimli davul notalarını kaçırmayın. Popüler şarkıları sadece 100 won'a alın ve bugün çalmaya başlayın!"
+  "nav": "Flaş İndirim",
+  "badge": {
+    "sale": "İndirim",
+    "percentOff": "%{{percent}} indirim",
+    "live": "Canlı",
+    "soon": "Yakında"
   },
-  "countdownNotice": "Gerçek zamanlı geri sayım zamanlayıcısını kontrol edin!",
-  "loading": "Etkinlik bilgileri yükleniyor...",
-  "countdown": {
-    "startingSoon": "Yakında başlıyor",
-    "startsIn": "Başlıyor",
-    "timeLeft": "⏰ Kalan süre",
-    "dayUnit": "g",
-    "starts": "Başlıyor"
+  "timer": {
+    "endsIn": "Bitmesine",
+    "startsIn": "Başlamasına",
+    "dayCount": "{{count}} g",
+    "ended": "Sona erdi",
+    "days": "Gün",
+    "hours": "Saat",
+    "minutes": "Dk",
+    "seconds": "Sn"
   },
-  "buttons": {
-    "only100Won": "Sadece 100 Won!",
-    "addToFavorites": "Favorilere ekle",
-    "removeFromFavorites": "Favorilerden çıkar",
-    "viewDetails": "Detayları Görüntüle",
-    "buyNow": "Hemen Satın Al",
-    "processing": "İşleniyor...",
-    "saleEnded": "Satış Bitti"
+  "price": {
+    "original": "Normal fiyat",
+    "sale": "İndirimli fiyat"
   },
-  "labels": {
-    "eventSheet": "Etkinlik Notası",
-    "saleEnded": "Satış Bitti",
-    "only100WonBadge": "Sadece 100 Won!",
-    "100Won": "100 Won",
-    "discount": "İndirim",
-    "startingSoon": "Yakında Başlıyor"
+  "page": {
+    "title": "Flaş İndirim",
+    "subtitle": "Yeni davul notaları sınırlı süre için özel fiyatla. Sayaç bitince fiyat normale döner.",
+    "soonestEnd": "Sıradaki indirimin bitmesine",
+    "nextOpen": "Sıradaki indirimin başlamasına",
+    "liveTitle": "Devam eden indirimler",
+    "liveCount": "{{count}} nota indirimde",
+    "upcomingTitle": "Yakında",
+    "upcomingDesc": "İndirim başladığında tekrar uğrayın.",
+    "emptyTitle": "Şu anda flaş indirim yok",
+    "emptyDesc": "Yeni şarkılar geldiğinde kısa süreli indirimler yapıyoruz. Sık sık uğrayın!",
+    "browseLatest": "En yeni notalara göz at",
+    "noticeTitle": "İndirim bilgileri",
+    "notice1": "İndirimli fiyatlar yalnızca gösterilen süre boyunca geçerlidir ve sayaç bitince normal fiyata döner.",
+    "notice2": "Ödeme sırasında indirim sona ermişse sepetteki ürünler normal fiyattan ücretlendirilir.",
+    "notice3": "Satın aldığınız notaları Sayfam > Satın Alımlar bölümünden istediğiniz zaman yeniden indirebilirsiniz."
   },
-  "sections": {
-    "ongoing": {
-      "title": "Devam Eden 100 Won Özel Satış",
-      "description": "Şu anda satın alınabilir etkinlik notaları.",
-      "activeCount": "{{count}} Aktif",
-      "noEvents": "Devam eden etkinlik yok. Aşağıdaki planlanmış etkinlikleri kontrol edin!"
-    },
-    "scheduled": {
-      "title": "Planlanmış Etkinlikler",
-      "description": "Yaklaşan etkinlikleri kontrol edin ve bildirimler için hazırlanın.",
-      "scheduledCount": "{{count}} Planlandı"
-    },
-    "ended": {
-      "title": "Biten Etkinlikler"
-    }
+  "actions": {
+    "buyNow": "İndirimli satın al",
+    "addToCart": "Sepete ekle",
+    "inCart": "Sepette",
+    "viewDetail": "Detayları gör",
+    "viewAll": "Tümünü gör",
+    "purchased": "Satın alındı"
   },
-  "messages": {
-    "loginRequired": "Giriş gerekli.",
-    "loginRequiredConfirm": "Giriş gerekli. Giriş sayfasına gidilsin mi?",
-    "checkDownloadPage": "Notanızı indirme sayfasında kontrol edin.",
-    "paymentError": "Ödeme sırasında bir hata oluştu.",
-    "favoriteError": "Favorileriniz işlenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin."
+  "home": {
+    "title": "Flaş İndirim",
+    "subtitle": "Sayaç bitince fiyatlar yükselir. Hemen yakala!",
+    "upcomingSubtitle": "Yeni bir indirim başlamak üzere. Başlangıç saatini kontrol et!"
   },
-  "console": {
-    "loadEventsError": "Etkinlik indirimli nota listesi yükleme hatası:",
-    "loadFavoritesError": "Favoriler listesi yükleme hatası:",
-    "toggleFavoriteError": "Favori değiştirme işleme hatası:"
+  "detail": {
+    "liveBanner": "Flaş indirim devam ediyor",
+    "endsIn": "İndirimin bitmesine",
+    "upcomingBanner": "Flaş indirim yakında",
+    "upcomingInfo": "{{date}} itibarıyla {{price}} fiyatla satın alınabilir.",
+    "saleNotice": "Sayaç bitince fiyat normale döner."
+  },
+  "cart": {
+    "saleApplied": "İndirim uygulandı"
   }
 }

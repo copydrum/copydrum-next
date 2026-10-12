@@ -51,7 +51,7 @@
   "navigation": {
     "title": "Andere Seiten erkunden",
     "viewCategories": "Notenblatt-Kategorien anzeigen",
-    "eventSale": "Event-Verkaufs-Notenblätter",
+    "eventSale": "Flash Sale",
     "customOrder": "Individuelle Bestellungsanfrage"
   },
   "purchaseDescription": "Notenblatt-Sammlung Kauf: {{title}}",

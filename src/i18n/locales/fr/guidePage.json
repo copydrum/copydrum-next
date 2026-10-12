@@ -125,8 +125,8 @@
       "steps": {
         "event": {
           "title": "Partitions d'événement",
-          "detail": "Consultez les partitions proposées à 100 won ou à prix réduit pour une durée limitée dans la section promotion spéciale.",
-          "highlight": "Les partitions d'événement sont en quantité/période limitée, alors vérifiez rapidement !"
+          "detail": "Dans l'espace Ventes flash, les nouvelles chansons sont à prix réduit pendant une durée limitée.",
+          "highlight": "Le prix normal revient à la fin du compte à rebours. Revenez souvent !"
         },
         "cash": {
           "title": "Recharge de solde",
@@ -138,6 +138,7 @@
         }
       },
       "cta": {
+        "eventSale": "Voir les ventes flash",
         "customOrder": "Postuler pour une commande personnalisée",
         "customOrders": "Vérifier les commandes en cours"
       }

@@ -15,6 +15,7 @@ import {
   SHEET_BOOKS_PUBLIC_ENABLED,
 } from '@/config/featureFlags';
 import { CashChargeMenuCard } from '../cash/CashChargeEntry';
+import { useEventSales } from '../../hooks/useEventSales';
 
 interface Category {
   id: string;
@@ -55,6 +56,7 @@ export default function MobileMenuSidebar({
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isKoreanSite, setIsKoreanSite] = useState<boolean>(false);
   const [categories, setCategories] = useState<Category[]>([]);
+  const eventSales = useEventSales();
 
   // 호스트 타입을 컴포넌트 마운트 시 한 번만 계산
   useEffect(() => {
@@ -323,6 +325,21 @@ export default function MobileMenuSidebar({
           </div>
 
           {/* 기타 메뉴 아이템 */}
+          {eventSales.hasAny && (
+            <button
+              type="button"
+              onClick={() => handleNavigate('/event-sale')}
+              className="flex w-full items-center rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-left text-red-600 transition-colors hover:bg-red-100"
+            >
+              <i className="ri-timer-flash-line mr-3 text-lg text-red-500" />
+              <span className="text-sm font-bold">{t('eventSale.nav')}</span>
+              {eventSales.hasActive && (
+                <span className="ml-auto rounded-full bg-red-600 px-2 py-0.5 text-[10px] font-bold text-white">
+                  {t('eventSale.badge.live')}
+                </span>
+              )}
+            </button>
+          )}
           {menuItems.map((item) => {
             const isActive = pathname === item.href;
             return (

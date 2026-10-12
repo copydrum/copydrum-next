@@ -51,7 +51,7 @@
   "navigation": {
     "title": "探索其他頁面",
     "viewCategories": "查看樂譜類別",
-    "eventSale": "活動特價樂譜",
+    "eventSale": "限時特價",
     "customOrder": "客製訂單詢問"
   },
   "purchaseDescription": "樂譜收藏購買：{{title}}",

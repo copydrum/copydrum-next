@@ -51,7 +51,7 @@
   "navigation": {
     "title": "สำรวจหน้าอื่นๆ",
     "viewCategories": "ดูหมวดหมู่แผ่นเพลง",
-    "eventSale": "แผ่นเพลงลดราคา",
+    "eventSale": "แฟลชเซล",
     "customOrder": "สอบถามคำสั่งซื้อแบบกำหนดเอง"
   },
   "purchaseDescription": "ซื้อคอลเลกชันแผ่นเพลง: {{title}}",

@@ -51,7 +51,7 @@
   "navigation": {
     "title": "Explorar Outras Páginas",
     "viewCategories": "Ver Categorias de Partituras",
-    "eventSale": "Partituras de Promoção",
+    "eventSale": "Ofertas relâmpago",
     "customOrder": "Solicitação de Pedido Personalizado"
   },
   "purchaseDescription": "Compra de Coleção de Partituras: {{title}}",

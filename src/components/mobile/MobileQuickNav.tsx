@@ -4,6 +4,7 @@ import { useLocaleRouter } from '@/hooks/useLocaleRouter';
 import { usePathname } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { removeLocaleFromPathname } from '@/lib/localeUrl';
+import { useEventSales } from '@/hooks/useEventSales';
 import {
   COLLECTIONS_PUBLIC_ENABLED,
   FREE_LESSONS_PUBLIC_ENABLED,
@@ -19,6 +20,7 @@ interface QuickNavItem {
 
 const quickNavItems: QuickNavItem[] = [
   { key: 'home', labelKey: 'nav.home', href: '/', icon: 'ri-home-4-line' },
+  { key: 'eventSale', labelKey: 'eventSale.nav', href: '/event-sale', icon: 'ri-timer-flash-line' },
   { key: 'categories', labelKey: 'nav.categories', href: '/categories', icon: 'ri-apps-line' },
   { key: 'collections', labelKey: 'nav.collections', href: '/collections', icon: 'ri-stack-line' },
   { key: 'freeLessons', labelKey: 'freeLessons.nav.label', href: '/free-lessons', icon: 'ri-play-circle-line' },
@@ -31,6 +33,7 @@ export default function MobileQuickNav() {
   const router = useLocaleRouter();
   const pathname = usePathname();
   const { t } = useTranslation();
+  const eventSales = useEventSales();
 
   const pathWithoutLocale = removeLocaleFromPathname(pathname);
 
@@ -42,6 +45,7 @@ export default function MobileQuickNav() {
       >
         {quickNavItems
           .filter((item) => {
+            if (item.key === 'eventSale' && !eventSales.hasAny) return false;
             if (item.key === 'collections' && !COLLECTIONS_PUBLIC_ENABLED) return false;
             if (item.key === 'sheetBooks' && !SHEET_BOOKS_PUBLIC_ENABLED) return false;
             if (item.key === 'freeLessons' && !FREE_LESSONS_PUBLIC_ENABLED) return false;
@@ -59,9 +63,13 @@ export default function MobileQuickNav() {
               type="button"
               onClick={() => router.push(item.href)}
               className={`flex items-center gap-1.5 flex-shrink-0 px-3.5 py-2 rounded-full text-[13px] font-semibold whitespace-nowrap transition-all ${
-                isActive
-                  ? 'bg-blue-600 text-white shadow-sm'
-                  : 'bg-gray-50 text-gray-600 border border-gray-200 active:bg-gray-100'
+                item.key === 'eventSale'
+                  ? isActive
+                    ? 'bg-red-600 text-white shadow-sm'
+                    : 'bg-red-50 text-red-600 border border-red-200 active:bg-red-100'
+                  : isActive
+                    ? 'bg-blue-600 text-white shadow-sm'
+                    : 'bg-gray-50 text-gray-600 border border-gray-200 active:bg-gray-100'
               }`}
             >
               <i className={`${item.icon} text-[15px]`} />

@@ -1,61 +1,63 @@
 {
-  "header": {
-    "badge": "Obtenez des partitions de batterie populaires pour seulement 100 won !",
-    "title": "ÉVÉNEMENT Promotion spéciale 100 won",
-    "description": "Ne manquez pas ces partitions de batterie en super promotion à durée limitée. Obtenez des chansons populaires pour seulement 100 won et commencez à jouer dès aujourd'hui !"
+  "nav": "Ventes flash",
+  "badge": {
+    "sale": "Promo",
+    "percentOff": "{{percent}} % de remise",
+    "live": "En direct",
+    "soon": "Bientôt"
   },
-  "countdownNotice": "Vérifiez le compte à rebours en temps réel !",
-  "loading": "Chargement des informations sur l'événement...",
-  "countdown": {
-    "startingSoon": "Bientôt disponible",
-    "startsIn": "Démarre dans",
-    "timeLeft": "⏰ Temps restant",
-    "dayUnit": "j",
-    "starts": "Démarre"
+  "timer": {
+    "endsIn": "Se termine dans",
+    "startsIn": "Commence dans",
+    "dayCount": "{{count}} j",
+    "ended": "Terminée",
+    "days": "Jours",
+    "hours": "H",
+    "minutes": "Min",
+    "seconds": "Sec"
   },
-  "buttons": {
-    "only100Won": "Seulement 100 won !",
-    "addToFavorites": "Ajouter aux favoris",
-    "removeFromFavorites": "Retirer des favoris",
-    "viewDetails": "Voir les détails",
-    "buyNow": "Acheter maintenant",
-    "processing": "Traitement en cours...",
-    "saleEnded": "Promotion terminée"
+  "price": {
+    "original": "Prix normal",
+    "sale": "Prix promo"
   },
-  "labels": {
-    "eventSheet": "Partition d'événement",
-    "saleEnded": "Promotion terminée",
-    "only100WonBadge": "Seulement 100 won !",
-    "100Won": "100 won",
-    "discount": "De réduction",
-    "startingSoon": "Bientôt disponible"
+  "page": {
+    "title": "Ventes flash",
+    "subtitle": "De nouvelles partitions de batterie à prix spécial, pour une durée limitée. À la fin du compte à rebours, le prix normal revient.",
+    "soonestEnd": "La prochaine vente se termine dans",
+    "nextOpen": "La prochaine vente commence dans",
+    "liveTitle": "Promos en cours",
+    "liveCount": "{{count}} partitions en promo",
+    "upcomingTitle": "Bientôt",
+    "upcomingDesc": "Revenez à l'ouverture de la vente.",
+    "emptyTitle": "Aucune vente flash pour le moment",
+    "emptyDesc": "Nous lançons de courtes promos à chaque nouvelle chanson. Revenez souvent !",
+    "browseLatest": "Voir les dernières partitions",
+    "noticeTitle": "Informations sur la vente",
+    "notice1": "Les prix promo ne s'appliquent que pendant la période indiquée et reviennent au prix normal à la fin du compte à rebours.",
+    "notice2": "Les articles du panier sont facturés au prix normal si la vente est terminée au moment du paiement.",
+    "notice3": "Vous pouvez retélécharger vos partitions achetées à tout moment depuis Ma page > Achats."
   },
-  "sections": {
-    "ongoing": {
-      "title": "Promotion spéciale 100 won en cours",
-      "description": "Partitions d'événement disponibles à l'achat maintenant.",
-      "activeCount": "{{count}} Actif",
-      "noEvents": "Il n'y a pas d'événements en cours. Consultez les événements programmés ci-dessous !"
-    },
-    "scheduled": {
-      "title": "Événements programmés",
-      "description": "Consultez les événements à venir et préparez-vous pour les notifications.",
-      "scheduledCount": "{{count}} Programmé"
-    },
-    "ended": {
-      "title": "Événements terminés"
-    }
+  "actions": {
+    "buyNow": "Acheter au prix promo",
+    "addToCart": "Ajouter au panier",
+    "inCart": "Dans le panier",
+    "viewDetail": "Voir le détail",
+    "viewAll": "Tout voir",
+    "purchased": "Acheté"
   },
-  "messages": {
-    "loginRequired": "Connexion requise.",
-    "loginRequiredConfirm": "Connexion requise. Aller à la page de connexion ?",
-    "checkDownloadPage": "Vérifiez votre partition dans la page de téléchargement.",
-    "paymentError": "Une erreur s'est produite lors du paiement.",
-    "favoriteError": "Une erreur s'est produite lors du traitement de votre favori. Veuillez réessayer plus tard."
+  "home": {
+    "title": "Ventes flash",
+    "subtitle": "Les prix remontent à la fin du compte à rebours. Profitez-en maintenant !",
+    "upcomingSubtitle": "Une nouvelle vente va bientôt commencer. Vérifiez l'heure d'ouverture !"
   },
-  "console": {
-    "loadEventsError": "Erreur de chargement de la liste des partitions en promotion :",
-    "loadFavoritesError": "Erreur de chargement de la liste des favoris :",
-    "toggleFavoriteError": "Erreur de traitement du basculement des favoris :"
+  "detail": {
+    "liveBanner": "Vente flash en cours",
+    "endsIn": "La promo se termine dans",
+    "upcomingBanner": "Vente flash bientôt disponible",
+    "upcomingInfo": "Disponible à {{price}} à partir du {{date}}.",
+    "saleNotice": "Le prix normal revient à la fin du compte à rebours."
+  },
+  "cart": {
+    "saleApplied": "Promo appliquée"
   }
 }

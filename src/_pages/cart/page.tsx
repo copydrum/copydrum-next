@@ -12,6 +12,7 @@ import type { CheckoutItem } from '@/components/checkout/OnePageCheckout';
 import { useGuestCheckoutStore } from '../../stores/guestCheckoutStore';
 import { useDialogStore } from '../../stores/dialogStore';
 import { formatCurrency, getSiteCurrency, convertFromKrw } from '@/lib/currency';
+import EventCountdown from '@/components/event-sale/EventCountdown';
 
 const toCheckoutItem = (item: CartItem): CheckoutItem => ({
   id: item.id,
@@ -19,13 +20,14 @@ const toCheckoutItem = (item: CartItem): CheckoutItem => ({
   title: item.title,
   artist: item.artist,
   price: item.price,
+  original_price: item.original_price,
   thumbnail_url: item.image,
   quantity: 1,
   sales_type: item.sales_type || 'INSTANT',
 });
 
 export default function CartPageWithCheckout() {
-  const { cartItems, loading, removeFromCart, removeSelectedItems, clearCart, getTotalPrice } = useCart();
+  const { cartItems, loading, removeFromCart, removeSelectedItems, clearCart, getTotalPrice, loadCartItems } = useCart();
   const { user } = useAuthStore();
   const { credits } = useUserCredits(user);
   const { showAlert, showConfirm } = useDialogStore();
@@ -364,6 +366,13 @@ export default function CartPageWithCheckout() {
                         <h3 className="font-medium text-gray-900">{item.title}</h3>
                         <p className="text-sm text-gray-600">{item.artist}</p>
                         <p className="text-xs text-gray-500 mt-1">{item.category}</p>
+                        {item.event_end && !owned && (
+                          <p className="mt-2 inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-0.5 text-xs font-semibold text-red-600">
+                            <i className="ri-timer-flash-line"></i>
+                            {_t('eventSale.cart.saleApplied')} · {_t('eventSale.timer.endsIn')}
+                            <EventCountdown target={item.event_end} onExpire={() => void loadCartItems()} />
+                          </p>
+                        )}
                         {owned && (
                           <div className="flex flex-wrap items-center gap-2 mt-2">
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium text-emerald-700 bg-emerald-50 rounded-full">
@@ -382,7 +391,14 @@ export default function CartPageWithCheckout() {
 
                       <div className="flex items-center gap-3">
                         <div className="text-right">
-                          <p className={`text-lg font-bold ${owned ? 'text-gray-400 line-through' : 'text-gray-900'}`}>
+                          {item.original_price && !owned && (
+                            <p className="text-xs text-gray-400 line-through">{formatPrice(item.original_price)}</p>
+                          )}
+                          <p
+                            className={`text-lg font-bold ${
+                              owned ? 'text-gray-400 line-through' : item.original_price ? 'text-red-600' : 'text-gray-900'
+                            }`}
+                          >
                             {formatPrice(item.price)}
                           </p>
                         </div>

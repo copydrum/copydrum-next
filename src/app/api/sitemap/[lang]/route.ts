@@ -50,6 +50,7 @@ const ALT_LOCALES: { path: string; hreflang: string }[] = [
 const STATIC_PAGES = [
   { path: '/', priority: '1.0', changefreq: 'daily' },
   { path: '/categories', priority: '0.9', changefreq: 'daily' },
+  { path: '/event-sale', priority: '0.7', changefreq: 'daily' },
   { path: '/collections', priority: '0.9', changefreq: 'weekly' },
   { path: '/free-lessons', priority: '0.8', changefreq: 'weekly' },
   { path: '/free-sheets', priority: '0.7', changefreq: 'weekly' },

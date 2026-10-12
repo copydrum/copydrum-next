@@ -1,61 +1,63 @@
 {
-  "header": {
-    "badge": "僅需 100 韓元即可獲得熱門鼓譜！",
-    "title": "100 韓元特價活動",
-    "description": "不要錯過這些限時超級特價鼓譜。僅需 100 韓元即可獲得熱門歌曲，立即開始演奏！"
+  "nav": "限時特價",
+  "badge": {
+    "sale": "特價",
+    "percentOff": "立減 {{percent}}%",
+    "live": "進行中",
+    "soon": "即將開始"
   },
-  "countdownNotice": "查看即時倒數計時器！",
-  "loading": "正在載入活動資訊...",
-  "countdown": {
-    "startingSoon": "即將開始",
-    "startsIn": "開始於",
-    "timeLeft": "⏰ 剩餘時間",
-    "dayUnit": " 天",
-    "starts": "開始"
+  "timer": {
+    "endsIn": "距結束",
+    "startsIn": "距開始",
+    "dayCount": "{{count}}天",
+    "ended": "已結束",
+    "days": "天",
+    "hours": "時",
+    "minutes": "分",
+    "seconds": "秒"
   },
-  "buttons": {
-    "only100Won": "僅需 100 韓元！",
-    "addToFavorites": "加入我的最愛",
-    "removeFromFavorites": "從我的最愛移除",
-    "viewDetails": "查看詳情",
-    "buyNow": "立即購買",
-    "processing": "處理中...",
-    "saleEnded": "特價已結束"
+  "price": {
+    "original": "原價",
+    "sale": "特價"
   },
-  "labels": {
-    "eventSheet": "活動樂譜",
-    "saleEnded": "特價已結束",
-    "only100WonBadge": "僅需 100 韓元！",
-    "100Won": "100 韓元",
-    "discount": "折扣",
-    "startingSoon": "即將開始"
+  "page": {
+    "title": "限時特價",
+    "subtitle": "新曲鼓譜限時特價，倒數結束後恢復原價。",
+    "soonestEnd": "最快結束的特價還剩",
+    "nextOpen": "下一場特價開始還剩",
+    "liveTitle": "正在進行的特價",
+    "liveCount": "{{count}} 份樂譜特價中",
+    "upcomingTitle": "即將開始",
+    "upcomingDesc": "請在開始時間再次光臨。",
+    "emptyTitle": "目前沒有進行中的限時特價",
+    "emptyDesc": "每當有新曲上架，我們都會推出短時特價，歡迎常來逛逛！",
+    "browseLatest": "瀏覽最新樂譜",
+    "noticeTitle": "特價說明",
+    "notice1": "特價僅在顯示的期間內有效，倒數結束後恢復原價。",
+    "notice2": "若付款時特價已結束，購物車中的商品將以原價結帳。",
+    "notice3": "已購買的樂譜可隨時在 我的頁面 > 購買紀錄 中重新下載。"
   },
-  "sections": {
-    "ongoing": {
-      "title": "進行中的 100 韓元特價",
-      "description": "現在可以購買的活動樂譜。",
-      "activeCount": "{{count}} 個進行中",
-      "noEvents": "目前沒有進行中的活動。請查看下方已排程的活動！"
-    },
-    "scheduled": {
-      "title": "已排程的活動",
-      "description": "查看即將到來的活動並準備接收通知。",
-      "scheduledCount": "{{count}} 個已排程"
-    },
-    "ended": {
-      "title": "已結束的活動"
-    }
+  "actions": {
+    "buyNow": "以特價購買",
+    "addToCart": "加入購物車",
+    "inCart": "已在購物車",
+    "viewDetail": "查看詳情",
+    "viewAll": "查看全部",
+    "purchased": "已購買"
   },
-  "messages": {
-    "loginRequired": "需要登入。",
-    "loginRequiredConfirm": "需要登入。前往登入頁面？",
-    "checkDownloadPage": "在下載頁面查看您的樂譜。",
-    "paymentError": "付款期間發生錯誤。",
-    "favoriteError": "處理您的我的最愛時發生錯誤。請稍後再試。"
+  "home": {
+    "title": "限時特價",
+    "subtitle": "倒數結束後恢復原價，立即查看！",
+    "upcomingSubtitle": "新一輪特價即將開始，請留意開始時間！"
   },
-  "console": {
-    "loadEventsError": "活動折扣樂譜列表載入錯誤：",
-    "loadFavoritesError": "我的最愛列表載入錯誤：",
-    "toggleFavoriteError": "我的最愛切換處理錯誤："
+  "detail": {
+    "liveBanner": "限時特價進行中",
+    "endsIn": "距特價結束",
+    "upcomingBanner": "限時特價即將開始",
+    "upcomingInfo": "{{date}} 起可以 {{price}} 購買。",
+    "saleNotice": "倒數結束後恢復原價。"
+  },
+  "cart": {
+    "saleApplied": "已享特價"
   }
 }

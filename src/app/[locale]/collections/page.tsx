@@ -14,7 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const canonical = canonicalFor(locale, '/collections');
 
   return {
-    title: seoStrings.title,
+    title: { absolute: seoStrings.title },
     description: seoStrings.description,
     alternates: {
       canonical,

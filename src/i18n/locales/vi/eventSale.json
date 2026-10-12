@@ -1,61 +1,63 @@
 {
-  "header": {
-    "badge": "Nhận Sheet Drum phổ biến chỉ với 100 Won!",
-    "title": "SỰ KIỆN BÁN ĐẶC BIỆT 100 WON",
-    "description": "Đừng bỏ lỡ những sheet drum siêu giảm giá có thời hạn này. Nhận các bài hát phổ biến chỉ với 100 won và bắt đầu chơi ngay hôm nay!"
+  "nav": "Flash Sale",
+  "badge": {
+    "sale": "Giảm giá",
+    "percentOff": "Giảm {{percent}}%",
+    "live": "Đang diễn ra",
+    "soon": "Sắp mở"
   },
-  "countdownNotice": "Kiểm tra bộ đếm ngược thời gian thực!",
-  "loading": "Đang tải thông tin sự kiện...",
-  "countdown": {
-    "startingSoon": "Sắp bắt đầu",
+  "timer": {
+    "endsIn": "Kết thúc sau",
     "startsIn": "Bắt đầu sau",
-    "timeLeft": "⏰ Thời gian còn lại",
-    "dayUnit": "ngày",
-    "starts": "Bắt đầu"
+    "dayCount": "{{count}} ngày",
+    "ended": "Đã kết thúc",
+    "days": "Ngày",
+    "hours": "Giờ",
+    "minutes": "Phút",
+    "seconds": "Giây"
   },
-  "buttons": {
-    "only100Won": "Chỉ 100 Won!",
-    "addToFavorites": "Thêm vào yêu thích",
-    "removeFromFavorites": "Xóa khỏi yêu thích",
-    "viewDetails": "Xem chi tiết",
-    "buyNow": "Mua ngay",
-    "processing": "Đang xử lý...",
-    "saleEnded": "Đã kết thúc bán"
+  "price": {
+    "original": "Giá gốc",
+    "sale": "Giá ưu đãi"
   },
-  "labels": {
-    "eventSheet": "Sheet sự kiện",
-    "saleEnded": "Đã kết thúc bán",
-    "only100WonBadge": "Chỉ 100 Won!",
-    "100Won": "100 Won",
-    "discount": "Giảm",
-    "startingSoon": "Sắp bắt đầu"
+  "page": {
+    "title": "Flash Sale",
+    "subtitle": "Bản nhạc trống mới với giá đặc biệt, chỉ trong thời gian giới hạn. Khi hết giờ, giá sẽ trở về bình thường.",
+    "soonestEnd": "Đợt sale sắp kết thúc sau",
+    "nextOpen": "Đợt sale tiếp theo bắt đầu sau",
+    "liveTitle": "Ưu đãi đang diễn ra",
+    "liveCount": "{{count}} bản nhạc đang giảm giá",
+    "upcomingTitle": "Sắp mở",
+    "upcomingDesc": "Hãy quay lại khi đợt sale bắt đầu.",
+    "emptyTitle": "Hiện chưa có flash sale nào",
+    "emptyDesc": "Mỗi khi có bài mới, chúng tôi mở đợt sale ngắn. Hãy ghé thăm thường xuyên!",
+    "browseLatest": "Xem bản nhạc mới nhất",
+    "noticeTitle": "Thông tin ưu đãi",
+    "notice1": "Giá ưu đãi chỉ áp dụng trong thời gian hiển thị và trở về giá gốc khi hết giờ.",
+    "notice2": "Nếu đợt sale đã kết thúc lúc thanh toán, sản phẩm trong giỏ sẽ tính theo giá gốc.",
+    "notice3": "Bạn có thể tải lại bản nhạc đã mua bất cứ lúc nào tại Trang của tôi > Lịch sử mua."
   },
-  "sections": {
-    "ongoing": {
-      "title": "Bán đặc biệt 100 Won đang diễn ra",
-      "description": "Sheet sự kiện có sẵn để mua ngay bây giờ.",
-      "activeCount": "{{count}} Đang hoạt động",
-      "noEvents": "Không có sự kiện nào đang diễn ra. Kiểm tra các sự kiện đã lên lịch bên dưới!"
-    },
-    "scheduled": {
-      "title": "Sự kiện đã lên lịch",
-      "description": "Kiểm tra các sự kiện sắp tới và chuẩn bị cho thông báo.",
-      "scheduledCount": "{{count}} Đã lên lịch"
-    },
-    "ended": {
-      "title": "Sự kiện đã kết thúc"
-    }
+  "actions": {
+    "buyNow": "Mua giá ưu đãi",
+    "addToCart": "Thêm vào giỏ",
+    "inCart": "Đã trong giỏ",
+    "viewDetail": "Xem chi tiết",
+    "viewAll": "Xem tất cả",
+    "purchased": "Đã mua"
   },
-  "messages": {
-    "loginRequired": "Yêu cầu đăng nhập.",
-    "loginRequiredConfirm": "Yêu cầu đăng nhập. Đi đến trang đăng nhập?",
-    "checkDownloadPage": "Kiểm tra sheet của bạn trong trang tải xuống.",
-    "paymentError": "Đã xảy ra lỗi trong quá trình thanh toán.",
-    "favoriteError": "Đã xảy ra lỗi khi xử lý yêu thích của bạn. Vui lòng thử lại sau."
+  "home": {
+    "title": "Flash Sale",
+    "subtitle": "Hết giờ là giá tăng trở lại. Nhanh tay ngay!",
+    "upcomingSubtitle": "Đợt sale mới sắp bắt đầu. Xem giờ mở nhé!"
   },
-  "console": {
-    "loadEventsError": "Lỗi tải danh sách sheet giảm giá sự kiện:",
-    "loadFavoritesError": "Lỗi tải danh sách yêu thích:",
-    "toggleFavoriteError": "Lỗi xử lý chuyển đổi yêu thích:"
+  "detail": {
+    "liveBanner": "Flash sale đang diễn ra",
+    "endsIn": "Ưu đãi kết thúc sau",
+    "upcomingBanner": "Flash sale sắp mở",
+    "upcomingInfo": "Có thể mua với giá {{price}} từ {{date}}.",
+    "saleNotice": "Khi hết giờ, giá sẽ trở về bình thường."
+  },
+  "cart": {
+    "saleApplied": "Đã áp dụng ưu đãi"
   }
 }

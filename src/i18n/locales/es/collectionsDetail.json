@@ -51,7 +51,7 @@
   "navigation": {
     "title": "Explorar otras páginas",
     "viewCategories": "Ver categorías de partituras",
-    "eventSale": "Partituras de venta del evento",
+    "eventSale": "Ofertas flash",
     "customOrder": "Consulta de pedido personalizado"
   },
   "purchaseDescription": "Compra de colección de partituras: {{title}}",

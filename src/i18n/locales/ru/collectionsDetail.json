@@ -51,7 +51,7 @@
   "navigation": {
     "title": "Изучить другие страницы",
     "viewCategories": "Просмотреть категории нот",
-    "eventSale": "Ноты со скидкой",
+    "eventSale": "Флеш-распродажа",
     "customOrder": "Запрос индивидуального заказа"
   },
   "purchaseDescription": "Покупка коллекции нот: {{title}}",

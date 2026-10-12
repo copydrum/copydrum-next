@@ -1,61 +1,63 @@
 {
-  "header": {
-    "badge": "Erhalten Sie beliebte Schlagzeug-Notenblätter für nur 100 Won!",
-    "title": "100 Won Sonderverkauf EVENT",
-    "description": "Verpassen Sie nicht diese zeitlich begrenzten Super-Verkaufs-Schlagzeug-Notenblätter. Erhalten Sie beliebte Songs für nur 100 Won und beginnen Sie noch heute zu spielen!"
+  "nav": "Flash Sale",
+  "badge": {
+    "sale": "Sale",
+    "percentOff": "{{percent}} % Rabatt",
+    "live": "Live",
+    "soon": "Demnächst"
   },
-  "countdownNotice": "Überprüfen Sie den Echtzeit-Countdown-Timer!",
-  "loading": "Event-Informationen werden geladen...",
-  "countdown": {
-    "startingSoon": "Beginnt bald",
-    "startsIn": "Beginnt in",
-    "timeLeft": "⏰ Verbleibende Zeit",
-    "dayUnit": "T",
-    "starts": "Beginnt"
+  "timer": {
+    "endsIn": "Endet in",
+    "startsIn": "Startet in",
+    "dayCount": "{{count}} T.",
+    "ended": "Beendet",
+    "days": "Tage",
+    "hours": "Std.",
+    "minutes": "Min.",
+    "seconds": "Sek."
   },
-  "buttons": {
-    "only100Won": "Nur 100 Won!",
-    "addToFavorites": "Zu Favoriten hinzufügen",
-    "removeFromFavorites": "Aus Favoriten entfernen",
-    "viewDetails": "Details anzeigen",
-    "buyNow": "Jetzt kaufen",
-    "processing": "Wird verarbeitet...",
-    "saleEnded": "Verkauf beendet"
+  "price": {
+    "original": "Normalpreis",
+    "sale": "Sale-Preis"
   },
-  "labels": {
-    "eventSheet": "Event-Notenblatt",
-    "saleEnded": "Verkauf beendet",
-    "only100WonBadge": "Nur 100 Won!",
-    "100Won": "100 Won",
-    "discount": "Rabatt",
-    "startingSoon": "Beginnt bald"
+  "page": {
+    "title": "Flash Sale",
+    "subtitle": "Neue Schlagzeug-Noten zum Sonderpreis, nur für kurze Zeit. Wenn der Timer abläuft, gilt wieder der Normalpreis.",
+    "soonestEnd": "Nächster Sale endet in",
+    "nextOpen": "Nächster Sale startet in",
+    "liveTitle": "Aktuelle Angebote",
+    "liveCount": "{{count}} Noten im Angebot",
+    "upcomingTitle": "Demnächst",
+    "upcomingDesc": "Schau zum Start wieder vorbei.",
+    "emptyTitle": "Derzeit keine Flash Sales",
+    "emptyDesc": "Bei neuen Songs gibt es kurze Sonderaktionen. Schau regelmäßig vorbei!",
+    "browseLatest": "Neueste Noten ansehen",
+    "noticeTitle": "Hinweise zum Sale",
+    "notice1": "Sale-Preise gelten nur im angezeigten Zeitraum; danach gilt wieder der Normalpreis.",
+    "notice2": "Artikel im Warenkorb werden zum Normalpreis berechnet, wenn der Sale beim Bezahlen bereits beendet ist.",
+    "notice3": "Gekaufte Noten kannst du jederzeit unter Meine Seite > Käufe erneut herunterladen."
   },
-  "sections": {
-    "ongoing": {
-      "title": "Laufender 100 Won Sonderverkauf",
-      "description": "Event-Notenblätter jetzt verfügbar zum Kauf.",
-      "activeCount": "{{count}} Aktiv",
-      "noEvents": "Es gibt keine laufenden Events. Überprüfen Sie die geplanten Events unten!"
-    },
-    "scheduled": {
-      "title": "Geplante Events",
-      "description": "Überprüfen Sie bevorstehende Events und bereiten Sie sich auf Benachrichtigungen vor.",
-      "scheduledCount": "{{count}} Geplant"
-    },
-    "ended": {
-      "title": "Beendete Events"
-    }
+  "actions": {
+    "buyNow": "Zum Sale-Preis kaufen",
+    "addToCart": "In den Warenkorb",
+    "inCart": "Im Warenkorb",
+    "viewDetail": "Details ansehen",
+    "viewAll": "Alle ansehen",
+    "purchased": "Gekauft"
   },
-  "messages": {
-    "loginRequired": "Anmeldung erforderlich.",
-    "loginRequiredConfirm": "Anmeldung erforderlich. Zur Anmeldeseite gehen?",
-    "checkDownloadPage": "Überprüfen Sie Ihr Notenblatt auf der Download-Seite.",
-    "paymentError": "Bei der Zahlung ist ein Fehler aufgetreten.",
-    "favoriteError": "Beim Verarbeiten Ihrer Favoriten ist ein Fehler aufgetreten. Bitte versuchen Sie es später erneut."
+  "home": {
+    "title": "Flash Sale",
+    "subtitle": "Wenn der Timer abläuft, steigen die Preise wieder. Jetzt zugreifen!",
+    "upcomingSubtitle": "Gleich startet ein neuer Sale. Achte auf die Startzeit!"
   },
-  "console": {
-    "loadEventsError": "Fehler beim Laden der Event-Rabatt-Notenblatt-Liste:",
-    "loadFavoritesError": "Fehler beim Laden der Favoriten-Liste:",
-    "toggleFavoriteError": "Fehler bei der Favoriten-Umschaltung:"
+  "detail": {
+    "liveBanner": "Flash Sale läuft",
+    "endsIn": "Sale endet in",
+    "upcomingBanner": "Flash Sale startet bald",
+    "upcomingInfo": "Ab {{date}} für {{price}} erhältlich.",
+    "saleNotice": "Nach Ablauf des Timers gilt wieder der Normalpreis."
+  },
+  "cart": {
+    "saleApplied": "Sale-Preis"
   }
 }

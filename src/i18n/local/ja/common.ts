@@ -276,19 +276,11 @@ export default {
   'home.banner.browseButton': '楽譜を探す',
   'home.latestSheets': '最新の楽譜',
   'home.popularSheets': '人気の楽譜',
-  'home.eventSale': '100円セール',
   'home.favorite': 'お気に入り追加',
   'home.unfavorite': 'お気に入り解除',
   'home.loginRequired': 'ログインが必要です。',
   'home.favoriteError': 'お気に入り処理中にエラーが発生しました。後でもう一度お試しください。',
   'home.originalPrice': '定価',
-  'home.eventSaleTitle': '100円セールイベント',
-  'home.eventSaleSubtitle': '人気のドラム楽譜を100円でゲット',
-  'home.eventSaleDescription': '期間限定のスーパーセールをお見逃しなく。',
-  'home.viewAllEvents': 'すべてのイベントを見る',
-  'home.loadingEvents': '100円セール楽譜を読み込み中...',
-  'home.noActiveEvents': '現在開催中の100円セールイベントはありません。',
-  'home.noActiveEventsSub': '新しいセールをお待ちください！',
   'home.saleEnded': 'セール終了',
   'home.discount': '{{percent}}% OFF',
 
@@ -436,13 +428,7 @@ export default {
   'footer.globalService': 'グローバルサービス | 英語 / 日本語 / ベトナム語 / フランス語 / ドイツ語 / スペイン語 / ポルトガル語',
 
   // Home Page - Additional translations
-  'home.eventSaleEvent': '100円セールイベント',
-  'home.eventSaleSubtitleFull': '人気のドラム楽譜を100円でゲット',
-  'home.eventSaleDescriptionFull': '期間限定のスーパーセールイベントです。リアルタイムタイマーを確認して、欲しい楽譜を今すぐ手に入れましょう。',
 
-  'home.loadingEventsFull': '100円セール楽譜を読み込み中...',
-  'home.noActiveEventsFull': '現在開催中の100円セールイベントはありません。',
-  'home.noActiveEventsSubFull': '新しいセールをお待ちください！',
   'home.prevSlide': '前のスライド',
   'home.nextSlide': '次のスライド',
   'home.slideNumber': 'スライド {{number}} へ移動',
@@ -502,8 +488,6 @@ export default {
   'categories.alreadyInCart': 'カートに入っています',
   'categories.buyNow': '購入',
   'categories.buyNowInstant': '即購入',
-  'categories.eventBuyNow': '100円で購入',
-  
   // Sheet
   'sheet.buyNow': '今すぐ購入',
   'sheet.buyNowProcessing': '処理中...',

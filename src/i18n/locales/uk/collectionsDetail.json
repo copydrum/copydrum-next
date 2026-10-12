@@ -51,7 +51,7 @@
   "navigation": {
     "title": "Дослідіть інші сторінки",
     "viewCategories": "Переглянути категорії нот",
-    "eventSale": "Ноти зі знижкою на подію",
+    "eventSale": "Флеш-розпродаж",
     "customOrder": "Запит на індивідуальне замовлення"
   },
   "purchaseDescription": "Покупка колекції нот: {{title}}",

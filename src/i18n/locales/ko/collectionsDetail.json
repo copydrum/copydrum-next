@@ -52,7 +52,7 @@
   "navigation": {
     "title": "다른 페이지 탐색",
     "viewCategories": "악보 카테고리 보기",
-    "eventSale": "이벤트 할인 악보",
+    "eventSale": "타임특가",
     "customOrder": "주문 제작 문의"
   },
   "purchaseDescription": "악보 모음집 구매: {{title}}",

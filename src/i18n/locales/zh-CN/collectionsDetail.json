@@ -51,7 +51,7 @@
   "navigation": {
     "title": "探索其他页面",
     "viewCategories": "查看乐谱类别",
-    "eventSale": "活动促销乐谱",
+    "eventSale": "限时特价",
     "customOrder": "定制订单咨询"
   },
   "purchaseDescription": "乐谱合集购买：{{title}}",

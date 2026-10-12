@@ -47,7 +47,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const seoStrings = buildCollectionDetailSeoStrings(locale, collection);
 
   return {
-    title: seoStrings.title,
+    title: { absolute: seoStrings.title },
     description: seoStrings.description,
     alternates: {
       canonical,

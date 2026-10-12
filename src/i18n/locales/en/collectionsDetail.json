@@ -52,7 +52,7 @@
   "navigation": {
     "title": "Explore Other Pages",
     "viewCategories": "View Sheet Categories",
-    "eventSale": "Event Sale Sheets",
+    "eventSale": "Flash Sale",
     "customOrder": "Custom Order Inquiry"
   },
   "purchaseDescription": "Sheet Music Collection Purchase: {{title}}",

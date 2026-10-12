@@ -51,7 +51,7 @@
   "navigation": {
     "title": "他のページを探索",
     "viewCategories": "楽譜カテゴリーを見る",
-    "eventSale": "イベントセール楽譜",
+    "eventSale": "タイムセール",
     "customOrder": "カスタム注文お問い合わせ"
   },
   "purchaseDescription": "楽譜コレクション購入: {{title}}",

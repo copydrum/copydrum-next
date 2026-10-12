@@ -663,7 +663,7 @@ export default function CollectionDetailClient({ slug }: CollectionDetailClientP
                     </div>
                   </button>
                   <button
-                    onClick={() => router.push('/free-sheets')}
+                    onClick={() => router.push('/event-sale')}
                     className="text-left p-4 border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-gray-50 transition-colors"
                   >
                     <div className="flex items-center space-x-2">

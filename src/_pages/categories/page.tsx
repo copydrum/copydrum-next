@@ -24,6 +24,8 @@ import { useTranslation } from 'react-i18next';
 import { getSiteCurrency, convertFromKrw, formatCurrency as formatCurrencyUtil } from '../../lib/currency';
 import { useSiteLanguage } from '../../hooks/useSiteLanguage';
 import { useBuyNow } from '../../hooks/useBuyNow';
+import { useEventSales } from '../../hooks/useEventSales';
+import SalePrice from '../../components/event-sale/SalePrice';
 import { useUserCredits } from '../../hooks/useUserCredits';
 import Seo from '../../components/Seo';
 import { buildCategorySeoStrings } from '../../lib/seo';
@@ -752,6 +754,7 @@ const CategoriesPage: React.FC = () => {
 
   // ✅ 공유 useBuyNow 훅 사용
   const buyNow = useBuyNow(user);
+  const eventSales = useEventSales();
   const handleBankTransferConfirm = buyNow.handleBankTransferConfirm;
   const { credits } = useUserCredits(user);
 
@@ -1190,9 +1193,13 @@ const CategoriesPage: React.FC = () => {
                           />
                         </div>
                         <div className="mt-auto flex items-center justify-between">
-                          <span className="text-sm font-semibold text-gray-700">
-                            {formatCurrency(displayPrice)}
-                          </span>
+                          <SalePrice
+                            price={displayPrice}
+                            event={eventSales.getActiveEvent(sheet.id)}
+                            size="xs"
+                            stacked
+                            regularClassName="text-sm font-semibold text-gray-700"
+                          />
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
@@ -1242,8 +1249,13 @@ const CategoriesPage: React.FC = () => {
                         rating={reviewStats[sheet.id]?.avgRating ?? 0}
                         count={reviewStats[sheet.id]?.reviewCount ?? 0}
                       />
-                      <div className="pt-1 text-sm font-semibold text-blue-600">
-                        {formatCurrency(displayPrice)}
+                      <div className="pt-1">
+                        <SalePrice
+                          price={displayPrice}
+                          event={eventSales.getActiveEvent(sheet.id)}
+                          size="sm"
+                          regularClassName="text-sm font-semibold text-blue-600"
+                        />
                       </div>
                     </div>
                   </button>
@@ -1321,9 +1333,14 @@ const CategoriesPage: React.FC = () => {
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="space-y-1 text-right">
-                    <span className="text-2xl font-extrabold text-blue-600">
-                      {formatCurrency(selectedDisplayPrice)}
-                    </span>
+                    <SalePrice
+                      price={selectedDisplayPrice}
+                      event={eventSales.getActiveEvent(selectedSheet.id)}
+                      size="lg"
+                      stacked
+                      align="end"
+                      regularClassName="text-2xl font-extrabold text-blue-600"
+                    />
                   </div>
                   <button
                     type="button"
@@ -1779,9 +1796,13 @@ const CategoriesPage: React.FC = () => {
                           </div>
 
                           <div className="mt-auto flex items-center justify-between">
-                            <span className="text-sm font-semibold text-gray-700">
-                              {formatCurrency(displayPrice)}
-                            </span>
+                            <SalePrice
+                              price={displayPrice}
+                              event={eventSales.getActiveEvent(sheet.id)}
+                              size="sm"
+                              stacked
+                              regularClassName="text-sm font-semibold text-gray-700"
+                            />
                             <div className="flex gap-2">
                               <button
                                 onClick={(e) => {
@@ -1859,9 +1880,12 @@ const CategoriesPage: React.FC = () => {
                                     </span>
                                   </div>
                                   <div className="flex items-center space-x-2 text-xs flex-shrink-0">
-                                    <span className="font-semibold text-gray-700">
-                                      {formatCurrency(displayPrice)}
-                                    </span>
+                                    <SalePrice
+                                      price={displayPrice}
+                                      event={eventSales.getActiveEvent(sheet.id)}
+                                      size="xs"
+                                      regularClassName="font-semibold text-gray-700"
+                                    />
                                     <StarRating
                                       rating={reviewStats[sheet.id]?.avgRating ?? 0}
                                       count={reviewStats[sheet.id]?.reviewCount ?? 0}

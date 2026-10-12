@@ -125,8 +125,8 @@
       "steps": {
         "event": {
           "title": "Spartiti evento",
-          "detail": "Controlla gli spartiti offerti a 100 won o prezzi scontati per un tempo limitato nella sezione promozione speciale.",
-          "highlight": "Gli spartiti evento sono quantità/periodo limitati, quindi controlla rapidamente!"
+          "detail": "Nella sezione Offerte lampo, le nuove canzoni sono scontate per un tempo limitato.",
+          "highlight": "Allo scadere del timer torna il prezzo pieno. Controlla spesso!"
         },
         "cash": {
           "title": "Ricarica cash spartiti",
@@ -138,6 +138,7 @@
         }
       },
       "cta": {
+        "eventSale": "Vedi le offerte lampo",
         "customOrder": "Richiedi ordine personalizzato",
         "customOrders": "Controlla ordini in corso"
       }

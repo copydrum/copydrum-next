@@ -119,7 +119,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const ogImage = sheet.preview_image_url || sheet.thumbnail_url;
 
   return {
-    title: seoStrings.title,
+    title: { absolute: seoStrings.title },
     description: seoStrings.description,
     keywords: seoStrings.keywords,
     alternates: {

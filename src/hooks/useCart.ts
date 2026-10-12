@@ -6,17 +6,36 @@ import { useTranslation } from 'react-i18next';
 import { useDialogStore } from '../stores/dialogStore';
 import { useGuestCartStore } from '../stores/guestCartStore';
 import { useCartSyncStore } from '../stores/cartSyncStore';
+import { fetchActiveEventsBySheetIds, getEventSalePrice } from '../lib/eventDiscounts';
 
 export interface CartItem {
   id: string;
   sheet_id: string;
   title: string;
   artist: string;
+  /** 결제할 가격 (특가 진행 중이면 할인가) */
   price: number;
   image?: string;
   category: string;
   sales_type?: 'INSTANT' | 'PREORDER';
+  /** 특가 적용 시 정가 */
+  original_price?: number;
+  /** 특가 적용 시 종료 시각 */
+  event_end?: string;
 }
+
+const applyEventPricing = async (items: CartItem[]): Promise<CartItem[]> => {
+  if (items.length === 0) return items;
+  const events = await fetchActiveEventsBySheetIds(items.map((item) => item.sheet_id));
+  if (events.size === 0) return items;
+  return items.map((item) => {
+    const event = events.get(item.sheet_id);
+    if (!event) return item;
+    const salePrice = Math.min(item.price, getEventSalePrice(event));
+    if (salePrice >= item.price) return item;
+    return { ...item, price: salePrice, original_price: item.price, event_end: event.event_end };
+  });
+};
 
 // useCart 는 여러 컴포넌트(헤더/하단바/사이드바/장바구니)에서 동시에 마운트되므로,
 // 로그인 시 게스트 장바구니 병합이 동시에 여러 번 실행되지 않도록 모듈 단위로 1회만 수행한다.
@@ -74,7 +93,7 @@ export const useCart = () => {
           sales_type: row.sales_type || 'INSTANT',
         }));
 
-      setCartItems(items);
+      setCartItems(await applyEventPricing(items));
     } catch (error) {
       console.error('게스트 장바구니 로드 실패:', error);
       setCartItems([]);
@@ -166,7 +185,7 @@ export const useCart = () => {
         sales_type: item.drum_sheets.sales_type || 'INSTANT'
       })) || [];
 
-      setCartItems(items);
+      setCartItems(await applyEventPricing(items));
     } catch (error) {
       console.error('장바구니 로드 실패:', error);
     } finally {

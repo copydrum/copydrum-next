@@ -13,7 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const canonical = canonicalFor(locale, '/');
 
   return {
-    title: seo.title,
+    title: { absolute: seo.title },
     description: seo.description,
     alternates: {
       canonical,

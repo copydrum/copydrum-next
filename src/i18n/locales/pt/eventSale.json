@@ -1,61 +1,63 @@
 {
-  "header": {
-    "badge": "Obtenha Partituras de Bateria Populares por Apenas 100 Won!",
-    "title": "EVENTO Promoção Especial de 100 Won",
-    "description": "Não perca estas partituras de bateria em super promoção por tempo limitado. Obtenha músicas populares por apenas 100 won e comece a tocar hoje!"
+  "nav": "Ofertas relâmpago",
+  "badge": {
+    "sale": "Oferta",
+    "percentOff": "{{percent}}% OFF",
+    "live": "Ao vivo",
+    "soon": "Em breve"
   },
-  "countdownNotice": "Verifique o cronômetro em tempo real!",
-  "loading": "Carregando informações do evento...",
-  "countdown": {
-    "startingSoon": "Começando em breve",
+  "timer": {
+    "endsIn": "Termina em",
     "startsIn": "Começa em",
-    "timeLeft": "⏰ Tempo restante",
-    "dayUnit": "d",
-    "starts": "Começa"
+    "dayCount": "{{count}} d",
+    "ended": "Encerrada",
+    "days": "Dias",
+    "hours": "Horas",
+    "minutes": "Min",
+    "seconds": "Seg"
   },
-  "buttons": {
-    "only100Won": "Apenas 100 Won!",
-    "addToFavorites": "Adicionar aos favoritos",
-    "removeFromFavorites": "Remover dos favoritos",
-    "viewDetails": "Ver Detalhes",
-    "buyNow": "Comprar Agora",
-    "processing": "Processando...",
-    "saleEnded": "Promoção Encerrada"
+  "price": {
+    "original": "Preço normal",
+    "sale": "Preço promocional"
   },
-  "labels": {
-    "eventSheet": "Partitura do Evento",
-    "saleEnded": "Promoção Encerrada",
-    "only100WonBadge": "Apenas 100 Won!",
-    "100Won": "100 Won",
-    "discount": "OFF",
-    "startingSoon": "Começando em Breve"
+  "page": {
+    "title": "Ofertas relâmpago",
+    "subtitle": "Partituras de bateria novas com preço especial, só por tempo limitado. Quando o cronômetro zerar, o preço volta ao normal.",
+    "soonestEnd": "A próxima oferta termina em",
+    "nextOpen": "A próxima oferta começa em",
+    "liveTitle": "Ofertas ativas",
+    "liveCount": "{{count}} partituras em oferta",
+    "upcomingTitle": "Em breve",
+    "upcomingDesc": "Volte quando a oferta começar.",
+    "emptyTitle": "Nenhuma oferta relâmpago no momento",
+    "emptyDesc": "Fazemos ofertas curtas sempre que lançamos músicas novas. Volte sempre!",
+    "browseLatest": "Ver partituras recentes",
+    "noticeTitle": "Informações da oferta",
+    "notice1": "Os preços promocionais valem apenas durante o período exibido e voltam ao normal quando o cronômetro zerar.",
+    "notice2": "Itens no carrinho são cobrados pelo preço normal se a oferta já tiver terminado no pagamento.",
+    "notice3": "Você pode baixar novamente as partituras compradas a qualquer momento em Minha página > Compras."
   },
-  "sections": {
-    "ongoing": {
-      "title": "Promoção Especial de 100 Won em Andamento",
-      "description": "Partituras do evento disponíveis para compra agora.",
-      "activeCount": "{{count}} Ativas",
-      "noEvents": "Não há eventos em andamento. Verifique os eventos agendados abaixo!"
-    },
-    "scheduled": {
-      "title": "Eventos Agendados",
-      "description": "Verifique os próximos eventos e prepare-se para notificações.",
-      "scheduledCount": "{{count}} Agendados"
-    },
-    "ended": {
-      "title": "Eventos Encerrados"
-    }
+  "actions": {
+    "buyNow": "Comprar na oferta",
+    "addToCart": "Adicionar ao carrinho",
+    "inCart": "No carrinho",
+    "viewDetail": "Ver detalhes",
+    "viewAll": "Ver tudo",
+    "purchased": "Comprado"
   },
-  "messages": {
-    "loginRequired": "Login necessário.",
-    "loginRequiredConfirm": "Login necessário. Ir para a página de login?",
-    "checkDownloadPage": "Verifique sua partitura na página de download.",
-    "paymentError": "Ocorreu um erro durante o pagamento.",
-    "favoriteError": "Ocorreu um erro ao processar seu favorito. Por favor, tente novamente mais tarde."
+  "home": {
+    "title": "Ofertas relâmpago",
+    "subtitle": "Os preços sobem quando o cronômetro zerar. Aproveite agora!",
+    "upcomingSubtitle": "Uma nova oferta vai começar em breve. Confira o horário!"
   },
-  "console": {
-    "loadEventsError": "Erro ao carregar lista de partituras com desconto do evento:",
-    "loadFavoritesError": "Erro ao carregar lista de favoritos:",
-    "toggleFavoriteError": "Erro no processamento de alternância de favorito:"
+  "detail": {
+    "liveBanner": "Oferta relâmpago ativa",
+    "endsIn": "A oferta termina em",
+    "upcomingBanner": "Oferta relâmpago em breve",
+    "upcomingInfo": "Disponível por {{price}} a partir de {{date}}.",
+    "saleNotice": "O preço volta ao normal quando o cronômetro zerar."
+  },
+  "cart": {
+    "saleApplied": "Oferta aplicada"
   }
 }

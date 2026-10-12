@@ -125,8 +125,8 @@
       "steps": {
         "event": {
           "title": "Lembaran Acara",
-          "detail": "Lihat lembaran musik yang ditawarkan dengan harga 100 won atau harga diskon untuk waktu terbatas di bagian penjualan khusus.",
-          "highlight": "Lembaran acara terbatas jumlah/periodenya, jadi periksa dengan cepat!"
+          "detail": "Di bagian Flash Sale, lagu baru tersedia dengan harga diskon untuk waktu terbatas.",
+          "highlight": "Harga kembali normal saat timer habis. Sering-seringlah cek!"
         },
         "cash": {
           "title": "Isi Ulang Sheet Cash",
@@ -138,6 +138,7 @@
         }
       },
       "cta": {
+        "eventSale": "Lihat flash sale",
         "customOrder": "Ajukan Pesanan Kustom",
         "customOrders": "Periksa Pesanan yang Sedang Berlangsung"
       }

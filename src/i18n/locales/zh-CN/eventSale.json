@@ -1,61 +1,63 @@
 {
-  "header": {
-    "badge": "仅需100韩元即可获得热门鼓谱！",
-    "title": "100韩元特价活动",
-    "description": "不要错过这些限时超级促销鼓谱。仅需100韩元即可获得热门歌曲，立即开始演奏！"
+  "nav": "限时特价",
+  "badge": {
+    "sale": "特价",
+    "percentOff": "立减 {{percent}}%",
+    "live": "进行中",
+    "soon": "即将开始"
   },
-  "countdownNotice": "查看实时倒计时！",
-  "loading": "正在加载活动信息...",
-  "countdown": {
-    "startingSoon": "即将开始",
-    "startsIn": "开始于",
-    "timeLeft": "⏰ 剩余时间",
-    "dayUnit": "天",
-    "starts": "开始"
+  "timer": {
+    "endsIn": "距结束",
+    "startsIn": "距开始",
+    "dayCount": "{{count}}天",
+    "ended": "已结束",
+    "days": "天",
+    "hours": "时",
+    "minutes": "分",
+    "seconds": "秒"
   },
-  "buttons": {
-    "only100Won": "仅需100韩元！",
-    "addToFavorites": "添加到收藏",
-    "removeFromFavorites": "从收藏中移除",
-    "viewDetails": "查看详情",
-    "buyNow": "立即购买",
-    "processing": "处理中...",
-    "saleEnded": "活动已结束"
+  "price": {
+    "original": "原价",
+    "sale": "特价"
   },
-  "labels": {
-    "eventSheet": "活动乐谱",
-    "saleEnded": "活动已结束",
-    "only100WonBadge": "仅需100韩元！",
-    "100Won": "100韩元",
-    "discount": "折扣",
-    "startingSoon": "即将开始"
+  "page": {
+    "title": "限时特价",
+    "subtitle": "新曲鼓谱限时特价，倒计时结束后恢复原价。",
+    "soonestEnd": "最快结束的特价还剩",
+    "nextOpen": "下一场特价开始还剩",
+    "liveTitle": "正在进行的特价",
+    "liveCount": "{{count}} 份乐谱特价中",
+    "upcomingTitle": "即将开始",
+    "upcomingDesc": "请在开始时间再次光临。",
+    "emptyTitle": "目前没有进行中的限时特价",
+    "emptyDesc": "每当有新曲上线，我们都会开启短时特价，欢迎常来看看！",
+    "browseLatest": "浏览最新乐谱",
+    "noticeTitle": "特价说明",
+    "notice1": "特价仅在显示的期间内有效，倒计时结束后恢复原价。",
+    "notice2": "若付款时特价已结束，购物车中的商品将按原价结算。",
+    "notice3": "已购买的乐谱可随时在 我的页面 > 购买记录 中重新下载。"
   },
-  "sections": {
-    "ongoing": {
-      "title": "进行中的100韩元特价",
-      "description": "现在可以购买的活动乐谱。",
-      "activeCount": "{{count}}个进行中",
-      "noEvents": "目前没有进行中的活动。请查看下面的预定活动！"
-    },
-    "scheduled": {
-      "title": "预定活动",
-      "description": "查看即将举行的活动并准备接收通知。",
-      "scheduledCount": "{{count}}个预定"
-    },
-    "ended": {
-      "title": "已结束的活动"
-    }
+  "actions": {
+    "buyNow": "以特价购买",
+    "addToCart": "加入购物车",
+    "inCart": "已在购物车",
+    "viewDetail": "查看详情",
+    "viewAll": "查看全部",
+    "purchased": "已购买"
   },
-  "messages": {
-    "loginRequired": "需要登录。",
-    "loginRequiredConfirm": "需要登录。前往登录页面？",
-    "checkDownloadPage": "在下载页面查看您的乐谱。",
-    "paymentError": "支付期间发生错误。",
-    "favoriteError": "处理您的收藏时发生错误。请稍后重试。"
+  "home": {
+    "title": "限时特价",
+    "subtitle": "倒计时结束后恢复原价，立即查看！",
+    "upcomingSubtitle": "新一轮特价即将开始，请留意开始时间！"
   },
-  "console": {
-    "loadEventsError": "活动折扣乐谱列表加载错误：",
-    "loadFavoritesError": "收藏列表加载错误：",
-    "toggleFavoriteError": "收藏切换处理错误："
+  "detail": {
+    "liveBanner": "限时特价进行中",
+    "endsIn": "距特价结束",
+    "upcomingBanner": "限时特价即将开始",
+    "upcomingInfo": "{{date}} 起可以 {{price}} 购买。",
+    "saleNotice": "倒计时结束后恢复原价。"
+  },
+  "cart": {
+    "saleApplied": "已享特价"
   }
 }

@@ -9,6 +9,7 @@ import { generateDefaultThumbnail } from '../../lib/defaultThumbnail';
 import { fetchUserFavorites, toggleFavorite } from '../../lib/favorites';
 import MainHeader from '../../components/common/MainHeader';
 import Footer from '../../components/common/Footer';
+import HomeEventSaleSection from '../../components/event-sale/HomeEventSaleSection';
 import { useTranslation } from 'react-i18next';
 import { getSiteCurrency, convertFromKrw, formatCurrency as formatCurrencyUtil } from '../../lib/currency';
 import { useSiteLanguage } from '../../hooks/useSiteLanguage';
@@ -886,6 +887,8 @@ export default function Home() {
 
       {/* Main Content */}
       <div className="px-4 pb-8 pt-6 sm:px-6 lg:px-8 ">
+        <HomeEventSaleSection />
+
         {/* Latest Sheets - 최상단에 배치 */}
         <section className="py-6 md:py-12">
           <div className="max-w-7xl mx-auto space-y-8">

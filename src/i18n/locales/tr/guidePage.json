@@ -125,8 +125,8 @@
       "steps": {
         "event": {
           "title": "Etkinlik Notaları",
-          "detail": "Özel satış bölümünde sınırlı süre için 100 won veya indirimli fiyatlarla sunulan notaları kontrol edin.",
-          "highlight": "Etkinlik notaları sınırlı miktar/süredir, hızlıca kontrol edin!"
+          "detail": "Flaş İndirim bölümünde yeni şarkılar sınırlı süre için indirimli satılır.",
+          "highlight": "Sayaç bitince fiyat normale döner. Sık sık kontrol edin!"
         },
         "cash": {
           "title": "Nota Bakiye Yükleme",
@@ -138,6 +138,7 @@
         }
       },
       "cta": {
+        "eventSale": "Flaş indirimleri gör",
         "customOrder": "Özel Sipariş Başvurusu",
         "customOrders": "Devam Eden Siparişleri Kontrol Et"
       }

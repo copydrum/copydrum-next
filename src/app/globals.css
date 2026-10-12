@@ -45,6 +45,14 @@
     color: #9ca3af;
     cursor: not-allowed;
   }
+
+  .btn-buy.btn-buy-sale:not(:disabled) {
+    background-color: #dc2626;
+  }
+
+  .btn-buy.btn-buy-sale:hover:not(:disabled) {
+    background-color: #b91c1c;
+  }
 }
 
 /* 모바일 퀵 네비게이션 스크롤바 숨기기 */
