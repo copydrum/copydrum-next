@@ -945,7 +945,7 @@ const MyOrdersPage = () => {
         {/* 장바구니 버튼 */}
         <button
           onClick={() => router.push('/cart')}
-          className="fixed bottom-6 right-6 z-40 flex items-center gap-2 rounded-full bg-blue-600 text-white px-5 py-3 shadow-lg hover:bg-blue-700"
+          className="fixed bottom-6 left-6 z-40 flex items-center gap-2 rounded-full bg-blue-600 text-white px-5 py-3 shadow-lg hover:bg-blue-700"
         >
           <i className="ri-shopping-cart-line text-lg" />
           {t('myOrders.actions.cart')}
