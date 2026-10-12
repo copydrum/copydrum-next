@@ -76,6 +76,7 @@
     "ost": "OST",
     "drumSolo": "Drum Solo",
     "drumCover": "Drum Cover",
+    "drumLesson": "Bài học trống",
     "other": "Khác"
   },
   "purchaseDescription": "Mua: {{title}}",

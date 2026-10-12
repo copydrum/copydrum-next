@@ -76,6 +76,7 @@
     "ost": "OST",
     "drumSolo": "Schlagzeug-Solo",
     "drumCover": "Schlagzeug-Cover",
+    "drumLesson": "Schlagzeugunterricht",
     "other": "Sonstiges"
   },
   "purchaseDescription": "Kauf: {{title}}",

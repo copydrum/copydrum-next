@@ -76,6 +76,7 @@
     "ost": "OST",
     "drumSolo": "Соло на барабанах",
     "drumCover": "Кавер на барабанах",
+    "drumLesson": "Уроки игры на барабанах",
     "other": "Другое"
   },
   "purchaseDescription": "Покупка: {{title}}",

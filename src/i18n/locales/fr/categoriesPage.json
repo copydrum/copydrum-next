@@ -76,6 +76,7 @@
     "ost": "OST",
     "drumSolo": "Solo de batterie",
     "drumCover": "Cover de batterie",
+    "drumLesson": "Cours de batterie",
     "other": "Autre"
   },
   "purchaseDescription": "Achat : {{title}}",

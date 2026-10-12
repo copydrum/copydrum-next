@@ -8,6 +8,7 @@ export const SHEET_BOOK_GENRE_NAMES = [
   'OST',
   '드럼솔로',
   '드럼커버',
+  '드럼레슨',
 ] as const;
 
 export type SheetBookGenreName = (typeof SHEET_BOOK_GENRE_NAMES)[number];
@@ -22,6 +23,7 @@ export const SHEET_BOOK_GENRE_I18N_KEYS: Record<SheetBookGenreName, string> = {
   OST: 'ost',
   드럼솔로: 'drumSolo',
   드럼커버: 'drumCover',
+  드럼레슨: 'drumLesson',
 };
 
 export const SHEET_BOOK_MAIN_CATEGORY_NAME = '악보집';

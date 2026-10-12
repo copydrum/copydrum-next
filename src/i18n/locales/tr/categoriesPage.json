@@ -76,6 +76,7 @@
     "ost": "OST",
     "drumSolo": "Davul Solo",
     "drumCover": "Davul Cover",
+    "drumLesson": "Davul Dersi",
     "other": "Diğer"
   },
   "purchaseDescription": "Satın Al: {{title}}",

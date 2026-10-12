@@ -78,6 +78,7 @@
     "ost": "OST",
     "drumSolo": "드럼솔로",
     "drumCover": "드럼커버",
+    "drumLesson": "드럼레슨",
     "other": "기타"
   },
   "purchaseDescription": "구매: {{title}}",

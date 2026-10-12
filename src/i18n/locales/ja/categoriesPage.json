@@ -76,6 +76,7 @@
     "ost": "OST",
     "drumSolo": "ドラムソロ",
     "drumCover": "ドラムカバー",
+    "drumLesson": "ドラムレッスン",
     "other": "その他"
   },
   "purchaseDescription": "購入: {{title}}",

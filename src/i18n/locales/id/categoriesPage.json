@@ -76,6 +76,7 @@
     "ost": "OST",
     "drumSolo": "Drum Solo",
     "drumCover": "Drum Cover",
+    "drumLesson": "Pelajaran Drum",
     "other": "Lainnya"
   },
   "purchaseDescription": "Beli: {{title}}",

@@ -17,6 +17,7 @@ import { useCart } from '../../hooks/useCart';
 import { hasPurchasedSheet } from '../../lib/purchaseCheck';
 import { getSiteCurrency, convertFromKrw, formatCurrency as formatCurrencyUtil } from '../../lib/currency';
 import { logFreeSheetDownload } from '../../lib/logFreeSheetDownload';
+import { SHEET_BOOK_MAIN_CATEGORY_NAME } from '../../lib/sheetBookCategories';
 
 interface SupabaseLessonBookRow {
   id: string;
@@ -217,7 +218,8 @@ const LessonBooksPage = () => {
         .select(`
           drum_sheets!inner (
             id, title, title_translations, artist, difficulty, created_at, thumbnail_url,
-            pdf_url, page_count, slug, price, sales_type, youtube_url
+            pdf_url, page_count, slug, price, sales_type, youtube_url,
+            categories ( name )
           )
         `)
         .eq('category_id', lessonCategoryId)
@@ -227,7 +229,9 @@ const LessonBooksPage = () => {
         console.error(t('freeSheets.console.relationsError'), relationsError);
       }
 
+      // 악보집의 '드럼레슨' 장르 태그는 같은 카테고리를 쓰므로 교재 목록에서 제외
       const additionalList = (junctionRows ?? [])
+        .filter((row: any) => row.drum_sheets?.categories?.name !== SHEET_BOOK_MAIN_CATEGORY_NAME)
         .map((row: any) => row.drum_sheets as SupabaseLessonBookRow)
         .filter((s): s is SupabaseLessonBookRow => Boolean(s) && !primaryIdSet.has(s.id));
 

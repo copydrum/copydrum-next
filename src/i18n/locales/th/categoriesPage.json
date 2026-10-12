@@ -76,6 +76,7 @@
     "ost": "OST",
     "drumSolo": "Drum Solo",
     "drumCover": "Drum Cover",
+    "drumLesson": "บทเรียนกลอง",
     "other": "อื่นๆ"
   },
   "purchaseDescription": "ซื้อ: {{title}}",

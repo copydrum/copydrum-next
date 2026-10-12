@@ -76,6 +76,7 @@
     "ost": "OST",
     "drumSolo": "Drum Solo",
     "drumCover": "Drum Cover",
+    "drumLesson": "ड्रम पाठ",
     "other": "अन्य"
   },
   "purchaseDescription": "खरीदें: {{title}}",

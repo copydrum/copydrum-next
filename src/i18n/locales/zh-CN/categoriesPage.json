@@ -76,6 +76,7 @@
     "ost": "OST",
     "drumSolo": "鼓独奏",
     "drumCover": "鼓翻奏",
+    "drumLesson": "架子鼓教学",
     "other": "其他"
   },
   "purchaseDescription": "购买：{{title}}",
