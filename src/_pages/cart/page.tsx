@@ -13,6 +13,11 @@ import { useGuestCheckoutStore } from '../../stores/guestCheckoutStore';
 import { useDialogStore } from '../../stores/dialogStore';
 import { formatCurrency, getSiteCurrency, convertFromKrw } from '@/lib/currency';
 import EventCountdown from '@/components/event-sale/EventCountdown';
+import { isMyBookVisible } from '@/config/featureFlags';
+import { useMyBookStore } from '@/stores/myBookStore';
+import { calculateMyBookPrice, MY_BOOK_MAX_DISCOUNT_PERCENT, MY_BOOK_MIN_SONGS } from '@/lib/myBook/pricing';
+
+const MY_BOOK_CART_CTA_MIN_ITEMS = 5;
 
 const toCheckoutItem = (item: CartItem): CheckoutItem => ({
   id: item.id,
@@ -43,6 +48,14 @@ export default function CartPageWithCheckout() {
   const { t: _t, i18n } = useTranslation();
   const t = (key: string, options?: Record<string, unknown>): string => String(_t(`cartPage.${key}`, options));
   const autoCheckoutTriggered = useRef(false);
+
+  const handleMoveCartToMyBook = async () => {
+    const added = useMyBookStore.getState().addMany(cartItems.map((item) => item.sheet_id));
+    if (added > 0) {
+      await showAlert(_t('myBook.cartCta.moved', { count: added }));
+    }
+    router.push('/my-book');
+  };
 
   const currency = getSiteCurrency(undefined, i18n.language);
   const formatPrice = (krw: number) => formatCurrency(convertFromKrw(krw, currency, i18n.language), currency);
@@ -287,6 +300,53 @@ export default function CartPageWithCheckout() {
               {t('totalItems', { count: cartItems.length })}
             </p>
           </div>
+
+          {isMyBookVisible(i18n.language) && cartItems.length >= MY_BOOK_CART_CTA_MIN_ITEMS && (
+            <div className="mx-4 mt-4 flex flex-col gap-3 rounded-xl border border-indigo-100 bg-gradient-to-r from-indigo-50 to-violet-50 p-4 md:flex-row md:items-center md:justify-between">
+              <div>
+                <p className="text-sm font-bold text-gray-900">
+                  <i className="ri-book-open-line mr-1 text-indigo-600"></i>
+                  {_t('myBook.cartCta.title')}
+                </p>
+                <p className="mt-1 text-xs text-gray-600">
+                  {_t('myBook.cartCta.description', {
+                    count: cartItems.length,
+                    percent: MY_BOOK_MAX_DISCOUNT_PERCENT,
+                  })}
+                </p>
+                {(() => {
+                  // 악보집은 이벤트가가 아닌 정가 기준으로 할인한다 (이미 구매한 곡·담을 수 없는 곡은 악보집 화면에서 다시 계산)
+                  const estimate = calculateMyBookPrice(
+                    cartItems.map((item) => ({ listPrice: item.original_price ?? item.price }))
+                  );
+                  if (!estimate.meetsMinimum) {
+                    return (
+                      <p className="mt-1.5 text-xs font-semibold text-indigo-700">
+                        {_t('myBook.cartCta.needMore', { count: MY_BOOK_MIN_SONGS - cartItems.length })}
+                      </p>
+                    );
+                  }
+                  const saving = estimate.listTotal - estimate.finalPrice;
+                  return (
+                    <p className="mt-1.5 text-xs font-semibold text-indigo-700">
+                      {_t('myBook.cartCta.estimate', {
+                        percent: estimate.discountPercent,
+                        price: formatPrice(estimate.finalPrice),
+                        saving: formatPrice(saving),
+                      })}
+                    </p>
+                  );
+                })()}
+              </div>
+              <button
+                type="button"
+                onClick={handleMoveCartToMyBook}
+                className="shrink-0 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700"
+              >
+                {_t('myBook.cartCta.button')}
+              </button>
+            </div>
+          )}
 
           {cartItems.length === 0 ? (
             <div className="p-12 text-center">

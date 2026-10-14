@@ -16,6 +16,10 @@ interface CustomOrderKoreanPayButtonProps {
   amountKRW: number; // 견적 금액(KRW)
   songTitle: string;
   onConfirmed: () => void;
+  /** 결제 즉시 제공되는 상품(나만의 악보집)은 입금 확인을 기다리지 않도록 무통장 입금을 숨긴다 */
+  allowBankTransfer?: boolean;
+  /** 결제창을 열기 직전에 호출 (포인트 적용 등). 카드로 결제할 금액을 돌려준다 */
+  prepare?: () => Promise<number>;
 }
 
 type Method = 'card' | 'kakaopay';
@@ -29,6 +33,8 @@ export default function CustomOrderKoreanPayButton({
   amountKRW,
   songTitle,
   onConfirmed,
+  allowBankTransfer = true,
+  prepare,
 }: CustomOrderKoreanPayButtonProps) {
   const { t } = useTranslation();
   const user = useAuthStore((state) => state.user);
@@ -75,6 +81,22 @@ export default function CustomOrderKoreanPayButton({
       setInfo(null);
       setProcessing(method);
 
+      let payAmount = Math.round(amountKRW);
+      if (prepare) {
+        try {
+          payAmount = Math.round(await prepare());
+        } catch (e) {
+          setError(e instanceof Error && e.message ? e.message : t('customOrders.detail.payFailed'));
+          setProcessing(null);
+          return;
+        }
+      }
+      if (payAmount <= 0) {
+        setError(t('customOrders.detail.payFailed'));
+        setProcessing(null);
+        return;
+      }
+
       try {
         const storeId = process.env.NEXT_PUBLIC_PORTONE_STORE_ID!;
         const channelKey =
@@ -101,7 +123,7 @@ export default function CustomOrderKoreanPayButton({
           paymentId,
           orderId: customOrderId,
           orderName: songTitle || '맞춤 드럼 악보 제작',
-          totalAmount: Math.round(amountKRW),
+          totalAmount: payAmount,
           currency: 'CURRENCY_KRW',
           payMethod: method === 'kakaopay' ? 'EASY_PAY' : 'CARD',
           customer: {
@@ -112,7 +134,7 @@ export default function CustomOrderKoreanPayButton({
           },
           redirectUrl: returnUrl,
           windowType,
-          metadata: { customOrderId, userId: user.id, type: 'custom_order' },
+          metadata: { customOrderId, userId: user.id, type: 'custom_order', method },
           locale: 'KO_KR',
         };
 
@@ -151,7 +173,7 @@ export default function CustomOrderKoreanPayButton({
         setProcessing(null);
       }
     },
-    [user?.id, user?.email, user?.user_metadata?.name, processing, customOrderId, songTitle, amountKRW, onConfirmed, t, verifyWithRetry]
+    [user?.id, user?.email, user?.user_metadata?.name, processing, customOrderId, songTitle, amountKRW, prepare, onConfirmed, t, verifyWithRetry]
   );
 
   const openBankModal = () => {
@@ -248,25 +270,29 @@ export default function CustomOrderKoreanPayButton({
         {t('customOrders.detail.payKakao')}
       </button>
 
-      <div className="relative py-1">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-gray-200" />
-        </div>
-        <div className="relative flex justify-center text-xs">
-          <span className="bg-blue-50/60 px-2 text-gray-500">{t('customOrders.detail.payOr')}</span>
-        </div>
-      </div>
+      {allowBankTransfer && (
+        <>
+          <div className="relative py-1">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-200" />
+            </div>
+            <div className="relative flex justify-center text-xs">
+              <span className="bg-blue-50/60 px-2 text-gray-500">{t('customOrders.detail.payOr')}</span>
+            </div>
+          </div>
 
-      <button
-        onClick={openBankModal}
-        disabled={!!processing || bankTransferProcessing}
-        className="flex w-full items-center justify-center gap-2 rounded-lg border border-green-600 bg-white py-3 text-sm font-semibold text-green-700 hover:bg-green-50 disabled:opacity-50"
-      >
-        <i className="ri-bank-line text-lg" />
-        {t('customOrders.detail.payBank')}
-      </button>
+          <button
+            onClick={openBankModal}
+            disabled={!!processing || bankTransferProcessing}
+            className="flex w-full items-center justify-center gap-2 rounded-lg border border-green-600 bg-white py-3 text-sm font-semibold text-green-700 hover:bg-green-50 disabled:opacity-50"
+          >
+            <i className="ri-bank-line text-lg" />
+            {t('customOrders.detail.payBank')}
+          </button>
+        </>
+      )}
 
-      {showBankModal && (
+      {allowBankTransfer && showBankModal && (
         <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50 p-4">
           <div className="w-full max-w-md rounded-xl bg-white shadow-2xl">
             <div className="border-b border-gray-200 px-5 py-4">

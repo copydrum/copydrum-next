@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { fulfillMyBookAfterPayment } from '@/lib/myBook/payment.server';
+import { getPayableAmount } from '@/lib/points/server';
+
+// 나만의 악보집은 응답 후 같은 함수에서 PDF 를 만들기 때문에 실행 시간을 넉넉히 둔다
+export const maxDuration = 300;
 
 // 주문제작(custom_orders) 견적 결제 전용 검증 엔드포인트.
 // 시트 구매용 /verify 와 달리 orders/order_items/purchases/다운로드 발급 로직과 완전히 분리되어 있고,
@@ -145,6 +150,20 @@ function classifyPaymentStatus(status: string): 'PAID' | 'FAILED' | 'PENDING' | 
   return 'UNKNOWN';
 }
 
+// 나만의 악보집이면 결제용 주문 완료·낱곡 구매내역 추가 후, 응답을 보낸 뒤 바로 악보집 PDF 를 만든다.
+// 실패해도 결제 확인 응답은 막지 않는다.
+async function fulfillMyBookSafely(customOrderId: string, paymentId: string, meta: Record<string, unknown>) {
+  try {
+    await fulfillMyBookAfterPayment(customOrderId, {
+      method: meta.method === 'kakaopay' ? 'kakaopay' : 'card',
+      transactionId: paymentId,
+      provider: 'portone',
+    });
+  } catch (error) {
+    console.error('[verify-custom-order] ⚠️ 악보집 후처리 실패:', { customOrderId, error });
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -200,10 +219,10 @@ export async function POST(request: NextRequest) {
 
     const supabase = createAdminClient();
 
-    // 1) 주문제작 견적 조회
+    // 1) 주문제작 견적 조회 (악보집 열(order_type, payment_order_id)이 없는 DB 에서도 동작하도록 * 로 읽는다)
     const { data: order, error: orderError } = await supabase
       .from('custom_orders')
-      .select('id, status, estimated_price, locale')
+      .select('*')
       .eq('id', customOrderId)
       .maybeSingle();
 
@@ -216,6 +235,7 @@ export async function POST(request: NextRequest) {
 
     // 멱등 처리: 이미 결제 확인 이상 단계면 그대로 성공 반환
     if (['payment_confirmed', 'in_progress', 'completed'].includes((order as any).status)) {
+      await fulfillMyBookSafely(customOrderId, portonePayment.id ?? paymentId, meta);
       return NextResponse.json({ success: true, message: '이미 결제가 확인된 주문입니다.', alreadyConfirmed: true });
     }
 
@@ -226,12 +246,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const estimatedPrice = Number((order as any).estimated_price) || 0;
+    let estimatedPrice = Number((order as any).estimated_price) || 0;
     if (estimatedPrice <= 0) {
       return NextResponse.json(
         { success: false, error: '유효한 견적 금액이 없습니다.' },
         { status: 400 }
       );
+    }
+
+    // 악보집은 결제용 주문에 포인트를 먼저 적용하고 남은 금액만 카드로 결제한다
+    const bookFields = order as { order_type?: string | null; payment_order_id?: string | null };
+    const paymentOrderId = bookFields.order_type === 'book' ? bookFields.payment_order_id : null;
+    if (paymentOrderId) {
+      const { data: paymentOrder } = await supabase
+        .from('orders')
+        .select('total_amount, points_used, status')
+        .eq('id', paymentOrderId)
+        .maybeSingle();
+      if (paymentOrder && paymentOrder.status !== 'cancelled') {
+        estimatedPrice = getPayableAmount(paymentOrder);
+      }
     }
 
     console.log('[verify-custom-order] 🔍 PortOne 결제 조회:', {
@@ -318,6 +352,7 @@ export async function POST(request: NextRequest) {
         .eq('id', customOrderId)
         .maybeSingle();
       if (recheck && ['payment_confirmed', 'in_progress', 'completed'].includes((recheck as any).status)) {
+        await fulfillMyBookSafely(customOrderId, portonePayment.id ?? paymentId, meta);
         return NextResponse.json({ success: true, message: '이미 결제가 확인된 주문입니다.', alreadyConfirmed: true });
       }
       console.error('[verify-custom-order] ❌ 상태 전이 실패(0 rows):', { customOrderId, currentStatus: (recheck as any)?.status });
@@ -328,6 +363,7 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('[verify-custom-order] ✅ 결제 확인 완료:', { customOrderId, paymentId });
+    await fulfillMyBookSafely(customOrderId, portonePayment.id ?? paymentId, meta);
     return NextResponse.json({ success: true, message: '결제가 확인되었습니다.' });
   } catch (error) {
     console.error('[verify-custom-order] ❌ 오류:', error);

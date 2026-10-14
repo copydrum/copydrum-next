@@ -6,6 +6,7 @@ import { Loader2, Search, ChevronLeft, ChevronRight, ShoppingCart, Zap } from 'l
 import { useTranslation } from 'react-i18next';
 
 import MainHeader from '../../components/common/MainHeader';
+import MyBookPromoBanner from '../../components/myBook/MyBookPromoBanner';
 import Footer from '../../components/common/Footer';
 import Seo from '../../components/Seo';
 import { supabase } from '../../lib/supabase';
@@ -308,6 +309,7 @@ export default function SheetBooksPage() {
 
       <section ref={contentRef} className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-6">
+          <MyBookPromoBanner variant="card" />
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="relative w-full md:w-96">
               <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />

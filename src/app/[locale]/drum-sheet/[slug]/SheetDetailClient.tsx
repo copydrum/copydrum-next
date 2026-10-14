@@ -24,6 +24,7 @@ import { generateDefaultThumbnail } from '@/lib/defaultThumbnail';
 import { useEventSales } from '@/hooks/useEventSales';
 import EventSaleDetailBanner from '@/components/event-sale/EventSaleDetailBanner';
 import SalePrice from '@/components/event-sale/SalePrice';
+import AddToMyBookButton from '@/components/myBook/AddToMyBookButton';
 
 interface DrumSheet {
   id: string;
@@ -863,6 +864,7 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
                         </span>
                       </button>
                     </div>
+                    <AddToMyBookButton sheet={sheet} className="hidden lg:block" />
                   </div>
                 )}
               </div>
@@ -1150,6 +1152,7 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
                 >
                   <ShoppingCart className="w-5 h-5" />
                 </button>
+                <AddToMyBookButton sheet={sheet} variant="compact" />
                 {/* 바로구매 버튼 */}
                 <button
                   onClick={handleBuyNow}

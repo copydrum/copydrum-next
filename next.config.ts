@@ -5,6 +5,13 @@ const nextConfig: NextConfig = {
     // TODO: Remove after fixing all pre-existing type errors in admin page
     ignoreBuildErrors: true,
   },
+  // 나만의 악보집 PDF 를 서버에서 만들 때 fs 로 읽는 한글 폰트 (public 파일은 함수 번들에 자동 포함되지 않음)
+  outputFileTracingIncludes: {
+    '/api/payments/portone/verify-custom-order': ['./public/fonts/my-book/*.ttf'],
+    '/api/my-book/build': ['./public/fonts/my-book/*.ttf'],
+    '/api/admin/my-book/build': ['./public/fonts/my-book/*.ttf'],
+    '/api/admin/my-book/grant': ['./public/fonts/my-book/*.ttf'],
+  },
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'img.youtube.com' },

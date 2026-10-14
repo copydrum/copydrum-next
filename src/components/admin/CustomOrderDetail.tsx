@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../stores/authStore';
+import MyBookOrderInfo, { isMyBookOrder, type MyBookOrderFields } from '../myBook/MyBookOrderInfo';
+import MyBookBuilderPanel from './MyBookBuilderPanel';
+import { MY_BOOK_RECOVERED_MESSAGE, MY_BOOK_REPLACED_MESSAGE } from '../../lib/myBook/messages';
 
 type StatusOptionValue = 'pending' | 'quoted' | 'payment_confirmed' | 'in_progress' | 'completed' | 'cancelled';
 
@@ -16,7 +19,7 @@ interface OrderProfile {
   name: string | null;
 }
 
-interface OrderDetail {
+interface OrderDetail extends MyBookOrderFields {
   id: string;
   user_id: string;
   song_title: string;
@@ -34,6 +37,11 @@ interface OrderDetail {
   created_at: string;
   updated_at: string;
   profiles: OrderProfile | null;
+  name?: string | null;
+  book_build_status?: 'pending' | 'building' | 'done' | 'failed' | null;
+  book_build_started_at?: string | null;
+  book_build_error?: string | null;
+  book_page_count?: number | null;
 }
 
 interface Message {
@@ -50,6 +58,22 @@ interface CustomOrderDetailProps {
   onClose: () => void;
   onUpdated?: () => void;
 }
+
+// 무통장 입금 등 관리자가 결제를 확인한 악보집 주문의 곡을 낱곡 구매내역에 넣는다 (중복 실행 안전)
+const grantMyBookSheetsFromAdmin = async (customOrderId: string) => {
+  try {
+    const res = await fetch('/api/admin/my-book/grant', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ customOrderId }),
+    });
+    if (!res.ok) {
+      console.error('악보집 낱곡 권한 부여 실패:', await res.text());
+    }
+  } catch (error) {
+    console.error('악보집 낱곡 권한 부여 실패:', error);
+  }
+};
 
 const normalizeAdminSelectableStatus = (status: string): StatusOptionValue =>
   status === 'payment_confirmed' ? 'in_progress' : (status as StatusOptionValue);
@@ -132,8 +156,8 @@ export default function CustomOrderDetail({ orderId, onClose, onUpdated }: Custo
     [order]
   );
 
-  const loadOrderDetail = useCallback(async () => {
-    setLoading(true);
+  const loadOrderDetail = useCallback(async (options?: { silent?: boolean }) => {
+    if (!options?.silent) setLoading(true);
     setError(null);
     try {
       const { data, error: orderError } = await supabase
@@ -248,6 +272,9 @@ export default function CustomOrderDetail({ orderId, onClose, onUpdated }: Custo
       }
 
       setOrder((prev) => (prev ? { ...prev, status: selectedStatus } : prev));
+      if (isMyBookOrder(order) && ['in_progress', 'completed'].includes(selectedStatus)) {
+        await grantMyBookSheetsFromAdmin(order.id);
+      }
       alert('상태가 변경되었습니다.');
       onUpdated?.();
     } catch (err: any) {
@@ -292,79 +319,89 @@ export default function CustomOrderDetail({ orderId, onClose, onUpdated }: Custo
     }
   };
 
+  /**
+   * 완성 파일을 올리고 주문을 완료 처리한다. replace 면 기존 완성 파일 목록을 새 파일로 바꾼다
+   * (악보집은 고객이 한 권만 받도록 바꿔 끼운다). 실패하면 예외를 던진다.
+   */
+  const uploadCompletedFiles = async (
+    files: File[],
+    options: { replace?: boolean; bookPageCount?: number } = {}
+  ): Promise<number> => {
+    if (!order || files.length === 0) return 0;
+    const isBook = isMyBookOrder(order);
+
+    // 악보집은 여러 곡을 합친 PDF 라 용량이 커서 한도를 높인다
+    const maxMb = isBook ? 100 : 20;
+    const MAX_FILE_SIZE = maxMb * 1024 * 1024;
+    for (const file of files) {
+      if (file.size > MAX_FILE_SIZE) {
+        throw new Error(`"${file.name}" 파일 크기는 ${maxMb}MB를 초과할 수 없습니다.`);
+      }
+    }
+
+    const existingFiles = options.replace ? [] : normalizeCompletedFiles(order);
+    const newlyUploadedFiles: Array<{ url: string; filename: string; uploaded_at: string }> = [];
+
+    for (const file of files) {
+      const fileExt = file.name.split('.').pop() ?? 'pdf';
+      const filePath = `${order.user_id}/${order.id}/${Date.now()}-${Math.random()
+        .toString(36)
+        .slice(2, 8)}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('custom-orders')
+        .upload(filePath, file, { contentType: file.type || 'application/pdf' });
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      const { data: publicUrlData } = supabase.storage.from('custom-orders').getPublicUrl(filePath);
+
+      newlyUploadedFiles.push({
+        url: publicUrlData.publicUrl,
+        filename: file.name,
+        uploaded_at: new Date().toISOString(),
+      });
+    }
+
+    const nextCompletedFiles = [...existingFiles, ...newlyUploadedFiles];
+    const latestFile = nextCompletedFiles[nextCompletedFiles.length - 1] ?? null;
+    const patch: Record<string, unknown> = {
+      completed_pdf_url: latestFile?.url ?? null,
+      completed_pdf_filename: JSON.stringify(nextCompletedFiles),
+      status: 'completed', // PDF 업로드 시 자동으로 완료 상태로 변경
+    };
+    if (isBook) {
+      patch.book_build_status = 'done';
+      patch.book_build_error = null;
+      if (options.bookPageCount) patch.book_page_count = options.bookPageCount;
+    }
+
+    const { error: updateError } = await supabase.from('custom_orders').update(patch).eq('id', order.id);
+
+    if (updateError) {
+      throw updateError;
+    }
+
+    setOrder((prev) => (prev ? ({ ...prev, ...patch } as OrderDetail) : prev));
+    setSelectedStatus('completed');
+    if (isBook) {
+      await grantMyBookSheetsFromAdmin(order.id);
+    }
+    onUpdated?.();
+    return newlyUploadedFiles.length;
+  };
+
   const handlePdfUpload = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!order || pdfFiles.length === 0) return;
 
-    // Client-side file size validation (max 20MB)
-    const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB in bytes
-    for (const file of pdfFiles) {
-      if (file.size > MAX_FILE_SIZE) {
-        alert(`"${file.name}" 파일 크기는 20MB를 초과할 수 없습니다.`);
-        return;
-      }
-    }
-
     setIsUploadingPdf(true);
     try {
-      const existingFiles = normalizeCompletedFiles(order);
-      const newlyUploadedFiles: Array<{ url: string; filename: string; uploaded_at: string }> = [];
-
-      for (const file of pdfFiles) {
-        const fileExt = file.name.split('.').pop() ?? 'pdf';
-        const filePath = `${order.user_id}/${order.id}/${Date.now()}-${Math.random()
-          .toString(36)
-          .slice(2, 8)}.${fileExt}`;
-
-        const { error: uploadError } = await supabase.storage
-          .from('custom-orders')
-          .upload(filePath, file);
-
-        if (uploadError) {
-          throw uploadError;
-        }
-
-        const { data: publicUrlData } = supabase.storage
-          .from('custom-orders')
-          .getPublicUrl(filePath);
-
-        newlyUploadedFiles.push({
-          url: publicUrlData.publicUrl,
-          filename: file.name,
-          uploaded_at: new Date().toISOString(),
-        });
-      }
-
-      const nextCompletedFiles = [...existingFiles, ...newlyUploadedFiles];
-      const latestFile = nextCompletedFiles[nextCompletedFiles.length - 1] ?? null;
-
-      const { error: updateError } = await supabase
-        .from('custom_orders')
-        .update({
-          completed_pdf_url: latestFile?.url ?? null,
-          completed_pdf_filename: JSON.stringify(nextCompletedFiles),
-          status: 'completed', // PDF 업로드 시 자동으로 완료 상태로 변경
-        })
-        .eq('id', order.id);
-
-      if (updateError) {
-        throw updateError;
-      }
-
-      setOrder((prev) =>
-        prev
-          ? {
-            ...prev,
-            completed_pdf_url: latestFile?.url ?? null,
-            completed_pdf_filename: JSON.stringify(nextCompletedFiles),
-            status: 'completed',
-          }
-          : prev
-      );
-      setSelectedStatus('completed');
+      const count = await uploadCompletedFiles(pdfFiles);
       setPdfFiles([]);
-      alert(`${newlyUploadedFiles.length}개의 악보 파일이 업로드되었습니다.`);
-      onUpdated?.();
+      alert(`${count}개의 악보 파일이 업로드되었습니다.`);
     } catch (err: any) {
       console.error('PDF 업로드 실패:', err);
       alert(err?.message ?? '파일 업로드 중 오류가 발생했습니다.');
@@ -450,8 +487,18 @@ export default function CustomOrderDetail({ orderId, onClose, onUpdated }: Custo
                     {order.profiles?.name} ({order.profiles?.email})
                   </dd>
                 </div>
+                {isMyBookOrder(order) && (
+                  <div className="flex justify-between">
+                    <dt className="text-gray-500">주문 유형</dt>
+                    <dd>
+                      <span className="rounded-md bg-indigo-100 px-2 py-0.5 text-xs font-bold text-indigo-700">
+                        나만의 악보집
+                      </span>
+                    </dd>
+                  </div>
+                )}
                 <div className="flex justify-between">
-                  <dt className="text-gray-500">곡 제목</dt>
+                  <dt className="text-gray-500">{isMyBookOrder(order) ? '악보집 제목' : '곡 제목'}</dt>
                   <dd className="font-medium text-gray-900">{order.song_title}</dd>
                 </div>
                 <div className="flex justify-between">
@@ -495,6 +542,34 @@ export default function CustomOrderDetail({ orderId, onClose, onUpdated }: Custo
                 </div>
               </div>
             </section>
+
+            {isMyBookOrder(order) && <MyBookOrderInfo order={order} admin />}
+
+            {isMyBookOrder(order) && (
+              <MyBookBuilderPanel
+                order={order}
+                hasCompletedFiles={completedFiles.length > 0}
+                onUploadBook={async (file, pageCount) => {
+                  const replacing = completedFiles.length > 0;
+                  await uploadCompletedFiles([file], { replace: true, bookPageCount: pageCount });
+                  const { error: messageError } = await supabase.functions.invoke('admin-send-custom-order-message', {
+                    body: {
+                      customOrderId: order.id,
+                      message: replacing ? MY_BOOK_REPLACED_MESSAGE : MY_BOOK_RECOVERED_MESSAGE,
+                    },
+                  });
+                  if (messageError) {
+                    console.error('[admin/my-book] 완성 안내 메시지 전송 실패:', messageError);
+                  }
+                  await refreshMessages();
+                  return { messageSent: !messageError };
+                }}
+                onReload={async () => {
+                  await loadOrderDetail({ silent: true });
+                  onUpdated?.();
+                }}
+              />
+            )}
 
             <section className="rounded-lg border border-gray-200 p-4">
               <h3 className="mb-4 font-semibold text-gray-900">상태 관리</h3>

@@ -1886,7 +1886,14 @@ export default function MyPage() {
                             <div key={order.id} className="border border-gray-100 rounded-xl p-4">
                               <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
                                 <div>
-                                  <h4 className="text-lg font-semibold text-gray-900">{order.song_title}</h4>
+                                  <h4 className="text-lg font-semibold text-gray-900">
+                                    {(order as any).order_type === 'book' && (
+                                      <span className="mr-2 inline-block rounded-md bg-indigo-100 px-2 py-0.5 align-middle text-xs font-bold text-indigo-700">
+                                        {t('myBook.order.badge', '악보집')}
+                                      </span>
+                                    )}
+                                    {order.song_title}
+                                  </h4>
                                   <p className="text-sm text-gray-500">{order.artist}</p>
                                 </div>
                                 <div className="flex items-center gap-3">

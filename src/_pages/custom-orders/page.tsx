@@ -95,8 +95,35 @@ const CustomOrdersPage = () => {
     },
   }), [t]);
 
-  const getOrderStatusMeta = (status: string) =>
-    STATUS_META[status === 'payment_confirmed' ? 'in_progress' : status] ?? STATUS_META.pending;
+  const getOrderStatusMeta = (order: { status: string; order_type?: string | null }) => {
+    const key = order.status === 'payment_confirmed' ? 'in_progress' : order.status;
+    const meta = STATUS_META[key] ?? STATUS_META.pending;
+    if (order.order_type === 'book' && ['quoted', 'in_progress', 'completed'].includes(key)) {
+      return {
+        ...meta,
+        label: t(`myBook.status.${key}.label`),
+        message: t(`myBook.status.${key}.message`),
+        icon: key === 'in_progress' ? 'ri-loader-4-line' : key === 'quoted' ? 'ri-flashlight-line' : meta.icon,
+      };
+    }
+    return meta;
+  };
+
+  // completed_pdf_filename 은 여러 파일을 JSON 배열로 저장하므로 completed_pdf_url(마지막 파일)의 이름을 꺼낸다
+  const getLatestFileName = (order: { completed_pdf_filename?: string | null; song_title: string }) => {
+    const raw = order.completed_pdf_filename?.trim();
+    if (raw && raw.startsWith('[')) {
+      try {
+        const files = JSON.parse(raw) as Array<{ filename?: string }>;
+        const last = Array.isArray(files) ? files[files.length - 1] : null;
+        if (last?.filename) return last.filename;
+      } catch {
+        // 파싱 실패 시 아래 기본 이름 사용
+      }
+      return `${order.song_title}_${t('customOrders.order.sheetMusicSuffix')}.pdf`;
+    }
+    return raw || `${order.song_title}_${t('customOrders.order.sheetMusicSuffix')}.pdf`;
+  };
 
   useEffect(() => {
     if (user) {
@@ -159,7 +186,7 @@ const CustomOrdersPage = () => {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = order.completed_pdf_filename || `${order.song_title}_${t('customOrders.order.sheetMusicSuffix')}.pdf`;
+      a.download = getLatestFileName(order);
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
@@ -222,7 +249,7 @@ const CustomOrdersPage = () => {
           ) : (
             <div className="space-y-6">
               {orders.map((order) => {
-                const meta = getOrderStatusMeta(order.status);
+                const meta = getOrderStatusMeta(order);
                 const maxDownload = order.max_download_count ?? 5;
                 const usedCount = order.download_count ?? 0;
                 const downloadExpiresAt = order.download_expires_at
@@ -237,8 +264,25 @@ const CustomOrdersPage = () => {
                   <div key={order.id} className="border border-gray-200 rounded-lg p-6 shadow-sm">
                     <div className="flex justify-between items-start mb-4">
                       <div>
-                        <h3 className="text-lg font-semibold text-gray-800">{order.song_title}</h3>
-                        <p className="text-sm text-gray-600">{t('customOrders.order.artist')}: {order.artist}</p>
+                        <h3 className="text-lg font-semibold text-gray-800">
+                          {order.order_type === 'book' && (
+                            <span className="mr-2 inline-block rounded-md bg-indigo-100 px-2 py-0.5 align-middle text-xs font-bold text-indigo-700">
+                              {t('myBook.order.badge', '악보집')}
+                            </span>
+                          )}
+                          {order.song_title}
+                        </h3>
+                        {order.order_type === 'book' ? (
+                          <p className="text-sm text-gray-600">
+                            {t('myBook.name', '나만의 악보집')} ·{' '}
+                            {t('myBook.order.songCount', {
+                              count: order.book_item_count ?? 0,
+                              defaultValue: `${order.book_item_count ?? 0}곡`,
+                            })}
+                          </p>
+                        ) : (
+                          <p className="text-sm text-gray-600">{t('customOrders.order.artist')}: {order.artist}</p>
+                        )}
                         <p className="text-xs text-gray-500">
                           {t('customOrders.order.applicationDate')}: {new Date(order.created_at).toLocaleDateString()}
                         </p>
@@ -319,8 +363,8 @@ const CustomOrdersPage = () => {
                             <i className="ri-file-download-line text-green-600 text-lg mt-1"></i>
                             <div>
                               <p className="text-sm font-medium text-green-800 mb-1">{t('customOrders.order.completedSheet')}</p>
-                              <p className="text-sm text-green-700">
-                                {order.completed_pdf_filename ?? t('customOrders.order.completedSheetFilename')}
+                              <p className="break-all text-sm text-green-700">
+                                {order.completed_pdf_url ? getLatestFileName(order) : t('customOrders.order.completedSheetFilename')}
                               </p>
                               <div className="mt-2 flex flex-wrap gap-4 text-xs text-green-700">
                                 <span>

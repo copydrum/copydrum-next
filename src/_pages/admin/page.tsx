@@ -628,7 +628,26 @@ interface CustomOrder {
   created_at: string;
   updated_at: string;
   profiles?: Profile;
+  order_type?: 'song' | 'book' | null;
+  book_item_count?: number | null;
+  book_build_status?: 'pending' | 'building' | 'done' | 'failed' | null;
+  book_build_started_at?: string | null;
 }
+
+/** 자동 제작이 이보다 오래 끝나지 않으면 멈춘 것으로 본다 (서버 MY_BOOK_BUILD_STALE_MS 와 같게) */
+const MY_BOOK_STUCK_MS = 5 * 60 * 1000;
+
+/** 관리자가 직접 처리해야 하는 악보집 주문인지 (결제 전 악보집은 고객이 결제만 하면 되므로 제외) */
+const getMyBookAttention = (order: CustomOrder, now: number): 'failed' | 'stuck' | null => {
+  if (order.order_type !== 'book' || order.completed_pdf_url) return null;
+  if (!['payment_confirmed', 'in_progress'].includes(order.status)) return null;
+  if (order.book_build_status === 'failed') return 'failed';
+  if (order.book_build_status === 'done') return null;
+  const since =
+    order.book_build_status === 'building' ? order.book_build_started_at : order.updated_at;
+  const sinceMs = since ? new Date(since).getTime() : 0;
+  return now - sinceMs > MY_BOOK_STUCK_MS ? 'stuck' : null;
+};
 
 const CUSTOM_ORDER_STATUS_META: Record<CustomOrderStatus, { label: string; className: string; description: string }> = {
   pending: {
@@ -1424,8 +1443,13 @@ const AdminPage: React.FC = () => {
   }, []);
 
   const [customOrders, setCustomOrders] = useState<CustomOrder[]>([]);
+  /** 악보집 제작 멈춤 판단 기준 시각 (목록을 불러온 시각) */
+  const [customOrdersLoadedAt, setCustomOrdersLoadedAt] = useState(0);
   const [customOrderSearchTerm, setCustomOrderSearchTerm] = useState('');
   const [customOrderStatusFilter, setCustomOrderStatusFilter] = useState<'all' | CustomOrderStatus>('all');
+  const [customOrderTypeFilter, setCustomOrderTypeFilter] = useState<'all' | 'song' | 'book' | 'book_attention'>(
+    'all'
+  );
   const [selectedCustomOrderId, setSelectedCustomOrderId] = useState<string | null>(null);
   const [isCustomOrderModalOpen, setIsCustomOrderModalOpen] = useState(false);
 
@@ -3591,6 +3615,7 @@ const AdminPage: React.FC = () => {
 
       if (error) throw error;
       setCustomOrders(data || []);
+      setCustomOrdersLoadedAt(Date.now());
     } catch (error) {
       console.error('맞춤 제작 주문 목록 로드 오류:', error);
     }
@@ -6954,14 +6979,24 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
       order.status === customOrderStatusFilter ||
       (customOrderStatusFilter === 'in_progress' && order.status === 'payment_confirmed');
 
-    return matchesSearch && matchesStatus;
+    const matchesType =
+      customOrderTypeFilter === 'all' ||
+      (customOrderTypeFilter === 'book_attention'
+        ? getMyBookAttention(order, customOrdersLoadedAt) !== null
+        : (order.order_type ?? 'song') === customOrderTypeFilter);
+
+    return matchesSearch && matchesStatus && matchesType;
   });
 
+  const isUnpaidMyBook = (order: CustomOrder) =>
+    order.order_type === 'book' && ['pending', 'quoted'].includes(order.status);
   const activeCustomOrderCount = customOrders.filter(
-    (order) => order.status !== 'completed' && order.status !== 'cancelled'
+    (order) => order.status !== 'completed' && order.status !== 'cancelled' && !isUnpaidMyBook(order)
   ).length;
   const pendingCustomOrderCount = customOrders.filter((order) =>
-    ['pending', 'quoted'].includes(order.status)
+    order.order_type === 'book'
+      ? getMyBookAttention(order, customOrdersLoadedAt) !== null
+      : ['pending', 'quoted'].includes(order.status)
   ).length;
   const totalInquiryCount = customerInquiries.length;
   const pendingInquiryCount = customerInquiries.filter((inquiry) => inquiry.status === 'pending').length;
@@ -12126,6 +12161,18 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
               </option>
             ))}
           </select>
+          <select
+            value={customOrderTypeFilter}
+            onChange={(event) =>
+              setCustomOrderTypeFilter(event.target.value as 'all' | 'song' | 'book' | 'book_attention')
+            }
+            className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="all">전체 유형</option>
+            <option value="song">주문제작</option>
+            <option value="book">나만의 악보집</option>
+            <option value="book_attention">악보집 · 확인 필요 (실패·멈춤)</option>
+          </select>
           <button
             type="button"
             onClick={() => loadCustomOrders()}
@@ -12178,7 +12225,24 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
                     <tr key={order.id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4">
                         <div className="space-y-1">
-                          <p className="text-sm font-semibold text-gray-900">{order.song_title}</p>
+                          <p className="text-sm font-semibold text-gray-900">
+                            {order.order_type === 'book' && (
+                              <span className="mr-1.5 inline-block rounded bg-indigo-100 px-1.5 py-0.5 text-[11px] font-bold text-indigo-700">
+                                악보집
+                              </span>
+                            )}
+                            {getMyBookAttention(order, customOrdersLoadedAt) === 'failed' && (
+                              <span className="mr-1.5 inline-block rounded bg-red-100 px-1.5 py-0.5 text-[11px] font-bold text-red-700">
+                                자동 제작 실패
+                              </span>
+                            )}
+                            {getMyBookAttention(order, customOrdersLoadedAt) === 'stuck' && (
+                              <span className="mr-1.5 inline-block rounded bg-amber-100 px-1.5 py-0.5 text-[11px] font-bold text-amber-700">
+                                제작 멈춤
+                              </span>
+                            )}
+                            {order.song_title}
+                          </p>
                           <p className="text-xs text-gray-500">{order.artist}</p>
                         </div>
                       </td>

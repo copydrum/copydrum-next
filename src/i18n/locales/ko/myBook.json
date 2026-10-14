@@ -1,0 +1,256 @@
+{
+  "name": "나만의 악보집",
+  "badge": "NEW",
+  "hero": {
+    "eyebrow": "결제하면 1분 안에 완성",
+    "title": "원하는 곡만 골라\n결제 즉시 받는 나만의 악보집",
+    "description": "카피드럼 악보를 골라 담으면 표지·목차·페이지 번호까지 넣은 PDF 악보집이 자동으로 만들어집니다. 며칠씩 기다릴 필요 없이 결제하자마자 바로 다운로드하세요.",
+    "highlight": "많이 담을수록 최대 {{percent}}% 할인",
+    "features": {
+      "instant": {
+        "title": "결제 즉시 다운로드",
+        "desc": "보통 1분 안에 완성돼요"
+      },
+      "discount": {
+        "title": "담을수록 커지는 할인",
+        "desc": "10곡 20% → 50곡 {{percent}}%"
+      },
+      "owned": {
+        "title": "이미 산 곡은 0원",
+        "desc": "구매한 곡은 빼고 계산해요"
+      },
+      "toc": {
+        "title": "누르면 이동하는 목차",
+        "desc": "책갈피·페이지 번호까지"
+      }
+    }
+  },
+  "steps": {
+    "title": "이렇게 만들어요",
+    "items": {
+      "pick": {
+        "title": "곡 담기",
+        "desc": "아래에서 검색하거나 악보 상세 화면의 \"나만의 악보집에 담기\"로 담아요."
+      },
+      "design": {
+        "title": "제목·표지 정하고 결제",
+        "desc": "제목만 정하면 표지는 자동으로 디자인돼요. 직접 만든 표지를 올려도 좋아요."
+      },
+      "download": {
+        "title": "1분 뒤 바로 다운로드",
+        "desc": "카드·카카오페이·캐쉬·포인트로 결제하면 바로 만들어져 주문 상세에서 받을 수 있어요."
+      }
+    }
+  },
+  "tiers": {
+    "title": "곡 수별 할인",
+    "subtitle": "담는 곡이 많을수록 곡당 가격이 내려가요",
+    "row": "{{minSongs}}곡 이상",
+    "discount": "{{percent}}% 할인",
+    "current": "지금 적용 중",
+    "note": "낱곡 정가 합계 기준이며, 최소 {{min}}곡부터 최대 {{max}}곡까지 담을 수 있습니다. 이미 구매한 곡도 곡 수에는 포함돼요."
+  },
+  "search": {
+    "title": "곡 찾아서 담기",
+    "placeholder": "곡 제목 또는 아티스트로 검색",
+    "searching": "검색 중...",
+    "noResults": "검색 결과가 없습니다.",
+    "hint": "두 글자 이상 입력하면 검색됩니다.",
+    "add": "담기",
+    "added": "담김",
+    "full": "최대 {{max}}곡까지 담을 수 있습니다."
+  },
+  "list": {
+    "title": "담은 곡",
+    "count": "{{count}}곡",
+    "empty": "아직 담은 곡이 없습니다. 위에서 검색하거나 악보 상세 페이지에서 \"나만의 악보집에 담기\"를 눌러 주세요.",
+    "orderHint": "담은 순서대로 목차가 만들어져요. 화살표로 순서를 바꿀 수 있어요.",
+    "owned": "이미 구매함 · 0원",
+    "unavailable": "담을 수 없는 곡",
+    "removeUnavailable": "담을 수 없는 곡 빼기",
+    "moveUp": "위로",
+    "moveDown": "아래로",
+    "remove": "빼기",
+    "clear": "전체 비우기",
+    "clearConfirm": "담은 곡을 모두 비울까요?",
+    "loading": "곡 정보를 불러오는 중..."
+  },
+  "summary": {
+    "title": "결제 예정 금액",
+    "listTotal": "낱곡 정가 합계",
+    "ownedDeduction": "이미 구매한 곡 {{count}}곡",
+    "discount": "{{percent}}% 할인",
+    "minPayment": "최소 편집비 적용",
+    "final": "최종 금액",
+    "saving": "낱곡으로 살 때보다 {{amount}} 절약",
+    "savingShort": "{{amount}} 절약",
+    "perSong": "곡당 약 {{amount}}",
+    "needMore": "{{count}}곡 더 담으면 신청할 수 있어요 (최소 {{min}}곡)",
+    "nextTier": "{{count}}곡 더 담으면 {{percent}}% 할인",
+    "maxTier": "최대 할인율이 적용되었습니다.",
+    "tooMany": "최대 {{max}}곡까지 담을 수 있습니다.",
+    "loginForOwned": "로그인하면 이미 구매한 곡이 0원으로 계산됩니다.",
+    "progressLabel": "할인 단계"
+  },
+  "form": {
+    "title": "악보집 정보",
+    "bookTitle": "악보집 제목",
+    "bookTitlePlaceholder": "예) 우리 밴드 합주곡 모음",
+    "coverPreview": "기본 표지 미리보기",
+    "cover": "표지 파일 (선택)",
+    "coverHint": "jpg, png, pdf · 10MB 이하 · A4 세로 비율(2480×3508px 이상) 권장",
+    "coverNone": "첨부하지 않으면 미리보기처럼 제목을 넣은 카피드럼 표지로 만들어요.",
+    "coverAttached": "첨부한 표지가 A4 한 면에 그대로 들어가요. A4 비율이 아니면 위아래나 양옆에 흰 여백이 생겨요.",
+    "coverRemove": "첨부 취소",
+    "memo": "관리자에게 남길 메모 (선택)",
+    "memoPlaceholder": "전달하고 싶은 내용이 있다면 적어 주세요.",
+    "memoHint": "악보집은 결제 즉시 자동으로 만들어져 메모 내용이 반영되지는 않아요. 수정이 필요하면 완성 후 주문 상세의 메시지로 알려 주세요.",
+    "agree": "결제 즉시 자동으로 만들어 제공되는 디지털 상품이라 환불이 어렵다는 점과 아래 안내 사항을 확인했습니다.",
+    "submit": "악보집 만들고 결제하기",
+    "submitShort": "만들고 결제하기",
+    "submitting": "신청 중...",
+    "uploadingCover": "표지 업로드 중...",
+    "loginToSubmit": "로그인하고 신청하기",
+    "afterSubmit": "결제하면 1분 안에 완성되어 바로 다운로드할 수 있어요. 보유 캐쉬·포인트도 쓸 수 있어요."
+  },
+  "notice": {
+    "title": "제작 안내",
+    "items": {
+      "toc": "담은 순서대로 목차와 페이지 번호, 책갈피를 넣어 한 권의 PDF로 만듭니다. 목차에서 곡 제목을 누르면 해당 곡으로 바로 이동해요.",
+      "cover": "표지를 첨부하지 않으면 제목을 넣은 기본 표지로 만들며, 표지 안쪽에 구매자 이름을 표기합니다.",
+      "copyright": "첨부한 표지 이미지의 저작권 책임은 신청자에게 있습니다.",
+      "schedule": "카드·카카오페이·캐쉬·포인트 결제가 확인되면 바로 자동으로 만들어지며, 보통 1분 안에 주문 상세 화면에서 다운로드할 수 있습니다. (악보집은 무통장 입금을 지원하지 않습니다)",
+      "grant": "결제가 확인되면 담은 곡을 낱곡 구매내역에서도 각각 받을 수 있습니다.",
+      "personal": "완성된 악보집은 개인 연습용이며 재배포할 수 없습니다.",
+      "refund": "결제 즉시 제공되는 디지털 콘텐츠로, 단순 변심에 의한 환불은 어렵습니다. 파일에 문제가 있으면 주문 상세의 메시지로 알려 주세요."
+    }
+  },
+  "errors": {
+    "titleRequired": "악보집 제목을 입력해 주세요.",
+    "agreeRequired": "제작 안내에 동의해 주세요.",
+    "coverType": "표지는 jpg, png, pdf 파일만 올릴 수 있습니다.",
+    "coverSize": "표지 파일은 10MB 이하만 올릴 수 있습니다.",
+    "coverUpload": "표지를 업로드하지 못했습니다. 다시 시도해 주세요.",
+    "submit": "신청하지 못했습니다. 잠시 후 다시 시도해 주세요.",
+    "unavailable": "담을 수 없는 곡이 있습니다. 해당 곡을 빼고 다시 신청해 주세요."
+  },
+  "addButton": {
+    "add": "나만의 악보집에 담기",
+    "added": "악보집에 담김 ({{count}}곡)",
+    "hint": "10곡부터 20%, 50곡이면 {{percent}}% 할인 · 결제 즉시 PDF",
+    "addedToast": "나만의 악보집에 담았습니다. ({{count}}곡)\n{{nudge}}\n지금 악보집 화면으로 이동할까요?",
+    "nudgeMin": "{{count}}곡 더 담으면 20% 할인으로 만들 수 있어요.",
+    "nudgeNext": "{{count}}곡 더 담으면 {{percent}}% 할인이 적용돼요.",
+    "nudgeMax": "최대 할인({{percent}}%)이 적용되는 곡 수예요!",
+    "full": "나만의 악보집에는 최대 {{max}}곡까지 담을 수 있습니다."
+  },
+  "cartCta": {
+    "title": "이 곡들로 나만의 악보집 만들기",
+    "description": "장바구니의 {{count}}곡을 표지·목차가 있는 PDF 악보집 한 권으로 만들어 결제 즉시 받아 보세요. 많이 담을수록 최대 {{percent}}% 할인",
+    "estimate": "악보집으로 만들면 {{percent}}% 할인 · 예상 {{price}} ({{saving}} 절약)",
+    "needMore": "{{count}}곡만 더 담으면 20% 할인으로 악보집을 만들 수 있어요",
+    "button": "악보집으로 만들기",
+    "moved": "{{count}}곡을 나만의 악보집에 담았습니다."
+  },
+  "banner": {
+    "badge": "NEW 나만의 악보집",
+    "title": "원하는 곡만 골라, 결제 즉시 받는 나만의 악보집",
+    "description": "표지·목차까지 1분 완성 · 많이 담을수록 최대 {{percent}}% 할인 · 이미 산 곡은 0원",
+    "chips": {
+      "instant": "결제 즉시 다운로드",
+      "discount": "최대 {{percent}}% 할인",
+      "toc": "누르면 이동하는 목차"
+    },
+    "button": "악보집 만들러 가기"
+  },
+  "sheetBooksCard": {
+    "title": "원하는 구성의 악보집이 없나요?",
+    "description": "원하는 곡만 골라 담으면 1분 만에 나만의 악보집 PDF로 받아요. 많이 담을수록 최대 {{percent}}% 할인",
+    "button": "나만의 악보집 만들기"
+  },
+  "order": {
+    "badge": "악보집",
+    "songCount": "{{count}}곡",
+    "infoTitle": "악보집 구성",
+    "bookTitle": "악보집 제목",
+    "cover": "표지",
+    "coverDefault": "기본 표지로 제작",
+    "coverView": "표지 파일 보기",
+    "songs": "담은 곡 ({{count}}곡)",
+    "listTotal": "낱곡 정가 합계",
+    "discount": "곡 수 할인",
+    "saving": "낱곡으로 살 때보다 {{amount}} 절약",
+    "owned": "이미 구매함"
+  },
+  "status": {
+    "quoted": {
+      "label": "결제대기",
+      "message": "결제하면 바로 악보집이 만들어지고, 보통 1분 안에 이 화면에서 다운로드할 수 있어요."
+    },
+    "in_progress": {
+      "label": "제작중",
+      "message": "결제가 확인되어 악보집을 만들고 있어요. 완성되면 이 주문에서 바로 다운로드할 수 있어요."
+    },
+    "completed": {
+      "label": "완성",
+      "message": "악보집이 완성되었습니다. 바로 다운로드할 수 있어요."
+    }
+  },
+  "pay": {
+    "instantTitle": "결제하면 1분 안에 악보집 완성",
+    "instantDesc": "결제가 확인되는 즉시 자동으로 만들어져, 기다림 없이 이 화면에서 바로 다운로드할 수 있어요.",
+    "noBankTransfer": "바로 받아 보실 수 있도록 무통장 입금은 받지 않아요. 카드·카카오페이·캐쉬·포인트로 결제할 수 있어요.",
+    "pointsTitle": "적립 포인트 사용",
+    "pointsBalance": "보유 {{points}}P",
+    "pointsPlaceholder": "0P",
+    "pointsUseAll": "전액 사용",
+    "pointsCancel": "사용 취소",
+    "payable": "남은 결제 금액",
+    "payWithPoints": "포인트로 결제하기",
+    "cashTitle": "보유 캐쉬로 결제",
+    "cashBalance": "잔액 {{amount}}",
+    "payWithCash": "캐쉬 {{amount}} 결제하기",
+    "cashChargeHint": "캐쉬가 {{amount}} 부족해요. 충전하면 최대 {{percent}}% 보너스를 더 받고, 충전이 끝나면 바로 결제돼요.",
+    "chargeAndPay": "캐쉬 충전하고 결제하기",
+    "cashShort": "캐쉬가 {{amount}} 부족해요. 충전한 뒤 다시 결제해 주세요.",
+    "orCard": "또는 카드·카카오페이로 결제",
+    "processing": "결제하는 중...",
+    "errors": {
+      "default": "결제하지 못했어요. 잠시 후 다시 시도해 주세요.",
+      "INSUFFICIENT_POINTS": "보유 포인트가 부족해요. 사용할 포인트를 다시 입력해 주세요.",
+      "POINTS_EXCEED_TOTAL": "결제 금액보다 많은 포인트는 쓸 수 없어요.",
+      "PAYMENT_IN_PROGRESS": "이미 결제를 처리하고 있어요. 잠시 후 화면을 새로고침해 주세요.",
+      "ALREADY_PAID": "이미 결제된 주문이에요. 화면을 새로고침해 주세요."
+    }
+  },
+  "build": {
+    "buildingTitle": "악보집을 만들고 있어요",
+    "buildingDesc": "{{count}}곡을 한 권으로 묶는 중이에요. 보통 1분 안에 완성됩니다.",
+    "slowDesc": "평소보다 조금 더 걸리고 있어요. 이 화면을 닫아도 제작은 계속되며, 완성되면 마이페이지 > 주문제작 신청내역에서 받을 수 있어요.",
+    "stepCollect": "악보 모으기",
+    "stepDesign": "표지·목차 만들기",
+    "stepBind": "한 권으로 묶기",
+    "keepOpen": "이 화면을 열어 두면 완성되는 즉시 다운로드 버튼이 나타나요. 담은 곡은 낱곡으로도 바로 받을 수 있어요.",
+    "purchasesLink": "구매내역 보기",
+    "failedTitle": "자동 제작이 되지 않아 담당자가 직접 완성해 드릴게요",
+    "delayedTitle": "제작이 늦어지고 있어 담당자가 직접 확인할게요",
+    "manualDesc": "담당자가 직접 확인하고 처리해야 해서 몇 분 안에 바로 완성되지는 않아요. 이 화면에서 기다리지 않으셔도 괜찮습니다.",
+    "manualSchedule": "운영 시간(평일 10:00~17:00) 기준 영업일 1일 이내에 완성해 드릴게요. 주말·공휴일에는 다음 영업일에 처리돼요. 완성되면 메시지로 알려 드리고, 마이페이지 > 주문제작 신청내역의 이 주문에서 받을 수 있어요.",
+    "manualMeanwhile": "그동안 담은 곡은 구매내역에서 낱곡으로 바로 받을 수 있어요. 궁금한 점은 아래 메시지로 남겨 주세요.",
+    "retryHint": "일시적인 문제라면 자동 제작을 한 번 더 시도해 볼 수 있어요.",
+    "retry": "자동 제작 다시 시도",
+    "retrying": "다시 시도하는 중...",
+    "goPurchases": "구매내역에서 낱곡 받기"
+  },
+  "download": {
+    "title": "악보집 다운로드",
+    "desc": "완성된 악보집 PDF를 이 화면에서 바로 받을 수 있어요.",
+    "beforePay": "결제하면 1분 안에 악보집이 완성되어 여기에 다운로드 버튼이 나타나요.",
+    "readyTitle": "나만의 악보집이 완성되었어요!",
+    "readySummary": "총 {{count}}곡 · {{pages}}페이지",
+    "readySummaryNoPages": "총 {{count}}곡",
+    "tipToc": "목차의 곡 제목을 누르면 바로 이동",
+    "tipBookmark": "PDF 책갈피로 곡 빠르게 찾기",
+    "tipTablet": "태블릿 악보 앱에서도 편하게"
+  }
+}

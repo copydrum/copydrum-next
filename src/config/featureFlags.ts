@@ -21,3 +21,12 @@ export const DRUM_LESSON_BOOKS_PUBLIC_ENABLED = false;
  * false: 메뉴·홈·사이트맵에서 숨김 (/free-lessons URL·관리자 등록은 유지)
  */
 export const FREE_LESSONS_PUBLIC_ENABLED = true;
+
+/**
+ * 고객-facing 사이트에서 나만의 악보집(/my-book) 노출 여부.
+ * 원화 결제만 지원하므로 한국어(ko) 사이트에서만 노출한다. isMyBookVisible 로 판단.
+ */
+export const MY_BOOK_PUBLIC_ENABLED = true;
+
+export const isMyBookVisible = (locale: string | null | undefined): boolean =>
+  MY_BOOK_PUBLIC_ENABLED && (locale ?? '').toLowerCase().startsWith('ko');

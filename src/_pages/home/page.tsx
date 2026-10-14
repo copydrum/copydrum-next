@@ -22,6 +22,7 @@ import {
   SHEET_BOOKS_PUBLIC_ENABLED,
 } from '@/config/featureFlags';
 import FreeLessonsHomeSection from '@/components/freeLessons/FreeLessonsHomeSection';
+import MyBookPromoBanner from '@/components/myBook/MyBookPromoBanner';
 import {
   SHEET_BOOK_GENRE_I18N_KEYS,
   SHEET_BOOK_GENRE_NAMES,
@@ -2226,6 +2227,8 @@ export default function Home() {
         </div>
       </section>
       )}
+
+      <MyBookPromoBanner />
 
       {/* Custom Order CTA */}
       <div className="">

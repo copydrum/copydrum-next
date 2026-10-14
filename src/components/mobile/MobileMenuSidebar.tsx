@@ -14,6 +14,7 @@ import {
   DRUM_LESSON_BOOKS_PUBLIC_ENABLED,
   FREE_LESSONS_PUBLIC_ENABLED,
   SHEET_BOOKS_PUBLIC_ENABLED,
+  isMyBookVisible,
 } from '@/config/featureFlags';
 import { CashChargeMenuCard } from '../cash/CashChargeEntry';
 import { SignupBonusBadge } from '../auth/SignupBonus';
@@ -43,6 +44,7 @@ const baseMenuItems: NavItem[] = [
   { labelKey: 'freeLessons.nav.label', href: '/free-lessons', icon: 'ri-play-circle-line' },
   { labelKey: 'sidebar.nav.drumLesson', href: '/free-sheets', icon: 'ri-book-2-line' },
   { labelKey: 'sidebar.nav.sheetBooks', href: '/sheet-books', icon: 'ri-book-mark-line' },
+  { labelKey: 'myBook.name', href: '/my-book', icon: 'ri-book-open-line' },
   { labelKey: 'nav.customOrder', href: '/custom-order', icon: 'ri-edit-line' },
   { labelKey: 'sidebar.nav.purchaseHistory', href: '/purchases', icon: 'ri-file-list-3-line' },
 ];
@@ -123,11 +125,14 @@ export default function MobileMenuSidebar({
     if (!FREE_LESSONS_PUBLIC_ENABLED) {
       items = items.filter((item) => item.href !== '/free-lessons');
     }
+    if (!isMyBookVisible(i18n.language)) {
+      items = items.filter((item) => item.href !== '/my-book');
+    }
     if (isKoreanSite) {
       return items.filter(item => item.labelKey !== 'nav.categories');
     }
     return items.filter(item => item.labelKey !== 'nav.customOrder' && item.labelKey !== 'nav.categories');
-  }, [isKoreanSite]);
+  }, [isKoreanSite, i18n.language]);
 
   // 장르 목록 생성
   const genreListKo = ['가요', '팝', '락', 'CCM', '트로트/성인가요', '재즈', 'J-POP', 'OST', '드럼솔로', '드럼커버'];

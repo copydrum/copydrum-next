@@ -5,10 +5,13 @@ import { useTranslation } from 'react-i18next';
 import { getSiteCurrency, convertFromKrw, formatCurrency as formatCurrencyUtil } from '../../lib/currency';
 import CustomOrderPayPalButton from './CustomOrderPayPalButton';
 import CustomOrderKoreanPayButton from './CustomOrderKoreanPayButton';
+import MyBookOrderInfo, { isMyBookOrder, type MyBookOrderFields } from '../myBook/MyBookOrderInfo';
+import MyBookBuildStatus from '../myBook/MyBookBuildStatus';
+import MyBookPaySection from '../myBook/MyBookPaySection';
 
 type StatusValue = 'pending' | 'quoted' | 'payment_confirmed' | 'in_progress' | 'completed';
 
-interface OrderDetail {
+interface OrderDetail extends MyBookOrderFields {
   id: string;
   user_id: string;
   song_title: string;
@@ -25,6 +28,9 @@ interface OrderDetail {
   locale: string | null;
   created_at: string;
   updated_at: string;
+  book_build_status?: 'pending' | 'building' | 'done' | 'failed' | null;
+  book_page_count?: number | null;
+  payment_order_id?: string | null;
 }
 
 interface Message {
@@ -117,33 +123,14 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
   const [downloadingFileKey, setDownloadingFileKey] = useState<string | null>(null);
   const completedFiles = useMemo(() => (order ? normalizeCompletedFiles(order) : []), [order]);
 
-  const loadDetail = useCallback(async () => {
+  const loadDetail = useCallback(async (options?: { silent?: boolean }) => {
     if (!user) return;
-    setLoading(true);
+    if (!options?.silent) setLoading(true);
     setError(null);
     try {
       const { data, error: orderError } = await supabase
         .from('custom_orders')
-        .select(
-          `
-            id,
-            user_id,
-            song_title,
-            artist,
-            song_url,
-            requirements,
-            status,
-            estimated_price,
-            completed_pdf_url,
-            completed_pdf_filename,
-            download_count,
-            max_download_count,
-            download_expires_at,
-            locale,
-            created_at,
-            updated_at
-          `
-        )
+        .select('*')
         .eq('id', orderId)
         .eq('user_id', user.id)
         .maybeSingle();
@@ -183,16 +170,20 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
     }
   }, [loadDetail, user]);
 
+  const isBook = isMyBookOrder(order);
+  const isPaid = !!order && ['payment_confirmed', 'in_progress', 'completed'].includes(order.status);
+
   const statusMeta = useMemo(() => {
     const rawStatus = order?.status ?? 'pending';
     const status: StatusValue =
       rawStatus === 'payment_confirmed' ? 'in_progress' : rawStatus;
+    const bookKey = isBook && ['quoted', 'in_progress', 'completed'].includes(status) ? status : null;
     return {
-      label: t(`customOrders.status.${status}.label`),
-      description: t(`customOrders.status.${status}.message`),
+      label: bookKey ? t(`myBook.status.${bookKey}.label`) : t(`customOrders.status.${status}.label`),
+      description: bookKey ? t(`myBook.status.${bookKey}.message`) : t(`customOrders.status.${status}.message`),
       badgeClass: STATUS_BADGE[status] ?? STATUS_BADGE.pending,
     };
-  }, [order, t]);
+  }, [order, isBook, t]);
 
   const refreshMessages = useCallback(async () => {
     const { data, error: messageError } = await supabase
@@ -405,7 +396,14 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <p className="text-xs text-gray-400">{t('customOrders.detail.orderNumber')}</p>
-            <h2 className="mt-1 text-2xl font-bold text-gray-900">{order.song_title}</h2>
+            <h2 className="mt-1 text-2xl font-bold text-gray-900">
+              {isBook && (
+                <span className="mr-2 inline-block rounded-md bg-indigo-100 px-2 py-0.5 align-middle text-xs font-bold text-indigo-700">
+                  {t('myBook.order.badge', '악보집')}
+                </span>
+              )}
+              {order.song_title}
+            </h2>
             <p className="text-sm text-gray-600">{order.artist}</p>
           </div>
           <div className="flex items-start gap-3">
@@ -437,6 +435,7 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
               {order.requirements?.trim() || t('customOrders.order.noRequirements')}
             </p>
           </div>
+          {!isBook && (
           <div>
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
               {t('customOrders.detail.referenceLink')}
@@ -454,7 +453,13 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
               <p className="mt-1 text-sm text-gray-500">{t('customOrders.detail.noLink')}</p>
             )}
           </div>
+          )}
         </div>
+        {isBook && (
+          <div className="mt-4">
+            <MyBookOrderInfo order={order} />
+          </div>
+        )}
         <div className="mt-4 rounded-lg bg-gray-50 px-4 py-3 text-sm text-gray-700">
           {statusMeta.description}
         </div>
@@ -462,7 +467,9 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
           <div className="mt-4 flex items-center gap-2 rounded-lg bg-blue-50 px-4 py-3 text-sm text-blue-700">
             <i className="ri-price-tag-3-line text-lg" />
             <div>
-              <p className="font-semibold">{t('customOrders.order.proposedQuote', '제안된 견적 금액')}</p>
+              <p className="font-semibold">
+                {isBook ? t('customOrders.detail.payAmount') : t('customOrders.order.proposedQuote', '제안된 견적 금액')}
+              </p>
               <p className="text-xs">
                 {order.locale && order.locale !== 'ko'
                   ? `$${order.estimated_price} (${t('customOrders.detail.taxIncluded')})`
@@ -509,26 +516,81 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
                   {t('customOrders.detail.payAmount')}: {formatCurrency(order.estimated_price)}
                 </span>
               </div>
-              <p className="mb-4 text-xs text-gray-600">{t('customOrders.detail.paySubtitleKr')}</p>
-              <CustomOrderKoreanPayButton
-                customOrderId={order.id}
-                amountKRW={order.estimated_price}
-                songTitle={order.song_title}
-                onConfirmed={() => {
-                  void loadDetail();
-                }}
-              />
+              {isBook ? (
+                <div className="mb-4 rounded-lg border border-indigo-200 bg-white px-4 py-3">
+                  <p className="flex items-center gap-1.5 text-sm font-semibold text-indigo-900">
+                    <i className="ri-flashlight-fill text-amber-500" />
+                    {t('myBook.pay.instantTitle')}
+                  </p>
+                  <p className="mt-1 text-xs text-gray-600">{t('myBook.pay.instantDesc')}</p>
+                  <p className="mt-1 text-xs text-gray-400">{t('myBook.pay.noBankTransfer')}</p>
+                </div>
+              ) : (
+                <p className="mb-4 text-xs text-gray-600">{t('customOrders.detail.paySubtitleKr')}</p>
+              )}
+              {isBook ? (
+                <MyBookPaySection
+                  orderId={order.id}
+                  price={order.estimated_price}
+                  bookTitle={order.book_title || order.song_title}
+                  paymentOrderId={order.payment_order_id}
+                  onConfirmed={() => {
+                    void loadDetail({ silent: true });
+                  }}
+                />
+              ) : (
+                <CustomOrderKoreanPayButton
+                  customOrderId={order.id}
+                  amountKRW={order.estimated_price}
+                  songTitle={order.song_title}
+                  onConfirmed={() => {
+                    void loadDetail({ silent: true });
+                  }}
+                />
+              )}
             </div>
           )}
       </section>
 
-      <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-        <h3 className="text-lg font-semibold text-gray-900">{t('customOrders.detail.resultTitle')}</h3>
+      <section
+        className={`rounded-2xl border border-gray-200 bg-white p-6 shadow-sm ${isBook && isPaid ? 'order-first' : ''}`}
+      >
+        <h3 className="text-lg font-semibold text-gray-900">
+          {isBook ? t('myBook.download.title') : t('customOrders.detail.resultTitle')}
+        </h3>
         <p className="mt-1 text-sm text-gray-500">
-          {t('customOrders.detail.resultDesc')}
+          {isBook ? t('myBook.download.desc') : t('customOrders.detail.resultDesc')}
         </p>
 
-        {completedFiles.length > 0 ? (
+        {isBook && completedFiles.length > 0 && (
+          <div className="mt-4 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-fuchsia-600 p-5 text-white">
+            <p className="text-lg font-bold">
+              <i className="ri-sparkling-2-fill mr-1" />
+              {t('myBook.download.readyTitle')}
+            </p>
+            <p className="mt-1 text-sm text-white/90">
+              {order.book_page_count
+                ? t('myBook.download.readySummary', { count: order.book_item_count ?? 0, pages: order.book_page_count })
+                : t('myBook.download.readySummaryNoPages', { count: order.book_item_count ?? 0 })}
+            </p>
+            <ul className="mt-3 grid gap-1.5 text-xs text-white/90 sm:grid-cols-3">
+              <li><i className="ri-list-ordered mr-1" />{t('myBook.download.tipToc')}</li>
+              <li><i className="ri-bookmark-line mr-1" />{t('myBook.download.tipBookmark')}</li>
+              <li><i className="ri-tablet-line mr-1" />{t('myBook.download.tipTablet')}</li>
+            </ul>
+          </div>
+        )}
+
+        {isBook && isPaid && completedFiles.length === 0 ? (
+          <MyBookBuildStatus
+            orderId={order.id}
+            songCount={order.book_item_count ?? 0}
+            initialStatus={order.book_build_status ?? null}
+            onCompleted={() => {
+              void loadDetail({ silent: true });
+            }}
+          />
+        ) : completedFiles.length > 0 ? (
           <div className="mt-4 rounded-lg border border-purple-200 bg-purple-50 p-4">
             <div className="flex flex-col gap-3">
               <div>
@@ -552,7 +614,7 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
                       key={fileKey}
                       className="flex flex-col gap-2 rounded-md bg-white/80 px-3 py-2 md:flex-row md:items-center md:justify-between"
                     >
-                      <p className="text-sm text-purple-800">
+                      <p className="break-all text-sm text-purple-800">
                         {index + 1}. {file.filename || `${t('customOrders.order.completedSheet')}_${index + 1}.pdf`}
                       </p>
                       <button
@@ -571,7 +633,7 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
           </div>
         ) : (
           <div className="mt-4 rounded-lg border border-dashed border-gray-300 px-4 py-6 text-center text-sm text-gray-500">
-            {t('customOrders.detail.noFilesYet')}
+            {isBook ? t('myBook.download.beforePay') : t('customOrders.detail.noFilesYet')}
           </div>
         )}
       </section>

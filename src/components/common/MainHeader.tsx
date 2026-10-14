@@ -15,6 +15,7 @@ import {
   DRUM_LESSON_BOOKS_PUBLIC_ENABLED,
   FREE_LESSONS_PUBLIC_ENABLED,
   SHEET_BOOKS_PUBLIC_ENABLED,
+  isMyBookVisible,
 } from '@/config/featureFlags';
 import { CashChargeHeaderButton } from '@/components/cash/CashChargeEntry';
 import { SignupBonusBadge } from '@/components/auth/SignupBonus';
@@ -406,6 +407,22 @@ export default function MainHeader({ user }: MainHeaderProps) {
               suppressHydrationWarning
             >
               {t('sidebar.nav.sheetBooks')}
+            </button>
+          )}
+          {isMyBookVisible(currentLocale) && (
+            <button
+              onClick={() => router.push('/my-book')}
+              className={`relative hidden xl:inline-block font-semibold text-lg whitespace-nowrap cursor-pointer transition-all duration-200 ${
+                removeLocaleFromPathname(pathname).startsWith('/my-book')
+                  ? 'text-purple-300 underline'
+                  : 'text-white hover:text-purple-300 hover:underline'
+              }`}
+              suppressHydrationWarning
+            >
+              {t('myBook.name')}
+              <span className="absolute -top-2 left-full -ml-1 rounded bg-fuchsia-500 px-1.5 py-0.5 text-[10px] font-bold leading-none text-white no-underline">
+                {t('myBook.badge')}
+              </span>
             </button>
           )}
         </nav>
