@@ -29,6 +29,11 @@ import {
   type MyBookSheetRow,
 } from '../../lib/myBook/catalog';
 import MyBookCoverPreview from '../../components/myBook/MyBookCoverPreview';
+import {
+  DEFAULT_MY_BOOK_COVER_THEME,
+  getCoverThemeGradientCss,
+  MY_BOOK_COVER_THEMES,
+} from '../../lib/myBook/coverThemes';
 
 const formatWon = (value: number) => `${value.toLocaleString('ko-KR')}원`;
 
@@ -75,6 +80,7 @@ const MyBookPage = () => {
   const [bookTitle, setBookTitle] = useState('');
   const [memo, setMemo] = useState('');
   const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [coverTheme, setCoverTheme] = useState(DEFAULT_MY_BOOK_COVER_THEME.id);
   const [agreed, setAgreed] = useState(false);
   const [submitState, setSubmitState] = useState<'idle' | 'uploading' | 'submitting'>('idle');
   const [formError, setFormError] = useState<string | null>(null);
@@ -297,6 +303,7 @@ const MyBookPage = () => {
           memo: memo.trim(),
           coverPath,
           coverFileName: coverFile?.name ?? null,
+          coverTheme: coverFile ? null : coverTheme,
           agreed,
         }),
       });
@@ -390,6 +397,7 @@ const MyBookPage = () => {
                 <MyBookCoverPreview
                   title={bookTitle || t('myBook.form.bookTitlePlaceholder').replace(/^예\)\s*/, '')}
                   songCount={Math.max(ids.length, MY_BOOK_MIN_SONGS)}
+                  themeId={coverTheme}
                   className="absolute left-0 top-0 -rotate-3"
                 />
               </div>
@@ -753,7 +761,61 @@ const MyBookPage = () => {
                   {bookTitle.length}/{MY_BOOK_TITLE_MAX_LENGTH}
                 </p>
 
-                <p className="mt-2 block text-sm font-medium text-gray-700">{t('myBook.form.cover')}</p>
+                <p className="mt-2 block text-sm font-medium text-gray-700">{t('myBook.form.coverTheme')}</p>
+                {coverFile ? (
+                  <p className="mt-1 rounded-lg bg-gray-50 px-3 py-2 text-xs text-gray-500">
+                    {t('myBook.form.coverThemeFileNote')}
+                  </p>
+                ) : (
+                  <div className="mt-1 flex gap-3 rounded-lg bg-gray-50 p-3">
+                    <MyBookCoverPreview
+                      title={bookTitle}
+                      songCount={Math.max(ids.length, MY_BOOK_MIN_SONGS)}
+                      themeId={coverTheme}
+                      width={88}
+                      className="shrink-0"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <div role="radiogroup" aria-label={t('myBook.form.coverTheme')} className="grid grid-cols-4 gap-x-1 gap-y-2">
+                        {MY_BOOK_COVER_THEMES.map((theme) => {
+                          const selected = theme.id === coverTheme;
+                          const label = t(`myBook.form.coverThemes.${theme.id}`);
+                          return (
+                            <button
+                              key={theme.id}
+                              type="button"
+                              role="radio"
+                              aria-checked={selected}
+                              aria-label={label}
+                              title={label}
+                              onClick={() => setCoverTheme(theme.id)}
+                              className="flex min-w-0 flex-col items-center gap-1"
+                            >
+                              <span
+                                className={`flex h-9 w-9 items-center justify-center rounded-full border border-black/10 text-xs font-extrabold shadow-sm ring-2 ring-offset-2 transition ${
+                                  selected ? 'ring-indigo-600' : 'ring-transparent hover:ring-indigo-200'
+                                }`}
+                                style={{ background: getCoverThemeGradientCss(theme), color: theme.text }}
+                              >
+                                {selected ? <i className="ri-check-line text-sm" /> : '가'}
+                              </span>
+                              <span
+                                className={`w-full truncate text-center text-[10px] ${
+                                  selected ? 'font-semibold text-indigo-700' : 'text-gray-500'
+                                }`}
+                              >
+                                {label}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <p className="mt-2 break-keep text-xs text-gray-500">{t('myBook.form.coverNone')}</p>
+                    </div>
+                  </div>
+                )}
+
+                <p className="mt-3 block text-sm font-medium text-gray-700">{t('myBook.form.cover')}</p>
                 <input
                   ref={coverInputRef}
                   type="file"
@@ -782,26 +844,11 @@ const MyBookPage = () => {
                     className="mt-1 flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-gray-300 px-3 py-3 text-sm text-gray-600 hover:border-indigo-400 hover:text-indigo-600"
                   >
                     <i className="ri-upload-2-line" />
-                    {t('myBook.form.cover')}
+                    {t('myBook.form.coverPick')}
                   </button>
                 )}
                 <p className="mt-1 text-xs text-gray-500">{t('myBook.form.coverHint')}</p>
-                {coverFile ? (
-                  <p className="mt-1 text-xs text-gray-500">{t('myBook.form.coverAttached')}</p>
-                ) : (
-                  <div className="mt-3 flex items-center gap-3 rounded-lg bg-gray-50 p-3">
-                    <MyBookCoverPreview
-                      title={bookTitle}
-                      songCount={Math.max(ids.length, MY_BOOK_MIN_SONGS)}
-                      width={88}
-                      className="shrink-0"
-                    />
-                    <div className="min-w-0">
-                      <p className="text-xs font-semibold text-gray-700">{t('myBook.form.coverPreview')}</p>
-                      <p className="mt-1 text-xs text-gray-500">{t('myBook.form.coverNone')}</p>
-                    </div>
-                  </div>
-                )}
+                {coverFile && <p className="mt-1 text-xs text-gray-500">{t('myBook.form.coverAttached')}</p>}
 
                 <label htmlFor="my-book-memo" className="mt-4 block text-sm font-medium text-gray-700">
                   {t('myBook.form.memo')}

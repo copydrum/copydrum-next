@@ -12,6 +12,7 @@ export interface MyBookBuilderOrder {
   name?: string | null;
   book_title?: string | null;
   cover_file_path?: string | null;
+  book_cover_theme?: string | null;
   book_build_status?: BuildStatus;
   book_build_started_at?: string | null;
   book_build_error?: string | null;
@@ -189,6 +190,7 @@ export default function MyBookBuilderPanel({ order, hasCompletedFiles, onUploadB
         createdAt: new Date(),
         songs: items.map((item, index) => ({ title: item.sheet_title, artist: item.artist, pdf: pdfs[index] })),
         cover,
+        coverTheme: order.book_cover_theme,
         fonts: { regular, bold, extraBold },
       });
 
@@ -202,7 +204,7 @@ export default function MyBookBuilderPanel({ order, hasCompletedFiles, onUploadB
     } finally {
       setLocalBusy(null);
     }
-  }, [items, replacements, order.cover_file_path, bookTitle, buyerName]);
+  }, [items, replacements, order.cover_file_path, order.book_cover_theme, bookTitle, buyerName]);
 
   const handleUpload = async () => {
     if (!built) return;

@@ -29,6 +29,7 @@ interface BookOrderRow {
   email: string | null;
   book_title: string | null;
   cover_file_path: string | null;
+  book_cover_theme?: string | null;
   completed_pdf_url: string | null;
   book_build_status: MyBookBuildStatus | null;
   book_build_started_at: string | null;
@@ -77,9 +78,8 @@ export async function buildMyBook(customOrderId: string, options: { force?: bool
 
   const { data: order, error: orderError } = await service
     .from('custom_orders')
-    .select(
-      'id, user_id, order_type, status, name, email, book_title, cover_file_path, completed_pdf_url, book_build_status, book_build_started_at, book_build_error'
-    )
+    // book_cover_theme 열이 아직 없는 DB 에서도 동작하도록 전체 열을 읽는다
+    .select('*')
     .eq('id', customOrderId)
     .maybeSingle<BookOrderRow>();
 
@@ -155,6 +155,7 @@ export async function buildMyBook(customOrderId: string, options: { force?: bool
       createdAt: new Date(),
       songs: songs.map((song, index) => ({ title: song.title, artist: song.artist, pdf: pdfs[index] })),
       cover: cover.cover,
+      coverTheme: order.book_cover_theme,
       fonts,
     });
     const warnings = [...cover.warnings, ...result.warnings];

@@ -14,6 +14,7 @@ import {
   type MyBookSheetRow,
 } from '@/lib/myBook/catalog';
 import { fetchOwnedSheetIdsOnServer } from '@/lib/myBook/ownership.server';
+import { isMyBookCoverThemeId } from '@/lib/myBook/coverThemes';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -23,6 +24,7 @@ interface CreateMyBookBody {
   memo?: unknown;
   coverPath?: unknown;
   coverFileName?: unknown;
+  coverTheme?: unknown;
   agreed?: unknown;
 }
 
@@ -66,6 +68,7 @@ export async function POST(request: NextRequest) {
     return fail('표지 파일 정보가 올바르지 않습니다.');
   }
   const coverFileName = coverPath ? String(body.coverFileName ?? '').slice(0, 200) || null : null;
+  const coverTheme = !coverPath && isMyBookCoverThemeId(body.coverTheme) ? body.coverTheme : null;
 
   const service = createServiceRoleClient();
 
@@ -136,30 +139,37 @@ export async function POST(request: NextRequest) {
   const email = user.email || profile?.email || '';
   const name = profile?.name || user.user_metadata?.name || email.split('@')[0] || '고객';
 
-  const { data: order, error: orderError } = await service
-    .from('custom_orders')
-    .insert({
-      user_id: user.id,
-      name,
-      email,
-      phone: '',
-      song_title: title,
-      artist: `${items.length}곡`,
-      requirements: memo,
-      status: 'quoted',
-      estimated_price: price.finalPrice,
-      max_download_count: 20,
-      locale: 'ko',
-      order_type: 'book',
-      book_title: title,
-      cover_file_path: coverPath,
-      cover_file_name: coverFileName,
-      book_item_count: items.length,
-      book_list_price: price.listTotal,
-      book_discount_rate: price.discountPercent,
-    })
-    .select('id')
-    .single();
+  const orderRow = {
+    user_id: user.id,
+    name,
+    email,
+    phone: '',
+    song_title: title,
+    artist: `${items.length}곡`,
+    requirements: memo,
+    status: 'quoted',
+    estimated_price: price.finalPrice,
+    max_download_count: 20,
+    locale: 'ko',
+    order_type: 'book',
+    book_title: title,
+    cover_file_path: coverPath,
+    cover_file_name: coverFileName,
+    book_item_count: items.length,
+    book_list_price: price.listTotal,
+    book_discount_rate: price.discountPercent,
+  };
+  const insertOrder = (row: Record<string, unknown>) =>
+    service.from('custom_orders').insert(row).select('id').single();
+
+  let { data: order, error: orderError } = await insertOrder(
+    coverTheme ? { ...orderRow, book_cover_theme: coverTheme } : orderRow
+  );
+  // book_cover_theme 열을 아직 추가하지 않은 DB 에서는 기본 표지 색으로 만든다
+  if (orderError?.code === 'PGRST204' && coverTheme) {
+    console.warn('[my-book/create] book_cover_theme 열이 없어 기본 표지 색으로 저장합니다.');
+    ({ data: order, error: orderError } = await insertOrder(orderRow));
+  }
 
   if (orderError || !order) {
     console.error('[my-book/create] 주문 생성 실패:', orderError);

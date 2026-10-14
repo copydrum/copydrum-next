@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../../lib/supabase';
+import { getCoverThemeGradientCss, getMyBookCoverTheme } from '../../lib/myBook/coverThemes';
 
 export interface MyBookOrderFields {
   id: string;
@@ -10,6 +11,7 @@ export interface MyBookOrderFields {
   book_title?: string | null;
   cover_file_path?: string | null;
   cover_file_name?: string | null;
+  book_cover_theme?: string | null;
   book_item_count?: number | null;
   book_list_price?: number | null;
   book_discount_rate?: number | null;
@@ -77,6 +79,7 @@ export default function MyBookOrderInfo({ order, admin = false }: MyBookOrderInf
   }, [order.cover_file_path]);
 
   const isImageCover = /\.(jpe?g|png)$/i.test(order.cover_file_path ?? '');
+  const coverTheme = getMyBookCoverTheme(order.book_cover_theme);
   const listTotal = order.book_list_price ?? items.reduce((sum, item) => sum + item.list_price, 0);
   const discountRate = Number(order.book_discount_rate ?? 0);
   const payableListTotal = items.reduce((sum, item) => sum + (item.is_owned ? 0 : item.list_price), 0);
@@ -136,7 +139,13 @@ export default function MyBookOrderInfo({ order, admin = false }: MyBookOrderInf
                   {order.cover_file_name || t('myBook.order.coverView', '표지 파일 보기')}
                 </a>
               ) : (
-                t('myBook.order.coverDefault', '기본 표지로 제작')
+                <span className="inline-flex items-center gap-1.5">
+                  <span
+                    className="h-3.5 w-3.5 shrink-0 rounded-full border border-black/10"
+                    style={{ background: getCoverThemeGradientCss(coverTheme) }}
+                  />
+                  {t('myBook.order.coverDefaultTheme', { theme: t(`myBook.form.coverThemes.${coverTheme.id}`) })}
+                </span>
               )}
             </dd>
           </div>

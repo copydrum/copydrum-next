@@ -11,6 +11,7 @@ import {
 } from 'pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
 import { calculateBookLayout, splitTocRows } from './bookLayout';
+import { getMyBookCoverTheme, hexToUnitRgb, type MyBookCoverTheme } from './coverThemes';
 
 /**
  * 나만의 악보집 PDF 생성 (서버·브라우저 공용, 네트워크 접근 없음).
@@ -31,6 +32,8 @@ export interface BuildBookInput {
   createdAt: Date;
   songs: { title: string; artist: string | null; pdf: Uint8Array | ArrayBuffer }[];
   cover: { bytes: Uint8Array | ArrayBuffer; kind: BookCoverKind } | null;
+  /** 기본 표지 색 조합 id (고객 표지를 쓰면 무시) */
+  coverTheme?: string | null;
   fonts: BookFonts;
   pageNumbers?: boolean;
 }
@@ -64,12 +67,7 @@ const COLOR = {
   white: rgb(1, 1, 1),
 };
 
-/** 표지 그라데이션 (위 → 아래) */
-const GRADIENT_STOPS: [number, RGB][] = [
-  [0, rgb(0.15, 0.39, 0.92)],
-  [0.55, rgb(0.43, 0.25, 0.9)],
-  [1, rgb(0.71, 0.2, 0.75)],
-];
+const toRgb = (hex: string) => rgb(...hexToUnitRgb(hex));
 
 type FontSet = { regular: PDFFont; bold: PDFFont; extraBold: PDFFont };
 
@@ -151,17 +149,26 @@ function lerpColor(a: RGB, b: RGB, t: number): RGB {
   return rgb(a.red + (b.red - a.red) * t, a.green + (b.green - a.green) * t, a.blue + (b.blue - a.blue) * t);
 }
 
-function gradientAt(t: number): RGB {
-  for (let i = 1; i < GRADIENT_STOPS.length; i += 1) {
-    const [pos, color] = GRADIENT_STOPS[i];
-    const [prevPos, prevColor] = GRADIENT_STOPS[i - 1];
+function gradientAt(stops: [number, RGB][], t: number): RGB {
+  for (let i = 1; i < stops.length; i += 1) {
+    const [pos, color] = stops[i];
+    const [prevPos, prevColor] = stops[i - 1];
     if (t <= pos) return lerpColor(prevColor, color, (t - prevPos) / (pos - prevPos));
   }
-  return GRADIENT_STOPS[GRADIENT_STOPS.length - 1][1];
+  return stops[stops.length - 1][1];
 }
 
-function drawAutoCover(page: PDFPage, fonts: FontSet, clean: (s: string) => string, title: string, songCount: number) {
+function drawAutoCover(
+  page: PDFPage,
+  fonts: FontSet,
+  clean: (s: string) => string,
+  title: string,
+  songCount: number,
+  theme: MyBookCoverTheme
+) {
   const { width, height } = page.getSize();
+  const stops = theme.stops.map(([pos, hex]) => [pos, toRgb(hex)] as [number, RGB]);
+  const text = toRgb(theme.text);
   const strips = 140;
   const stripHeight = height / strips;
   for (let i = 0; i < strips; i += 1) {
@@ -170,22 +177,22 @@ function drawAutoCover(page: PDFPage, fonts: FontSet, clean: (s: string) => stri
       y: height - (i + 1) * stripHeight,
       width,
       height: stripHeight + 2,
-      color: gradientAt(i / (strips - 1)),
+      color: gradientAt(stops, i / (strips - 1)),
     });
   }
 
   // 장식 원 (드럼 헤드 느낌)
-  page.drawCircle({ x: width * 0.86, y: height * 0.84, size: 170, borderColor: COLOR.white, borderWidth: 1.2, borderOpacity: 0.22 });
-  page.drawCircle({ x: width * 0.86, y: height * 0.84, size: 120, color: COLOR.white, opacity: 0.06 });
-  page.drawCircle({ x: width * 0.08, y: height * 0.12, size: 210, color: COLOR.white, opacity: 0.05 });
-  page.drawCircle({ x: width * 0.08, y: height * 0.12, size: 150, borderColor: COLOR.white, borderWidth: 1, borderOpacity: 0.18 });
+  page.drawCircle({ x: width * 0.86, y: height * 0.84, size: 170, borderColor: text, borderWidth: 1.2, borderOpacity: 0.22 });
+  page.drawCircle({ x: width * 0.86, y: height * 0.84, size: 120, color: text, opacity: 0.06 });
+  page.drawCircle({ x: width * 0.08, y: height * 0.12, size: 210, color: text, opacity: 0.05 });
+  page.drawCircle({ x: width * 0.08, y: height * 0.12, size: 150, borderColor: text, borderWidth: 1, borderOpacity: 0.18 });
 
-  drawSpaced(page, 'MY DRUM BOOK', height * 0.66, fonts.bold, 11, COLOR.white, 4);
+  drawSpaced(page, 'MY DRUM BOOK', height * 0.66, fonts.bold, 11, text, 4);
   page.drawLine({
     start: { x: width / 2 - 24, y: height * 0.66 - 14 },
     end: { x: width / 2 + 24, y: height * 0.66 - 14 },
     thickness: 1.2,
-    color: COLOR.white,
+    color: text,
     opacity: 0.7,
   });
 
@@ -199,14 +206,14 @@ function drawAutoCover(page: PDFPage, fonts: FontSet, clean: (s: string) => stri
   const lineHeight = size * 1.3;
   const blockTop = height * 0.56;
   lines.slice(0, 5).forEach((line, i) => {
-    drawCentered(page, line, blockTop - i * lineHeight, fonts.extraBold, size, COLOR.white);
+    drawCentered(page, line, blockTop - i * lineHeight, fonts.extraBold, size, text);
   });
 
   const subtitleY = blockTop - Math.min(lines.length, 5) * lineHeight - 18;
-  drawCentered(page, `드럼 악보집 · ${songCount}곡`, subtitleY, fonts.bold, 15, COLOR.white);
+  drawCentered(page, `드럼 악보집 · ${songCount}곡`, subtitleY, fonts.bold, 15, text);
 
-  drawSpaced(page, 'COPYDRUM', 70, fonts.extraBold, 16, COLOR.white, 3);
-  drawCentered(page, 'copydrum.com', 50, fonts.regular, 9, COLOR.white);
+  drawSpaced(page, 'COPYDRUM', 70, fonts.extraBold, 16, text, 3);
+  drawCentered(page, 'copydrum.com', 50, fonts.regular, 9, text);
 }
 
 async function drawCustomCover(
@@ -456,7 +463,7 @@ export async function buildBookPdf(input: BuildBookInput): Promise<BuildBookResu
     }
   }
   if (!customCoverDrawn) {
-    drawAutoCover(coverPage, fonts, clean, input.title, input.songs.length);
+    drawAutoCover(coverPage, fonts, clean, input.title, input.songs.length, getMyBookCoverTheme(input.coverTheme));
   }
 
   // 2) 안쪽 표지
@@ -486,9 +493,8 @@ export async function buildBookPdf(input: BuildBookInput): Promise<BuildBookResu
       const label = String(index + 1);
       const size = 8;
       const box = page.getCropBox();
-      const labelWidth = fonts.regular.widthOfTextAtSize(label, size);
       page.drawText(label, {
-        x: box.x + (box.width - labelWidth) / 2,
+        x: box.x + 24,
         y: box.y + 12,
         size,
         font: fonts.regular,
