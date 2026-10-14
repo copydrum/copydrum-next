@@ -1,6 +1,6 @@
 'use client';
 import { useLocaleRouter } from '@/hooks/useLocaleRouter';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/stores/authStore';
@@ -12,6 +12,8 @@ const CustomOrderDetailPage = () => {
   const router = useLocaleRouter();
   const { user } = useAuthStore();
   const { t } = useTranslation();
+  // 나만의 악보집 주문은 구매내역에서 관리한다
+  const [isBook, setIsBook] = useState(false);
 
   useEffect(() => {
     if (!id) {
@@ -29,24 +31,26 @@ const CustomOrderDetailPage = () => {
 
       <div>
         <main className="max-w-4xl mx-auto px-4 py-12">
-          <div className="mb-6 flex items-center justify-between">
+          <div className="mb-6 flex items-center justify-between gap-3">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">{t('customOrderDetail.title')}</h1>
-              <p className="mt-1 text-sm text-gray-500">
-                {t('customOrderDetail.description')}
+              <h1 className="text-2xl font-bold text-gray-900">
+                {isBook ? t('myBook.purchases.detailTitle') : t('customOrderDetail.title')}
+              </h1>
+              <p className="mt-1 break-keep text-sm text-gray-500">
+                {isBook ? t('myBook.purchases.detailDescription') : t('customOrderDetail.description')}
               </p>
             </div>
             <button
-              onClick={() => router.push('/custom-orders')}
-              className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-100"
+              onClick={() => router.push(isBook ? '/purchases' : '/custom-orders')}
+              className="inline-flex shrink-0 items-center gap-2 rounded-lg border border-gray-300 px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-100"
             >
               <i className="ri-arrow-left-line"></i>
-              {t('customOrderDetail.backToList')}
+              {isBook ? t('myBook.purchases.backToPurchases') : t('customOrderDetail.backToList')}
             </button>
           </div>
 
           <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-            <CustomOrderDetail orderId={id} key={id} />
+            <CustomOrderDetail orderId={id} key={id} onBookOrderChange={setIsBook} />
           </div>
 
           {!user && (
@@ -61,4 +65,3 @@ const CustomOrderDetailPage = () => {
 };
 
 export default CustomOrderDetailPage;
-

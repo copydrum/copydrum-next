@@ -7,6 +7,7 @@ import MainHeader from '../../components/common/MainHeader';
 import PurchaseHistoryContent from '../../components/purchase/PurchaseHistoryContent';
 import { useTranslation } from 'react-i18next';
 import MobileHeader from '../../components/mobile/MobileHeader';
+import MyBookPurchaseList from '../../components/myBook/MyBookPurchaseList';
 
 export default function PurchasesPage() {
   const router = useLocaleRouter();
@@ -77,6 +78,7 @@ export default function PurchasesPage() {
           <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('purchaseHistory.title')}</h1>
           <p className="text-sm text-gray-500">{t('purchaseHistory.description')}</p>
         </div>
+        <MyBookPurchaseList userId={user.id} />
         <PurchaseHistoryContent user={user} />
       </div>
     </div>

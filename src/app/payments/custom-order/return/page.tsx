@@ -13,6 +13,7 @@ export default function CustomOrderPaymentReturn() {
   const { t } = useTranslation();
   const [status, setStatus] = useState<'processing' | 'success' | 'fail'>('processing');
   const [errorMsg, setErrorMsg] = useState('');
+  const [failedOrderId, setFailedOrderId] = useState('');
 
   useEffect(() => {
     const run = async () => {
@@ -29,6 +30,7 @@ export default function CustomOrderPaymentReturn() {
 
         const customOrderId = urlCustomOrderId || savedCustomOrderId || '';
         const paymentId = urlPaymentId || savedPaymentId || '';
+        setFailedOrderId(customOrderId);
 
         // 결제 실패(에러 코드 존재)
         if (code && code !== '0') {
@@ -100,10 +102,10 @@ export default function CustomOrderPaymentReturn() {
           <h2 className="mt-3 text-2xl font-bold text-gray-900">{t('payment.failed') || '결제 실패'}</h2>
           <p className="mt-2 text-gray-600">{errorMsg}</p>
           <button
-            onClick={() => router.push('/custom-orders')}
+            onClick={() => router.push(failedOrderId ? `/custom-order-detail/${failedOrderId}` : '/custom-orders')}
             className="mt-6 w-full rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
           >
-            {t('customOrders.title') || '주문제작 신청내역'}
+            {failedOrderId ? t('customOrders.order.viewDetails') : t('customOrders.title') || '주문제작 신청내역'}
           </button>
         </div>
       </div>

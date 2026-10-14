@@ -8,6 +8,11 @@ import CustomOrderKoreanPayButton from './CustomOrderKoreanPayButton';
 import MyBookOrderInfo, { isMyBookOrder, type MyBookOrderFields } from '../myBook/MyBookOrderInfo';
 import MyBookBuildStatus from '../myBook/MyBookBuildStatus';
 import MyBookPaySection from '../myBook/MyBookPaySection';
+import {
+  downloadCustomOrderFile,
+  getCustomOrderDownloadBlock,
+  normalizeCompletedFiles,
+} from '../../lib/customOrderDownload';
 
 type StatusValue = 'pending' | 'quoted' | 'payment_confirmed' | 'in_progress' | 'completed';
 
@@ -44,6 +49,7 @@ interface Message {
 
 interface CustomOrderDetailProps {
   orderId: string;
+  onBookOrderChange?: (isBook: boolean) => void;
 }
 
 const STATUS_BADGE: Record<StatusValue, string> = {
@@ -61,42 +67,7 @@ const formatDateTime = (value: string | null | undefined, localeTag = 'en-US') =
   return date.toLocaleString(localeTag);
 };
 
-const normalizeCompletedFiles = (order: Pick<OrderDetail, 'completed_pdf_url' | 'completed_pdf_filename'>) => {
-  const encoded = order.completed_pdf_filename?.trim();
-  if (encoded && encoded.startsWith('[')) {
-    try {
-      const parsed = JSON.parse(encoded) as Array<{ url?: string; filename?: string; uploaded_at?: string }>;
-      const files = Array.isArray(parsed)
-        ? parsed
-          .filter((file) => file && typeof file.url === 'string' && file.url.trim())
-          .map((file) => ({
-            url: file.url as string,
-            filename: file.filename || '완성된 악보.pdf',
-            uploaded_at: file.uploaded_at,
-          }))
-        : [];
-
-      if (files.length > 0) {
-        return files;
-      }
-    } catch (error) {
-      console.warn('completed_pdf_filename JSON 파싱 실패:', error);
-    }
-  }
-
-  if (order.completed_pdf_url) {
-    return [
-      {
-        url: order.completed_pdf_url,
-        filename: order.completed_pdf_filename || '완성된 악보.pdf',
-      },
-    ];
-  }
-
-  return [];
-};
-
-export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
+export default function CustomOrderDetail({ orderId, onBookOrderChange }: CustomOrderDetailProps) {
   const { user } = useAuthStore();
   const { i18n, t } = useTranslation();
   
@@ -175,6 +146,10 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
   const isBook = isMyBookOrder(order);
   const isPaid = !!order && ['payment_confirmed', 'in_progress', 'completed'].includes(order.status);
 
+  useEffect(() => {
+    if (order) onBookOrderChange?.(isBook);
+  }, [order, isBook, onBookOrderChange]);
+
   // 결제·완성 직후 화면이 아래로 스크롤된 상태여도 다운로드 영역이 바로 보이게 한다
   useEffect(() => {
     if (!scrollToDownloadRef.current || !isPaid) return;
@@ -239,48 +214,16 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
     }
   };
 
-  const canDownload = useMemo(() => {
-    if (!order || completedFiles.length === 0) return false;
-
-    const downloadLimit = order.max_download_count;
-    const usedCount = order.download_count ?? 0;
-    const hasLimit = typeof downloadLimit === 'number' && downloadLimit > 0;
-    if (hasLimit && usedCount >= downloadLimit) {
-      return false;
-    }
-
-    if (order.download_expires_at) {
-      const now = new Date();
-      const expires = new Date(order.download_expires_at);
-      if (Number.isNaN(expires.getTime()) || now > expires) {
-        return false;
-      }
-    }
-
-    return true;
-  }, [completedFiles.length, order]);
-
-  const downloadRestrictionMessage = useMemo(() => {
-    if (!order) return '';
-    if (completedFiles.length === 0) return t('customOrders.detail.noFileAvailable');
-
-    const downloadLimit = order.max_download_count;
-    const usedCount = order.download_count ?? 0;
-    const hasLimit = typeof downloadLimit === 'number' && downloadLimit > 0;
-    if (hasLimit && usedCount >= downloadLimit) {
-      return t('customOrders.warnings.downloadLimitExceeded');
-    }
-
-    if (order.download_expires_at) {
-      const now = new Date();
-      const expires = new Date(order.download_expires_at);
-      if (!Number.isNaN(expires.getTime()) && now > expires) {
-        return t('customOrders.warnings.downloadPeriodExpired');
-      }
-    }
-
-    return '';
-  }, [completedFiles.length, order, t]);
+  const downloadBlock = order ? getCustomOrderDownloadBlock(order, completedFiles.length) : 'no_file';
+  const canDownload = downloadBlock === null;
+  const downloadRestrictionMessage =
+    downloadBlock === 'no_file'
+      ? t('customOrders.detail.noFileAvailable')
+      : downloadBlock === 'limit'
+        ? t('customOrders.warnings.downloadLimitExceeded')
+        : downloadBlock === 'expired'
+          ? t('customOrders.warnings.downloadPeriodExpired')
+          : '';
 
   const downloadUsageText = useMemo(() => {
     if (!order) return '';
@@ -304,68 +247,15 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
     const fileKey = `${fileUrl}-${fileIndex}`;
     setDownloadingFileKey(fileKey);
     try {
-      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
-      if (isMobile) {
-        // Mobile: Open directly in new tab to avoid blob issues
-        const { error: updateError } = await supabase
-          .from('custom_orders')
-          .update({
-            download_count: (order.download_count ?? 0) + 1,
-          })
-          .eq('id', order.id)
-          .eq('user_id', user.id);
-
-        if (updateError) throw updateError;
-
-        window.open(fileUrl, '_blank');
-
-        setOrder((prev) =>
-          prev
-            ? {
-              ...prev,
-              download_count: (prev.download_count ?? 0) + 1,
-            }
-            : prev
-        );
-      } else {
-        // PC: Fetch blob to force download with correct filename
-        const response = await fetch(fileUrl);
-        if (!response.ok) {
-          throw new Error(t('customOrders.detail.downloadFetchFailed'));
-        }
-
-        const blob = await response.blob();
-
-        // Increment count ONLY after successful fetch
-        const { error: updateError } = await supabase
-          .from('custom_orders')
-          .update({
-            download_count: (order.download_count ?? 0) + 1,
-          })
-          .eq('id', order.id)
-          .eq('user_id', user.id);
-
-        if (updateError) throw updateError;
-
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = fileName || `${order.song_title}_${fileIndex + 1}_${t('customOrders.order.sheetMusicSuffix')}.pdf`;
-        document.body.appendChild(link);
-        link.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(link);
-
-        setOrder((prev) =>
-          prev
-            ? {
-              ...prev,
-              download_count: (prev.download_count ?? 0) + 1,
-            }
-            : prev
-        );
-      }
+      await downloadCustomOrderFile({
+        orderId: order.id,
+        userId: user.id,
+        currentCount: order.download_count ?? 0,
+        fileUrl,
+        fileName: fileName || `${order.song_title}_${fileIndex + 1}_${t('customOrders.order.sheetMusicSuffix')}.pdf`,
+        fetchFailedMessage: t('customOrders.detail.downloadFetchFailed'),
+      });
+      setOrder((prev) => (prev ? { ...prev, download_count: (prev.download_count ?? 0) + 1 } : prev));
     } catch (downloadError: any) {
       console.error('다운로드 실패:', downloadError);
       alert(downloadError?.message ?? t('customOrders.alerts.downloadFailed'));

@@ -518,6 +518,8 @@ export default function MyPage() {
         .from('custom_orders')
         .select('*')
         .eq('user_id', currentUser.id)
+        // 나만의 악보집은 구매내역에서 보여 준다
+        .or('order_type.is.null,order_type.neq.book')
         .order('created_at', { ascending: false });
 
       if (error) {
