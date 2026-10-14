@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../stores/authStore';
 import { useTranslation } from 'react-i18next';
@@ -121,6 +121,8 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
   const [messageInput, setMessageInput] = useState('');
   const [isSendingMessage, setIsSendingMessage] = useState(false);
   const [downloadingFileKey, setDownloadingFileKey] = useState<string | null>(null);
+  const downloadSectionRef = useRef<HTMLElement>(null);
+  const scrollToDownloadRef = useRef(false);
   const completedFiles = useMemo(() => (order ? normalizeCompletedFiles(order) : []), [order]);
 
   const loadDetail = useCallback(async (options?: { silent?: boolean }) => {
@@ -172,6 +174,13 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
 
   const isBook = isMyBookOrder(order);
   const isPaid = !!order && ['payment_confirmed', 'in_progress', 'completed'].includes(order.status);
+
+  // 결제·완성 직후 화면이 아래로 스크롤된 상태여도 다운로드 영역이 바로 보이게 한다
+  useEffect(() => {
+    if (!scrollToDownloadRef.current || !isPaid) return;
+    scrollToDownloadRef.current = false;
+    downloadSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [isPaid, completedFiles.length]);
 
   const statusMeta = useMemo(() => {
     const rawStatus = order?.status ?? 'pending';
@@ -455,7 +464,7 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
           </div>
           )}
         </div>
-        {isBook && (
+        {isBook && !isPaid && (
           <div className="mt-4">
             <MyBookOrderInfo order={order} />
           </div>
@@ -535,6 +544,7 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
                   bookTitle={order.book_title || order.song_title}
                   paymentOrderId={order.payment_order_id}
                   onConfirmed={() => {
+                    scrollToDownloadRef.current = true;
                     void loadDetail({ silent: true });
                   }}
                 />
@@ -553,7 +563,8 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
       </section>
 
       <section
-        className={`rounded-2xl border border-gray-200 bg-white p-6 shadow-sm ${isBook && isPaid ? 'order-first' : ''}`}
+        ref={downloadSectionRef}
+        className="scroll-mt-52 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm md:scroll-mt-6"
       >
         <h3 className="text-lg font-semibold text-gray-900">
           {isBook ? t('myBook.download.title') : t('customOrders.detail.resultTitle')}
@@ -587,6 +598,7 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
             songCount={order.book_item_count ?? 0}
             initialStatus={order.book_build_status ?? null}
             onCompleted={() => {
+              scrollToDownloadRef.current = true;
               void loadDetail({ silent: true });
             }}
           />
@@ -637,6 +649,8 @@ export default function CustomOrderDetail({ orderId }: CustomOrderDetailProps) {
           </div>
         )}
       </section>
+
+      {isBook && isPaid && <MyBookOrderInfo order={order} />}
 
       <section className="flex flex-col rounded-2xl border border-gray-200 bg-white shadow-sm">
         <header className="border-b border-gray-200 px-6 py-4">

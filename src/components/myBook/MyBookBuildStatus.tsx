@@ -12,6 +12,7 @@ const SLOW_AFTER_MS = 3 * 60 * 1000;
 /** 이보다 오래 끝나지 않으면 담당자 처리로 안내하고 관리자에게 알린다 (api/my-book/build 의 DELAY_REPORT_MINUTES 와 맞춘다) */
 const DELAYED_AFTER_MS = 10 * 60 * 1000;
 const STOP_AFTER_MS = 60 * 60 * 1000;
+const FINISH_DELAY_MS = 1200;
 /** 서버와 같은 기준: 이보다 오래 building 이면 멈춘 것으로 보고 다시 시작을 요청한다 */
 const STALE_MS = 5 * 60 * 1000;
 
@@ -45,6 +46,7 @@ export default function MyBookBuildStatus({ orderId, songCount, initialStatus, o
   const [buildStatus, setBuildStatus] = useState<BuildStatus>(initialStatus);
   const [elapsedMs, setElapsedMs] = useState(0);
   const [retrying, setRetrying] = useState(false);
+  const [finished, setFinished] = useState(false);
   const mountedAt = useRef(0);
   const completedRef = useRef(false);
   const onCompletedRef = useRef(onCompleted);
@@ -57,6 +59,14 @@ export default function MyBookBuildStatus({ orderId, songCount, initialStatus, o
     mountedAt.current = Date.now();
   }, []);
 
+  // 게이지가 100% 까지 차는 모습을 잠깐 보여 준 뒤 다운로드 영역으로 바꾼다
+  const finish = useCallback(() => {
+    if (completedRef.current) return;
+    completedRef.current = true;
+    setFinished(true);
+    setTimeout(() => onCompletedRef.current(), FINISH_DELAY_MS);
+  }, []);
+
   const requestBuild = useCallback(
     async (retry = false, reportDelay = false) => {
       try {
@@ -67,8 +77,7 @@ export default function MyBookBuildStatus({ orderId, songCount, initialStatus, o
         });
         const json = await res.json().catch(() => ({}));
         if (json?.buildStatus === 'done') {
-          completedRef.current = true;
-          onCompletedRef.current();
+          finish();
         } else if (json?.buildStatus) {
           setBuildStatus(json.buildStatus);
         }
@@ -76,7 +85,7 @@ export default function MyBookBuildStatus({ orderId, songCount, initialStatus, o
         console.warn('[my-book] 제작 요청 실패:', error);
       }
     },
-    [orderId]
+    [orderId, finish]
   );
 
   // 결제 확인 직후 서버가 이미 시작했더라도 한 번 더 요청해 둔다 (중복 제작은 서버에서 막는다)
@@ -105,10 +114,7 @@ export default function MyBookBuildStatus({ orderId, songCount, initialStatus, o
       if (cancelled) return;
 
       if (data?.completed_pdf_url) {
-        if (!completedRef.current) {
-          completedRef.current = true;
-          onCompletedRef.current();
-        }
+        finish();
         return;
       }
       if (data) {
@@ -132,7 +138,7 @@ export default function MyBookBuildStatus({ orderId, songCount, initialStatus, o
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [buildStatus === 'failed', orderId, requestBuild]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [buildStatus === 'failed', orderId, requestBuild, finish]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (buildStatus === 'failed') return;
@@ -151,7 +157,7 @@ export default function MyBookBuildStatus({ orderId, songCount, initialStatus, o
   const goPurchases = () => router.push('/purchases');
 
   const failed = buildStatus === 'failed';
-  if (failed || elapsedMs > DELAYED_AFTER_MS) {
+  if (!finished && (failed || elapsedMs > DELAYED_AFTER_MS)) {
     return (
       <div className="mt-4 break-keep rounded-xl border border-amber-200 bg-amber-50 p-4 sm:p-5">
         <div className="flex items-start gap-2 sm:gap-3">
@@ -194,30 +200,67 @@ export default function MyBookBuildStatus({ orderId, songCount, initialStatus, o
     );
   }
 
-  // 실제 진행률을 알 수 없어 예상 시간 기준으로 90% 까지만 채운다
+  // 실제 진행률을 알 수 없어 예상 시간 기준으로 점점 느려지며 95% 까지만 채운다
   const expectedMs = Math.max(8000, songCount * 600 + 6000);
-  const progress = Math.min(90, Math.round((elapsedMs / expectedMs) * 90));
+  const estimated = Math.max(3, Math.round(95 * (1 - Math.exp((-2.2 * elapsedMs) / expectedMs))));
+  const progress = finished ? 100 : Math.min(95, estimated);
   const slow = elapsedMs > SLOW_AFTER_MS;
   const steps = [t('myBook.build.stepCollect'), t('myBook.build.stepDesign'), t('myBook.build.stepBind')];
-  const activeStep = progress < 35 ? 0 : progress < 70 ? 1 : 2;
+  const activeStep = finished ? steps.length : progress < 35 ? 0 : progress < 70 ? 1 : 2;
 
   return (
-    <div className="mt-4 overflow-hidden rounded-xl border border-indigo-200 bg-gradient-to-br from-indigo-50 via-white to-fuchsia-50 p-5">
-      <div className="flex items-start gap-3">
-        <div className="mt-0.5 h-8 w-8 shrink-0 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" />
+    <div
+      className={`-mx-2 mt-4 overflow-hidden break-keep rounded-2xl border-2 p-4 shadow-lg ring-4 sm:mx-0 sm:p-6 ${
+        finished
+          ? 'border-emerald-300 bg-gradient-to-br from-emerald-50 via-white to-teal-50 ring-emerald-100'
+          : 'border-indigo-300 bg-gradient-to-br from-indigo-50 via-white to-fuchsia-50 ring-indigo-100'
+      }`}
+    >
+      <div className="flex items-center gap-3 sm:gap-4">
+        {finished ? (
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-xl text-white sm:h-11 sm:w-11 sm:text-2xl">
+            <i className="ri-check-line" />
+          </div>
+        ) : (
+          <div className="h-9 w-9 shrink-0 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600 sm:h-11 sm:w-11" />
+        )}
         <div className="min-w-0 flex-1">
-          <p className="font-semibold text-indigo-900">{t('myBook.build.buildingTitle')}</p>
-          <p className="mt-1 text-sm text-indigo-800">
-            {slow ? t('myBook.build.slowDesc') : t('myBook.build.buildingDesc', { count: songCount })}
+          <p className={`text-lg font-extrabold sm:text-xl ${finished ? 'text-emerald-900' : 'text-indigo-900'}`}>
+            {finished ? t('myBook.build.finishedTitle') : t('myBook.build.buildingTitle')}
+          </p>
+          <p className={`mt-1 text-sm ${finished ? 'text-emerald-800' : 'text-indigo-800'}`}>
+            {finished
+              ? t('myBook.build.finishedDesc')
+              : slow
+                ? t('myBook.build.slowDesc')
+                : t('myBook.build.buildingDesc', { count: songCount })}
           </p>
         </div>
       </div>
 
-      <div className="mt-4 h-2 overflow-hidden rounded-full bg-indigo-100">
-        <div
-          className="h-full rounded-full bg-gradient-to-r from-blue-500 via-indigo-500 to-fuchsia-500 transition-all duration-1000"
-          style={{ width: `${progress}%` }}
-        />
+      <div className="mt-5">
+        <div className="mb-2 flex items-end justify-between gap-2">
+          <span className={`text-sm font-semibold ${finished ? 'text-emerald-800' : 'text-indigo-800'}`}>
+            {finished ? t('myBook.build.stepDone') : `${steps[activeStep]}…`}
+          </span>
+          <span
+            className={`text-2xl font-extrabold tabular-nums sm:text-3xl ${finished ? 'text-emerald-600' : 'text-indigo-700'}`}
+          >
+            {progress}%
+          </span>
+        </div>
+        <div className="relative h-4 overflow-hidden rounded-full bg-indigo-100 shadow-inner sm:h-5">
+          <div
+            className={`relative h-full overflow-hidden rounded-full transition-all duration-1000 ease-out ${
+              finished
+                ? 'bg-gradient-to-r from-emerald-400 to-teal-500'
+                : 'bg-gradient-to-r from-blue-500 via-indigo-500 to-fuchsia-500'
+            }`}
+            style={{ width: `${progress}%` }}
+          >
+            {!finished && <div className="absolute inset-0 animate-pulse bg-white/25" />}
+          </div>
+        </div>
       </div>
       <ol className="mt-3 grid grid-cols-3 gap-2 text-center text-[11px] sm:text-xs">
         {steps.map((label, index) => (
@@ -237,13 +280,15 @@ export default function MyBookBuildStatus({ orderId, songCount, initialStatus, o
         ))}
       </ol>
 
-      <p className="mt-3 text-xs text-gray-600">
-        <i className="ri-information-line mr-1" />
-        {t('myBook.build.keepOpen')}{' '}
-        <button type="button" onClick={goPurchases} className="font-semibold text-indigo-700 underline-offset-2 hover:underline">
-          {t('myBook.build.purchasesLink')}
-        </button>
-      </p>
+      {!finished && (
+        <p className="mt-3 text-xs text-gray-600">
+          <i className="ri-information-line mr-1" />
+          {t('myBook.build.keepOpen')}{' '}
+          <button type="button" onClick={goPurchases} className="font-semibold text-indigo-700 underline-offset-2 hover:underline">
+            {t('myBook.build.purchasesLink')}
+          </button>
+        </p>
+      )}
     </div>
   );
 }
