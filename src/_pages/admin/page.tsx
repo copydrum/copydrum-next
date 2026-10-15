@@ -188,6 +188,9 @@ interface DirectSaleRow {
   paymentMethod: string | null;
   paymentMethodLabel: string;
   totalAmount: number;
+  pointsUsed: number;
+  bonusCashUsed: number;
+  netAmount: number;
   itemCount: number;
   customerEmail: string | null;
 }
@@ -253,15 +256,38 @@ const COPYRIGHT_QUICK_RANGES: Array<{ key: CopyrightQuickRangeKey; label: string
 ];
 
 const EXCLUDED_COPYRIGHT_CATEGORY_NAMES = new Set(['ccm', '드럼솔로', '드럼커버']);
-const EXCLUDED_COPYRIGHT_PAYMENT_KEYS = new Set([
-  'cash',
-  'point',
-  'points',
-  'credit',
-  'credits',
-  'paypal',
-  'banktransfer',
-]);
+const EXCLUDED_COPYRIGHT_PAYMENT_KEYS = new Set(['paypal', 'banktransfer']);
+// 보유 캐쉬로 결제한 주문. 'points' 도 실제로는 캐쉬 지갑에서 차감된다.
+const WALLET_PAYMENT_KEYS = new Set(['cash', 'point', 'points', 'credit', 'credits']);
+
+// 조회 기간은 한국 날짜 기준이다. 오프셋 없이 보내면 DB(UTC)가 9시간 어긋나게 해석한다.
+const COPYRIGHT_REPORT_TZ_OFFSET = '+09:00';
+// Supabase 는 요청당 최대 1000행만 돌려준다.
+const COPYRIGHT_FETCH_PAGE_SIZE = 1000;
+// in() 필터는 URL 에 실리므로 id 개수를 나눠서 보낸다.
+const COPYRIGHT_IN_FILTER_CHUNK_SIZE = 200;
+
+async function fetchAllPages<T>(
+  fetchPage: (from: number, to: number) => PromiseLike<{ data: T[] | null; error: unknown }>,
+): Promise<T[]> {
+  const rows: T[] = [];
+  for (let from = 0; ; from += COPYRIGHT_FETCH_PAGE_SIZE) {
+    const { data, error } = await fetchPage(from, from + COPYRIGHT_FETCH_PAGE_SIZE - 1);
+    if (error) throw error;
+    const page = data ?? [];
+    rows.push(...page);
+    if (page.length < COPYRIGHT_FETCH_PAGE_SIZE) break;
+  }
+  return rows;
+}
+
+const chunkArray = <T,>(items: T[], size: number): T[][] => {
+  const chunks: T[][] = [];
+  for (let i = 0; i < items.length; i += size) {
+    chunks.push(items.slice(i, i + size));
+  }
+  return chunks;
+};
 
 const normalizeCategoryName = (value: unknown) =>
   (typeof value === 'string' ? value : '').replace(/\s+/g, '').toLowerCase();
@@ -368,50 +394,69 @@ const buildMonthKeysBetween = (startDate: string, endDate: string): string[] => 
 
 const parseManualNumber = (value: string) => Number((value ?? '').replace(/[,\s]/g, '')) || 0;
 
-const isPointPurchaseOrder = (order: any) => {
-  if (order?.order_type === 'cash') {
-    return true;
-  }
-
-  const paymentMethodKey = normalizePaymentToken(order?.payment_method ?? null);
-  if (
-    EXCLUDED_COPYRIGHT_PAYMENT_KEYS.has(paymentMethodKey) ||
-    paymentMethodKey.includes('dodo')
-  ) {
-    return true;
-  }
-
+const getOrderPaymentTokens = (order: any): string[] => {
   const metadata = (order?.metadata ?? null) as Record<string, any> | null;
-  if (!metadata) {
-    return false;
-  }
-
-  const metadataMethodTokens = [
-    metadata.payment_method,
-    metadata.paymentMethod,
-    metadata.method,
-    metadata.payment_type,
-    metadata.paymentType,
+  return [
+    order?.payment_method,
+    metadata?.payment_method,
+    metadata?.paymentMethod,
+    metadata?.method,
+    metadata?.payment_type,
+    metadata?.paymentType,
   ]
     .map((value) => (typeof value === 'string' ? normalizePaymentToken(value) : ''))
     .filter(Boolean);
+};
 
-  if (
-    metadataMethodTokens.some(
-      (token) => EXCLUDED_COPYRIGHT_PAYMENT_KEYS.has(token) || token.includes('dodo'),
-    )
-  ) {
-    return true;
+const isExcludedCopyrightOrder = (order: any) =>
+  order?.order_type === 'cash' ||
+  getOrderPaymentTokens(order).some(
+    (token) => EXCLUDED_COPYRIGHT_PAYMENT_KEYS.has(token) || token.includes('dodo'),
+  );
+
+const isWalletPaidOrder = (order: any) =>
+  getOrderPaymentTokens(order).some((token) => WALLET_PAYMENT_KEYS.has(token));
+
+const getOrderPointsUsed = (order: any) => {
+  const metadata = (order?.metadata ?? null) as Record<string, any> | null;
+  return Math.max(
+    0,
+    ...[
+      order?.points_used,
+      metadata?.used_points,
+      metadata?.usedPoints,
+      metadata?.used_credits,
+      metadata?.usedCredits,
+    ].map((value) => Math.round(Number(value ?? 0)) || 0),
+  );
+};
+
+/**
+ * 캐쉬 지갑 거래에서 보너스 캐쉬로 낸 금액. 유료/보너스 구분이 없는 이전 사이트 캐쉬(legacy)는 유료로 본다.
+ */
+const getBonusCashUsedFromTransactions = (transactions: any[]) =>
+  Math.max(
+    0,
+    transactions.reduce((sum, transaction) => sum - (Number(transaction?.bonus_delta) || 0), 0),
+  );
+
+/** 포인트·보너스 캐쉬로 낸 금액을 뺀 실매출을 주문 안의 악보 가격 비율로 나눈다. */
+const allocateNetRevenueToItems = (itemPrices: number[], deduction: number): number[] => {
+  const itemsTotal = itemPrices.reduce((sum, price) => sum + price, 0);
+  if (deduction <= 0 || itemsTotal <= 0) {
+    return itemPrices;
   }
 
-  const usedPointCandidates = [
-    metadata.used_points,
-    metadata.usedPoints,
-    metadata.used_credits,
-    metadata.usedCredits,
-  ];
-
-  return usedPointCandidates.some((value) => Number(value ?? 0) > 0);
+  const netTotal = Math.max(0, itemsTotal - deduction);
+  let allocated = 0;
+  return itemPrices.map((price, index) => {
+    if (index === itemPrices.length - 1) {
+      return netTotal - allocated;
+    }
+    const share = Math.round((netTotal * price) / itemsTotal);
+    allocated += share;
+    return share;
+  });
 };
 
 const ORDER_STATUS_META: Record<OrderStatus, { label: string; className: string; description: string }> = {
@@ -3166,137 +3211,179 @@ const AdminPage: React.FC = () => {
       setCashChargeData([]);
 
       try {
-        const startTimestamp = `${appliedStart}T00:00:00`;
-        const endTimestamp = `${appliedEnd}T23:59:59.999`;
+        const startTimestamp = `${appliedStart}T00:00:00${COPYRIGHT_REPORT_TZ_OFFSET}`;
+        const endTimestamp = `${appliedEnd}T23:59:59.999${COPYRIGHT_REPORT_TZ_OFFSET}`;
 
-        const { data, error } = await supabase
-          .from('orders')
-          .select(
-            `
-            id,
-            order_number,
-            created_at,
-            status,
-            payment_method,
-            metadata,
-            order_type,
-            total_amount,
-            profiles (
+        const orders = await fetchAllPages<any>((from, to) =>
+          supabase
+            .from('orders')
+            .select(
+              `
               id,
-              email
-            ),
-            order_items (
-              id,
-              drum_sheet_id,
-              sheet_title,
-              price,
+              order_number,
               created_at,
-              drum_sheets (
+              status,
+              payment_method,
+              metadata,
+              order_type,
+              total_amount,
+              points_used,
+              profiles (
                 id,
-                title,
-                artist,
+                email
+              ),
+              order_items (
+                id,
+                drum_sheet_id,
+                sheet_title,
                 price,
-                album_name
+                created_at,
+                drum_sheets (
+                  id,
+                  title,
+                  artist,
+                  price,
+                  album_name
+                )
               )
+            `,
             )
-          `,
-          )
-          .eq('status', 'completed')
-          .gte('created_at', startTimestamp)
-          .lte('created_at', endTimestamp)
-          .order('created_at', { ascending: false });
+            .eq('status', 'completed')
+            .gte('created_at', startTimestamp)
+            .lte('created_at', endTimestamp)
+            .order('created_at', { ascending: false })
+            .order('id', { ascending: true })
+            .range(from, to),
+        );
 
-        if (error) {
-          throw error;
+        const filteredOrders = orders.filter((order: any) => !isExcludedCopyrightOrder(order));
+
+        const walletOrderIds = filteredOrders
+          .filter((order: any) => isWalletPaidOrder(order))
+          .map((order: any) => order.id as string);
+        const walletTransactionsByOrder = new Map<string, any[]>();
+        if (walletOrderIds.length > 0) {
+          const walletResults = await Promise.all(
+            chunkArray(walletOrderIds, COPYRIGHT_IN_FILTER_CHUNK_SIZE).map((chunk) =>
+              supabase
+                .from('cash_transactions')
+                .select('order_id, transaction_type, amount, paid_delta, bonus_delta, legacy_delta')
+                .in('order_id', chunk)
+                .in('transaction_type', ['use', 'refund']),
+            ),
+          );
+          walletResults.forEach(({ data: walletData, error: walletError }) => {
+            if (walletError) {
+              throw walletError;
+            }
+            (walletData ?? []).forEach((transaction: any) => {
+              const list = walletTransactionsByOrder.get(transaction.order_id) ?? [];
+              list.push(transaction);
+              walletTransactionsByOrder.set(transaction.order_id, list);
+            });
+          });
         }
-
-        const filteredOrders = (data ?? []).filter((order: any) => !isPointPurchaseOrder(order));
 
         const itemRows: CopyrightReportRow[] = [];
         const sheetIds = new Set<string>();
+        const directSalesRows: DirectSaleRow[] = [];
 
         filteredOrders.forEach((order: any) => {
           const items = Array.isArray(order.order_items) ? order.order_items : [];
-          items.forEach((item: any) => {
+          const pointsUsed = getOrderPointsUsed(order);
+          const bonusCashUsed = isWalletPaidOrder(order)
+            ? getBonusCashUsedFromTransactions(walletTransactionsByOrder.get(order.id) ?? [])
+            : 0;
+          const deduction = pointsUsed + bonusCashUsed;
+          const totalAmount = Number(order.total_amount ?? 0);
+          const netAmount = Math.max(0, totalAmount - deduction);
+
+          if (deduction > 0 && netAmount <= 0) {
+            return;
+          }
+
+          const paymentMethod: string | null = order.payment_method ?? null;
+          directSalesRows.push({
+            orderId: order.id,
+            orderNumber: order.order_number ?? null,
+            orderedAt: order.created_at,
+            paymentMethod,
+            paymentMethodLabel: getPaymentMethodLabel(paymentMethod, order),
+            totalAmount,
+            pointsUsed,
+            bonusCashUsed,
+            netAmount,
+            itemCount: items.length,
+            customerEmail: order.profiles?.email ?? null,
+          });
+
+          const itemPrices = items.map((item: any) => {
+            const resolvedAmount = Number(
+              typeof item.price === 'number' ? item.price : item.drum_sheets?.price ?? 0,
+            );
+            return Number.isFinite(resolvedAmount) ? resolvedAmount : 0;
+          });
+          const itemRevenues = allocateNetRevenueToItems(itemPrices, deduction);
+
+          items.forEach((item: any, index: number) => {
             const sheet = item.drum_sheets ?? null;
             const sheetId = sheet?.id ?? item.drum_sheet_id ?? null;
             if (!sheetId) {
               return;
             }
 
+            const itemRevenue = itemRevenues[index];
+            if (itemPrices[index] > 0 && itemRevenue <= 0) {
+              return;
+            }
+
             sheetIds.add(sheetId);
-
-            const resolvedTitle = sheet?.title ?? item.sheet_title ?? '';
-            const resolvedArtist = sheet?.artist ?? '';
-            const resolvedAlbum = (sheet?.album_name ?? null) as string | null;
-
-            const resolvedAmount = Number(
-              typeof item.price === 'number' ? item.price : sheet?.price ?? 0,
-            );
-            const normalizedAmount = Number.isFinite(resolvedAmount) ? resolvedAmount : 0;
 
             itemRows.push({
               rowId: item.id ?? `${order.id}-${sheetId}-${itemRows.length + 1}`,
               songId: sheetId,
-              title: resolvedTitle,
-              artist: resolvedArtist,
-              albumName: resolvedAlbum,
+              title: sheet?.title ?? item.sheet_title ?? '',
+              artist: sheet?.artist ?? '',
+              albumName: (sheet?.album_name ?? null) as string | null,
               categoryName: null,
               orderNumber: order.order_number ?? null,
               orderedAt: order.created_at,
               serviceType: 'D',
               purchaseCount: 1,
-              unitAmount: normalizedAmount,
-              revenue: normalizedAmount,
+              unitAmount: itemRevenue,
+              revenue: itemRevenue,
             });
           });
         });
 
-        const directSalesRows: DirectSaleRow[] = filteredOrders.map((order: any) => {
-          const orderItems = Array.isArray(order.order_items) ? order.order_items : [];
-          const paymentMethod: string | null = order.payment_method ?? null;
-          const paymentMethodLabel = getPaymentMethodLabel(paymentMethod, order);
-
-          return {
-            orderId: order.id,
-            orderNumber: order.order_number ?? null,
-            orderedAt: order.created_at,
-            paymentMethod,
-            paymentMethodLabel,
-            totalAmount: Number(order.total_amount ?? 0),
-            itemCount: orderItems.length,
-            customerEmail: order.profiles?.email ?? null,
-          };
-        });
-
         setDirectSalesData(directSalesRows);
 
-        const { data: cashData, error: cashError } = await supabase
-          .from('cash_transactions')
-          .select(
-            `
-            id,
-            user_id,
-            amount,
-            bonus_amount,
-            balance_after,
-            description,
-            created_at,
-            user_profile:profiles!cash_transactions_user_id_fkey (
-              email
+        const cashData = await fetchAllPages<any>((from, to) =>
+          supabase
+            .from('cash_transactions')
+            .select(
+              `
+              id,
+              user_id,
+              amount,
+              bonus_amount,
+              balance_after,
+              description,
+              created_at,
+              user_profile:profiles!cash_transactions_user_id_fkey (
+                email
+              )
+            `,
             )
-          `,
-          )
-          .eq('transaction_type', 'charge')
-          .gte('created_at', startTimestamp)
-          .lte('created_at', endTimestamp)
-          .order('created_at', { ascending: false });
+            .eq('transaction_type', 'charge')
+            .gte('created_at', startTimestamp)
+            .lte('created_at', endTimestamp)
+            .order('created_at', { ascending: false })
+            .order('id', { ascending: true })
+            .range(from, to),
+        );
 
-        if (cashError) {
-          throw cashError;
-        }
-
-        const cashRows: CashChargeRow[] = (cashData ?? []).map((transaction: any) => {
+        const cashRows: CashChargeRow[] = cashData.map((transaction: any) => {
           const amount = Number(transaction.amount ?? 0);
           const bonusAmount = Number(transaction.bonus_amount ?? 0);
           const totalCredit = amount + bonusAmount;
@@ -3318,31 +3405,41 @@ const AdminPage: React.FC = () => {
 
         // 카테고리 정보 별도 조회
         if (sheetIds.size > 0) {
-          const [categoryRelationResult, primaryCategoryResult, allCategoryResult] = await Promise.all([
-            supabase
-              .from('drum_sheet_categories')
-              .select(
-                `
-                sheet_id,
-                category_id,
-                category:categories (
-                  id,
-                  name
-                )
-              `,
-              )
-              .in('sheet_id', Array.from(sheetIds)),
-            supabase
-              .from('drum_sheets')
-              .select('id, category_id')
-              .in('id', Array.from(sheetIds)),
+          const sheetIdChunks = chunkArray(Array.from(sheetIds), COPYRIGHT_IN_FILTER_CHUNK_SIZE);
+          const [categoryRelationResults, primaryCategoryResults, allCategoryResult] = await Promise.all([
+            Promise.all(
+              sheetIdChunks.map((chunk) =>
+                supabase
+                  .from('drum_sheet_categories')
+                  .select(
+                    `
+                    sheet_id,
+                    category_id,
+                    category:categories (
+                      id,
+                      name
+                    )
+                  `,
+                  )
+                  .in('sheet_id', chunk),
+              ),
+            ),
+            Promise.all(
+              sheetIdChunks.map((chunk) =>
+                supabase
+                  .from('drum_sheets')
+                  .select('id, category_id')
+                  .in('id', chunk),
+              ),
+            ),
             supabase
               .from('categories')
               .select('id, name'),
           ]);
 
-          const { data: categoryData, error: categoryError } = categoryRelationResult;
-          const { data: primaryCategoryData } = primaryCategoryResult;
+          const categoryError = categoryRelationResults.find((result) => result.error)?.error ?? null;
+          const categoryData = categoryRelationResults.flatMap((result) => result.data ?? []);
+          const primaryCategoryData = primaryCategoryResults.flatMap((result) => result.data ?? []);
           const { data: allCategories } = allCategoryResult;
 
           const excludedCategoryIds = new Set(
@@ -3724,12 +3821,15 @@ const AdminPage: React.FC = () => {
     try {
       const XLSX = await import('xlsx');
       const worksheetData = [
-        ['주문번호', '주문일시', '결제수단', '주문금액', '악보 수량', '고객 이메일'],
+        ['주문번호', '주문일시', '결제수단', '주문금액', '포인트 사용', '보너스 캐쉬 사용', '실매출', '악보 수량', '고객 이메일'],
         ...directSalesData.map((order) => [
           order.orderNumber ?? order.orderId,
           formatDateTime(order.orderedAt),
           order.paymentMethodLabel,
           order.totalAmount,
+          order.pointsUsed,
+          order.bonusCashUsed,
+          order.netAmount,
           order.itemCount,
           order.customerEmail ?? '',
         ]),
@@ -3814,12 +3914,15 @@ const AdminPage: React.FC = () => {
       XLSX.utils.book_append_sheet(workbook, purchaseSheet, '곡당_구매수');
 
       const directSheetData = [
-        ['주문번호', '주문일시', '결제수단', '주문금액', '악보 수량', '고객 이메일'],
+        ['주문번호', '주문일시', '결제수단', '주문금액', '포인트 사용', '보너스 캐쉬 사용', '실매출', '악보 수량', '고객 이메일'],
         ...directSalesData.map((order) => [
           order.orderNumber ?? order.orderId,
           formatDateTime(order.orderedAt),
           order.paymentMethodLabel,
           order.totalAmount,
+          order.pointsUsed,
+          order.bonusCashUsed,
+          order.netAmount,
           order.itemCount,
           order.customerEmail ?? '',
         ]),
@@ -3845,10 +3948,9 @@ const AdminPage: React.FC = () => {
         (sum, row) => sum + row.purchaseCount,
         0,
       );
-      const totalDirectSalesAmount = directSalesData.reduce(
-        (sum, order) => sum + (Number.isFinite(order.totalAmount) ? order.totalAmount : 0),
-        0,
-      );
+      const totalNetSalesAmount = directSalesData.reduce((sum, order) => sum + order.netAmount, 0);
+      const totalPointsUsed = directSalesData.reduce((sum, order) => sum + order.pointsUsed, 0);
+      const totalBonusCashUsed = directSalesData.reduce((sum, order) => sum + order.bonusCashUsed, 0);
       const totalCashChargeAmount = cashChargeData.reduce(
         (sum, transaction) => sum + (Number.isFinite(transaction.amount) ? transaction.amount : 0),
         0,
@@ -3859,10 +3961,12 @@ const AdminPage: React.FC = () => {
       );
       const summarySheetData = [
         ['항목', '값', '비고'],
-        ['총 구매 수', totalPurchases, '해당 기간 내 판매된 악보의 구매 건수'],
-        ['직접 결제 매출', totalDirectSalesAmount, '카드/무통장/카카오페이 결제 금액 합계'],
-        ['캐시 충전 금액(유상)', totalCashChargeAmount, '실제 결제된 캐시 충전 금액'],
-        ['캐시 보너스 지급', totalCashBonusAmount, '충전 시 추가 지급된 보너스 캐시'],
+        ['총 구매 수', totalPurchases, '포인트·보너스 캐쉬로만 구매한 악보 제외'],
+        ['실매출', totalNetSalesAmount, '직접 결제 + 유료 캐쉬 사용액 (포인트·보너스 캐쉬 사용분 제외)'],
+        ['제외: 포인트 사용', totalPointsUsed, '실매출에서 뺀 적립 포인트 사용액'],
+        ['제외: 보너스 캐쉬 사용', totalBonusCashUsed, '실매출에서 뺀 충전 보너스 캐쉬 사용액'],
+        ['참고: 캐시 충전 금액(유상)', totalCashChargeAmount, '캐쉬는 사용 시점에 실매출로 잡히므로 합산하지 않음'],
+        ['참고: 캐시 보너스 지급', totalCashBonusAmount, '충전 시 추가 지급된 보너스 캐시'],
       ];
       const summarySheet = XLSX.utils.aoa_to_sheet(summarySheetData);
       XLSX.utils.book_append_sheet(workbook, summarySheet, '요약통계');
@@ -13733,10 +13837,9 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
       0,
     );
     const totalRevenue = copyrightReportData.reduce((sum, row) => sum + row.revenue, 0);
-    const totalDirectSalesAmount = directSalesData.reduce(
-      (sum, order) => sum + (Number.isFinite(order.totalAmount) ? order.totalAmount : 0),
-      0,
-    );
+    const totalNetSalesAmount = directSalesData.reduce((sum, order) => sum + order.netAmount, 0);
+    const totalPointsUsed = directSalesData.reduce((sum, order) => sum + order.pointsUsed, 0);
+    const totalBonusCashUsed = directSalesData.reduce((sum, order) => sum + order.bonusCashUsed, 0);
     const totalCashChargeAmount = cashChargeData.reduce(
       (sum, transaction) => sum + (Number.isFinite(transaction.amount) ? transaction.amount : 0),
       0,
@@ -13942,35 +14045,35 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
               {totalPurchases.toLocaleString('ko-KR')}건
             </div>
             <p className="mt-1 text-xs text-gray-500">
-              선택한 기간 동안 판매된 악보의 총 구매 수입니다.
+              선택한 기간 동안 판매된 악보의 총 구매 수입니다. 포인트·보너스 캐쉬로만 구매한 악보는 빠집니다.
             </p>
           </div>
           <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-            <div className="text-sm text-gray-500">직접 결제 매출</div>
+            <div className="text-sm text-gray-500">실매출</div>
             <div className="mt-2 text-2xl font-semibold text-gray-900">
-              {formatCurrency(Math.round(totalDirectSalesAmount))}
+              {formatCurrency(Math.round(totalNetSalesAmount))}
             </div>
             <p className="mt-1 text-xs text-gray-500">
-              카드·무통장입금·카카오페이로 결제된 주문 금액 합계입니다.
+              직접 결제 금액과 유료 캐쉬 사용액의 합계입니다. 악보 매출액 합계: {formatCurrency(Math.round(totalRevenue))}
             </p>
           </div>
           <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-            <div className="text-sm text-gray-500">캐시 충전 금액 (유상)</div>
+            <div className="text-sm text-gray-500">제외된 포인트·보너스 사용액</div>
+            <div className="mt-2 text-2xl font-semibold text-gray-900">
+              {formatCurrency(Math.round(totalPointsUsed + totalBonusCashUsed))}
+            </div>
+            <p className="mt-1 text-xs text-gray-500">
+              포인트 {formatCurrency(Math.round(totalPointsUsed))} · 보너스 캐쉬 {formatCurrency(Math.round(totalBonusCashUsed))}
+            </p>
+          </div>
+          <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+            <div className="text-sm text-gray-500">캐시 충전 금액 (참고)</div>
             <div className="mt-2 text-2xl font-semibold text-gray-900">
               {formatCurrency(Math.round(totalCashChargeAmount))}
             </div>
             <p className="mt-1 text-xs text-gray-500">
-              고객이 실제 결제한 캐시 충전 금액 합계입니다. (보너스 제외)
-            </p>
-          </div>
-          <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-            <div className="text-sm text-gray-500">캐시 실결제 금액</div>
-            <div className="mt-2 text-2xl font-semibold text-gray-900">
-              {formatCurrency(Math.round(totalCashChargeAmount))}
-            </div>
-            <p className="mt-1 text-xs text-gray-500">
-              캐시 충전 시 결제된 금액입니다. 보너스 지급: {formatCurrency(Math.round(totalCashBonusAmount))} · 총 지급 캐시:
-              {formatCurrency(Math.round(totalCashIssued))}
+              캐쉬는 악보를 살 때 실매출로 잡히므로 합산하지 않습니다. 보너스 지급:{' '}
+              {formatCurrency(Math.round(totalCashBonusAmount))} · 총 지급 캐시: {formatCurrency(Math.round(totalCashIssued))}
             </p>
           </div>
         </div>
