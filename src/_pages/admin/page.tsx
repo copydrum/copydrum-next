@@ -256,7 +256,7 @@ const COPYRIGHT_QUICK_RANGES: Array<{ key: CopyrightQuickRangeKey; label: string
 ];
 
 const EXCLUDED_COPYRIGHT_CATEGORY_NAMES = new Set(['ccm', '드럼솔로', '드럼커버']);
-const EXCLUDED_COPYRIGHT_PAYMENT_KEYS = new Set(['paypal', 'banktransfer']);
+const EXCLUDED_COPYRIGHT_PAYMENT_KEYS = new Set(['paypal', 'banktransfer', 'lemonsqueezy']);
 // 보유 캐쉬로 결제한 주문. 'points' 도 실제로는 캐쉬 지갑에서 차감된다.
 const WALLET_PAYMENT_KEYS = new Set(['cash', 'point', 'points', 'credit', 'credits']);
 
