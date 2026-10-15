@@ -92,7 +92,7 @@ export default function CashChargePanel({ shortfall, returnTo, onCharged, onClos
   }, [user?.id]);
 
   useEffect(() => {
-    if (region === 'intl' || region === 'intl_discount') {
+    if (region === 'intl') {
       ensureLemonJs().catch(() => undefined);
     }
   }, [region]);

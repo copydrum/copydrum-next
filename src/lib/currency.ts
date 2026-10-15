@@ -1,15 +1,12 @@
 // 지원하는 통화 타입
 export type Currency = 'KRW' | 'USD' | 'EUR';
 
-// USD 할인 적용 언어 (Discount 그룹: 1500원 = $1)
-export const USD_DISCOUNT_LOCALES = ['vi', 'th', 'id', 'hi', 'pt', 'tr', 'ru', 'uk'];
-
 // Locale → Currency 매핑
 const LOCALE_TO_CURRENCY: Record<string, Currency> = {
     // Korean Won
     'ko': 'KRW',
 
-    // USD Standard (1000원 = $1)
+    // USD (1000원 = $1)
     // ⚠️ 유럽 국가(de/fr/it/es)도 USD로 표시한다.
     //   실제 해외 결제(Lemon Squeezy 카드 / PayPal)가 모두 USD로 청구되므로,
     //   사이트 표시 통화도 USD로 맞춰 결제창과 일치시킨다. (€3 ↔ $3 혼동 방지)
@@ -25,8 +22,6 @@ const LOCALE_TO_CURRENCY: Record<string, Currency> = {
     'ar': 'USD',
     'nl': 'USD',
     'pl': 'USD',
-
-    // USD Discount (1500원 = $1)
     'vi': 'USD',
     'th': 'USD',
     'id': 'USD',
@@ -65,38 +60,22 @@ export function getSiteCurrency(hostname?: string, locale?: string): Currency {
  *
  * 변환 규칙:
  * - KRW: 그대로 반환 (3000원 → 3000원)
- * - EUR (de, fr, it, es): 비율 1/1000, 3000원 → €3.00
- * - USD Standard (en, ja, zh-CN, zh-TW, ar, nl, pl):
- *   비율 1/1000, 3000원 → $3.00
- * - USD Discount (vi, th, id, hi, pt, tr, ru, uk):
- *   비율 1/1500, 3000원 → $2.00
+ * - EUR: 비율 1/1000, 3000원 → €3.00
+ * - USD (한국어 외 모든 언어): 비율 1/1000, 3000원 → $3.00
  *
  * @param krw - KRW 금액
  * @param currency - 변환할 통화
- * @param locale - 현재 locale (USD 할인 판단용)
+ * @param _locale - 호환성 유지용 (언어별 환율 차이 없음)
  * @returns 변환된 금액 (소수점 포함)
  */
-export function convertFromKrw(krw: number, currency: Currency, locale?: string): number {
+export function convertFromKrw(krw: number, currency: Currency, _locale?: string): number {
     // KRW는 그대로 반환
     if (currency === 'KRW') {
         return krw;
     }
 
-    // EUR: 1000원 = €1 (비율 1/1000)
-    if (currency === 'EUR') {
-        return krw / 1000;
-    }
-
-    // USD: locale에 따라 할인율 적용
-    if (currency === 'USD') {
-        const localeCode = locale?.split('-')[0];
-
-        // USD Discount 언어: 1500원 = $1 (비율 1/1500)
-        if (localeCode && USD_DISCOUNT_LOCALES.includes(localeCode)) {
-            return krw / 1500;
-        }
-
-        // USD Standard: 1000원 = $1 (비율 1/1000)
+    // EUR / USD: 1000원 = 1 (비율 1/1000)
+    if (currency === 'EUR' || currency === 'USD') {
         return krw / 1000;
     }
 

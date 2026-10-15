@@ -1,12 +1,11 @@
-import { USD_DISCOUNT_LOCALES } from '@/lib/currency';
-
 /**
  * 캐쉬 충전 상품 (금액·보너스는 원 기준).
  * 결제 완료 시 지급하는 보너스는 DB 의 cash_charge_packages 표가 기준이다(cash_complete_charge_order).
  * 이 표는 화면 표시와 주문 생성 검증용이므로 DB 표와 같은 값을 유지한다.
- *   kr: 한국 사이트, intl: 해외 1,000원 = $1, intl_discount: 해외 1,500원 = $1
+ *   kr: 한국 사이트, intl: 해외 1,000원 = $1
+ * DB 표의 intl_discount 행은 예전에 생성된 주문의 보너스 계산용으로만 남아 있다.
  */
-export type CashChargeRegion = 'kr' | 'intl' | 'intl_discount';
+export type CashChargeRegion = 'kr' | 'intl';
 
 export interface CashChargePackage {
   amount: number;
@@ -28,12 +27,6 @@ export const CASH_CHARGE_PACKAGES: Record<CashChargeRegion, readonly CashChargeP
     { amount: 50000, bonus: 11000 },
     { amount: 100000, bonus: 25000, badge: 'best' },
   ],
-  intl_discount: [
-    { amount: 15000, bonus: 2250 },
-    { amount: 45000, bonus: 9000, badge: 'popular' },
-    { amount: 75000, bonus: 16500 },
-    { amount: 150000, bonus: 37500, badge: 'best' },
-  ],
 };
 
 export const KR_CHARGE_METHODS = ['card', 'kakaopay', 'virtual_account'] as const;
@@ -42,8 +35,7 @@ export type CashChargeMethod = (typeof KR_CHARGE_METHODS)[number] | (typeof INTL
 
 export const getCashChargeRegion = (locale?: string | null): CashChargeRegion => {
   const code = (locale || 'ko').split('-')[0];
-  if (code === 'ko') return 'kr';
-  return USD_DISCOUNT_LOCALES.includes(code) ? 'intl_discount' : 'intl';
+  return code === 'ko' ? 'kr' : 'intl';
 };
 
 export const getCashChargeMethods = (region: CashChargeRegion): readonly CashChargeMethod[] =>

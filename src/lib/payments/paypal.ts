@@ -71,7 +71,7 @@ const invokeEdgeFunction = async <T>(functionName: string, payload: unknown): Pr
 
 // KRW를 사이트 통화(USD)로 변환 — 사이트 표시 가격과 동일한 환율 사용
 export const convertKRWToSiteUSD = (amountKRW: number, locale?: string): number => {
-  // currency.ts의 convertFromKrw 사용 (1000원=$1 표준, 1500원=$1 할인)
+  // currency.ts의 convertFromKrw 사용 (1000원=$1)
   const currency = getSiteCurrency(undefined, locale);
   const converted = convertFromKrw(amountKRW, currency === 'KRW' ? 'USD' : currency, locale);
   return Math.round(converted * 100) / 100; // round to cents

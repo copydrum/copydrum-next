@@ -256,7 +256,7 @@ async function getPortOnePayment(
 /**
  * 결제 금액 검증. PayPal 결제 금액은 브라우저가 정하므로 해외 통화도 하한을 확인한다.
  * - 원화: ±2% 이내
- * - 달러: 가장 싼 환율(1,500원 = $1) 기준 하한 이상 (PortOne 은 센트 단위)
+ * - 달러: 사이트 환율(1,000원 = $1) 기준 하한 이상 (PortOne 은 센트 단위)
  * - 엔화: 1엔 ≈ 9원 기준 하한 이상
  * @returns true = 정상, false = 차단
  */
@@ -276,7 +276,7 @@ function compareAmounts(
     return Math.abs(amount - orderAmountKRW) <= tolerance;
   }
   if (currency === "USD") {
-    return amount >= Math.floor(orderAmountKRW / 15) - 1;
+    return amount >= Math.floor(orderAmountKRW / 10) - 1;
   }
   if (currency === "JPY") {
     return amount >= Math.floor(orderAmountKRW * 0.08);

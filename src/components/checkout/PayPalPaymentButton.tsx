@@ -274,7 +274,7 @@ export default function PayPalPaymentButton({
       // 포트원 문서: currency별 scale factor 적용
       // USD: scale factor 2 → 1.50달러 = 150 전달
       // JPY: scale factor 0 → 100엔 = 100 전달
-      // 화면에 표시한 가격과 같도록 언어별 환율(1,000원/1,500원 = $1)을 쓴다
+      // 화면에 표시한 가격과 같도록 사이트 환율(1,000원 = $1)을 쓴다
       const convertedAmount = convertFromKrw(payableKrw, paypalCurrency, i18n.language);
       let finalAmount: number;
       if (paypalCurrency === 'USD') {
