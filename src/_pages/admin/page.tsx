@@ -1504,6 +1504,8 @@ const AdminPage: React.FC = () => {
   const [inquiryStatusFilter, setInquiryStatusFilter] = useState('all');
   const [inquiryReplyDrafts, setInquiryReplyDrafts] = useState<Record<string, string>>({});
   const [inquiryReplySubmitting, setInquiryReplySubmitting] = useState<string | null>(null);
+  /** 관리자 미읽음 채팅 대화 수 (사이드바 배지용) */
+  const [pendingChatCount, setPendingChatCount] = useState(0);
 
   const [collections, setCollections] = useState<Collection[]>([]);
   const [collectionSearchTerm, setCollectionSearchTerm] = useState('');
@@ -3737,6 +3739,40 @@ const AdminPage: React.FC = () => {
       setIsLoadingInquiries(false);
     }
   };
+
+  const loadPendingChatCount = useCallback(async () => {
+    try {
+      const { count, error } = await supabase
+        .from('chat_conversations')
+        .select('id', { count: 'exact', head: true })
+        .gt('unread_for_admin', 0);
+
+      if (error) throw error;
+      setPendingChatCount(count ?? 0);
+    } catch (error) {
+      console.error('채팅 미읽음 건수 로드 오류:', error);
+    }
+  }, []);
+
+  // 관리자 로그인 중이면 실시간 채팅 미읽음 배지를 탭과 무관하게 유지
+  useEffect(() => {
+    if (!isAdmin) {
+      setPendingChatCount(0);
+      return;
+    }
+
+    void loadPendingChatCount();
+    const channel = supabase
+      .channel('admin-chat-badge')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'chat_conversations' }, () => {
+        void loadPendingChatCount();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [isAdmin, loadPendingChatCount]);
 
   useEffect(() => {
     setInquiryReplyDrafts((prev) => {
@@ -15057,6 +15093,11 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
               <i className="ri-chat-3-line w-5 h-5"></i>
               <span className="text-sm md:text-base">실시간 채팅</span>
             </span>
+            {pendingChatCount > 0 && (
+              <span className="inline-flex min-w-[20px] justify-center rounded-full bg-red-500 px-1.5 py-0.5 text-xs font-semibold text-white">
+                {pendingChatCount > 99 ? '99+' : pendingChatCount}
+              </span>
+            )}
           </button>
 
           <button
