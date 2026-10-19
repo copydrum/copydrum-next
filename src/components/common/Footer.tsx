@@ -1,22 +1,27 @@
 'use client';
-import { useLocaleRouter } from '@/hooks/useLocaleRouter';
-import { useRouter, usePathname } from 'next/navigation';
-import { useCallback, useState, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { isGlobalSiteHost } from '../../config/hostType';
+import { buildGenreNavItems, useGenreCategories } from '@/hooks/useGenreCategories';
+import { openChatWidget } from '@/lib/chat/openChat';
+import BrandLogo from './BrandLogo';
+import LocaleLink from './LocaleLink';
 
 interface FooterLink {
   label: string;
   href: string;
-  external?: boolean;
 }
 
+const YOUTUBE_URL = 'https://www.youtube.com/@COPYDRUM';
+const EMAIL = 'copydrum@hanmail.net';
+const BIZ_CHECK_URL = 'https://www.ftc.go.kr/bizCommPop.do?wrkr_no=3070786155';
+
 export default function Footer() {
-  const router = useLocaleRouter();
   const { t, i18n } = useTranslation();
   const currentYear = new Date().getFullYear();
-  const pathname = usePathname();
   const [isGlobalSite, setIsGlobalSite] = useState<boolean>(false);
+  const [businessOpen, setBusinessOpen] = useState(false);
+  const categories = useGenreCategories();
 
   // 호스트 타입을 컴포넌트 마운트 시 한 번만 계산
   useEffect(() => {
@@ -25,18 +30,10 @@ export default function Footer() {
     }
   }, []);
 
-  const isKoreanLanguage =
-    i18n.language === 'ko' || i18n.language.startsWith('ko-');
-
-  // 카테고리 링크 (i18n 사용)
-  const categoryLinks: FooterLink[] = [
-    { label: t('category.kpop'), href: '/categories?search=가요' },
-    { label: t('category.pop'), href: '/categories?search=팝' },
-    { label: t('category.rock'), href: '/categories?search=락' },
-    { label: t('category.jazz'), href: '/categories?search=재즈' },
-    { label: t('category.jpop'), href: '/categories?search=J-POP' },
-    { label: t('category.ost'), href: '/categories?search=OST' },
-  ];
+  const genreLinks = useMemo(
+    () => buildGenreNavItems(categories, i18n.language, t),
+    [categories, i18n.language, t],
+  );
 
   const supportLinks: FooterLink[] = [
     { label: t('footer.guide'), href: '/guide' },
@@ -53,153 +50,168 @@ export default function Footer() {
     { label: t('footer.partnership'), href: '/company/partnership' },
   ];
 
-  const handleInternalNavigation = useCallback(
-    (href: string) => () => {
-      if (href.startsWith('http') || href.startsWith('mailto:') || href.startsWith('tel:')) {
-        window.location.href = href;
-        return;
-      }
+  const linkClass = 'text-white/70 transition-colors hover:text-white';
+  // 개인정보처리방침은 다른 고지와 구분되게 강조한다
+  const linkClassFor = (href: string) =>
+    href === '/policy/privacy' ? 'font-bold text-white transition-colors hover:text-white/80' : linkClass;
 
-      router.push(href);
-    },
-    [router],
+  const youtubeButton = (
+    <a
+      href={YOUTUBE_URL}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="YouTube"
+      className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-white/80 transition-colors hover:bg-white/20 hover:text-white"
+    >
+      <i className="ri-youtube-fill text-lg" />
+    </a>
   );
 
-  const renderLink = (link: FooterLink) => {
-    if (link.external || link.href.startsWith('http') || link.href.startsWith('mailto:')) {
-      return (
+  const businessDetails = (
+    <>
+      <p>{t('footer.companyInfo')}</p>
+      <p>
+        {t('footer.telecomLicense')}
         <a
-          key={link.label}
-          href={link.href}
-          className="text-gray-400 hover:text-white transition-colors cursor-pointer"
+          href={BIZ_CHECK_URL}
           target="_blank"
           rel="noopener noreferrer"
+          className="ml-2 inline-flex items-center gap-0.5 rounded border border-white/20 px-1.5 text-[11px] leading-5 text-white/80 transition-colors hover:border-white/40 hover:text-white"
         >
-          {link.label}
+          {t('footer.bizCheck')}
+          <i className="ri-arrow-right-up-line" />
         </a>
-      );
-    }
-
-    return (
-      <button
-        key={link.label}
-        type="button"
-        onClick={handleInternalNavigation(link.href)}
-        className="text-left text-gray-400 hover:text-white transition-colors cursor-pointer"
-      >
-        {link.label}
-      </button>
-    );
-  };
+      </p>
+      <p>{t('footer.address')}</p>
+      <p>{t('footer.hosting')}</p>
+      <p>
+        {t('footer.contactLabel')}:{' '}
+        <button
+          type="button"
+          onClick={openChatWidget}
+          className="inline-flex items-center gap-1 font-semibold text-white underline-offset-2 hover:underline"
+        >
+          <i className="ri-chat-3-line" />
+          {t('footer.contactChat')}
+        </button>
+        <span className="mx-2 text-white/25">|</span>
+        <a href={`mailto:${EMAIL}`} className="hover:text-white">
+          {t('footer.email')}
+        </a>
+      </p>
+    </>
+  );
 
   return (
-    <footer className="bg-gray-900 text-white py-8 md:py-12">
-      {/* 모바일: 핵심 링크와 사업자 정보만 간단히 */}
-      <div className="md:hidden px-5">
+    <footer className="bg-ink text-white">
+      {/* 모바일: 핵심 링크 + 접히는 사업자 정보. 하단 여백은 떠 있는 채팅 버튼 자리 */}
+      <div className="px-5 pb-[calc(6rem+env(safe-area-inset-bottom))] pt-10 md:hidden">
+        <div className="mb-6 flex items-center justify-between">
+          <LocaleLink href="/" aria-label={t('site.name')}>
+            <BrandLogo size={28} />
+          </LocaleLink>
+          {youtubeButton}
+        </div>
+
         <ul className="flex flex-wrap gap-x-4 gap-y-2.5 text-[13px]">
           {[...supportLinks, ...companyLinks].map((link) => (
-            <li key={link.href} className={link.href === '/policy/privacy' ? '[&>button]:font-semibold [&>button]:text-white' : ''}>
-              {renderLink(link)}
+            <li key={link.href}>
+              <LocaleLink href={link.href} className={linkClassFor(link.href)}>
+                {link.label}
+              </LocaleLink>
             </li>
           ))}
         </ul>
-        <div className="mt-6 space-y-1 text-xs leading-relaxed text-gray-500">
-          <p>{t('footer.companyInfo')}</p>
-          <p>{t('footer.telecomLicense')}</p>
-          <p>{t('footer.address')}</p>
-          <p>{isKoreanLanguage ? t('footer.contactInfo') : t('footer.contactInfoGlobal')}</p>
-          <p>{t('footer.email')}</p>
+
+        <div className="mt-6 border-t border-white/10 pt-4">
+          <button
+            type="button"
+            onClick={() => setBusinessOpen((open) => !open)}
+            aria-expanded={businessOpen}
+            className="flex items-center gap-1 text-xs font-semibold text-white/70"
+          >
+            {t('footer.businessToggle')}
+            <i className={`ri-arrow-down-s-line text-base transition-transform ${businessOpen ? 'rotate-180' : ''}`} />
+          </button>
+          {/* 접혀 있어도 검색엔진·법정 고지를 위해 DOM에는 남겨 둔다 */}
+          <div className={`mt-3 space-y-1 text-xs leading-relaxed text-white/60 ${businessOpen ? '' : 'hidden'}`}>
+            {businessDetails}
+          </div>
         </div>
-        <div className="mt-6 flex items-center justify-between gap-4 border-t border-gray-800 pt-5">
-          <p className="text-xs text-gray-500">{t('footer.copyright', { year: currentYear })}</p>
-          <img src="/komca.jpg" alt="KOMCA" className="h-10 w-auto" />
+
+        <div className="mt-6 flex items-center justify-between gap-4">
+          <p className="text-xs text-white/50">{t('footer.copyright', { year: currentYear })}</p>
+          <img src="/komca.jpg" alt="KOMCA" width={40} height={40} className="h-10 w-10 rounded" />
         </div>
       </div>
 
-      <div className="hidden md:block max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+      <div className="mx-auto hidden max-w-7xl px-4 pb-8 pt-14 sm:px-6 md:block lg:px-8">
+        <div className="grid grid-cols-[1.4fr_1.2fr_1fr_1fr] gap-10">
           <div>
-            {!isGlobalSite && (
-              <div
-                className="text-2xl font-bold mb-4 cursor-pointer"
-                style={{ fontFamily: '"Noto Sans KR", "Malgun Gothic", sans-serif' }}
-                onClick={handleInternalNavigation('/')}
-              >
-                {t('site.name')}
-              </div>
-            )}
-            <p className="text-gray-400 mb-6 leading-relaxed">
-              {t('footer.description')}
-            </p>
-            <div className="flex space-x-4">
-              <a
-                href="https://www.youtube.com/@COPYDRUM"
-                className="text-gray-400 hover:text-white cursor-pointer transition-colors"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <i className="ri-youtube-fill text-2xl"></i>
-              </a>
-            </div>
+            <LocaleLink href="/" aria-label={t('site.name')} className="inline-block">
+              <BrandLogo size={34} />
+            </LocaleLink>
+            <p className="mt-4 max-w-xs text-sm leading-relaxed text-white/60">{t('footer.description')}</p>
+            <div className="mt-5 flex gap-2">{youtubeButton}</div>
           </div>
 
-          <div>
-            <h5 className="font-semibold mb-4">{t('footer.scoreCategoryTitle')}</h5>
-            <ul className="space-y-2">
-              {categoryLinks.map((link) => (
-                <li key={link.label}>{renderLink(link)}</li>
+          <nav aria-label={t('footer.scoreCategoryTitle')}>
+            <h2 className="mb-4 text-sm font-bold">{t('footer.scoreCategoryTitle')}</h2>
+            <ul className="grid grid-cols-2 gap-x-6 gap-y-2.5 text-sm">
+              {genreLinks.map((genre) => (
+                <li key={genre.id}>
+                  <LocaleLink href={genre.href} className={linkClass}>
+                    {genre.label}
+                  </LocaleLink>
+                </li>
               ))}
             </ul>
-          </div>
+          </nav>
 
-          <div>
-            <h5 className="font-semibold mb-4">{t('footer.support')}</h5>
-            <ul className="space-y-2">
+          <nav aria-label={t('footer.support')}>
+            <h2 className="mb-4 text-sm font-bold">{t('footer.support')}</h2>
+            <ul className="space-y-2.5 text-sm">
               {supportLinks.map((link) => (
-                <li key={link.label}>{renderLink(link)}</li>
+                <li key={link.href}>
+                  <LocaleLink href={link.href} className={linkClass}>
+                    {link.label}
+                  </LocaleLink>
+                </li>
               ))}
             </ul>
-          </div>
+          </nav>
 
-          <div>
-            <h5 className="font-semibold mb-4">{t('footer.company')}</h5>
-            <ul className="space-y-2">
+          <nav aria-label={t('footer.company')}>
+            <h2 className="mb-4 text-sm font-bold">{t('footer.company')}</h2>
+            <ul className="space-y-2.5 text-sm">
               {companyLinks.map((link) => (
-                <li key={link.label}>{renderLink(link)}</li>
+                <li key={link.href}>
+                  <LocaleLink href={link.href} className={linkClassFor(link.href)}>
+                    {link.label}
+                  </LocaleLink>
+                </li>
               ))}
             </ul>
-          </div>
+          </nav>
         </div>
 
-        <div className="border-t border-gray-800 mt-10 pt-8">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-            <div className="text-sm text-gray-400 space-y-2 flex-1">
-              <p>{t('footer.companyInfo')}</p>
-              <p>{t('footer.telecomLicense')}</p>
-              <p>{t('footer.address')}</p>
-              {isKoreanLanguage ? (
-                <>
-                  <p>{t('footer.contactInfo')}</p>
-                  <p>{t('footer.email')}</p>
-                </>
-              ) : (
-                <>
-                  <p>{t('footer.contactInfoGlobal')}</p>
-                  <p>{t('footer.email')}</p>
-                </>
-              )}
-              <div className="mt-8 pt-8 border-t border-gray-800 text-center text-gray-400 text-sm">
-                <p>{t('footer.copyright', { year: new Date().getFullYear() })}</p>
-                {isGlobalSite && (
-                  <p className="mt-2 text-xs text-gray-500">
-                    {t('footer.globalService')}
-                  </p>
-                )}
-              </div>
-            </div>
-            <div className="flex-shrink-0">
-              <img src="/komca.jpg" alt="KOMCA" className="h-16 w-auto" />
-            </div>
+        <div className="mt-12 flex items-start justify-between gap-8 border-t border-white/10 pt-8">
+          <div className="space-y-1.5 text-[13px] leading-relaxed text-white/60">{businessDetails}</div>
+          <img src="/komca.jpg" alt="KOMCA" width={50} height={50} className="h-[50px] w-[50px] flex-shrink-0 rounded" />
+        </div>
+
+        <div className="mt-8 flex items-center justify-between gap-4 border-t border-white/10 pt-6 text-xs text-white/50">
+          <div>
+            <p>{t('footer.copyright', { year: currentYear })}</p>
+            {isGlobalSite && <p className="mt-1">{t('footer.globalService')}</p>}
+          </div>
+          <div className="flex items-center gap-4">
+            <LocaleLink href="/policy/terms" className={linkClass}>
+              {t('footer.terms')}
+            </LocaleLink>
+            <LocaleLink href="/policy/privacy" className={linkClassFor('/policy/privacy')}>
+              {t('footer.privacy')}
+            </LocaleLink>
           </div>
         </div>
       </div>

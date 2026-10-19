@@ -59,7 +59,7 @@ export default function EventSaleDetailBanner({
 
   return (
     <div
-      className={`overflow-hidden rounded-2xl bg-gradient-to-br from-red-600 via-rose-600 to-orange-500 text-white shadow-lg shadow-red-500/20 ${className}`}
+      className={`overflow-hidden rounded-2xl bg-gradient-to-br from-rose-500 via-pink-600 to-blue-600 text-white shadow-lg shadow-pink-500/20 ${className}`}
     >
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 pt-4 sm:px-6 sm:pt-5">
         <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-sm font-bold ring-1 ring-white/30">
@@ -70,7 +70,7 @@ export default function EventSaleDetailBanner({
           {t('eventSale.detail.liveBanner')}
         </span>
         {percent > 0 && (
-          <span className="rounded-lg bg-white px-2.5 py-1 text-sm font-extrabold text-red-600">
+          <span className="rounded-lg bg-white px-2.5 py-1 text-sm font-extrabold text-rose-600">
             {t('eventSale.badge.percentOff', { percent })}
           </span>
         )}

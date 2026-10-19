@@ -33,8 +33,8 @@ export default function HomeEventSaleSection() {
   };
 
   return (
-    <section className="pt-2 md:pt-8">
-      <div className="mx-auto max-w-7xl overflow-hidden rounded-3xl bg-gradient-to-br from-red-600 via-rose-600 to-orange-500 p-4 text-white shadow-lg sm:p-6 lg:p-8">
+    <section className="py-6 md:py-12">
+      <div className="mx-auto max-w-7xl overflow-hidden rounded-3xl bg-gradient-to-br from-rose-500 via-pink-600 to-blue-600 p-4 text-white shadow-lg sm:p-6 lg:p-8">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
             <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-1 text-[11px] font-bold ring-1 ring-white/30 sm:text-xs">
@@ -71,7 +71,7 @@ export default function HomeEventSaleSection() {
             <button
               type="button"
               onClick={() => router.push('/event-sale')}
-              className="inline-flex items-center gap-1 rounded-full bg-white px-4 py-2 text-sm font-bold text-red-600 shadow transition-colors hover:bg-red-50"
+              className="inline-flex items-center gap-1 rounded-full bg-white px-4 py-2 text-sm font-bold text-rose-600 shadow transition-colors hover:bg-rose-50"
             >
               {t('eventSale.actions.viewAll')}
               <i className="ri-arrow-right-s-line text-base" />

@@ -7,7 +7,7 @@
       "description": "개인 정보 및 연락처를 관리하세요."
     },
     "purchases": {
-      "label": "구매 내역",
+      "label": "구매내역",
       "description": "구매한 악보 주문 정보를 확인하세요."
     },
     "downloads": {
@@ -96,7 +96,7 @@
     "updateProfile": "프로필 업데이트"
   },
   "purchases": {
-    "title": "구매 내역",
+    "title": "구매내역",
     "description": "최근 주문 순으로 정렬되었습니다.",
     "browseMore": "악보 더 둘러보기",
     "noPurchases": "아직 구매한 악보가 없습니다.",

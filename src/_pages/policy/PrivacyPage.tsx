@@ -78,11 +78,17 @@ const PrivacyPage: React.FC = () => {
               설정을 통해 쿠키 사용을 제어할 수 있습니다.
             </p>
 
-            <h2>7. 문의</h2>
-            <p>
-              개인정보 보호 관련 문의는{' '}
-              <a href="mailto:copydrum@hanmail.net">copydrum@hanmail.net</a> 으로 연락 주시기 바랍니다.
-            </p>
+            <h2>7. 개인정보 보호책임자 및 문의</h2>
+            <ul>
+              <li>개인정보 보호책임자: 강만수</li>
+              <li>
+                연락처: <a href="tel:070-7570-0028">070-7570-0028</a>
+              </li>
+              <li>
+                이메일: <a href="mailto:copydrum@hanmail.net">copydrum@hanmail.net</a>
+              </li>
+            </ul>
+            <p>개인정보 보호 관련 문의는 위 연락처로 연락 주시기 바랍니다.</p>
           </>
         ) : (
           <>
@@ -137,11 +143,17 @@ const PrivacyPage: React.FC = () => {
               analyze the service. You can control the use of cookies through your browser settings.
             </p>
 
-            <h2>7. Contact</h2>
-            <p>
-              For privacy-related inquiries, please contact{' '}
-              <a href="mailto:copydrum@hanmail.net">copydrum@hanmail.net</a>.
-            </p>
+            <h2>7. Privacy Officer and Contact</h2>
+            <ul>
+              <li>Privacy Officer: Kang Mansu</li>
+              <li>
+                Phone: <a href="tel:+82-70-7570-0028">+82-70-7570-0028</a>
+              </li>
+              <li>
+                Email: <a href="mailto:copydrum@hanmail.net">copydrum@hanmail.net</a>
+              </li>
+            </ul>
+            <p>For privacy-related inquiries, please contact the Privacy Officer above.</p>
           </>
         )}
       </LegalDocLayout>

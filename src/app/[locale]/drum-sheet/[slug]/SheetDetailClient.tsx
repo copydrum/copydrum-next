@@ -1,13 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import type { User } from '@supabase/supabase-js';
-import { ArrowLeft, Star, ShoppingCart, Music, X } from 'lucide-react';
 import { useCart } from '@/hooks/useCart';
 import MainHeader from '@/components/common/MainHeader';
 import Footer from '@/components/common/Footer';
+import LocaleLink from '@/components/common/LocaleLink';
 import { isFavorite, toggleFavorite } from '@/lib/favorites';
 import { hasPurchasedSheet } from '@/lib/purchaseCheck';
 // 옛날 결제 시스템 import 제거 - 이제 /payments/[orderId] 페이지 사용
@@ -74,7 +73,6 @@ function LessonBookDetailBody({ raw }: { raw: string }) {
 }
 
 export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
-  const router = useRouter();
   const supabase = createClient();
   const [user, setUser] = useState<User | null>(null);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
@@ -434,639 +432,431 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
     return match ? match[1] : '';
   };
 
+  // 이미 산 악보면 구매 버튼 대신 구매내역 안내를 보여 준다
+  const [purchased, setPurchased] = useState(false);
+  useEffect(() => {
+    let cancelled = false;
+    if (!user || isFreeSheet) {
+      setPurchased(false);
+      return;
+    }
+    hasPurchasedSheet(user.id, sheet.id)
+      .then((value) => {
+        if (!cancelled) setPurchased(value);
+      })
+      .catch(() => {
+        if (!cancelled) setPurchased(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [user, sheet.id, isFreeSheet]);
+
+  useEffect(() => {
+    if (!showPreviewModal) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setShowPreviewModal(false);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [showPreviewModal]);
+
+  const inCart = isInCart(sheet.id);
+  const isPreorder = sheet.sales_type === 'PREORDER';
+  const videoId = sheet.youtube_url ? extractVideoId(sheet.youtube_url) : '';
+  const categoryHref = isSheetBook
+    ? '/sheet-books'
+    : isLessonBook
+      ? '/free-sheets'
+      : `/categories${sheet.category_id ? `?category=${sheet.category_id}` : ''}`;
+  const categoryLabel = isSheetBook
+    ? t('sheetBooks.title')
+    : isLessonBook
+      ? t('sidebar.nav.drumLesson')
+      : getCategoryName(sheet.categories?.name);
+  const imageSrc = isYouTubeCategory
+    ? sheet.thumbnail_url || (videoId ? `https://i.ytimg.com/vi/${videoId}/hq720.jpg` : generateDefaultThumbnail(1280, 720))
+    : sheet.thumbnail_url || generateDefaultThumbnail(600, isBookProduct ? 800 : 600);
+  const imageFallback = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    (e.target as HTMLImageElement).src = isYouTubeCategory
+      ? generateDefaultThumbnail(1280, 720)
+      : generateDefaultThumbnail(600, isBookProduct ? 800 : 600);
+  };
+  const buyLabel = buyingNow
+    ? t('sheetDetail.purchaseProcessing') || t('sheet.buyNowProcessing') || '...'
+    : activeEvent
+      ? t('eventSale.actions.buyNow')
+      : t('categoriesPage.buyNow');
+
+  const includes = [
+    t('sheetDetail.highQualityPdf'),
+    t('sheetDetail.printableFormat'),
+    t('sheetDetail.instantDownloadFeature'),
+    t('sheetDetail.lifetimeAccess'),
+    t('sheetDetail.noLyrics'),
+  ];
+
+  const includesCard = (
+    <div className="rounded-2xl border border-gray-100 p-4 lg:p-5">
+      <p className="mb-2.5 text-sm font-bold text-gray-900">{t('sheetDetail.includes')}</p>
+      <ul className="grid grid-cols-1 gap-x-4 gap-y-1.5 sm:grid-cols-2">
+        {includes.map((item) => (
+          <li key={item} className="flex items-center gap-1.5 text-sm text-gray-600">
+            <i className="ri-check-line text-base text-blue-600" />
+            {item}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+
+  const favoriteButton = (size: 'md' | 'lg') => (
+    <button
+      type="button"
+      onClick={handleToggleFavorite}
+      disabled={favoriteProcessing}
+      aria-label={isFavoriteSheet ? t('sheetDetail.removeFromFavorites') : t('sheetDetail.addToFavorites')}
+      className={`flex flex-shrink-0 items-center justify-center rounded-xl border transition-colors ${size === 'lg' ? 'h-12 w-12' : 'h-10 w-10'} ${
+        isFavoriteSheet ? 'border-rose-200 bg-rose-50 text-rose-500' : 'border-gray-200 text-gray-400 hover:border-rose-200 hover:text-rose-500'
+      } ${favoriteProcessing ? 'cursor-not-allowed opacity-60' : ''}`}
+    >
+      <i className={`ri-heart-${isFavoriteSheet ? 'fill' : 'line'} text-xl`} />
+    </button>
+  );
+
+  const purchasedNotice = (
+    <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4">
+      <p className="flex items-center gap-1.5 text-sm font-bold text-blue-800">
+        <i className="ri-checkbox-circle-fill text-base" />
+        {t('sheetDetail.purchasedTitle')}
+      </p>
+      <p className="mt-0.5 break-keep text-xs text-blue-900/70">{t('sheetDetail.purchasedDesc')}</p>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-white">
       <MainHeader user={user} />
 
-      <div>
-        {/* Back Button */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-4">
-          <button
-            onClick={() => {
-              if (typeof window !== 'undefined' && window.history.length > 1) {
-                router.back();
-              } else {
-                router.push('/categories');
-              }
-            }}
-            className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 cursor-pointer"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span>{t('sheetDetail.backToCategories')}</span>
-          </button>
+      <main className="mx-auto max-w-6xl px-4 pb-10 pt-4 sm:px-6 lg:px-8 lg:pt-8">
+        {/* 경로 */}
+        <nav aria-label="Breadcrumb">
+          <ol className="flex flex-wrap items-center gap-1.5 text-xs text-gray-500 sm:text-sm">
+            <li>
+              <LocaleLink href="/" className="hover:text-gray-800">
+                {t('common.breadcrumb.home')}
+              </LocaleLink>
+            </li>
+            <li aria-hidden="true" className="text-gray-300">/</li>
+            <li>
+              <LocaleLink href={categoryHref} className="hover:text-gray-800">
+                {categoryLabel}
+              </LocaleLink>
+            </li>
+            <li aria-hidden="true" className="text-gray-300">/</li>
+            <li className="min-w-0 truncate font-medium text-gray-700" aria-current="page">
+              {displaySheetTitle}
+            </li>
+          </ol>
+        </nav>
 
-          {/* Breadcrumb (Home > 장르/레슨 > 곡) */}
-          <nav aria-label="Breadcrumb" className="mt-2">
-            <ol className="flex items-center gap-1.5 text-xs sm:text-sm text-gray-500 flex-wrap">
-              <li>
-                <button
-                  type="button"
-                  onClick={() => router.push('/')}
-                  className="hover:text-gray-800 transition-colors"
-                >
-                  {t('common.breadcrumb.home')}
-                </button>
-              </li>
-              <li aria-hidden="true" className="text-gray-300">/</li>
-              <li>
-                <button
-                  type="button"
-                  onClick={() =>
-                    router.push(
-                      isSheetBook
-                        ? '/sheet-books'
-                        : isLessonBook
-                          ? '/free-sheets'
-                          : `/categories${sheet.category_id ? `?category=${sheet.category_id}` : ''}`,
-                    )
-                  }
-                  className="hover:text-gray-800 transition-colors"
-                >
-                  {isSheetBook
-                    ? t('sheetBooks.title')
-                    : isLessonBook
-                      ? t('sidebar.nav.drumLesson')
-                      : getCategoryName(sheet.categories?.name)}
-                </button>
-              </li>
-              <li aria-hidden="true" className="text-gray-300">/</li>
-              <li className="text-gray-700 font-medium break-words" aria-current="page">
-                {displaySheetTitle}
-              </li>
-            </ol>
-          </nav>
-        </div>
-
-        {/* Main Content */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-8 lg:py-8 space-y-6">
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12">
-            {/* 왼쪽: 앨범 썸네일 + 모바일 곡 정보 */}
-            <div className="space-y-6">
-              {/* 1. 썸네일 (드럼솔로/드럼커버: 16:9, 드럼레슨 교재: 3:4, 일반: 정사각형) — 모바일에서는 영상만 크게, 나머지는 곡 정보 옆 작은 썸네일 */}
-              <div className={`bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100 ${isYouTubeCategory ? '' : 'hidden lg:block'}`}>
-                <div
-                  className={`${
-                    isYouTubeCategory
-                      ? 'aspect-video'
-                      : isBookProduct
-                        ? 'aspect-[3/4]'
-                        : 'aspect-square'
-                  } bg-gray-50 relative group`}
-                >
-                  <img
-                    src={
-                      isYouTubeCategory
-                        ? (sheet.thumbnail_url || (sheet.youtube_url ? `https://i.ytimg.com/vi/${extractVideoId(sheet.youtube_url)}/hq720.jpg` : generateDefaultThumbnail(1280, 720)))
-                        : (sheet.thumbnail_url || generateDefaultThumbnail(600, isBookProduct ? 800 : 600))
-                    }
-                    alt={`${displaySheetTitle} - ${sheet.artist}`}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      const img = e.target as HTMLImageElement;
-                      img.src = isYouTubeCategory
-                        ? generateDefaultThumbnail(1280, 720)
-                        : isBookProduct
-                          ? generateDefaultThumbnail(600, 800)
-                          : generateDefaultThumbnail(600, 600);
-                    }}
-                  />
-                  {isYouTubeCategory && sheet.youtube_url && (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <a
-                        href={sheet.youtube_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex h-16 w-16 items-center justify-center rounded-full bg-white/95 text-red-600 shadow-lg transition-transform hover:scale-110"
-                      >
-                        <svg className="w-8 h-8 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M8 5v14l11-7z" />
-                        </svg>
-                      </a>
-                    </div>
+        <div className="mt-4 grid grid-cols-1 gap-6 lg:mt-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-12">
+          {/* 정보·구매 (모바일에서는 맨 위, PC에서는 오른쪽) */}
+          <div className="flex flex-col gap-5 lg:order-2">
+            <div className="flex items-start gap-4">
+              {!isYouTubeCategory && (
+                <img
+                  src={imageSrc}
+                  alt=""
+                  className={`${isBookProduct ? 'w-20 aspect-[3/4]' : 'h-24 w-24'} flex-shrink-0 rounded-xl border border-gray-100 object-cover lg:hidden`}
+                  onError={imageFallback}
+                />
+              )}
+              <div className="min-w-0 flex-1">
+                <h1 className="break-words text-xl font-extrabold leading-tight text-gray-900 lg:text-3xl">{displaySheetTitle}</h1>
+                <p className="mt-1 text-base text-gray-600 lg:text-lg">{sheet.artist}</p>
+                {sheet.album_name && sheet.album_name !== displaySheetTitle && (
+                  <p className="mt-0.5 text-sm text-gray-500">
+                    {t('sheetDetail.album')} · {sheet.album_name}
+                  </p>
+                )}
+                <div className="mt-3 flex flex-wrap items-center gap-1.5">
+                  {isPreorder && (
+                    <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-800">{t('sheetDetail.preorderBadge')}</span>
                   )}
-                </div>
-                {/* 앨범 정보 바 (데스크톱 전용) */}
-                <div className="hidden lg:block px-5 py-4 bg-gradient-to-r from-gray-50 to-white border-t border-gray-100">
-                  <p className="text-sm font-medium text-gray-900 truncate">{displaySheetTitle}</p>
-                  <p className="text-xs text-gray-500 truncate mt-0.5">{sheet.artist}{sheet.album_name ? ` · ${sheet.album_name}` : ''}</p>
+                  {sheet.difficulty && (
+                    <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${getDifficultyBadgeColor(sheet.difficulty)}`}>
+                      {getDifficultyDisplayText(sheet.difficulty)}
+                    </span>
+                  )}
+                  {categoryLabel && (
+                    <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600">{categoryLabel}</span>
+                  )}
+                  {sheet.page_count ? (
+                    <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600">
+                      {sheet.page_count}
+                      {t('sheetDetail.pages')}
+                    </span>
+                  ) : null}
+                  {sheet.tempo ? (
+                    <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600">{sheet.tempo} BPM</span>
+                  ) : null}
                 </div>
               </div>
+              {!purchased && <div className="lg:hidden">{favoriteButton('md')}</div>}
+            </div>
 
-              {/* 2. 모바일: 제목, 가수, 가격, 난이도, 페이지, BPM, 장르 */}
-              <div className="lg:hidden">
-                <div className="flex items-start gap-3">
-                  {!isYouTubeCategory && (
-                    <img
-                      src={sheet.thumbnail_url || generateDefaultThumbnail(600, isBookProduct ? 800 : 600)}
-                      alt={`${displaySheetTitle} - ${sheet.artist}`}
-                      className={`${isBookProduct ? 'w-20 aspect-[3/4]' : 'w-24 h-24'} flex-shrink-0 rounded-xl border border-gray-100 object-cover shadow-sm`}
-                      onError={(e) => {
-                        const img = e.target as HTMLImageElement;
-                        img.src = isBookProduct ? generateDefaultThumbnail(600, 800) : generateDefaultThumbnail(600, 600);
-                      }}
-                    />
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start gap-2 mb-1">
-                      <h1 className="text-xl font-bold text-gray-900 leading-tight break-words">{displaySheetTitle}</h1>
-                      {sheet.is_featured && (
-                        <Star className="w-5 h-5 mt-0.5 text-yellow-500 fill-current flex-shrink-0" />
-                      )}
-                    </div>
-                    <p className="text-base text-gray-600 mb-1">{sheet.artist}</p>
-                    {sheet.album_name && (
-                      <p className="text-sm text-gray-500 mb-2">{t('sheetDetail.album')}: {sheet.album_name}</p>
-                    )}
-                    <p className="text-sm text-gray-500 mb-2">{t('sheetDetail.instrumentPart')}</p>
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getDifficultyBadgeColor(sheet.difficulty)}`}>
-                        {getDifficultyDisplayText(sheet.difficulty)}
-                      </span>
-                      {sheet.page_count && (
-                        <span className="text-xs text-gray-500">{sheet.page_count}{t('sheetDetail.pages')}</span>
-                      )}
-                      {sheet.tempo && (
-                        <span className="text-xs text-gray-500">{sheet.tempo} BPM</span>
-                      )}
-                      <Music className="w-3.5 h-3.5 text-gray-400" />
-                      <span className="text-xs text-gray-500">{getCategoryName(sheet.categories?.name)}</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="mt-4 flex items-center justify-between gap-3">
+            {(activeEvent || scheduledEvent) && (
+              <EventSaleDetailBanner
+                event={(activeEvent || scheduledEvent)!}
+                mode={activeEvent ? 'active' : 'scheduled'}
+                price={displayPrice}
+                showPrice={false}
+              />
+            )}
+
+            {purchased && purchasedNotice}
+
+            {isPreorder && (
+              <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
+                <p className="text-sm font-bold text-amber-900">{t('sheetDetail.preorderNotice.title')}</p>
+                <p className="mt-1 break-keep text-xs leading-relaxed text-amber-900/80">{t('sheetDetail.preorderNotice.description')}</p>
+              </div>
+            )}
+
+            {/* PC 구매 영역 (모바일은 하단 고정 바) */}
+            <div className="hidden space-y-3 rounded-2xl border border-gray-100 bg-gray-50/70 p-5 lg:block">
+              {isFreeSheet ? (
+                <>
+                  <p className="text-3xl font-extrabold text-blue-600">FREE</p>
+                  <button
+                    type="button"
+                    onClick={handleFreeDownload}
+                    disabled={downloadingFree}
+                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 py-3.5 text-base font-bold text-white transition hover:bg-blue-700 disabled:opacity-60"
+                  >
+                    <i className={`${downloadingFree ? 'ri-loader-4-line animate-spin' : 'ri-download-line'} text-xl`} />
+                    {downloadingFree ? '...' : t('freeSheets.actions.viewFreeSheet') || '무료 다운로드'}
+                  </button>
+                </>
+              ) : (
+                <>
                   <SalePrice
                     price={displayPrice}
                     event={activeEvent}
                     size="lg"
-                    regularClassName="text-2xl font-bold text-blue-600"
+                    regularClassName="text-3xl font-extrabold text-gray-900"
                   />
-                  <div className="flex-shrink-0">
-                    <button
-                      type="button"
-                      onClick={handleToggleFavorite}
-                      disabled={favoriteProcessing}
-                      className={`flex h-9 w-9 items-center justify-center rounded-full border transition-colors ${
-                        isFavoriteSheet
-                          ? 'border-red-200 bg-red-50 text-red-500'
-                          : 'border-gray-200 text-gray-400 hover:border-red-200 hover:text-red-500'
-                      } ${favoriteProcessing ? 'opacity-60 cursor-not-allowed' : ''}`}
-                      aria-label={isFavoriteSheet ? t('sheetDetail.removeFromFavorites') : t('sheetDetail.addToFavorites')}
-                    >
-                      <i className={`ri-heart-${isFavoriteSheet ? 'fill' : 'line'} text-lg`} />
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {(activeEvent || scheduledEvent) && (
-                <EventSaleDetailBanner
-                  className="lg:hidden"
-                  event={(activeEvent || scheduledEvent)!}
-                  mode={activeEvent ? 'active' : 'scheduled'}
-                  price={displayPrice}
-                  showPrice={false}
-                />
-              )}
-
-              {/* 3. 모바일: 악보 미리보기 */}
-              {sheet.preview_image_url && (
-                <div className="lg:hidden bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-                  <div className="px-5 py-3 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50">
-                    <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
-                      <i className="ri-file-music-line text-lg text-blue-600"></i>
-                      {t('sheetDetail.sheetMusicPreview')}
-                    </h3>
-                  </div>
-                  <div className="p-4">
-                    <div className="relative">
-                      <img
-                        src={getPreviewImageUrl(sheet)}
-                        alt={`${displaySheetTitle} ${t('sheetDetail.sheetMusicPreview')}`}
-                        className="w-full h-auto rounded-lg cursor-pointer hover:opacity-95 transition-opacity"
-                        onClick={() => setShowPreviewModal(true)}
-                        onError={handlePreviewImageError}
-                      />
-                      <div className="absolute bottom-0 left-0 right-0 h-1/4 bg-gradient-to-t from-white/95 via-white/70 to-transparent rounded-b-lg"></div>
-                      <div className="absolute bottom-3 left-3 right-3 text-center">
-                        <p className="text-xs text-gray-700 font-medium bg-white/80 backdrop-blur-sm rounded-lg px-3 py-2 shadow-sm">
-                          {t('sheetDetail.fullSheetAfterPurchase')}
-                        </p>
-                      </div>
+                  {purchased ? (
+                    <div className="flex gap-2">
+                      <LocaleLink
+                        href="/purchases"
+                        className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-blue-600 py-3.5 text-base font-bold text-white hover:bg-blue-700"
+                      >
+                        <i className="ri-download-2-line" />
+                        {t('sheetDetail.purchasedCta')}
+                      </LocaleLink>
+                      {favoriteButton('lg')}
                     </div>
-                    <button
-                      onClick={() => setShowPreviewModal(true)}
-                      className="mt-3 w-full bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors cursor-pointer font-medium text-sm"
-                    >
-                      <i className="ri-zoom-in-line mr-1.5"></i>
-                      {t('sheetDetail.enlargePreview')}
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* 4. 모바일: 구매 전 확인사항 */}
-              <div className="lg:hidden bg-gray-50 rounded-lg p-6">
-                <h3 className="font-semibold text-gray-900 mb-4">{t('sheetDetail.includes')}</h3>
-                <ul className="space-y-2 text-sm text-gray-600">
-                  <li className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                    <span>{t('sheetDetail.highQualityPdf')}</span>
-                  </li>
-                  <li className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                    <span>{t('sheetDetail.printableFormat')}</span>
-                  </li>
-                  <li className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                    <span>{t('sheetDetail.instantDownloadFeature')}</span>
-                  </li>
-                  <li className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                    <span>{t('sheetDetail.lifetimeAccess')}</span>
-                  </li>
-                  <li className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                    <span>{t('sheetDetail.noLyrics')}</span>
-                  </li>
-                </ul>
-              </div>
-
-              {/* 5. 모바일: 상세 설명 */}
-              {displayDescription && (
-                <div className="lg:hidden bg-white border border-gray-200 rounded-lg p-6">
-                  <h3 className="font-semibold text-gray-900 mb-3">{t('sheetDetail.description', '상세 설명')}</h3>
-                  <div className="text-gray-700 leading-relaxed">
-                    <LessonBookDetailBody raw={displayDescription} />
-                  </div>
-                </div>
-              )}
-
-              {/* 유튜브 링크 버튼 */}
-              {sheet.youtube_url && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
-                        <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
-                        </svg>
-                      </div>
-                      <div>
-                        <h4 className="text-sm font-medium text-red-800">{t('sheetDetail.watchOnYouTube')}</h4>
-                        <p className="text-sm text-red-700">{t('sheetDetail.checkPerformanceVideo')}</p>
-                      </div>
-                    </div>
-                    <a
-                      href={sheet.youtube_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 whitespace-nowrap cursor-pointer flex items-center space-x-2"
-                    >
-                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
-                      </svg>
-                      <span>{t('sheetDetail.watchOnYouTubeShort')}</span>
-                    </a>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* 오른쪽: 곡 정보 + 구매 */}
-            <div className="space-y-8 hidden lg:block">
-              <div>
-                <div className="flex items-center space-x-3 mb-4">
-                  <h1 className="text-3xl font-bold text-gray-900">{displaySheetTitle}</h1>
-                  {sheet.is_featured && (
-                    <Star className="w-6 h-6 text-yellow-500 fill-current" />
-                  )}
-                </div>
-                <p className="text-xl text-gray-600 mb-2">{sheet.artist}</p>
-                {sheet.album_name && (
-                  <p className="text-lg text-gray-500 mb-2">{t('sheetDetail.album')}: {sheet.album_name}</p>
-                )}
-                <p className="text-lg text-gray-500 mb-2">{t('sheetDetail.instrumentPart')}</p>
-                <div className="flex items-center space-x-4 text-sm text-gray-500">
-                  <span className="flex items-center space-x-1">
-                    <Music className="w-4 h-4" />
-                    <span>{getCategoryName(sheet.categories?.name)}</span>
-                  </span>
-                </div>
-              </div>
-
-              {/* Difficulty Badge & Additional Info */}
-              <div className="flex items-center space-x-4 mb-4">
-                <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getDifficultyBadgeColor(sheet.difficulty)}`}>
-                  {getDifficultyDisplayText(sheet.difficulty)}
-                </span>
-                {sheet.page_count && (
-                  <span className="text-sm text-gray-600">
-                    <i className="ri-file-line mr-1"></i>
-                    {sheet.page_count}{t('sheetDetail.pages')}
-                  </span>
-                )}
-                {sheet.tempo && (
-                  <span className="text-sm text-gray-600">
-                    <i className="ri-speed-line mr-1"></i>
-                    {sheet.tempo} BPM
-                  </span>
-                )}
-              </div>
-
-              {/* Price */}
-              {activeEvent ? (
-                <EventSaleDetailBanner event={activeEvent} mode="active" price={displayPrice} />
-              ) : (
-              <>
-              {scheduledEvent && (
-                <EventSaleDetailBanner event={scheduledEvent} mode="scheduled" price={displayPrice} />
-              )}
-              <div className={`rounded-lg p-6 ${isFreeSheet ? 'bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200' : 'bg-gray-50'}`}>
-                <div className="flex items-center justify-between">
-                  <div className="space-y-2">
-                    <div className="flex flex-col">
-                      {isFreeSheet ? (
-                        <span className="text-3xl font-bold text-blue-600">
-                          FREE
-                        </span>
-                      ) : (
-                        <span className="text-3xl font-bold text-blue-600">
-                          {formatCurrency(displayPrice)}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm text-gray-500 mb-2">{t('sheetDetail.instantDownload')}</p>
-                    <p className="text-sm text-gray-500">{t('sheetDetail.pdfFormat')}</p>
-                  </div>
-                </div>
-              </div>
-              </>
-              )}
-
-              {/* Action Buttons */}
-              <div className="space-y-4">
-                <div className="flex justify-end">
-                  <button
-                    type="button"
-                    onClick={handleToggleFavorite}
-                    disabled={favoriteProcessing}
-                    className={`flex h-11 w-11 items-center justify-center rounded-full border transition-colors ${
-                      isFavoriteSheet
-                        ? 'border-red-200 bg-red-50 text-red-500'
-                        : 'border-gray-200 text-gray-400 hover:border-red-200 hover:text-red-500'
-                    } ${favoriteProcessing ? 'opacity-60 cursor-not-allowed' : ''}`}
-                    aria-label={isFavoriteSheet ? t('sheetDetail.removeFromFavorites') : t('sheetDetail.addToFavorites')}
-                  >
-                    <i className={`ri-heart-${isFavoriteSheet ? 'fill' : 'line'} text-xl`} />
-                  </button>
-                </div>
-
-                {isFreeSheet ? (
-                  /* 무료 악보: 바로 다운로드 버튼 */
-                  <div className="mt-4">
-                    <button
-                      onClick={handleFreeDownload}
-                      disabled={downloadingFree}
-                      className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-base font-bold hover:from-blue-700 hover:to-indigo-700 active:scale-[0.98] transition-all disabled:opacity-60 shadow-lg shadow-blue-500/25"
-                    >
-                      {downloadingFree ? (
-                        <i className="ri-loader-4-line text-xl animate-spin"></i>
-                      ) : (
-                        <i className="ri-download-line text-xl"></i>
-                      )}
-                      <span>{downloadingFree ? '...' : (t('freeSheets.actions.viewFreeSheet') || '무료 다운로드')}</span>
-                    </button>
-                  </div>
-                ) : (
-                  /* 유료 악보: 장바구니 + 구매 버튼 */
-                  <div className="space-y-3">
-                    <div className="flex justify-end gap-2 sm:gap-3">
+                  ) : (
+                    <div className="flex gap-2">
+                      {favoriteButton('lg')}
                       <button
+                        type="button"
                         onClick={handleAddToCart}
-                        disabled={isInCart(sheet.id)}
-                        className={`sheet-action-btn btn-cart px-4 py-2.5 sm:px-6 sm:py-3 text-sm sm:text-base w-1/2 sm:w-auto h-auto min-w-0 sm:min-w-[120px] ${
-                          isInCart(sheet.id) ? 'opacity-60' : ''
+                        disabled={inCart}
+                        className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl py-3.5 text-base font-bold transition ${
+                          inCart ? 'bg-blue-50 text-blue-600' : 'bg-ink text-white hover:bg-ink-light'
                         }`}
                       >
-                        <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5" />
-                        <span>
-                          {isInCart(sheet.id)
-                            ? t('categoriesPage.alreadyPurchasedGeneric') || t('categories.alreadyInCart')
-                            : t('categoriesPage.addToCart')}
-                        </span>
+                        <i className={inCart ? 'ri-check-line' : 'ri-shopping-cart-2-line'} />
+                        {inCart ? t('sheetDetail.inCart') : t('categoriesPage.addToCart')}
                       </button>
-
                       <button
+                        type="button"
                         onClick={handleBuyNow}
                         disabled={buyingNow}
-                        className={`sheet-action-btn btn-buy px-4 py-2.5 sm:px-6 sm:py-3 text-sm sm:text-base w-1/2 sm:w-auto h-auto min-w-0 sm:min-w-[120px] ${
-                          activeEvent ? 'btn-buy-sale' : ''
+                        className={`flex flex-1 items-center justify-center rounded-xl py-3.5 text-base font-bold text-white transition disabled:opacity-60 ${
+                          activeEvent ? 'bg-rose-600 hover:bg-rose-700' : 'bg-blue-600 hover:bg-blue-700'
                         }`}
                       >
-                        <span>
-                          {buyingNow
-                            ? t('sheetDetail.purchaseProcessing') || t('sheet.buyNowProcessing') || '처리 중...'
-                            : activeEvent
-                              ? t('eventSale.actions.buyNow')
-                              : t('categoriesPage.buyNow')}
-                        </span>
+                        {buyLabel}
                       </button>
                     </div>
-                    <AddToMyBookButton sheet={sheet} className="hidden lg:block" />
-                  </div>
-                )}
-              </div>
-
-              {/* 신뢰·결제 배지 (구매 전환) */}
-              <div className="rounded-lg border border-gray-100 bg-gray-50 p-4">
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="flex items-center gap-2 text-gray-700">
-                    <i className="ri-shield-check-line text-lg text-emerald-600"></i>
-                    <span className="text-sm font-medium">{t('home.trust.securePayment')}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-gray-700">
-                    <i className="ri-download-cloud-2-line text-lg text-blue-600"></i>
-                    <span className="text-sm font-medium">{t('home.trust.instantDownload')}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-gray-700">
-                    <i className="ri-bank-card-line text-lg text-indigo-600"></i>
-                    <span className="text-sm font-medium">{t('home.trust.paymentMethods')}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* 데스크톱 전용: 상세 설명 */}
-              {displayDescription && (
-                <div className="bg-white border border-gray-200 rounded-lg p-6">
-                  <h3 className="font-semibold text-gray-900 mb-3">{t('sheetDetail.description', '상세 설명')}</h3>
-                  <div className="text-gray-700 leading-relaxed">
-                    <LessonBookDetailBody raw={displayDescription} />
-                  </div>
-                </div>
+                  )}
+                  <AddToMyBookButton sheet={sheet} />
+                </>
               )}
-
-              {/* Features */}
-              <div className="bg-gray-50 rounded-lg p-6">
-                <h3 className="font-semibold text-gray-900 mb-4">{t('sheetDetail.includes')}</h3>
-                <ul className="space-y-2 text-sm text-gray-600">
-                  <li className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                    <span>{t('sheetDetail.highQualityPdf')}</span>
-                  </li>
-                  <li className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                    <span>{t('sheetDetail.printableFormat')}</span>
-                  </li>
-                  <li className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                    <span>{t('sheetDetail.instantDownloadFeature')}</span>
-                  </li>
-                  <li className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                    <span>{t('sheetDetail.lifetimeAccess')}</span>
-                  </li>
-                  <li className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                    <span>{t('sheetDetail.noLyrics')}</span>
-                  </li>
-                </ul>
-              </div>
+              <p className="flex items-start gap-1.5 break-keep text-xs leading-relaxed text-gray-500">
+                <i className="ri-shield-check-line mt-px text-sm text-blue-600" />
+                {t('sheetDetail.paymentInfo')}
+              </p>
             </div>
+
+            <div className="hidden lg:block">{includesCard}</div>
           </div>
 
-          {/* ===== 악보 미리보기 섹션 (데스크톱 본문 영역) ===== */}
-          {sheet.preview_image_url && (
-            <div className="hidden lg:block bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden mt-10">
-              <div className="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50">
-                <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                  <i className="ri-file-music-line text-xl text-blue-600"></i>
-                  {t('sheetDetail.sheetMusicPreview')}
-                </h3>
+          {/* 이미지·미리보기 (PC 왼쪽) */}
+          <div className="flex flex-col gap-5 lg:order-1">
+            <div className={`overflow-hidden rounded-2xl border border-gray-100 bg-gray-50 ${isYouTubeCategory ? '' : 'hidden lg:block'}`}>
+              <div className={`relative ${isYouTubeCategory ? 'aspect-video' : isBookProduct ? 'aspect-[3/4]' : 'aspect-square'}`}>
+                <img src={imageSrc} alt={`${displaySheetTitle} - ${sheet.artist}`} className="h-full w-full object-cover" onError={imageFallback} />
+                {isYouTubeCategory && videoId && (
+                  <a
+                    href="#video"
+                    aria-label={t('sheetDetail.performanceVideo')}
+                    className="absolute inset-0 flex items-center justify-center"
+                  >
+                    <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white/95 text-rose-600 shadow-lg transition-transform hover:scale-110">
+                      <i className="ri-play-fill text-3xl" />
+                    </span>
+                  </a>
+                )}
               </div>
-              <div className="p-4 sm:p-6">
-                <div className="relative max-w-2xl mx-auto">
+            </div>
+
+            {sheet.preview_image_url && (
+              <section className="overflow-hidden rounded-2xl border border-gray-100 bg-white">
+                <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
+                  <h2 className="flex items-center gap-1.5 text-sm font-bold text-gray-900 lg:text-base">
+                    <i className="ri-file-music-line text-lg text-blue-600" />
+                    {t('sheetDetail.sheetMusicPreview')}
+                  </h2>
+                  <button
+                    type="button"
+                    onClick={() => setShowPreviewModal(true)}
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-gray-600 hover:text-gray-900 lg:text-sm"
+                  >
+                    <i className="ri-zoom-in-line text-base" />
+                    {t('sheetDetail.enlargePreview')}
+                  </button>
+                </div>
+                <button type="button" onClick={() => setShowPreviewModal(true)} className="relative block w-full p-3">
                   <img
                     src={getPreviewImageUrl(sheet)}
                     alt={`${displaySheetTitle} ${t('sheetDetail.sheetMusicPreview')}`}
-                    className="w-full h-auto rounded-lg cursor-pointer hover:opacity-95 transition-opacity"
-                    onClick={() => setShowPreviewModal(true)}
+                    className="max-h-[520px] w-full rounded-lg object-cover object-top"
                     onError={handlePreviewImageError}
                   />
-                  {/* 하단 흐림 효과 */}
-                  <div className="absolute bottom-0 left-0 right-0 h-1/4 bg-gradient-to-t from-white/95 via-white/70 to-transparent rounded-b-lg"></div>
-                  {/* 미리보기 안내 */}
-                  <div className="absolute bottom-4 left-4 right-4 text-center">
-                    <p className="text-sm text-gray-700 font-medium bg-white/80 backdrop-blur-sm rounded-lg px-4 py-2.5 shadow-sm">
-                      {t('sheetDetail.fullSheetAfterPurchase')}
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setShowPreviewModal(true)}
-                  className="mt-4 w-full max-w-2xl mx-auto block bg-gray-100 text-gray-700 px-4 py-2.5 rounded-lg hover:bg-gray-200 transition-colors cursor-pointer font-medium text-sm"
-                >
-                  <i className="ri-zoom-in-line mr-1.5"></i>
-                  {t('sheetDetail.enlargePreview')}
+                  <span className="pointer-events-none absolute inset-x-3 bottom-3 h-1/3 rounded-b-lg bg-gradient-to-t from-white via-white/80 to-transparent" />
+                  <span className="absolute inset-x-6 bottom-6 rounded-lg bg-white/90 px-3 py-2 text-center text-xs font-medium text-gray-700 shadow-sm lg:text-sm">
+                    {t('sheetDetail.fullSheetAfterPurchase')}
+                  </span>
                 </button>
-              </div>
-            </div>
-          )}
-
-          {/* 드럼레슨 교재 상세(목차) — 한국어/그 외 언어별 본문 */}
-          {isBookProduct && lessonDetailToShow.length > 0 && (
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden mt-8">
-              <div className="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-amber-50 to-orange-50">
-                <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                  <i className="ri-list-ordered-2 text-orange-600 text-xl"></i>
-                  <span>{t('sheetDetail.tableOfContents')}</span>
-                </h3>
-              </div>
-              <div className="p-6">
-                <div className="rounded-xl border border-gray-100 bg-gray-50/60 p-4 sm:p-5">
-                  <LessonBookDetailBody raw={lessonDetailToShow} />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* 유튜브 영상 섹션 (교재인 경우 "샘플 영상"으로 표기) */}
-          {sheet.youtube_url && (
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden mt-8">
-              <div className="px-6 py-4 border-b border-gray-100">
-                <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                  <svg className="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
-                  </svg>
-                  <span>{isBookProduct ? t('freeSheets.actions.viewYoutubeLesson') : t('sheetDetail.performanceVideo')}</span>
-                </h3>
-              </div>
-              <div className="p-4 sm:p-6">
-                <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden">
-                  <iframe
-                    src={`https://www.youtube.com/embed/${extractVideoId(sheet.youtube_url)}`}
-                    title={`${displaySheetTitle} - ${sheet.artist} ${t('sheetDetail.performanceVideo')}`}
-                    className="w-full h-full"
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  ></iframe>
-                </div>
-                <div className="mt-4 flex items-center justify-between">
-                  <p className="text-sm text-gray-600">{t('sheetDetail.checkPerformanceVideo')}</p>
-                  <a
-                    href={sheet.youtube_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 whitespace-nowrap cursor-pointer flex items-center space-x-2 text-sm"
-                  >
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
-                    </svg>
-                    <span>{t('sheetDetail.watchOnYouTube')}</span>
-                  </a>
-                </div>
-              </div>
-            </div>
-          )}
-
+              </section>
+            )}
+          </div>
         </div>
-      </div>
 
-      {/* 미리보기 확대 모달 */}
+        {/* 상세 설명 · 목차 · 영상 */}
+        <div className="mt-6 space-y-6 lg:mt-12">
+          {/* 모바일은 미리보기를 먼저 보여 주고 확인사항은 그 아래에 둔다 */}
+          <div className="lg:hidden">{includesCard}</div>
+          {displayDescription && (
+            <section className="rounded-2xl border border-gray-100 p-5 lg:p-6">
+              <h2 className="mb-3 text-base font-bold text-gray-900 lg:text-lg">{t('sheetDetail.description', '상세 설명')}</h2>
+              <div className="leading-relaxed text-gray-700">
+                <LessonBookDetailBody raw={displayDescription} />
+              </div>
+            </section>
+          )}
+
+          {isBookProduct && lessonDetailToShow.length > 0 && (
+            <section className="rounded-2xl border border-gray-100 p-5 lg:p-6">
+              <h2 className="mb-3 flex items-center gap-1.5 text-base font-bold text-gray-900 lg:text-lg">
+                <i className="ri-list-ordered-2 text-blue-600" />
+                {t('sheetDetail.tableOfContents')}
+              </h2>
+              <div className="rounded-xl bg-gray-50 p-4 sm:p-5">
+                <LessonBookDetailBody raw={lessonDetailToShow} />
+              </div>
+            </section>
+          )}
+
+          {sheet.youtube_url && videoId && (
+            <section id="video" className="scroll-mt-[180px] rounded-2xl border border-gray-100 p-4 lg:scroll-mt-[140px] lg:p-6">
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <h2 className="flex items-center gap-1.5 text-base font-bold text-gray-900 lg:text-lg">
+                  <i className="ri-youtube-fill text-xl text-rose-600" />
+                  {isBookProduct ? t('freeSheets.actions.viewYoutubeLesson') : t('sheetDetail.performanceVideo')}
+                </h2>
+                <a
+                  href={sheet.youtube_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex flex-shrink-0 items-center gap-1 text-xs font-semibold text-gray-600 hover:text-gray-900 lg:text-sm"
+                >
+                  {t('sheetDetail.watchOnYouTubeShort')}
+                  <i className="ri-external-link-line" />
+                </a>
+              </div>
+              <div className="aspect-video overflow-hidden rounded-xl bg-gray-100">
+                <iframe
+                  src={`https://www.youtube.com/embed/${videoId}`}
+                  title={`${displaySheetTitle} - ${sheet.artist} ${t('sheetDetail.performanceVideo')}`}
+                  className="h-full w-full"
+                  frameBorder="0"
+                  loading="lazy"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                ></iframe>
+              </div>
+            </section>
+          )}
+        </div>
+      </main>
+
+      {/* 미리보기 확대 */}
       {showPreviewModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-hidden">
-            <div className="p-4 border-b flex justify-between items-center">
-              <h3 className="text-lg font-semibold">{t('sheetDetail.sheetMusicPreview')}</h3>
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/70 p-4" onClick={() => setShowPreviewModal(false)}>
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label={t('sheetDetail.sheetMusicPreview')}
+            className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl bg-white"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
+              <h2 className="text-base font-bold text-gray-900">{t('sheetDetail.sheetMusicPreview')}</h2>
               <button
+                type="button"
                 onClick={() => setShowPreviewModal(false)}
-                className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                aria-label={t('sheetDetail.close')}
+                className="flex h-9 w-9 items-center justify-center rounded-full text-gray-500 hover:bg-gray-100"
               >
-                <X className="w-6 h-6" />
+                <i className="ri-close-line text-xl" />
               </button>
             </div>
-            <div className="p-4">
-              <div className="relative">
-                <img
-                  src={getPreviewImageUrl(sheet)}
-                  alt={`${displaySheetTitle} ${t('sheetDetail.sheetMusicPreview')}`}
-                  className="w-full h-auto rounded"
-                  onError={handlePreviewImageError}
-                />
-                <div className="absolute bottom-0 left-0 right-0 h-1/4 bg-gradient-to-t from-white/95 via-white/70 to-transparent"></div>
-              </div>
-              <div className="mt-4 text-center">
-                <p className="text-gray-600 mb-4">{t('sheetDetail.purchaseToViewFull')}</p>
-                <button
-                  onClick={() => setShowPreviewModal(false)}
-                  className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 whitespace-nowrap cursor-pointer"
+            <div className="relative min-h-0 flex-1 overflow-y-auto p-4">
+              <img
+                src={getPreviewImageUrl(sheet)}
+                alt={`${displaySheetTitle} ${t('sheetDetail.sheetMusicPreview')}`}
+                className="h-auto w-full rounded-lg"
+                onError={handlePreviewImageError}
+              />
+            </div>
+            <div className="flex items-center justify-between gap-3 border-t border-gray-100 px-4 py-3">
+              <p className="break-keep text-xs text-gray-600 sm:text-sm">{t('sheetDetail.purchaseToViewFull')}</p>
+              {purchased ? (
+                <LocaleLink
+                  href="/purchases"
+                  className="flex-shrink-0 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
                 >
-                  {t('sheetDetail.purchase')}
+                  {t('sheetDetail.purchasedCta')}
+                </LocaleLink>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowPreviewModal(false);
+                    void handleBuyNow();
+                  }}
+                  disabled={buyingNow}
+                  className="flex-shrink-0 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
+                >
+                  {isFreeSheet ? t('freeSheets.actions.viewFreeSheet') || '무료 다운로드' : buyLabel}
                 </button>
-              </div>
+              )}
             </div>
           </div>
         </div>
@@ -1076,120 +866,100 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
       <ReviewSection sheetId={sheet.id} user={user} />
 
       {/* 추천 악보 (같은 아티스트 → 같은 카테고리) */}
-      <RelatedSheets
-        currentSheetId={sheet.id}
-        artist={sheet.artist}
-        categoryId={sheet.category_id}
-      />
+      <RelatedSheets currentSheetId={sheet.id} artist={sheet.artist} categoryId={sheet.category_id} />
 
       {/* 주문제작 CTA — 원하는 곡/버전이 없을 때 요청 유도 */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
-        <div className="rounded-2xl border border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50 p-6 text-center sm:p-8">
-          <h3 className="text-lg font-bold text-gray-900 sm:text-xl">
-            {t('sheetDetail.customOrderCta')}
-          </h3>
-          <p className="mt-2 text-sm text-gray-600">
-            {t('sheetDetail.customOrderCtaDesc')}
-          </p>
-          <button
-            onClick={() => router.push('/custom-order')}
-            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-3 text-sm font-semibold text-white hover:bg-blue-700"
+      <section className="mx-auto max-w-6xl px-4 pb-12 sm:px-6 lg:px-8">
+        <div className="flex flex-col items-center justify-between gap-4 rounded-2xl bg-gray-50 p-6 text-center sm:flex-row sm:text-left lg:p-8">
+          <div>
+            <h2 className="text-base font-bold text-gray-900 sm:text-lg">{t('sheetDetail.customOrderCta')}</h2>
+            <p className="mt-1 break-keep text-sm text-gray-600">{t('sheetDetail.customOrderCtaDesc')}</p>
+          </div>
+          <LocaleLink
+            href="/custom-order"
+            className="inline-flex flex-shrink-0 items-center gap-1.5 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-700"
           >
             <i className="ri-edit-line" />
             {t('sheetDetail.customOrderCtaButton')}
-          </button>
+          </LocaleLink>
         </div>
       </section>
 
-      {/* 모바일: 푸터 숨김 (고정 구매 바가 있으므로 불필요), 데스크톱: 푸터 표시 */}
-      <div className="mt-10 lg:mt-16">
-        <Footer />
-      </div>
-      {/* 모바일: 하단 고정 구매 바 높이만큼 여백 추가 (2단 레이아웃으로 높이 증가) */}
-      <div className="h-32 lg:hidden bg-gray-900" />
+      <Footer />
+      {/* 모바일: 하단 고정 구매 바에 가리지 않도록 그 높이만큼 푸터 색으로 이어 준다 */}
+      <div className="h-[108px] bg-ink lg:hidden" />
 
-      {/* === Mobile: 하단 고정 구매 바 (2단 레이아웃) === */}
-      {sheet && (
-        <div data-mobile-purchase-bar className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 shadow-[0_-4px_12px_rgba(0,0,0,0.08)]">
-          <div className="flex flex-col">
-            {/* 신뢰 배지 (구매 바 상단) */}
-            <div className="flex items-center justify-center gap-3 border-b border-gray-100 px-4 py-1.5 text-[11px] text-gray-500">
-              <span className="flex items-center gap-1"><i className="ri-shield-check-line text-emerald-600"></i>{t('home.trust.securePayment')}</span>
-              <span className="flex items-center gap-1"><i className="ri-download-cloud-2-line text-blue-600"></i>{t('home.trust.instantDownload')}</span>
-            </div>
-            {isFreeSheet ? (
-              /* 무료 악보: 바로 다운로드 버튼 */
-              <div className="flex items-center gap-3 px-4 py-3">
-                <div className="flex-shrink-0">
-                  <span className="text-lg font-bold text-blue-600">FREE</span>
-                  <p className="text-[11px] text-gray-400">{t('sheetDetail.instantDownload')}</p>
-                </div>
-                <button
-                  onClick={handleFreeDownload}
-                  disabled={downloadingFree}
-                  className="flex-1 flex items-center justify-center gap-1.5 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-semibold active:scale-95 transition-all disabled:opacity-60"
-                >
-                  {downloadingFree ? (
-                    <i className="ri-loader-4-line text-base animate-spin"></i>
-                  ) : (
-                    <i className="ri-download-line text-base"></i>
-                  )}
-                  <span className="truncate">{downloadingFree ? '...' : (t('freeSheets.actions.viewFreeSheet') || '무료 다운로드')}</span>
-                </button>
-              </div>
-            ) : (
-              <div className="flex items-center gap-3 px-4 py-3">
-                {/* 가격 */}
-                <div className="flex-shrink-0 min-w-0">
-                  <SalePrice
-                    price={displayPrice}
-                    event={activeEvent}
-                    size="md"
-                    stacked
-                    showPercent={false}
-                    regularClassName="text-lg font-bold text-blue-600 leading-tight"
-                  />
-                </div>
-                {/* 장바구니 아이콘 버튼 */}
-                <button
-                  onClick={handleAddToCart}
-                  disabled={isInCart(sheet.id)}
-                  className={`flex-shrink-0 flex flex-col items-center justify-center gap-0.5 w-14 h-12 rounded-xl transition-all active:scale-95 ${
-                    isInCart(sheet.id)
-                      ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                      : 'bg-gray-900 text-white hover:bg-gray-800 active:bg-black'
-                  }`}
-                  aria-label={isInCart(sheet.id) ? t('categories.alreadyInCart') : t('categoriesPage.addToCart')}
-                >
-                  {isInCart(sheet.id) ? <i className="ri-check-line text-lg leading-none" /> : <ShoppingCart className="w-[18px] h-[18px]" />}
-                  <span className="text-[11px] font-semibold leading-none">{t('categoriesPage.cartShort')}</span>
-                </button>
-                <AddToMyBookButton sheet={sheet} variant="compact" />
-                {/* 바로구매 버튼 */}
-                <button
-                  onClick={handleBuyNow}
-                  disabled={buyingNow}
-                  className={`flex-1 flex items-center justify-center py-3 rounded-xl text-white text-sm font-bold active:scale-95 transition-all disabled:opacity-60 ${
-                    activeEvent
-                      ? 'bg-red-600 hover:bg-red-700 active:bg-red-800'
-                      : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800'
-                  }`}
-                >
-                  <span className="truncate">
-                    {buyingNow
-                      ? (t('sheetDetail.purchaseProcessing') || '...')
-                      : activeEvent
-                        ? t('eventSale.actions.buyNow')
-                        : t('categoriesPage.buyNow')}
-                  </span>
-                </button>
-              </div>
-            )}
+      {/* === Mobile: 하단 고정 구매 바 === */}
+      <div
+        data-mobile-purchase-bar
+        className="fixed bottom-0 left-0 right-0 z-40 border-t border-gray-200 bg-white pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_12px_rgba(0,0,0,0.08)] lg:hidden"
+      >
+        <p className="flex items-center justify-center gap-1.5 border-b border-gray-100 px-4 py-1.5 text-[11px] text-gray-500">
+          <i className="ri-shield-check-line text-blue-600" />
+          {t('home.trust.securePayment')} · {t('home.trust.instantDownload')}
+        </p>
+        {isFreeSheet ? (
+          <div className="flex items-center gap-3 px-4 py-3">
+            <span className="text-lg font-extrabold text-blue-600">FREE</span>
+            <button
+              type="button"
+              onClick={handleFreeDownload}
+              disabled={downloadingFree}
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-blue-600 py-3 text-sm font-bold text-white transition active:scale-95 disabled:opacity-60"
+            >
+              <i className={`${downloadingFree ? 'ri-loader-4-line animate-spin' : 'ri-download-line'} text-base`} />
+              <span className="truncate">{downloadingFree ? '...' : t('freeSheets.actions.viewFreeSheet') || '무료 다운로드'}</span>
+            </button>
           </div>
-        </div>
-      )}
-
-      {/* 옛날 결제 모달 제거 - 이제 /payments/[orderId] 페이지에서 처리 */}
+        ) : purchased ? (
+          <div className="flex items-center gap-2 px-4 py-3">
+            <LocaleLink
+              href="/purchases"
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-blue-600 py-3 text-sm font-bold text-white active:bg-blue-700"
+            >
+              <i className="ri-download-2-line text-base" />
+              {t('sheetDetail.purchasedCta')}
+            </LocaleLink>
+            {favoriteButton('lg')}
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 px-4 py-3">
+            <div className="min-w-0 flex-shrink-0">
+              <SalePrice
+                price={displayPrice}
+                event={activeEvent}
+                size="md"
+                stacked
+                showPercent={false}
+                regularClassName="text-lg font-extrabold leading-tight text-gray-900"
+              />
+            </div>
+            <button
+              type="button"
+              onClick={handleAddToCart}
+              disabled={inCart}
+              aria-label={inCart ? t('sheetDetail.inCart') : t('categoriesPage.addToCart')}
+              className={`flex h-12 w-14 flex-shrink-0 flex-col items-center justify-center gap-0.5 rounded-xl transition active:scale-95 ${
+                inCart ? 'bg-blue-50 text-blue-600' : 'bg-ink text-white'
+              }`}
+            >
+              <i className={`${inCart ? 'ri-check-line' : 'ri-shopping-cart-2-line'} text-lg leading-none`} />
+              <span className="text-[11px] font-semibold leading-none">{inCart ? t('sheetDetail.inCart') : t('categoriesPage.cartShort')}</span>
+            </button>
+            <AddToMyBookButton sheet={sheet} variant="compact" />
+            <button
+              type="button"
+              onClick={handleBuyNow}
+              disabled={buyingNow}
+              className={`flex h-12 flex-1 items-center justify-center rounded-xl text-sm font-bold text-white transition active:scale-95 disabled:opacity-60 ${
+                activeEvent ? 'bg-rose-600' : 'bg-blue-600'
+              }`}
+            >
+              <span className="truncate">{buyLabel}</span>
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

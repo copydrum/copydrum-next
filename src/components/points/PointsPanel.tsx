@@ -41,7 +41,7 @@ export default function PointsPanel({ userId }: { userId: string }) {
         <div className="flex items-end justify-between gap-4">
           <div>
             <p className="text-sm text-gray-500">{t('mypage.points.balance', '보유 포인트')}</p>
-            <p className="text-3xl font-extrabold text-emerald-600">{pts(balance)}</p>
+            <p className="text-3xl font-extrabold text-gray-900">{pts(balance)}</p>
           </div>
           {expiringSoon > 0 && nextExpiryAt && (
             <div className="text-right">

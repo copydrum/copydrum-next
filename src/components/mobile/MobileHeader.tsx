@@ -10,6 +10,7 @@ import { removeLocaleFromPathname } from '@/lib/localeUrl';
 import { CashChargeMobileHeaderButton } from '../cash/CashChargeEntry';
 import { SignupBonusBadge } from '../auth/SignupBonus';
 import MobileQuickNav from './MobileQuickNav';
+import BrandLogo from '../common/BrandLogo';
 
 interface MobileHeaderProps {
   user?: User | null;
@@ -79,7 +80,7 @@ export default function MobileHeader({
   return (
     <header className="md:hidden fixed top-0 left-0 right-0 z-50" suppressHydrationWarning>
       {/* 상단: 햄버거 · 로고 | 캐쉬 · 회원가입 · 장바구니 · 계정 */}
-      <div className="relative z-10 flex h-14 items-center bg-blue-700 pl-1.5 pr-2 text-white" suppressHydrationWarning>
+      <div className="relative z-10 flex h-14 items-center bg-ink pl-1.5 pr-2 text-white" suppressHydrationWarning>
         <button
           type="button"
           onClick={onMenuToggle}
@@ -97,7 +98,7 @@ export default function MobileHeader({
           aria-label={t('mobile.header.goHome', { site: siteName })}
           suppressHydrationWarning
         >
-          <img src="/logo.png" alt={siteName} className="h-8 w-auto" suppressHydrationWarning />
+          <BrandLogo size={30} wordmarkClassName="max-[359px]:hidden" />
         </button>
 
         <div className="ml-auto flex items-center gap-0.5" suppressHydrationWarning>
@@ -125,7 +126,7 @@ export default function MobileHeader({
           >
             <i className="ri-shopping-cart-2-line text-[22px]" />
             {cartCount > 0 && (
-              <span className="absolute right-0.5 top-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-red-500 px-1 text-[11px] font-bold leading-none text-white ring-2 ring-blue-700">
+              <span className="absolute right-0.5 top-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-red-500 px-1 text-[11px] font-bold leading-none text-white ring-2 ring-ink">
                 {cartCount > 99 ? '99+' : cartCount}
               </span>
             )}
@@ -151,7 +152,7 @@ export default function MobileHeader({
         suppressHydrationWarning
       >
         <div className="min-h-0 overflow-hidden" suppressHydrationWarning>
-          <div className="h-[52px] bg-blue-700 px-3" suppressHydrationWarning>
+          <div className="h-[52px] bg-ink px-3" suppressHydrationWarning>
             <div className="relative">
               <input
                 ref={searchInputRef}

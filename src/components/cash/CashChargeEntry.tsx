@@ -91,7 +91,7 @@ export function CashChargeHeaderButton({ user }: { user?: User | null }) {
       <span suppressHydrationWarning className="whitespace-nowrap rounded-full bg-yellow-400 px-2.5 py-0.5 text-xs font-bold text-gray-900">
         {loggedIn ? t('checkout.cashCharge.entry.charge') : t('checkout.cashCharge.entry.chargeCash')}
       </span>
-      <span suppressHydrationWarning className="pointer-events-none absolute -right-2 -top-2.5 whitespace-nowrap rounded-full bg-red-500 px-1.5 py-0.5 text-[11px] font-bold leading-none text-white">
+      <span suppressHydrationWarning className="pointer-events-none absolute -right-2 -top-2.5 whitespace-nowrap rounded-full bg-pink-500 px-1.5 py-0.5 text-[11px] font-bold leading-none text-white">
         {bonusBadge}
       </span>
     </button>
@@ -107,23 +107,23 @@ export function CashChargeMobileHeaderButton({ user }: { user?: User | null }) {
       type="button"
       onClick={openCharge}
       aria-label={`${loggedIn ? t('checkout.cashCharge.entry.chargeNow') : t('checkout.cashCharge.entry.chargeCash')} (${bonusUpTo})`}
-      className={`relative flex h-9 items-center justify-center gap-1 rounded-full transition-colors hover:bg-blue-600 ${
+      className={`relative flex h-9 items-center justify-center gap-1 rounded-full transition-colors active:bg-white/25 ${
         loggedIn ? 'bg-white/15 px-2.5' : 'w-10'
       }`}
       suppressHydrationWarning
     >
       <i className={`ri-copper-coin-line text-yellow-300 ${loggedIn ? 'text-lg' : 'text-2xl'}`}></i>
       {loggedIn && <span suppressHydrationWarning className="whitespace-nowrap text-xs font-semibold">{balanceText}</span>}
-      <span suppressHydrationWarning className="pointer-events-none absolute -right-1.5 -top-2 whitespace-nowrap rounded-full bg-red-500 px-1 py-0.5 text-[11px] font-bold leading-none text-white">
+      <span suppressHydrationWarning className="pointer-events-none absolute -right-1.5 -top-2 whitespace-nowrap rounded-full bg-pink-500 px-1 py-0.5 text-[11px] font-bold leading-none text-white">
         {bonusShort}
       </span>
     </button>
   );
 }
 
-/** 모바일 햄버거 메뉴 상단 카드 */
+/** 모바일 햄버거 메뉴 상단(잉크 배경) 한 줄 잔액 + [충전] */
 export function CashChargeMenuCard({ user, onBeforeOpen }: { user?: User | null; onBeforeOpen?: () => void }) {
-  const { t, loggedIn, balanceText, bonusUpTo, openCharge } = useCashChargeEntry(user);
+  const { t, balanceText, bonusUpTo, openCharge } = useCashChargeEntry(user);
 
   const handleClick = () => {
     onBeforeOpen?.();
@@ -131,37 +131,22 @@ export function CashChargeMenuCard({ user, onBeforeOpen }: { user?: User | null;
   };
 
   return (
-    <div className="px-4 pt-4">
-      <div className="rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 p-4 text-white shadow-sm">
-        {loggedIn ? (
-          <div className="flex items-center justify-between gap-3">
-            <div className="min-w-0">
-              <p className="text-xs text-blue-100">{t('checkout.cashCharge.entry.myBalance')}</p>
-              <p className="truncate text-lg font-bold">{balanceText}</p>
-            </div>
-            <button
-              type="button"
-              onClick={handleClick}
-              className="flex-shrink-0 rounded-full bg-yellow-400 px-4 py-2 text-sm font-bold text-gray-900 transition-colors hover:bg-yellow-300"
-            >
-              {t('checkout.cashCharge.entry.chargeNow')}
-            </button>
-          </div>
-        ) : (
-          <button
-            type="button"
-            onClick={handleClick}
-            className="flex w-full items-center justify-center gap-2 rounded-full bg-yellow-400 px-4 py-2.5 text-sm font-bold text-gray-900 transition-colors hover:bg-yellow-300"
-          >
-            <i className="ri-copper-coin-line text-base"></i>
-            {t('checkout.cashCharge.entry.chargeCash')}
-          </button>
-        )}
-        <p className="mt-2 flex items-center gap-1 text-xs text-blue-100">
-          <i className="ri-gift-line"></i>
-          {bonusUpTo}
+    <div className="flex items-center gap-3 rounded-2xl bg-white/10 py-2.5 pl-3.5 pr-2.5">
+      <i className="ri-copper-coin-line text-xl text-yellow-300"></i>
+      <div className="min-w-0 flex-1">
+        <p className="flex items-baseline gap-1.5 text-white">
+          <span className="text-xs text-white/60">{t('checkout.cashCharge.entry.myBalance')}</span>
+          <span className="truncate text-[15px] font-bold" suppressHydrationWarning>{balanceText}</span>
         </p>
+        <p className="text-[11px] font-medium leading-snug text-pink-300">{bonusUpTo}</p>
       </div>
+      <button
+        type="button"
+        onClick={handleClick}
+        className="flex-shrink-0 rounded-full bg-yellow-400 px-3.5 py-1.5 text-[13px] font-bold text-gray-900 transition-colors active:bg-yellow-300"
+      >
+        {t('checkout.cashCharge.entry.charge')}
+      </button>
     </div>
   );
 }

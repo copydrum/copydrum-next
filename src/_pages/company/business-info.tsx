@@ -9,6 +9,7 @@ const infoRows = [
   { label: '통신판매업 신고', value: '제2020세종0099호' },
   { label: '주소', value: '세종특별자치시 한누리대로 2200, 제비동 1층 113호' },
   { label: '연락처', value: '070-7570-0028' },
+  { label: '개인정보 보호책임자', value: '강만수 (070-7570-0028)' },
 ];
 
 const supportLinks = [

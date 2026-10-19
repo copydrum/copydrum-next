@@ -170,7 +170,7 @@ export default function LanguageSelector({ variant = 'desktop', className = '' }
             </span>
             <span className={`font-medium ${variant === 'menu' ? 'flex-1 text-left' : ''}`} suppressHydrationWarning>{currentLanguage.nativeName}</span>
             <span className="text-xs uppercase text-gray-500" suppressHydrationWarning>{currentLanguage.code}</span>
-            <i className={`ri-arrow-${isOpen !== (variant === 'menu') ? 'up' : 'down'}-s-line text-lg`}></i>
+            <i className={`ri-arrow-${isOpen ? 'up' : 'down'}-s-line text-lg`}></i>
           </>
         )}
       </button>

@@ -868,7 +868,7 @@ export default function Home() {
                 </div>
                 <button
                   onClick={() => router.push('/categories')}
-                  className="inline-flex items-center justify-center bg-gradient-to-r from-blue-600 to-purple-600 text-white px-5 py-2.5 sm:px-6 sm:py-3 rounded-full hover:from-blue-700 hover:to-purple-700 font-semibold whitespace-nowrap cursor-pointer transition-all duration-300 shadow-lg text-sm sm:text-base"
+                  className="inline-flex items-center justify-center bg-gradient-to-r from-blue-600 to-pink-500 text-white px-5 py-2.5 sm:px-6 sm:py-3 rounded-full hover:from-blue-700 hover:to-pink-600 font-semibold whitespace-nowrap cursor-pointer transition-all duration-300 shadow-lg text-sm sm:text-base"
                 >
                   {t('home.banner.browseButton')}
                 </button>
@@ -890,7 +890,7 @@ export default function Home() {
                 </div>
                 <button
                   onClick={() => router.push('/categories')}
-                  className="inline-flex items-center justify-center bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2.5 rounded-full hover:from-blue-700 hover:to-purple-700 font-semibold whitespace-nowrap cursor-pointer transition-all duration-300 shadow-lg"
+                  className="inline-flex items-center justify-center bg-gradient-to-r from-blue-600 to-pink-500 text-white px-6 py-2.5 rounded-full hover:from-blue-700 hover:to-pink-600 font-semibold whitespace-nowrap cursor-pointer transition-all duration-300 shadow-lg"
                 >
                   {t('home.banner.browseButton')}
                 </button>
@@ -902,8 +902,6 @@ export default function Home() {
 
       {/* Main Content */}
       <div className="px-4 pb-8 pt-6 sm:px-6 lg:px-8 ">
-        <HomeEventSaleSection />
-
         {/* Latest Sheets - 최상단에 배치 */}
         <section className="py-6 md:py-12">
           <div className="max-w-7xl mx-auto space-y-8">
@@ -1353,6 +1351,8 @@ export default function Home() {
           </div>
         </section>
 
+        <HomeEventSaleSection />
+
         {/* Collections Section */}
         {COLLECTIONS_PUBLIC_ENABLED && collections.length > 0 && (
           <section className="py-6 md:py-16">
@@ -1399,7 +1399,7 @@ export default function Home() {
                         </div>
                         {collection.discount_percentage > 0 && (
                           <div className="absolute top-2 right-2">
-                            <span className="bg-red-500 text-white text-[11px] font-bold px-1.5 py-0.5 rounded-full">
+                            <span className="bg-rose-500 text-white text-[11px] font-bold px-1.5 py-0.5 rounded-full">
                               {t('collectionsPage.collection.discount', { percentage: collection.discount_percentage })}
                             </span>
                           </div>
@@ -1477,7 +1477,7 @@ export default function Home() {
                                 {/* Discount Badge */}
                                 {collection.discount_percentage > 0 && (
                                   <div className="absolute top-3 right-3">
-                                    <span className="bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
+                                    <span className="bg-rose-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
                                       {t('collectionsPage.collection.discount', { percentage: collection.discount_percentage })}
                                     </span>
                                   </div>
@@ -2113,7 +2113,7 @@ export default function Home() {
                     onClick={() => router.push('/sheet-books')}
                     className="inline-flex items-center justify-center gap-1.5 px-6 py-2.5 rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 text-white text-sm font-semibold shadow-sm hover:from-indigo-600 hover:to-violet-600 transition-all"
                   >
-                    <i className="ri-book-mark-line text-sm"></i>
+                    <i className="ri-book-marked-line text-sm"></i>
                     {t('sheetBooks.actions.viewAll')}
                   </button>
                 </div>
@@ -2175,7 +2175,7 @@ export default function Home() {
                     onClick={() => router.push('/sheet-books')}
                     className="inline-flex items-center justify-center gap-2 px-8 py-3 rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 text-white font-semibold shadow-md hover:from-indigo-600 hover:to-violet-600 transition-all cursor-pointer"
                   >
-                    <i className="ri-book-mark-line"></i>
+                    <i className="ri-book-marked-line"></i>
                     {t('sheetBooks.actions.viewAll')}
                   </button>
                 </div>
@@ -2245,22 +2245,22 @@ export default function Home() {
 
       {/* Custom Order CTA */}
       <div className="">
-        <section className="bg-blue-600 text-center text-white">
+        <section className="bg-aurora text-center text-ink">
           <div className="px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-            <h3 className="text-2xl sm:text-3xl font-bold mb-4">{t('home.customOrderCTATitle')}</h3>
+            <h3 className="text-2xl sm:text-3xl font-extrabold tracking-tight mb-4">{t('home.customOrderCTATitle')}</h3>
             {/* Mobile Version */}
-            <div className="md:hidden text-lg sm:text-xl text-blue-100 mb-8 space-y-1">
+            <div className="md:hidden text-lg sm:text-xl text-ink/70 mb-8 space-y-1">
               <p>{t('home.customOrderCTADescription')}</p>
               <p>{t('home.customOrderCTADescription2')}</p>
             </div>
             {/* PC Version */}
-            <div className="hidden md:block text-xl text-blue-100 mb-8 space-y-1">
+            <div className="hidden md:block text-xl text-ink/70 mb-8 space-y-1">
               <p>{t('home.customOrderCTADescription')}</p>
               <p>{t('home.customOrderCTADescription2')}</p>
             </div>
             <button
               onClick={() => router.push('/custom-order')}
-              className="bg-white text-blue-600 px-8 py-4 rounded-lg hover:bg-gray-100 font-semibold text-lg whitespace-nowrap cursor-pointer transition-colors shadow-lg"
+              className="bg-ink text-white px-8 py-4 rounded-full hover:bg-ink-light font-semibold text-lg whitespace-nowrap cursor-pointer transition-colors shadow-lg"
             >
               {t('home.customOrderCTAButton')}
             </button>

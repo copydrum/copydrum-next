@@ -26,7 +26,7 @@ const quickNavItems: QuickNavItem[] = [
   { key: 'collections', labelKey: 'nav.collections', href: '/collections', icon: 'ri-stack-line' },
   { key: 'freeLessons', labelKey: 'freeLessons.nav.label', href: '/free-lessons', icon: 'ri-play-circle-line' },
   { key: 'lesson', labelKey: 'nav.drumLesson', href: '/free-sheets', icon: 'ri-book-2-line' },
-  { key: 'sheetBooks', labelKey: 'nav.sheetBooks', href: '/sheet-books', icon: 'ri-book-mark-line' },
+  { key: 'sheetBooks', labelKey: 'nav.sheetBooks', href: '/sheet-books', icon: 'ri-book-marked-line' },
   { key: 'customOrder', labelKey: 'nav.customOrder', href: '/custom-order', icon: 'ri-edit-line' },
 ];
 
@@ -72,10 +72,10 @@ export default function MobileQuickNav() {
               className={`flex h-9 items-center gap-1 flex-shrink-0 px-3.5 rounded-full text-[13px] font-semibold whitespace-nowrap transition-colors ${
                 item.key === 'eventSale'
                   ? isActive
-                    ? 'bg-red-600 text-white'
-                    : 'bg-red-50 text-red-600 active:bg-red-100'
+                    ? 'bg-rose-600 text-white'
+                    : 'bg-rose-50 text-rose-600 active:bg-rose-100'
                   : isActive
-                    ? 'bg-gray-900 text-white'
+                    ? 'bg-ink text-white'
                     : 'bg-gray-100 text-gray-700 active:bg-gray-200'
               }`}
             >

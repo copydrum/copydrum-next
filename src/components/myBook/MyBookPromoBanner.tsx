@@ -22,10 +22,10 @@ export default function MyBookPromoBanner({ variant = 'band' }: MyBookPromoBanne
 
   if (variant === 'card') {
     return (
-      <div className="flex flex-col gap-3 rounded-2xl border border-indigo-100 bg-gradient-to-r from-indigo-50 to-violet-50 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+      <div className="flex flex-col gap-3 rounded-2xl border border-blue-100 bg-gradient-to-r from-blue-50 to-pink-50 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
         <div>
           <p className="text-base font-bold text-gray-900">
-            <i className="ri-book-open-line mr-1 text-indigo-600" />
+            <i className="ri-book-open-line mr-1 text-blue-600" />
             {t('myBook.sheetBooksCard.title')}
           </p>
           <p className="mt-1 text-sm text-gray-600">{t('myBook.sheetBooksCard.description', { percent })}</p>
@@ -33,7 +33,7 @@ export default function MyBookPromoBanner({ variant = 'band' }: MyBookPromoBanne
         <button
           type="button"
           onClick={() => router.push('/my-book')}
-          className="shrink-0 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700"
+          className="shrink-0 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
         >
           {t('myBook.sheetBooksCard.button')}
         </button>
@@ -48,7 +48,7 @@ export default function MyBookPromoBanner({ variant = 'band' }: MyBookPromoBanne
   ] as const;
 
   return (
-    <section className="bg-gradient-to-r from-blue-600 via-indigo-600 to-fuchsia-600 text-white">
+    <section className="bg-gradient-to-r from-blue-700 via-blue-600 to-pink-500 text-white">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 md:py-10 lg:px-8">
         {/* Mobile */}
         <div className="text-center md:hidden">
@@ -67,7 +67,7 @@ export default function MyBookPromoBanner({ variant = 'band' }: MyBookPromoBanne
           <button
             type="button"
             onClick={() => router.push('/my-book')}
-            className="mt-5 inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-bold text-indigo-700 shadow-lg active:scale-95"
+            className="mt-5 inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-bold text-blue-700 shadow-lg active:scale-95"
           >
             <i className="ri-book-open-line" />
             {t('myBook.banner.button')}
@@ -80,7 +80,7 @@ export default function MyBookPromoBanner({ variant = 'band' }: MyBookPromoBanne
             <div className="relative flex h-24 w-[68px] shrink-0 rotate-[-4deg] flex-col items-center justify-center rounded-lg border-2 border-white/40 bg-white/15 shadow-xl">
               <i className="ri-book-open-line text-3xl" />
               <span className="mt-1 text-[9px] font-bold tracking-widest">PDF</span>
-              <span className="absolute -right-3 -top-3 flex h-8 w-8 rotate-12 items-center justify-center rounded-full bg-amber-400 text-[10px] font-extrabold text-indigo-900 shadow">
+              <span className="absolute -right-3 -top-3 flex h-8 w-8 rotate-12 items-center justify-center rounded-full bg-amber-400 text-[10px] font-extrabold text-blue-900 shadow">
                 1분
               </span>
             </div>
@@ -89,7 +89,7 @@ export default function MyBookPromoBanner({ variant = 'band' }: MyBookPromoBanne
                 {t('myBook.banner.badge')}
               </span>
               <h3 className="mt-2 text-2xl font-bold lg:text-3xl">{t('myBook.banner.title')}</h3>
-              <p className="mt-1 text-base text-indigo-100">{t('myBook.banner.description', { percent })}</p>
+              <p className="mt-1 text-base text-blue-100">{t('myBook.banner.description', { percent })}</p>
               <div className="mt-3 flex flex-wrap gap-2">
                 {chips.map(({ key, icon }) => (
                   <span key={key} className="inline-flex items-center gap-1 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold">
@@ -103,7 +103,7 @@ export default function MyBookPromoBanner({ variant = 'band' }: MyBookPromoBanne
           <button
             type="button"
             onClick={() => router.push('/my-book')}
-            className="inline-flex shrink-0 items-center gap-2 rounded-full bg-white px-8 py-3.5 text-base font-bold text-indigo-700 shadow-lg transition-colors hover:bg-indigo-50"
+            className="inline-flex shrink-0 items-center gap-2 rounded-full bg-white px-8 py-3.5 text-base font-bold text-blue-700 shadow-lg transition-colors hover:bg-blue-50"
           >
             <i className="ri-book-open-line" />
             {t('myBook.banner.button')}

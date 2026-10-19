@@ -31,7 +31,7 @@ export function SignupBonusBadge({ variant = 'corner' }: { variant?: keyof typeo
 
   return (
     <span
-      className={`pointer-events-none whitespace-nowrap rounded-full bg-red-500 font-bold leading-none text-white ${BADGE_VARIANTS[variant]}`}
+      className={`pointer-events-none whitespace-nowrap rounded-full bg-pink-500 font-bold leading-none text-white ${BADGE_VARIANTS[variant]}`}
     >
       {badge}
     </span>

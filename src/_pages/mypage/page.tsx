@@ -1,9 +1,12 @@
 'use client';
 import { useLocaleRouter } from '@/hooks/useLocaleRouter';
-import Link from 'next/link';
+import Footer from '@/components/common/Footer';
+import PurchaseOrderList from '@/components/purchase/PurchaseOrderList';
+import InquiryForm from '@/components/support/InquiryForm';
+import MyBookPurchaseList from '@/components/myBook/MyBookPurchaseList';
+import { countPurchasedSheets, loadPurchaseOrders } from '@/lib/purchases/purchaseOrders';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import type { ChangeEvent, FormEvent } from 'react';
 import { useSearchParams } from 'next/navigation';
 import type { AuthChangeEvent, Session, User } from '@supabase/supabase-js';
 import { supabase } from '../../lib/supabase';
@@ -13,8 +16,6 @@ import { useCart } from '../../hooks/useCart';
 import type { FavoriteSheet } from '../../lib/favorites';
 import { fetchUserFavorites, removeFavorite } from '../../lib/favorites';
 import { generateDefaultThumbnail } from '../../lib/defaultThumbnail';
-import { buildDownloadKey, downloadFile, getDownloadFileName, requestSignedDownloadUrl } from '../../utils/downloadHelpers';
-// convertUSDToKRW is not used in this component anymore
 import { useTranslation } from 'react-i18next';
 import { getSiteCurrency, convertFromKrw, formatCurrency as formatCurrencyUtil } from '../../lib/currency';
 import { getUserDisplayName } from '../../utils/userDisplayName';
@@ -25,9 +26,6 @@ import { useMembership } from '../../hooks/useMembership';
 import MembershipCard from '../../components/membership/MembershipCard';
 import { formatRewardPoints, formatWalletAmount } from '../../lib/wallet/display';
 import { openCashChargeModal } from '../../lib/cashChargeModal';
-import { fetchLegacyPurchaseOrders } from '../../lib/legacyPurchases';
-
-import type { VirtualAccountInfo } from '../../lib/payments';
 
 type TabKey = 'profile' | 'purchases' | 'favorites' | 'inquiries' | 'custom-orders' | 'points';
 
@@ -54,55 +52,6 @@ interface CustomerInquiry {
   created_at: string;
 }
 
-interface CategoryInfo {
-  name: string | null;
-}
-
-interface SheetInfo {
-  id: string;
-  title: string;
-  artist: string;
-  price: number;
-  thumbnail_url: string | null;
-  pdf_url: string | null;
-  preview_image_url: string | null;
-  slug: string | null;
-  sales_type?: 'INSTANT' | 'PREORDER' | null;
-  preorder_deadline?: string | null;
-  categories?: CategoryInfo | null;
-}
-
-interface OrderItemDetail {
-  id: string;
-  sheet_id: string;
-  price: number | null;
-  created_at: string;
-  drum_sheets: SheetInfo | null;
-}
-
-const DOWNLOADABLE_STATUSES = ['completed', 'payment_confirmed', 'paid'];
-
-interface OrderSummary {
-  id: string;
-  order_number?: string | null;
-  created_at: string;
-  status: string;
-  total_amount: number;
-  payment_method?: string | null;
-  payment_status?: string | null;
-  payment_confirmed_at?: string | null;
-  transaction_id?: string | null;
-  depositor_name?: string | null;
-  virtual_account_info?: VirtualAccountInfo | null;
-  order_items: OrderItemDetail[];
-}
-
-interface DownloadableItem extends OrderItemDetail {
-  order_id: string;
-  order_status: string;
-  order_created_at: string;
-}
-
 interface CustomOrderSummary {
   id: string;
   song_title: string;
@@ -120,7 +69,7 @@ const formatDateTime = (value: MaybeDateString) => (value ? new Date(value).toLo
 export default function MyPage() {
   const router = useLocaleRouter();
   const searchParams = useSearchParams();
-  const { cartItems, addToCart, isInCart } = useCart();
+  const { addToCart, isInCart } = useCart();
   const { t, i18n } = useTranslation();
 
   // user 상태를 최상단에 선언 (다른 훅에서 사용하기 전에 선언 필요)
@@ -142,13 +91,6 @@ export default function MyPage() {
   );
 
   // Status maps using t()
-  const orderStatusStyles = useMemo(() => ({
-    completed: { label: t('mypage.status.order.completed'), className: 'bg-green-100 text-green-800' },
-    pending: { label: t('mypage.status.order.pending'), className: 'bg-yellow-100 text-yellow-800' },
-    cancelled: { label: t('mypage.status.order.cancelled'), className: 'bg-red-100 text-red-700' },
-    refunded: { label: t('mypage.status.order.refunded'), className: 'bg-purple-100 text-purple-700' },
-  }), [t]);
-
   const customOrderStatusMap = useMemo(() => ({
     pending: { label: t('mypage.status.customOrder.pending'), className: 'bg-blue-100 text-blue-800' },
     quoted: { label: t('mypage.status.customOrder.quoted'), className: 'bg-amber-100 text-amber-700' },
@@ -168,13 +110,13 @@ export default function MyPage() {
     [inquiryStatusMap, t]);
 
 
-  const getTabs = useCallback((): { id: TabKey; label: string; icon: string; description?: string }[] => [
-    { id: 'profile', label: t('mypage.tabs.profile.label'), icon: 'ri-user-line', description: t('mypage.tabs.profile.description') },
-    { id: 'purchases', label: t('mypage.tabs.purchases.label'), icon: 'ri-shopping-bag-line', description: t('mypage.tabs.purchases.description') },
-    { id: 'favorites', label: t('mypage.tabs.favorites.label'), icon: 'ri-heart-line', description: t('mypage.tabs.favorites.description') },
-    { id: 'inquiries', label: t('mypage.tabs.inquiries.label'), icon: 'ri-question-answer-line', description: t('mypage.tabs.inquiries.description') },
-    { id: 'custom-orders', label: t('mypage.tabs.customOrders.label'), icon: 'ri-file-text-line', description: t('mypage.tabs.customOrders.description') },
-    { id: 'points' as const, label: t('mypage.tabs.points.label'), icon: 'ri-coins-line', description: t('mypage.tabs.points.description') },
+  const getTabs = useCallback((): { id: TabKey; label: string; icon: string }[] => [
+    { id: 'purchases', label: t('mypage.tabs.purchases.label'), icon: 'ri-download-cloud-2-line' },
+    { id: 'favorites', label: t('mypage.tabs.favorites.label'), icon: 'ri-heart-line' },
+    { id: 'custom-orders', label: t('mypage.tabs.customOrders.label'), icon: 'ri-file-text-line' },
+    { id: 'inquiries', label: t('mypage.tabs.inquiries.label'), icon: 'ri-question-answer-line' },
+    { id: 'points', label: t('mypage.tabs.points.label'), icon: 'ri-coins-line' },
+    { id: 'profile', label: t('mypage.tabs.profile.label'), icon: 'ri-user-settings-line' },
   ], [t]);
 
   // URL 쿼리 파라미터에서 탭 정보 읽기
@@ -190,7 +132,7 @@ export default function MyPage() {
     const sectionParam = searchParams.get('section');
     if (sectionParam === 'profile') return 'profile';
     if (sectionParam === 'inquiries') return 'inquiries';
-    return 'profile';
+    return 'purchases';
   }, [searchParams]);
 
   const initialTab = useMemo(() => getInitialTab(), [getInitialTab]);
@@ -199,23 +141,11 @@ export default function MyPage() {
   const [profileForm, setProfileForm] = useState({ name: '', phone: '' });
   const [profileSaving, setProfileSaving] = useState(false);
 
-  const [orders, setOrders] = useState<OrderSummary[]>([]);
-  const [downloads, setDownloads] = useState<DownloadableItem[]>([]);
-  const [selectedPurchaseIds, setSelectedPurchaseIds] = useState<Record<string, string[]>>({});
-  const [downloadingKeys, setDownloadingKeys] = useState<string[]>([]);
-  const [bulkDownloading, setBulkDownloading] = useState(false);
+  const [totalPurchasedSheets, setTotalPurchasedSheets] = useState(0);
   const [favorites, setFavorites] = useState<FavoriteSheet[]>([]);
   const [customOrders, setCustomOrders] = useState<CustomOrderSummary[]>([]);
   const [userInquiries, setUserInquiries] = useState<CustomerInquiry[]>([]);
   const [inquiriesLoading, setInquiriesLoading] = useState(false);
-  const [inquirySubmitting, setInquirySubmitting] = useState(false);
-  const [inquiryForm, setInquiryForm] = useState({
-    name: '',
-    email: '',
-    category: '',
-    subject: '',
-    message: '',
-  });
   const [deletingAccount, setDeletingAccount] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -225,7 +155,7 @@ export default function MyPage() {
     try {
       const { data, error } = await supabase
         .from('customer_inquiries')
-        .select('id, category, title, content, status, admin_reply, replied_at, created_at')
+        .select('id, category, title, content, subject, message, status, admin_reply, replied_at, created_at')
         .eq('user_id', currentUser.id)
         .order('created_at', { ascending: false });
 
@@ -236,8 +166,9 @@ export default function MyPage() {
       const normalized = (data ?? []).map((item: any) => ({
         id: item.id as string,
         category: item.category ?? '',
-        title: item.title ?? '',
-        content: item.content ?? '',
+        // 예전 고객센터 양식은 subject/message 에만 저장했다
+        title: item.title || item.subject || '',
+        content: item.content || item.message || '',
         status: item.status ?? 'pending',
         admin_reply: item.admin_reply ?? null,
         replied_at: item.replied_at ?? null,
@@ -253,70 +184,6 @@ export default function MyPage() {
     }
   }, []);
 
-
-  useEffect(() => {
-    if (!user) {
-      setInquiryForm({
-        name: '',
-        email: '',
-        category: '',
-        subject: '',
-        message: '',
-      });
-      return;
-    }
-
-    setInquiryForm((prev) => ({
-      ...prev,
-      name: prev.name || (user.user_metadata?.name as string) || '',
-      email: prev.email || user.email || '',
-    }));
-  }, [user]);
-
-  useEffect(() => {
-    setSelectedPurchaseIds((prev) => {
-      if (Object.keys(prev).length === 0) {
-        return prev;
-      }
-
-      const orderMap = new Map<string, Set<string>>();
-      orders.forEach((order) => {
-        orderMap.set(
-          order.id,
-          new Set(order.order_items.map((item) => item.id))
-        );
-      });
-
-      const next: Record<string, string[]> = {};
-      let changed = false;
-
-      Object.entries(prev).forEach(([orderId, itemIds]) => {
-        const validIds = orderMap.get(orderId);
-        if (!validIds) {
-          changed = true;
-          return;
-        }
-
-        const filtered = itemIds.filter((itemId) => validIds.has(itemId));
-
-        if (filtered.length !== itemIds.length) {
-          changed = true;
-        }
-
-        if (filtered.length > 0) {
-          next[orderId] = filtered;
-        } else if (itemIds.length > 0) {
-          changed = true;
-        }
-      });
-
-      if (!changed) {
-        return prev;
-      }
-
-      return next;
-    });
-  }, [orders]);
 
   const loadProfile = useCallback(async (currentUser: User) => {
     // fallback 프로필 (프로필 조회 실패 시 user metadata 기반)
@@ -373,133 +240,10 @@ export default function MyPage() {
     }
   }, []);
 
-  // 일반 유저용: 본인 주문만 조회 (필터 필수)
-  // RLS 정책과 함께 이중으로 보안 적용
-  // 기본적으로 payment_status = 'paid' (결제 완료)인 주문만 표시
+  // 구매 목록 자체는 PurchaseOrderList 가 그리고, 여기서는 요약에 쓸 곡 수만 구한다
   const loadOrders = useCallback(async (currentUser: User) => {
-    try {
-      // order_items 테이블의 실제 컬럼명을 확인하기 위해 먼저 간단한 쿼리 시도
-      // sheet_id가 없을 수 있으므로 오류 처리 추가
-      const ordersQuery = supabase
-        .from('orders')
-        .select(`
-          id,
-          created_at,
-          status,
-          total_amount,
-          payment_method,
-          payment_status,
-          payment_confirmed_at,
-          transaction_id,
-          depositor_name,
-          virtual_account_info,
-          order_type,
-          order_items (
-            id,
-            drum_sheet_id,
-            price,
-            created_at,
-            drum_sheets (
-              id,
-              title,
-              artist,
-              price,
-              thumbnail_url,
-              pdf_url,
-              preview_image_url,
-              slug,
-              sales_type,
-              preorder_deadline,
-              categories (
-                name
-              )
-            )
-          )
-        `)
-        .eq('user_id', currentUser.id)  // 일반 유저는 본인 주문만 필터링
-        .eq('payment_status', 'paid')  // 결제 완료된 주문만 필터링
-        .order('created_at', { ascending: false });
-
-      // 이전 사이트 구매는 모두 현재 사이트 주문보다 오래되어 뒤에 붙여도 최신순이 유지된다
-      const [{ data, error }, legacyOrders] = await Promise.all([ordersQuery, fetchLegacyPurchaseOrders()]);
-
-      if (error) {
-        // 컬럼명 오류인 경우 빈 배열로 설정하고 계속 진행
-        if (error.code === '42703' || error.message?.includes('does not exist')) {
-          console.warn('order_items 테이블 스키마 오류 - 구매 내역을 불러올 수 없습니다:', error.message);
-          setOrders([]);
-          setDownloads([]);
-          return;
-        }
-        throw error;
-      }
-
-      const normalizedOrders: OrderSummary[] = [...(data ?? []), ...legacyOrders].map((order: any) => ({
-        id: order.id,
-        order_number: order.order_number ?? null,
-        created_at: order.created_at,
-        status: order.status,
-        total_amount: order.total_amount,
-        payment_method: order.payment_method,
-        payment_status: order.payment_status ?? null,
-        payment_confirmed_at: order.payment_confirmed_at ?? null,
-        transaction_id: order.transaction_id ?? null,
-        depositor_name: order.depositor_name ?? null,
-        virtual_account_info: (order.virtual_account_info ?? null) as VirtualAccountInfo | null,
-        order_items: (order.order_items ?? []).map((item: any) => {
-          const sheetId = item.drum_sheet_id || item.drum_sheets?.id || '';
-          return {
-            id: item.id,
-            sheet_id: sheetId || '',
-            price: item.price,
-            created_at: item.created_at,
-            drum_sheets: item.drum_sheets
-              ? {
-                id: item.drum_sheets.id,
-                title: item.drum_sheets.title,
-                artist: item.drum_sheets.artist,
-                price: item.drum_sheets.price,
-                thumbnail_url: item.drum_sheets.thumbnail_url,
-                pdf_url: item.drum_sheets.pdf_url,
-                preview_image_url: item.drum_sheets.preview_image_url,
-                slug: item.drum_sheets.slug,
-                sales_type: item.drum_sheets.sales_type ?? null,
-                preorder_deadline: item.drum_sheets.preorder_deadline ?? null,
-                categories: item.drum_sheets.categories,
-              }
-              : null,
-          };
-        }),
-      }));
-
-      // order_items가 있고, order_type이 'product'인 주문만 필터링 (악보 구매만)
-      // order_type이 없어도 order_items가 있으면 악보 구매로 간주
-      const filteredOrders = normalizedOrders.filter(
-        (order) => 
-          (order.order_items?.length ?? 0) > 0 && 
-          (order.order_type === 'product' || !order.order_type)
-      );
-
-      setOrders(filteredOrders);
-      const downloadItems: DownloadableItem[] = filteredOrders.flatMap((order) =>
-        DOWNLOADABLE_STATUSES.includes((order.status ?? '').toLowerCase())
-          ? order.order_items
-            .filter((item) => item.sheet_id)
-            .map((item) => ({
-              ...item,
-              order_id: order.id,
-              order_status: order.status,
-              order_created_at: order.created_at,
-            }))
-          : [],
-      );
-      setDownloads(downloadItems);
-    } catch (error) {
-      console.error(t('mypage.console.orderHistoryError'), error);
-      // 오류가 발생해도 빈 배열로 설정하여 다른 데이터 로드는 계속 진행
-      setOrders([]);
-      setDownloads([]);
-    }
+    const purchaseOrders = await loadPurchaseOrders(currentUser.id);
+    setTotalPurchasedSheets(countPurchasedSheets(purchaseOrders));
   }, []);
 
   const loadFavoritesList = useCallback(async (currentUser: User) => {
@@ -611,21 +355,11 @@ export default function MyPage() {
       } else {
         setProfile(null);
         setProfileForm({ name: '', phone: '' });
-        setOrders([]);
-        setDownloads([]);
+        setTotalPurchasedSheets(0);
         setFavorites([]);
         setCustomOrders([]);
-        setCashHistory([]);
         setUserInquiries([]);
-        setInquiryForm({
-          name: '',
-          email: '',
-          category: '',
-          subject: '',
-          message: '',
-        });
         setInquiriesLoading(false);
-        setInquirySubmitting(false);
         setLoading(false);
       }
     });
@@ -636,113 +370,19 @@ export default function MyPage() {
     };
   }, [loadAll, loadProfile]);
 
-  const totalPurchasedSheets = useMemo(
-    () => orders.reduce((count, order) => count + order.order_items.length, 0),
-    [orders]
-  );
-
   const stats = useMemo(
-    () => [
-      { 
-        label: t('mypage.stats.purchasedSheets'), 
-        value: totalPurchasedSheets,
-        path: '/purchases'
-      },
-      { 
-        label: t('mypage.stats.availableDownloads'), 
-        value: downloads.length,
-        path: '/purchases'
-      },
-      { 
-        label: t('mypage.stats.favoriteSheets'), 
-        value: favorites.length,
-        path: '/mypage?tab=favorites'
-      },
-      { 
-        label: t('mypage.stats.inquiries'), 
-        value: userInquiries.length,
-        path: '/mypage?tab=inquiries'
-      },
-      { 
-        label: t('mypage.stats.customOrders'), 
-        value: customOrders.length,
-        path: '/custom-orders'
-      },
+    (): { label: string; value: number; tab: TabKey }[] => [
+      { label: t('mypage.stats.purchasedSheets'), value: totalPurchasedSheets, tab: 'purchases' },
+      { label: t('mypage.stats.favoriteSheets'), value: favorites.length, tab: 'favorites' },
+      { label: t('mypage.stats.customOrders'), value: customOrders.length, tab: 'custom-orders' },
+      { label: t('mypage.stats.inquiries'), value: userInquiries.length, tab: 'inquiries' },
     ],
-    [totalPurchasedSheets, downloads.length, favorites.length, userInquiries.length, customOrders.length, t]
+    [totalPurchasedSheets, favorites.length, userInquiries.length, customOrders.length, t]
   );
 
   const handleSearch = () => {
     if (!searchQuery.trim()) return;
     router.push(`/categories?search=${encodeURIComponent(searchQuery.trim())}`);
-  };
-
-  const handleInquiryInputChange = (
-    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = event.target;
-    setInquiryForm((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleInquirySubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    if (!user) {
-      alert(t('mypage.errors.loginRequired'));
-      return;
-    }
-
-    if (
-      !inquiryForm.name.trim() ||
-      !inquiryForm.email.trim() ||
-      !inquiryForm.category ||
-      !inquiryForm.subject.trim() ||
-      !inquiryForm.message.trim()
-    ) {
-      alert(t('mypage.errors.allFieldsRequired'));
-      return;
-    }
-
-    try {
-      setInquirySubmitting(true);
-      const trimmedName = inquiryForm.name.trim();
-      const trimmedEmail = inquiryForm.email.trim();
-      const trimmedSubject = inquiryForm.subject.trim();
-      const trimmedMessage = inquiryForm.message.trim();
-
-      const { error } = await supabase
-        .from('customer_inquiries')
-        .insert({
-          user_id: user.id,
-          name: trimmedName,
-          email: trimmedEmail,
-          category: inquiryForm.category,
-          title: trimmedSubject,
-          content: trimmedMessage,
-          status: 'pending',
-        });
-
-      if (error) {
-        throw error;
-      }
-
-      alert(t('mypage.errors.inquirySubmitted'));
-      setInquiryForm((prev) => ({
-        ...prev,
-        category: '',
-        subject: '',
-        message: '',
-      }));
-      await loadUserInquiries(user);
-    } catch (error) {
-      console.error(t('mypage.console.inquirySubmitError'), error);
-      alert(t('mypage.errors.inquiryError'));
-    } finally {
-      setInquirySubmitting(false);
-    }
   };
 
   const handleProfileSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -855,238 +495,6 @@ export default function MyPage() {
   };
 
 
-  const togglePurchaseSelection = (orderId: string, itemId: string) => {
-    setSelectedPurchaseIds((prev) => {
-      const current = prev[orderId] ?? [];
-      const next = current.includes(itemId)
-        ? current.filter((id) => id !== itemId)
-        : [...current, itemId];
-
-      if (next.length === 0) {
-        const { [orderId]: _, ...rest } = prev;
-        return rest;
-      }
-
-      return { ...prev, [orderId]: next };
-    });
-  };
-
-  const clearPurchaseSelection = (orderId: string) => {
-    setSelectedPurchaseIds((prev) => {
-      if (!(orderId in prev)) {
-        return prev;
-      }
-
-      const { [orderId]: _, ...rest } = prev;
-      return rest;
-    });
-  };
-
-  const toggleSelectAllInOrder = (orderId: string, orderItems: OrderItemDetail[]) => {
-    setSelectedPurchaseIds((prev) => {
-      // 선주문 제작 진행 중인 항목은 제외하고 선택 가능한 항목만 필터링
-      const selectableIds = orderItems
-        .filter((item) => {
-          if (!item.sheet_id) return false;
-          // 선주문 상품이면서 PDF가 없는 경우 제외
-          const isPreorderInProgress = item.drum_sheets?.sales_type === 'PREORDER' && !item.drum_sheets?.pdf_url;
-          if (isPreorderInProgress) return false;
-          return true;
-        })
-        .map((item) => item.id);
-      if (selectableIds.length === 0) {
-        return prev;
-      }
-
-      const current = prev[orderId] ?? [];
-      const isAllSelected = selectableIds.every((id) => current.includes(id));
-
-      if (isAllSelected) {
-        const { [orderId]: _, ...rest } = prev;
-        return rest;
-      }
-
-      return { ...prev, [orderId]: selectableIds };
-    });
-  };
-
-  const handleDownloadSelectedInOrder = async (order: OrderSummary) => {
-    if (!DOWNLOADABLE_STATUSES.includes((order.status ?? '').toLowerCase())) {
-      alert(t('mypage.errors.downloadRestricted'));
-      return;
-    }
-
-    const selectedIds = selectedPurchaseIds[order.id] ?? [];
-    if (selectedIds.length === 0) {
-      alert(t('mypage.errors.selectDownloadItems'));
-      return;
-    }
-
-    const selectedItems = order.order_items
-      .filter((item) => {
-        if (!item.sheet_id || !selectedIds.includes(item.id)) return false;
-        // 선주문 상품이면서 PDF가 없는 경우 제외
-        const isPreorderInProgress = item.drum_sheets?.sales_type === 'PREORDER' && !item.drum_sheets?.pdf_url;
-        if (isPreorderInProgress) return false;
-        return true;
-      })
-      .map<DownloadableItem>((item) => ({
-        ...item,
-        order_id: order.id,
-        order_status: order.status,
-        order_created_at: order.created_at,
-      }));
-
-    await handleDownloadMultiple(selectedItems);
-  };
-
-  const handleDownloadAllInOrder = async (order: OrderSummary) => {
-    if (!DOWNLOADABLE_STATUSES.includes((order.status ?? '').toLowerCase())) {
-      alert(t('mypage.errors.downloadRestricted'));
-      return;
-    }
-
-    const items = order.order_items
-      .filter((item) => {
-        if (!item.sheet_id) return false;
-        // 선주문 상품이면서 PDF가 없는 경우 제외
-        const isPreorderInProgress = item.drum_sheets?.sales_type === 'PREORDER' && !item.drum_sheets?.pdf_url;
-        if (isPreorderInProgress) return false;
-        return true;
-      })
-      .map<DownloadableItem>((item) => ({
-        ...item,
-        order_id: order.id,
-        order_status: order.status,
-        order_created_at: order.created_at,
-      }));
-
-    if (items.length === 0) {
-      alert(t('mypage.errors.noDownloadableItems'));
-      return;
-    }
-
-    await handleDownloadMultiple(items);
-  };
-
-  const startDownloading = (key: string) => {
-    setDownloadingKeys((prev) => (prev.includes(key) ? prev : [...prev, key]));
-  };
-
-  const finishDownloading = (key: string) => {
-    setDownloadingKeys((prev) => prev.filter((value) => value !== key));
-  };
-
-  const downloadSheetItem = async (item: DownloadableItem, accessToken: string) => {
-    if (!item.sheet_id) {
-      throw new Error(t('mypage.errors.sheetInfoNotFound'));
-    }
-
-    if (!item.drum_sheets) {
-      throw new Error(t('mypage.errors.downloadLinkNotFound'));
-    }
-
-    const fileName = getDownloadFileName({
-      title: item.drum_sheets?.title,
-      artist: item.drum_sheets?.artist,
-      orderId: item.order_id,
-    });
-
-    const signedUrl = await requestSignedDownloadUrl({
-      orderId: item.order_id,
-      orderItemId: item.id,
-      accessToken,
-    });
-
-    await downloadFile(signedUrl, fileName);
-  };
-
-  const handleDownloadMultiple = async (items: DownloadableItem[]) => {
-    if (items.length === 0) {
-      alert(t('mypage.errors.selectDownloadItems'));
-      return;
-    }
-
-    const invalidItems = items.filter(
-      (item) => !DOWNLOADABLE_STATUSES.includes((item.order_status ?? '').toLowerCase()),
-    );
-    if (invalidItems.length > 0) {
-      alert(t('mypage.errors.downloadRestrictedMultiple'));
-      return;
-    }
-
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-
-    if (!session?.access_token) {
-      alert(t('mypage.errors.loginRequiredForDownload'));
-      return;
-    }
-
-    setBulkDownloading(true);
-    const failed: DownloadableItem[] = [];
-
-    try {
-      for (const item of items) {
-        const key = buildDownloadKey(item.order_id, item.id);
-        startDownloading(key);
-        try {
-          await downloadSheetItem(item, session.access_token);
-        } catch (error) {
-          failed.push(item);
-        } finally {
-          finishDownloading(key);
-        }
-      }
-    } finally {
-      setBulkDownloading(false);
-    }
-
-    if (failed.length > 0) {
-      alert(t('mypage.errors.downloadFailed', { count: failed.length }));
-    }
-  };
-
-
-  const handleDownload = async (item: DownloadableItem) => {
-    if (!DOWNLOADABLE_STATUSES.includes((item.order_status ?? '').toLowerCase())) {
-      alert(t('mypage.errors.downloadRestrictedMultiple'));
-      return;
-    }
-
-    const key = buildDownloadKey(item.order_id, item.id);
-    startDownloading(key);
-    try {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      if (!session?.access_token) {
-        throw new Error(t('mypage.errors.loginRequiredForDownload'));
-      }
-
-      await downloadSheetItem(item, session.access_token);
-    } catch (error) {
-      if (error instanceof Error) {
-        alert(error.message);
-      } else {
-        alert(t('mypage.errors.downloadFailedSingle'));
-      }
-    } finally {
-      finishDownloading(key);
-    }
-  };
-
-  const handlePreview = (item: DownloadableItem) => {
-    const previewUrl = item.drum_sheets?.preview_image_url;
-    if (!previewUrl) {
-      alert(t('mypage.errors.previewNotFound'));
-      return;
-    }
-    window.open(previewUrl, '_blank', 'noopener,noreferrer');
-  };
-
   const handleFavoriteRemove = async (sheetId: string) => {
     if (!user) return;
     try {
@@ -1104,15 +512,6 @@ export default function MyPage() {
 
   const handleGoToSheet = (slug: string, fallbackId?: string) => {
     router.push(`/drum-sheet/${slug || fallbackId}`);
-  };
-
-  const renderOrderStatusBadge = (status: string) => {
-    const normalized = status?.toLowerCase();
-    const badge = orderStatusStyles[normalized as keyof typeof orderStatusStyles];
-    if (!badge) {
-      return <span className="px-3 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-600">{status || t('mypage.status.order.undetermined')}</span>;
-    }
-    return <span className={`px-3 py-1 text-xs font-semibold rounded-full ${badge.className}`}>{badge.label}</span>;
   };
 
   const renderCustomOrderStatusBadge = (status: string) => {
@@ -1146,7 +545,7 @@ export default function MyPage() {
           {t('mypage.guest.login')}
         </button>
         <button
-          onClick={() => router.push('/auth/signup')}
+          onClick={() => router.push('/auth/register')}
           className="px-6 py-3 rounded-lg border border-gray-300 text-gray-700 font-semibold hover:bg-gray-50 transition"
         >
           {t('mypage.guest.signup')}
@@ -1155,141 +554,159 @@ export default function MyPage() {
     </div>
   );
 
+  const displayName =
+    profile?.name?.trim() ||
+    getUserDisplayName(profile as Parameters<typeof getUserDisplayName>[0], profile?.email || null);
+  const tabs = getTabs();
+
+  /** 탭 전환은 URL(?tab=)에도 남겨 새로고침·공유 시 같은 탭이 열리게 한다 */
+  const selectTab = (tab: TabKey, scrollToContent = false) => {
+    setActiveTab(tab);
+    const params = new URLSearchParams(window.location.search);
+    params.set('tab', tab);
+    params.delete('section');
+    window.history.replaceState({ ...window.history.state }, '', `${window.location.pathname}?${params.toString()}`);
+    if (scrollToContent) {
+      document.getElementById('mypage-content')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 pb-24 md:pb-0">
+    <div className="min-h-screen bg-gray-50">
       <div className="hidden md:block">
         <MainHeader user={user} />
       </div>
 
-      <div className="pt-[76px] md:pt-0">
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-10">
+      <div>
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5 pb-12 md:py-10">
           {loading ? (
             renderLoader()
           ) : !user ? (
             renderGuestState()
           ) : (
-            <div className="space-y-10">
-              <header>
-                <h2 className="text-3xl font-extrabold text-gray-900">{t('mypage.title')}</h2>
-                <p className="mt-2 text-gray-600">
-                  {t('mypage.subtitle')}
-                </p>
-              </header>
+            <div className="space-y-6 md:space-y-8">
+              <h2 className="text-2xl font-extrabold text-gray-900 md:text-3xl">{t('mypage.title')}</h2>
 
-              <section className="space-y-6">
-                <div className="grid gap-6 lg:grid-cols-2">
-                  <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 flex items-center gap-6">
-                    <div className="w-16 h-16 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-2xl font-bold">
-                      {getUserDisplayName(profile as Profile | null, profile?.email || null).slice(0, 1).toUpperCase()}
+              <section>
+                <div className="grid gap-5 rounded-3xl border border-gray-100 bg-white p-5 shadow-sm md:grid-cols-2 md:gap-8 md:p-6">
+                  <div className="flex flex-col justify-between gap-5">
+                    <div className="flex items-center gap-4">
+                      <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-pink-500 text-xl font-bold text-white">
+                        {displayName.slice(0, 1).toUpperCase()}
+                      </div>
+                      <div className="min-w-0">
+                        <h3 className="truncate text-lg font-bold text-gray-900">{displayName}</h3>
+                        <p className="truncate text-sm text-gray-500">{profile?.email}</p>
+                        <p className="mt-0.5 text-xs text-gray-400">{t('mypage.profile.joinedOn')} {formatDate(profile?.created_at)}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm text-gray-500">{t('mypage.profile.memberInfo')}</p>
-                      <h3 className="text-xl font-bold text-gray-900">{getUserDisplayName(profile as Profile | null, profile?.email || null)}</h3>
-                      <p className="text-sm text-gray-600">{profile?.email}</p>
-                      <p className="mt-2 text-xs text-gray-400">{t('mypage.profile.joinedOn')} {formatDate(profile?.created_at)}</p>
+
+                    <div className="grid grid-cols-4 divide-x divide-gray-100 rounded-2xl border border-gray-100">
+                      {stats.map((item) => (
+                        <button
+                          key={item.label}
+                          type="button"
+                          onClick={() => selectTab(item.tab, true)}
+                          className="flex flex-col items-center gap-0.5 px-1 py-3 transition-colors hover:bg-gray-50 first:rounded-l-2xl last:rounded-r-2xl"
+                        >
+                          <span className="text-lg font-extrabold text-gray-900">{item.value.toLocaleString()}</span>
+                          <span className="text-center text-[11px] leading-tight text-gray-500">{item.label}</span>
+                        </button>
+                      ))}
                     </div>
                   </div>
 
                   {/* 보유 포인트·캐쉬 (해외는 Rewards·Credits 를 달러로 표시) */}
-                  <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-4">
-                    <div className="flex items-end justify-between gap-4">
-                      <div>
-                        <h3 className="text-sm text-gray-500">{t('mypage.points.balance')}</h3>
-                        <p className="text-3xl font-extrabold text-emerald-600">
+                  <div className="space-y-4 rounded-2xl bg-gray-50 p-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="text-xs text-gray-500">{t('mypage.profile.cashBalance')}</p>
+                        <p className="text-xl font-extrabold text-gray-900">
+                          {creditsLoading ? '-' : formatWalletAmount(credits, i18n.language)}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => openCashChargeModal({ onCharged: () => refreshCredits() })}
+                        className="shrink-0 rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+                      >
+                        {t('mypage.profile.chargeCash')}
+                      </button>
+                    </div>
+                    <div className="flex items-center justify-between gap-3 border-t border-gray-200/70 pt-4">
+                      <div className="min-w-0">
+                        <p className="text-xs text-gray-500">{t('mypage.points.balance')}</p>
+                        <p className="text-xl font-extrabold text-gray-900">
                           {formatRewardPoints(rewardPoints.balance, i18n.language)}
                         </p>
                         {rewardPoints.expiringSoon > 0 && (
-                          <p className="mt-1 text-xs text-red-600">
+                          <p className="text-xs text-rose-600">
                             {t('mypage.points.expiringSoon')} {formatRewardPoints(rewardPoints.expiringSoon, i18n.language)}
                           </p>
                         )}
                       </div>
                       <button
                         type="button"
-                        onClick={() => setActiveTab('points')}
-                        className="shrink-0 text-sm font-semibold text-emerald-700 hover:underline"
+                        onClick={() => selectTab('points', true)}
+                        className="flex shrink-0 items-center text-sm font-semibold text-gray-600 hover:text-gray-900"
                       >
                         {t('mypage.points.viewHistory')}
+                        <i className="ri-arrow-right-s-line text-base" />
                       </button>
                     </div>
-                    <div className="border-t border-gray-100 pt-4 flex items-end justify-between gap-4">
-                      <div>
-                        <h3 className="text-sm text-gray-500">{t('mypage.profile.cashBalance')}</h3>
-                        <p className="text-2xl font-extrabold text-blue-600">
-                          {creditsLoading ? '-' : formatWalletAmount(credits, i18n.language)}
-                        </p>
-                        <p className="mt-1 text-xs text-gray-500">{t('mypage.profile.cashNotice')}</p>
+                    {membership && (
+                      <div className="border-t border-gray-200/70 pt-4">
+                        <MembershipCard membership={membership} compact />
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => openCashChargeModal({ onCharged: () => refreshCredits() })}
-                        className="shrink-0 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
-                      >
-                        {t('mypage.profile.chargeCash')}
-                      </button>
-                    </div>
+                    )}
                   </div>
                 </div>
 
-                {membership && <MembershipCard membership={membership} />}
-
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                  {stats.map((item) => {
-                    const handleCardClick = () => {
-                      // 쿼리 파라미터가 있는 경우 URL 파싱
-                      if (item.path.includes('?')) {
-                        const [path, query] = item.path.split('?');
-                        router.push(`${path}?${query}`);
-                      } else {
-                        router.push(item.path);
-                      }
-                    };
-
-                    return (
-                      <div
-                        key={item.label}
-                        onClick={handleCardClick}
-                        role="button"
-                        tabIndex={0}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
-                            handleCardClick();
-                          }
-                        }}
-                        className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 cursor-pointer hover:shadow-md hover:border-blue-200 transition-all group"
-                      >
-                        <p className="text-sm text-gray-500">{item.label}</p>
-                        <p className="mt-2 text-2xl font-extrabold text-gray-900 group-hover:text-blue-600 transition-colors">
-                          {item.value.toLocaleString('ko-KR')}
-                        </p>
-                      </div>
-                    );
-                  })}
-                </div>
               </section>
 
-              <section className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                <aside className="lg:col-span-1 space-y-4">
-                  {getTabs().map((tab) => (
+              <section id="mypage-content" className="grid scroll-mt-[120px] grid-cols-1 gap-4 md:scroll-mt-[140px] lg:grid-cols-4 lg:gap-8">
+                {/* 모바일·태블릿: 가로로 넘기는 탭 */}
+                <nav
+                  aria-label={t('mypage.title')}
+                  className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:px-6 lg:hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                >
+                  {tabs.map((tab) => (
                     <button
                       key={tab.id}
-                      onClick={() => setActiveTab(tab.id)}
-                      className={`w-full flex flex-col items-start gap-1 rounded-2xl border px-4 py-3 text-left transition ${activeTab === tab.id
-                        ? 'border-blue-500 bg-blue-50 text-blue-600 shadow-sm'
-                        : 'border-gray-200 bg-white text-gray-700 hover:border-blue-200 hover:text-blue-600'
-                        }`}
+                      type="button"
+                      onClick={() => selectTab(tab.id)}
+                      aria-current={activeTab === tab.id ? 'page' : undefined}
+                      className={`flex flex-shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+                        activeTab === tab.id ? 'bg-ink text-white' : 'border border-gray-200 bg-white text-gray-700'
+                      }`}
                     >
-                      <div className="flex items-center gap-2">
-                        <i className={`${tab.icon} text-lg`} />
-                        <span className="font-semibold">{tab.label}</span>
-                      </div>
-                      {tab.description ? <p className="text-xs text-gray-500">{tab.description}</p> : null}
+                      <i className={`${tab.icon} text-base`} />
+                      {tab.label}
                     </button>
                   ))}
+                </nav>
+
+                {/* PC: 왼쪽 세로 메뉴 */}
+                <aside className="hidden lg:col-span-1 lg:block">
+                  <nav aria-label={t('mypage.title')} className="sticky top-[140px] space-y-1 rounded-2xl border border-gray-100 bg-white p-2 shadow-sm">
+                    {tabs.map((tab) => (
+                      <button
+                        key={tab.id}
+                        type="button"
+                        onClick={() => selectTab(tab.id)}
+                        aria-current={activeTab === tab.id ? 'page' : undefined}
+                        className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-[15px] transition-colors ${
+                          activeTab === tab.id ? 'bg-blue-50 font-bold text-blue-700' : 'font-medium text-gray-700 hover:bg-gray-50'
+                        }`}
+                      >
+                        <i className={`${tab.icon} text-lg ${activeTab === tab.id ? 'text-blue-600' : 'text-gray-400'}`} />
+                        {tab.label}
+                      </button>
+                    ))}
+                  </nav>
                 </aside>
 
-                <section className="lg:col-span-3">
+                <section className="min-w-0 lg:col-span-3">
                   {activeTab === 'profile' && (
                     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
                       <h3 className="text-xl font-bold text-gray-900 mb-6">{t('mypage.profile.title')}</h3>
@@ -1350,259 +767,33 @@ export default function MyPage() {
                         <PasswordSettingsCard />
                       </div>
 
-                      {/* 회원탈퇴 섹션 */}
-                      <div className="mt-8 pt-8 border-t border-gray-200">
-                        <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-                          <h4 className="text-lg font-semibold text-red-900 mb-2">{t('mypage.deleteAccount.title')}</h4>
-                          <p className="text-sm text-red-700 mb-4">
-                            {t('mypage.deleteAccount.description')}
-                          </p>
+                      {/* 회원탈퇴: 자주 쓰는 기능이 아니라 접어 둔다 */}
+                      <details className="mt-8 border-t border-gray-100 pt-6">
+                        <summary className="inline-flex cursor-pointer list-none items-center gap-1 text-sm text-gray-400 hover:text-gray-600 [&::-webkit-details-marker]:hidden">
+                          {t('mypage.deleteAccount.title')}
+                          <i className="ri-arrow-down-s-line" />
+                        </summary>
+                        <div className="mt-3 rounded-xl bg-gray-50 p-4">
+                          <p className="mb-3 text-sm text-gray-600">{t('mypage.deleteAccount.description')}</p>
                           <button
+                            type="button"
                             onClick={handleDeleteAccount}
                             disabled={deletingAccount}
-                            className={`px-6 py-3 rounded-lg font-semibold text-white transition ${
-                              deletingAccount 
-                                ? 'bg-red-300 cursor-not-allowed' 
-                                : 'bg-red-600 hover:bg-red-700'
-                            }`}
+                            className="rounded-lg border border-red-200 bg-white px-4 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
                           >
                             {deletingAccount ? t('mypage.deleteAccount.processing') : t('mypage.deleteAccount.button')}
                           </button>
                         </div>
-                      </div>
+                      </details>
                     </div>
                   )}
 
-                  {activeTab === 'purchases' && (
-                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-6">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h3 className="text-xl font-bold text-gray-900">{t('mypage.purchases.title')}</h3>
-                          <p className="text-sm text-gray-500">{t('mypage.purchases.description')}</p>
-                        </div>
-                        <Link
-                          href="/categories"
-                          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-blue-200 text-blue-600 text-sm font-semibold hover:bg-blue-50"
-                        >
-                          <i className="ri-add-line text-lg" /> {t('mypage.purchases.browseMore')}
-                        </Link>
-                      </div>
-
-                      {orders.length === 0 ? (
-                        <div className="py-16 text-center text-gray-500">
-                          <i className="ri-shopping-bag-line text-4xl text-gray-300 mb-4" />
-                          <p className="font-medium">{t('mypage.purchases.noPurchases')}</p>
-                        </div>
-                      ) : (
-                        <div className="space-y-4">
-                          {orders.map((order) => {
-                            const selectableOrderItems = order.order_items.filter((item) => item.sheet_id);
-                            const orderSelectedIds = selectedPurchaseIds[order.id] ?? [];
-                            const selectedCount = orderSelectedIds.length;
-                            const allSelectableSelected =
-                              selectableOrderItems.length > 0 && selectedCount === selectableOrderItems.length;
-                            const hasSelectableItems = selectableOrderItems.length > 0;
-
-                            return (
-                              <div key={order.id} className="border border-gray-100 rounded-xl p-4 space-y-4">
-                                <div className="flex flex-wrap items-center justify-between gap-3">
-                                  <div>
-                                    <p className="text-sm text-gray-500">{t('mypage.purchases.orderNumber')}</p>
-                                    <h4 className="text-lg font-semibold text-gray-900">
-                                      {order.order_number ?? `#${order.id.slice(0, 8).toUpperCase()}`}
-                                    </h4>
-                                    <p className="text-xs text-gray-400 mt-1">{formatDateTime(order.created_at)}</p>
-                                  </div>
-                                  <div className="flex flex-wrap items-center gap-3">
-                                    {renderOrderStatusBadge(order.status)}
-                                    <p className="text-base font-semibold text-gray-900">
-                                      {t('mypage.purchases.total')}{' '}
-                                      {order.payment_method === 'cash'
-                                        ? `${order.total_amount.toLocaleString('en-US')} P`
-                                        : formatCurrency(order.total_amount)}
-                                    </p>
-                                    {hasSelectableItems ? (
-                                      <button
-                                        onClick={() => handleDownloadAllInOrder(order)}
-                                        disabled={bulkDownloading}
-                                        className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-semibold transition ${bulkDownloading
-                                          ? 'border-blue-200 bg-blue-100 text-blue-300 cursor-not-allowed'
-                                          : 'border-blue-200 bg-blue-50 text-blue-600 hover:bg-blue-100'
-                                          }`}
-                                      >
-                                        <i className="ri-stack-line text-base" />
-                                        {bulkDownloading ? t('mypage.purchases.downloading') : t('mypage.purchases.downloadAllInOrder')}
-                                      </button>
-                                    ) : null}
-                                  </div>
-                                </div>
-
-                                {hasSelectableItems ? (
-                                  <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-gray-100 bg-gray-50 px-4 py-3">
-                                    <div className="flex flex-wrap items-center gap-2">
-                                      <button
-                                        onClick={() => toggleSelectAllInOrder(order.id, order.order_items)}
-                                        disabled={bulkDownloading}
-                                        className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg border text-sm font-semibold transition ${bulkDownloading
-                                          ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
-                                          : 'border-gray-300 text-gray-700 hover:bg-white'
-                                          }`}
-                                      >
-                                        <i className="ri-checkbox-multiple-line text-base" />
-                                        {allSelectableSelected ? t('mypage.purchases.deselectAll') : t('mypage.purchases.selectAll')}
-                                      </button>
-                                      <button
-                                        onClick={() => clearPurchaseSelection(order.id)}
-                                        disabled={bulkDownloading || selectedCount === 0}
-                                        className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg border text-sm font-semibold transition ${bulkDownloading || selectedCount === 0
-                                          ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
-                                          : 'border-gray-300 text-gray-700 hover:bg-white'
-                                          }`}
-                                      >
-                                        <i className="ri-close-circle-line text-base" />
-                                        {t('mypage.purchases.deselectAll')}
-                                      </button>
-                                      <span className="text-xs text-gray-500">
-                                        {t('mypage.purchases.selected')} {selectedCount.toLocaleString('ko-KR')}
-                                      </span>
-                                    </div>
-                                    <div className="flex flex-wrap items-center gap-2">
-                                      <button
-                                        onClick={() => handleDownloadSelectedInOrder(order)}
-                                        disabled={bulkDownloading || selectedCount === 0}
-                                        className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white transition ${bulkDownloading || selectedCount === 0
-                                          ? 'bg-blue-300 cursor-not-allowed'
-                                          : 'bg-blue-600 hover:bg-blue-700'
-                                          }`}
-                                      >
-                                        <i className="ri-download-2-line text-base" />
-                                        {bulkDownloading ? t('mypage.purchases.downloading') : t('mypage.purchases.downloadSelected')}
-                                      </button>
-                                    </div>
-                                  </div>
-                                ) : null}
-
-                                <div className="space-y-3">
-                                  {order.order_items.map((item) => {
-                                    const downloadItem: DownloadableItem = {
-                                      ...item,
-                                      order_id: order.id,
-                                      order_status: order.status,
-                                      order_created_at: order.created_at,
-                                    };
-                                    const downloadKey = buildDownloadKey(downloadItem.order_id, downloadItem.id);
-                                    const isDownloading = bulkDownloading || downloadingKeys.includes(downloadKey);
-                                    const isSelectable = Boolean(item.sheet_id);
-                                    const isSelected = isSelectable && orderSelectedIds.includes(item.id);
-
-                                    return (
-                                      <div
-                                        key={item.id}
-                                        className={`flex flex-wrap items-center justify-between gap-3 rounded-xl border px-4 py-3 transition ${isSelected
-                                          ? 'border-blue-300 bg-blue-50/70 shadow-sm'
-                                          : 'border-gray-100 bg-gray-50'
-                                          }`}
-                                      >
-                                        <div className="flex items-center gap-3">
-                                          <input
-                                            type="checkbox"
-                                            className="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                                            checked={isSelectable ? isSelected : false}
-                                            onChange={() => togglePurchaseSelection(order.id, item.id)}
-                                            disabled={!isSelectable || bulkDownloading || (item.drum_sheets?.sales_type === 'PREORDER' && !item.drum_sheets?.pdf_url)}
-                                          />
-                                          <img
-                                            src={
-                                              item.drum_sheets?.thumbnail_url ||
-                                              generateDefaultThumbnail(80, 80)
-                                            }
-                                            alt={item.drum_sheets?.title ?? '악보 썸네일'}
-                                            className="w-16 h-16 rounded-lg object-cover"
-                                            onError={(event) => {
-                                              (event.target as HTMLImageElement).src = generateDefaultThumbnail(80, 80);
-                                            }}
-                                          />
-                                          <div>
-                                            <p className="text-sm text-gray-500">
-                                              {item.drum_sheets?.categories?.name ?? t('mypage.purchases.categoryNotSet')}
-                                            </p>
-                                            <h5 className="font-semibold text-gray-900">
-                                              {item.drum_sheets?.title ?? t('mypage.purchases.deletedSheet')}
-                                            </h5>
-                                            <p className="text-sm text-gray-500">{item.drum_sheets?.artist ?? '-'}</p>
-                                          </div>
-                                        </div>
-                                        <div className="flex items-center gap-3">
-                                          {item.price != null ? (
-                                            <span className="text-sm font-semibold text-gray-900">
-                                              {order.payment_method === 'cash'
-                                                ? `${item.price.toLocaleString('en-US')} P`
-                                                : formatCurrency(item.price)}
-                                            </span>
-                                          ) : null}
-                                          {(() => {
-                                            const isPreorder = item.drum_sheets?.sales_type === 'PREORDER';
-                                            const hasPdf = !!item.drum_sheets?.pdf_url;
-                                            const deadline = item.drum_sheets?.preorder_deadline;
-                                            
-                                            // 선주문 상품이면서 PDF가 없는 경우 (제작 진행 중)
-                                            if (isPreorder && !hasPdf) {
-                                              let buttonText = t('mypage.downloads.preorderInProgress');
-                                              if (deadline) {
-                                                try {
-                                                  const deadlineDate = new Date(deadline);
-                                                  const month = (deadlineDate.getMonth() + 1).toString().padStart(2, '0');
-                                                  const day = deadlineDate.getDate().toString().padStart(2, '0');
-                                                  const deadlineStr = `${month}/${day}`;
-                                                  buttonText = t('mypage.downloads.preorderInProgressWithDeadline', { deadline: deadlineStr });
-                                                } catch (e) {
-                                                  // 날짜 파싱 실패 시 기본 텍스트 사용
-                                                }
-                                              }
-                                              
-                                              return (
-                                                <button
-                                                  disabled={true}
-                                                  className="px-3 py-2 rounded-lg text-sm font-semibold text-white bg-gray-400 cursor-not-allowed"
-                                                >
-                                                  {buttonText}
-                                                </button>
-                                              );
-                                            } else {
-                                              // 일반 상품 또는 선주문 상품이지만 PDF가 있는 경우 (제작 완료): 기존 다운로드 버튼
-                                              return (
-                                                <button
-                                                  onClick={() => handleDownload(downloadItem)}
-                                                  disabled={isDownloading}
-                                                  className={`px-3 py-2 rounded-lg text-sm font-semibold text-white transition ${isDownloading
-                                                    ? 'bg-blue-300 cursor-not-allowed'
-                                                    : 'bg-blue-600 hover:bg-blue-700'
-                                                    }`}
-                                                >
-                                                  {isDownloading ? t('mypage.purchases.downloading') : t('mypage.purchases.download')}
-                                                </button>
-                                              );
-                                            }
-                                          })()}
-                                          <button
-                                            onClick={() => handleGoToSheet(item.drum_sheets?.slug || '', item.sheet_id)}
-                                            className="px-3 py-2 rounded-lg border border-gray-300 text-sm font-semibold text-gray-700 hover:bg-gray-50"
-                                          >
-                                            {t('mypage.purchases.viewDetails')}
-                                          </button>
-                                        </div>
-                                      </div>
-                                    );
-                                  })}
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      )}
+                  {activeTab === 'purchases' && user && (
+                    <div className="space-y-4">
+                      <MyBookPurchaseList userId={user.id} />
+                      <PurchaseOrderList user={user} />
                     </div>
                   )}
-
                   {activeTab === 'favorites' && (
                     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-6">
                       <div className="flex items-center justify-between">
@@ -1686,110 +877,13 @@ export default function MyPage() {
                           </p>
                         </div>
 
-                        <form className="space-y-5" onSubmit={handleInquirySubmit}>
-                          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                            <div>
-                              <label htmlFor="inquiry-name" className="block text-sm font-medium text-gray-700 mb-2">
-                                {t('mypage.inquiries.name')} *
-                              </label>
-                              <input
-                                id="inquiry-name"
-                                name="name"
-                                type="text"
-                                value={inquiryForm.name}
-                                onChange={handleInquiryInputChange}
-                                required
-                                disabled={inquirySubmitting}
-                                className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
-                                placeholder={t('mypage.inquiries.namePlaceholder')}
-                              />
-                            </div>
-                            <div>
-                              <label htmlFor="inquiry-email" className="block text-sm font-medium text-gray-700 mb-2">
-                                {t('mypage.inquiries.email')} *
-                              </label>
-                              <input
-                                id="inquiry-email"
-                                name="email"
-                                type="email"
-                                value={inquiryForm.email}
-                                onChange={handleInquiryInputChange}
-                                required
-                                disabled={inquirySubmitting}
-                                className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
-                                placeholder={t('mypage.inquiries.emailPlaceholder')}
-                              />
-                            </div>
-                          </div>
-
-                          <div>
-                            <label htmlFor="inquiry-category" className="block text-sm font-medium text-gray-700 mb-2">
-                              {t('mypage.inquiries.category')} *
-                            </label>
-                            <select
-                              id="inquiry-category"
-                              name="category"
-                              value={inquiryForm.category}
-                              onChange={handleInquiryInputChange}
-                              required
-                              disabled={inquirySubmitting}
-                              className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
-                            >
-                              <option value="">{t('mypage.inquiries.categoryPlaceholder')}</option>
-                              <option value="주문/결제">{t('mypage.inquiries.categories.orderPayment')}</option>
-                              <option value="악보/다운로드">{t('mypage.inquiries.categories.sheetDownload')}</option>
-                              <option value="주문제작">{t('mypage.inquiries.categories.customOrder')}</option>
-                              <option value="기술지원">{t('mypage.inquiries.categories.technical')}</option>
-                              <option value="기타">{t('mypage.inquiries.categories.other')}</option>
-                            </select>
-                          </div>
-
-                          <div>
-                            <label htmlFor="inquiry-subject" className="block text-sm font-medium text-gray-700 mb-2">
-                              {t('mypage.inquiries.subject')} *
-                            </label>
-                            <input
-                              id="inquiry-subject"
-                              name="subject"
-                              type="text"
-                              value={inquiryForm.subject}
-                              onChange={handleInquiryInputChange}
-                              required
-                              disabled={inquirySubmitting}
-                              className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
-                              placeholder={t('mypage.inquiries.subjectPlaceholder')}
-                            />
-                          </div>
-
-                          <div>
-                            <label htmlFor="inquiry-message" className="block text-sm font-medium text-gray-700 mb-2">
-                              {t('mypage.inquiries.message')} *
-                            </label>
-                            <textarea
-                              id="inquiry-message"
-                              name="message"
-                              value={inquiryForm.message}
-                              onChange={handleInquiryInputChange}
-                              required
-                              disabled={inquirySubmitting}
-                              rows={6}
-                              maxLength={500}
-                              className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 resize-none"
-                              placeholder={t('mypage.inquiries.messagePlaceholder')}
-                            />
-                            <div className="mt-1 text-right text-xs text-gray-400">
-                              {inquiryForm.message.length}/500{t('mypage.inquiries.characters')}
-                            </div>
-                          </div>
-
-                          <button
-                            type="submit"
-                            disabled={inquirySubmitting}
-                            className="w-full rounded-lg bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:bg-blue-300"
-                          >
-                            {inquirySubmitting ? t('mypage.inquiries.submitting') : t('mypage.inquiries.submit')}
-                          </button>
-                        </form>
+                        <InquiryForm
+                          user={user}
+                          showHistoryLink={false}
+                          onSubmitted={() => {
+                            if (user) void loadUserInquiries(user);
+                          }}
+                        />
                       </div>
 
                       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-5">
@@ -1941,18 +1035,7 @@ export default function MyPage() {
         </main>
       </div>
 
-      <button
-        onClick={() => router.push('/cart')}
-        className="hidden md:fixed md:bottom-6 md:left-6 md:z-40 md:flex items-center gap-2 rounded-full bg-blue-600 text-white px-5 py-3 shadow-lg hover:bg-blue-700"
-      >
-        <i className="ri-shopping-cart-line text-lg" />
-        {t('mypage.cart')}
-        {cartItems.length > 0 ? (
-          <span className="ml-2 rounded-full bg-white text-blue-600 text-xs font-bold px-2 py-0.5">
-            {cartItems.length}
-          </span>
-        ) : null}
-      </button>
+      <Footer />
     </div>
   );
 }

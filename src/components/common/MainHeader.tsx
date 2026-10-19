@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { supabase } from '../../lib/supabase';
 import { googleAuth } from '../../lib/google';
 import LanguageSelector from './LanguageSelector';
+import BrandLogo from './BrandLogo';
 import { useLocaleRouter } from '@/hooks/useLocaleRouter';
 import { getLocaleFromPathname, removeLocaleFromPathname } from '@/lib/localeUrl';
 import { useCart } from '../../hooks/useCart';
@@ -82,7 +83,7 @@ function HeaderIconButton({
       <i className={`${icon} text-[22px] leading-none`} />
       <span className="mt-1 whitespace-nowrap text-[11px] font-medium leading-none">{label}</span>
       {badge ? (
-        <span className="absolute right-1.5 top-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-red-500 px-1 text-[11px] font-bold leading-none text-white ring-2 ring-blue-700">
+        <span className="absolute right-1.5 top-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-red-500 px-1 text-[11px] font-bold leading-none text-white ring-2 ring-ink">
           {badge > 99 ? '99+' : badge}
         </span>
       ) : null}
@@ -274,7 +275,7 @@ export default function MainHeader({ user: userProp }: MainHeaderProps) {
 
       <header className="fixed inset-x-0 top-0 z-50" suppressHydrationWarning>
         {/* 1단: 로고 · 검색 · 계정 */}
-        <div className="relative z-10 bg-blue-700" suppressHydrationWarning>
+        <div className="relative z-10 bg-ink" suppressHydrationWarning>
           <div className="mx-auto flex h-[72px] max-w-7xl items-center gap-4 px-4 sm:px-6 lg:gap-8 lg:px-8" suppressHydrationWarning>
             <a
               href="/"
@@ -282,9 +283,9 @@ export default function MainHeader({ user: userProp }: MainHeaderProps) {
               className="flex flex-shrink-0 items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
               aria-label={t('sidebar.site.name')}
             >
-              <img src="/logo.png" alt={t('sidebar.site.name')} className="h-9 w-auto" suppressHydrationWarning />
+              <BrandLogo size={36} />
               {isKoreanSite && (
-                <h1 className="hidden whitespace-nowrap text-[22px] font-extrabold tracking-tight text-white lg:block" suppressHydrationWarning>
+                <h1 className="hidden whitespace-nowrap text-[15px] font-bold text-white/70 lg:block" suppressHydrationWarning>
                   {t('sidebar.site.name')}
                 </h1>
               )}
@@ -477,28 +478,28 @@ export default function MainHeader({ user: userProp }: MainHeaderProps) {
                     aria-current={isActive ? 'page' : undefined}
                     className={`relative inline-flex h-12 flex-shrink-0 items-center gap-1.5 whitespace-nowrap px-3 text-[15px] font-semibold transition-colors ${
                       item.tone === 'sale'
-                        ? 'text-red-600 hover:text-red-700'
+                        ? 'text-rose-600 hover:text-rose-700'
                         : isActive
-                          ? 'text-blue-700'
-                          : 'text-gray-600 hover:text-gray-900'
+                          ? 'text-blue-600'
+                          : 'text-gray-600 hover:text-ink'
                     }`}
                   >
                     {item.live && (
                       <span className="relative flex h-2 w-2">
-                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75" />
-                        <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500" />
+                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-400 opacity-75" />
+                        <span className="relative inline-flex h-2 w-2 rounded-full bg-rose-500" />
                       </span>
                     )}
                     {item.label}
                     {item.badge && (
-                      <span className="rounded-full bg-fuchsia-500 px-1.5 py-0.5 text-[11px] font-bold leading-none text-white">
+                      <span className="rounded-full bg-pink-500 px-1.5 py-0.5 text-[11px] font-bold leading-none text-white">
                         {item.badge}
                       </span>
                     )}
                     {isActive && (
                       <span
                         aria-hidden="true"
-                        className={`absolute inset-x-3 bottom-0 h-0.5 rounded-full ${item.tone === 'sale' ? 'bg-red-600' : 'bg-blue-700'}`}
+                        className={`absolute inset-x-3 bottom-0 h-0.5 rounded-full ${item.tone === 'sale' ? 'bg-rose-600' : 'bg-blue-600'}`}
                       />
                     )}
                   </a>

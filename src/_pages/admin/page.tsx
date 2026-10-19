@@ -3732,7 +3732,14 @@ const AdminPage: React.FC = () => {
         throw error;
       }
 
-      setCustomerInquiries(data ?? []);
+      // 예전 고객센터 양식은 subject/message 에만 저장했다
+      setCustomerInquiries(
+        (data ?? []).map((row: any) => ({
+          ...row,
+          title: row.title || row.subject || '',
+          content: row.content || row.message || '',
+        })),
+      );
     } catch (error) {
       console.error('고객 문의 로드 오류:', error);
     } finally {
@@ -15028,7 +15035,7 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
             className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-left transition-colors ${activeMenu === 'sheet-books' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100'
               }`}
           >
-            <i className="ri-book-mark-line w-5 h-5"></i>
+            <i className="ri-book-marked-line w-5 h-5"></i>
             <span className="text-sm md:text-base">악보집 관리</span>
           </button>
 

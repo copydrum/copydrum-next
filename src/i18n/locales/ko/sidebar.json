@@ -2,7 +2,7 @@
   "nav": {
     "customOrder": "주문제작하기",
     "mypage": "마이페이지",
-    "purchaseHistory": "구입목록",
+    "purchaseHistory": "구매내역",
     "cart": "장바구니",
     "logout": "로그아웃",
     "login": "로그인",
@@ -23,7 +23,7 @@
   "cashHistory": "악보캐쉬 내역",
   "updateProfile": "회원정보 업데이트",
   "cart": "장바구니",
-  "purchaseHistory": "구입목록",
+  "purchaseHistory": "구매내역",
   "customOrder": "주문제작하기",
   "myPage": "마이페이지",
   "customerSupport": "고객센터",

@@ -164,6 +164,20 @@ export default {
   // Mobile - Menu Sidebar
   'mobile.menu.greeting': 'Welcome, {{name}}!',
   'mobile.menu.close': 'Close mobile menu',
+  'mobile.menu.loginPrompt': 'Log in to re-download your sheets anytime',
+
+  // Purchase list (shared by My Page tab and Purchase History page)
+  'purchaseOrders.searchPlaceholder': 'Search by title or artist',
+  'purchaseOrders.noResults': 'No matching sheets.',
+  'purchaseOrders.loadMore': 'Load more',
+  'purchaseOrders.sheetCount': '{{count}} sheets',
+  'purchaseOrders.awaitingDeposit': 'Awaiting deposit',
+  'purchaseOrders.depositGuide': 'You can download as soon as your bank transfer is confirmed.',
+  'purchaseOrders.depositAccount': '{{bank}} {{account}} (Account holder {{holder}})',
+  'purchaseOrders.depositor': 'Depositor {{name}}',
+  'purchaseOrders.legacyMethod': 'Previous site purchase',
+  'purchaseOrders.viewSheet': 'View sheet',
+  'purchaseOrders.clearSearch': 'Clear search',
 
   // Mobile - Search Overlay
   'mobile.search.close': 'Close search',
@@ -426,6 +440,11 @@ export default {
   'footer.contactInfo': 'Contact: 070-7570-0028 (Please use 1:1 inquiry or KakaoTalk chat as phone contact is difficult during work hours.)',
   'footer.email': 'Email: copydrum@hanmail.net',
   'footer.contactInfoGlobal': 'Contact: 070-7570-0028 (Phone support is limited during business hours. Please use the chat icon in the bottom-right corner of the screen.)',
+  'footer.contactLabel': 'Contact',
+  'footer.contactChat': 'Live chat',
+  'footer.hosting': 'Hosting: Vercel Inc.',
+  'footer.bizCheck': 'Verify business',
+  'footer.businessToggle': 'COPYDRUM business information',
   'footer.copyright': '© {{year}} CopyDrum. All rights reserved.',
   'footer.globalService': 'Global Service | English / Japanese / Vietnamese / French / German / Spanish / Portuguese',
 
@@ -479,7 +498,7 @@ export default {
   'category.other': 'Other',
 
   // Purchase History
-  'purchaseHistory.title': 'Downloads',
+  'purchaseHistory.title': 'Purchase History',
   'purchaseHistory.description': 'View and re-download the drum sheets you have purchased.',
   'purchaseHistory.listTitle': 'Purchased Sheets',
   'purchaseHistory.totalCount': 'Total {{count}} items',

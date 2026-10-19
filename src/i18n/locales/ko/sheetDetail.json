@@ -1,5 +1,11 @@
 {
   "loading": "로딩 중...",
+  "inCart": "담김",
+  "purchasedTitle": "구매한 악보예요",
+  "purchasedDesc": "구매내역에서 언제든 다시 다운로드할 수 있어요.",
+  "purchasedCta": "구매내역에서 다운로드",
+  "paymentInfo": "카드·카카오페이·무통장입금·캐쉬·포인트로 결제하고, 결제 즉시 PDF를 받을 수 있어요.",
+  "preorderBadge": "선주문",
   "sheetNotFound": "악보를 찾을 수 없습니다",
   "backToCategories": "카테고리로 돌아가기",
   "bankTransferInfo": "무통장입금 안내",

@@ -193,7 +193,7 @@ export function buildCollectionsSeoStrings(locale: string) {
     ogTitle: picked.title.replace(/\s*\|\s*COPYDRUM\s*$/, ''),
     ogDescription: picked.description,
     ogUrl: `${baseUrl}/collections`,
-    ogImage: `${baseUrl}/logo.png`,
+    ogImage: `${baseUrl}/brand/og-default.png`,
   };
 }
 
@@ -249,7 +249,7 @@ export function buildCollectionDetailSeoStrings(
   }
 ) {
   const baseUrl = 'https://www.copydrum.com';
-  const thumbnail = collection.thumbnail_url || `${baseUrl}/logo.png`;
+  const thumbnail = collection.thumbnail_url || `${baseUrl}/brand/og-default.png`;
 
   const name = resolveLocalized(collection.title_translations, locale, collection.title);
   const suffix = COLLECTION_SUFFIX[locale] || COLLECTION_SUFFIX.en;

@@ -1,13 +1,39 @@
 {
   "title": "Customer Support",
-  "subtitle": "If you have any questions, please contact us anytime. We will provide quick and accurate answers.",
+  "subtitle": "Check the FAQ first, and if you still need help, contact us anytime.",
   "tabs": {
     "faq": "FAQ",
     "contact": "Contact Us"
   },
+  "channels": {
+    "chat": {
+      "title": "Live Chat",
+      "badge": "Fastest",
+      "description": "We reply right away during business hours. Leave a message anytime.",
+      "button": "Start chat"
+    },
+    "inquiry": {
+      "title": "Contact Form",
+      "description": "Send us the details and we'll reply within 24 hours on business days.",
+      "button": "Send a message"
+    },
+    "email": {
+      "title": "Email",
+      "button": "Send email"
+    },
+    "hours": "Business hours: Weekdays 10:00 - 17:00 (KST) · Closed on weekends and holidays"
+  },
   "contact": {
     "title": "Contact Us",
     "description": "If you have any questions or issues, please fill out the form below. We will respond as soon as possible.",
+    "guestNotice": "Sign in to see our reply in My Page. If you send this without signing in, we'll reply to the email you enter.",
+    "success": {
+      "title": "Your message has been received",
+      "member": "We'll reply within 24 hours on business days. You can see the reply in My Page > Contact.",
+      "guest": "We'll reply to the email you entered within 24 hours on business days.",
+      "viewHistory": "View my inquiries",
+      "again": "Send another message"
+    },
     "form": {
       "name": "Name",
       "namePlaceholder": "Enter your name",
@@ -18,7 +44,7 @@
       "subject": "Subject",
       "subjectPlaceholder": "Enter inquiry subject",
       "message": "Message",
-      "messagePlaceholder": "Please write your inquiry in detail (max 500 characters)",
+      "messagePlaceholder": "Including your order number or the song title helps us check faster (max 500 characters)",
       "characters": "characters",
       "submit": "Send Inquiry",
       "submitting": "Sending...",
@@ -52,38 +78,73 @@
     }
   },
   "faq": {
+    "searchPlaceholder": "Search the FAQ (e.g. refund, download)",
+    "all": "All",
+    "noResults": "Can't find your question? Let us know via chat or the contact form.",
+    "askButton": "Contact us",
     "categories": {
       "orderPayment": {
         "name": "Order/Payment",
         "items": {
-          "download": {
-            "question": "When can I download the sheet music after purchase?",
-            "answer": "You can download immediately after payment is completed from My Page. Purchased sheet music can be re-downloaded anytime."
-          },
           "payment": {
             "question": "What payment methods are available?",
-            "answer": "We support credit cards, debit cards, bank transfers, and convenient payment methods (Kakao Pay)."
+            "answer": "You can pay by credit/debit card or PayPal, and you can also use your Credits and Rewards."
+          },
+          "bankTransfer": {
+            "question": "When can I download after paying by bank transfer?",
+            "answer": "You can download as soon as the deposit is confirmed. Until then, the order shows as 'Awaiting deposit' in Purchase History along with the account details."
+          },
+          "guest": {
+            "question": "Can I buy without creating an account?",
+            "answer": "Yes. Just enter your email to buy. We create an account for you so you can keep your purchases, and you can set a password from the email we send to sign in and download again anytime."
           },
           "refund": {
             "question": "How can I get a refund?",
-            "answer": "Due to the nature of digital products, refunds are only available before download. Refunds are difficult after download, so please purchase carefully."
+            "answer": "Because these are digital products, refunds are available only within 7 days of payment and if the file has not been downloaded. Duplicate payments are refunded right away. Please see the refund policy for details.",
+            "link": "View refund policy"
           }
         }
       },
       "sheetDownload": {
         "name": "Sheet Music/Download",
         "items": {
+          "download": {
+            "question": "Where do I download my sheet music?",
+            "answer": "Right after payment, you can download it from Purchase History, and you can download it again anytime.",
+            "link": "Go to Purchase History"
+          },
+          "notWorking": {
+            "question": "The download doesn't work.",
+            "answer": "If you opened the site inside an app (like Instagram or KakaoTalk), please open it again in a regular browser such as Chrome or Safari. If it still doesn't work, sign out and back in, and if the problem continues, send us your order number and song title via chat."
+          },
           "format": {
             "question": "What file format are the sheet music files?",
-            "answer": "All sheet music is provided in high-quality PDF format. Optimized for both printing and digital devices."
+            "answer": "All sheet music is provided as high-quality PDF files that you can view on phones and tablets or print."
           },
           "print": {
             "question": "Can I print the downloaded sheet music?",
             "answer": "Yes, you can print for personal practice use. However, commercial use or redistribution is prohibited."
           },
-          "difficulty": {
-            "question": "How are difficulty levels classified?",
-            "answer": "They are classified as Beginner (basic patterns), Intermediate (including variation patterns), and Advanced (including complex techniques)."
+          "preorder": {
+            "question": "When will I get a pre-order sheet?",
+            "answer": "We start transcribing a pre-order sheet as soon as payment is complete. Once finished, you can download it from Purchase History, and the expected completion date is shown until then."
+          }
+        }
+      },
+      "cashPoints": {
+        "name": "Credits/Rewards",
+        "items": {
+          "cash": {
+            "question": "What are Credits?",
+            "answer": "Credits are a balance you add in advance and use to buy sheet music. The more you add, the more bonus Credits you get, up to 25%. You can add Credits from the Credits button at the top of the page."
+          },
+          "points": {
+            "question": "How do I earn and use Rewards?",
+            "answer": "You earn 3–7% of the amount you pay on every purchase, depending on your membership tier, and you can use Rewards at checkout."
+          },
+          "pointsExpire": {
+            "question": "Do Rewards expire?",
+            "answer": "Rewards can be used for 1 year from the day you earn them. My Page shows Rewards that will expire within 30 days."
           }
         }
       },
@@ -92,15 +153,51 @@
         "items": {
           "what": {
             "question": "What is the custom order service?",
-            "answer": "It is a customized service where professionals create drum sheet music for your desired song."
+            "answer": "If a song isn't on our site, request it and our professionals will listen and transcribe the drum part for you. You can request with just your email, no sign-up needed.",
+            "link": "Request a custom order"
+          },
+          "cost": {
+            "question": "How is the price determined?",
+            "answer": "It depends on the song's length and difficulty: Easy from $10, Standard $20–30, and Complex from $50. We send an exact quote after listening to the song."
           },
           "duration": {
             "question": "How long does production take?",
-            "answer": "It usually takes 1-7 days depending on the complexity of the song. Exact schedule will be provided individually after application."
+            "answer": "It usually takes 1–3 days after payment. It can vary with the song's difficulty and length, and we include the exact schedule with your quote."
           },
-          "cost": {
-            "question": "How is the production cost determined?",
-            "answer": "We provide quotes by comprehensively considering the song's length, complexity, and difficulty level."
+          "payment": {
+            "question": "Where do I see the quote and pay?",
+            "answer": "Once the quote is ready, you can see it in My Page > Custom Orders and pay directly from the order details page."
+          }
+        }
+      },
+      "myBook": {
+        "name": "My Drum Book",
+        "items": {
+          "what": {
+            "question": "What is My Drum Book?",
+            "answer": "Pick the songs you want and we'll build them into a single PDF book with a cover and table of contents. The more songs you add, the bigger the discount, and songs you already own are free to add.",
+            "link": "Create My Drum Book"
+          },
+          "download": {
+            "question": "Where do I get my finished book?",
+            "answer": "Once payment is confirmed, the book is built automatically, usually within a minute. You can download it from the 'My Drum Book' section at the top of Purchase History."
+          }
+        }
+      },
+      "account": {
+        "name": "Account",
+        "items": {
+          "socialPassword": {
+            "question": "I signed up with Google. Can I also sign in with email?",
+            "answer": "Yes. Set a password in My Page > Profile > Password settings, and you can sign in with your email and password too."
+          },
+          "forgotPassword": {
+            "question": "I forgot my password.",
+            "answer": "Use 'Forgot password' on the sign-in page and enter your email. We'll send you a link to set a new password."
+          },
+          "deleteAccount": {
+            "question": "How do I delete my account?",
+            "answer": "Go to the bottom of My Page > Profile and choose 'Delete account'. All your data, including purchases, Credits, and Rewards, will be permanently deleted and cannot be recovered."
           }
         }
       }
@@ -117,30 +214,3 @@
     "inquiryError": "고객 문의 저장 실패:"
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

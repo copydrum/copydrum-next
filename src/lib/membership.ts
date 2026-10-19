@@ -15,8 +15,8 @@ export interface MembershipSummary {
 }
 
 export const TIER_STYLE: Record<TierCode, { badge: string; bar: string; icon: string }> = {
-  rookie: { badge: 'bg-sky-100 text-sky-700', bar: 'bg-sky-500', icon: 'ri-seedling-line' },
-  session: { badge: 'bg-violet-100 text-violet-700', bar: 'bg-violet-500', icon: 'ri-music-2-line' },
+  rookie: { badge: 'bg-gray-100 text-gray-700', bar: 'bg-blue-500', icon: 'ri-seedling-line' },
+  session: { badge: 'bg-blue-100 text-blue-700', bar: 'bg-blue-600', icon: 'ri-music-2-line' },
   master: { badge: 'bg-amber-100 text-amber-800', bar: 'bg-amber-500', icon: 'ri-vip-crown-2-line' },
 };
 

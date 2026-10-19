@@ -45,7 +45,7 @@ export default function EventSaleCard({
   return (
     <article
       className={`group relative flex h-full flex-col overflow-hidden rounded-2xl border bg-white shadow-sm transition-shadow hover:shadow-lg ${
-        isLive ? 'border-red-100' : 'border-gray-200'
+        isLive ? 'border-rose-100' : 'border-gray-200'
       }`}
     >
       <button
@@ -67,7 +67,7 @@ export default function EventSaleCard({
         />
         {percent > 0 && (
           <span
-            className={`absolute left-2 top-2 rounded-lg bg-red-600 font-extrabold text-white shadow ${
+            className={`absolute left-2 top-2 rounded-lg bg-rose-600 font-extrabold text-white shadow ${
               compact ? 'px-1.5 py-0.5 text-xs' : 'px-2 py-1 text-sm'
             }`}
           >
@@ -81,7 +81,7 @@ export default function EventSaleCard({
         )}
         <div
           className={`absolute inset-x-0 bottom-0 flex items-center justify-center gap-1.5 bg-gradient-to-t px-2 pb-2 pt-6 text-white ${
-            isLive ? 'from-red-700/95 via-red-600/70 to-transparent' : 'from-gray-900/90 via-gray-900/60 to-transparent'
+            isLive ? 'from-rose-700/95 via-rose-600/70 to-transparent' : 'from-gray-900/90 via-gray-900/60 to-transparent'
           }`}
         >
           <i className={`${isLive ? 'ri-timer-flash-line' : 'ri-time-line'} ${compact ? 'text-sm' : 'text-base'}`} />
@@ -98,7 +98,7 @@ export default function EventSaleCard({
       <div className={`flex flex-1 flex-col ${compact ? 'gap-1.5 p-2.5' : 'gap-2 p-3 sm:p-4'}`}>
         <button type="button" onClick={() => onOpen(event)} className="min-w-0 text-left">
           <h3
-            className={`line-clamp-1 font-bold text-gray-900 group-hover:text-red-600 ${
+            className={`line-clamp-1 font-bold text-gray-900 group-hover:text-rose-600 ${
               compact ? 'text-sm' : 'text-sm sm:text-base'
             }`}
           >
@@ -148,7 +148,7 @@ export default function EventSaleCard({
                     type="button"
                     onClick={() => onBuyNow(event)}
                     disabled={buying}
-                    className="flex h-10 flex-1 items-center justify-center rounded-xl bg-red-600 px-3 text-sm font-bold text-white transition-colors hover:bg-red-700 disabled:opacity-60"
+                    className="flex h-10 flex-1 items-center justify-center rounded-xl bg-rose-600 px-3 text-sm font-bold text-white transition-colors hover:bg-rose-700 disabled:opacity-60"
                   >
                     {buying ? <i className="ri-loader-4-line animate-spin" /> : t('eventSale.actions.buyNow')}
                   </button>

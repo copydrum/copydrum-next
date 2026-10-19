@@ -1,5 +1,11 @@
 {
   "loading": "Loading...",
+  "inCart": "In cart",
+  "purchasedTitle": "You own this sheet",
+  "purchasedDesc": "You can download it again anytime from Purchase History.",
+  "purchasedCta": "Download in Purchase History",
+  "paymentInfo": "Pay by card, PayPal, Credits, or Rewards and get the PDF right after payment.",
+  "preorderBadge": "Pre-order",
   "sheetNotFound": "Sheet music not found",
   "backToCategories": "Back to Categories",
   "bankTransferInfo": "Bank Transfer Information",

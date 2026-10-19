@@ -26,7 +26,7 @@ export default {
   'nav.drumLesson': '드럼레슨 교재',
   'nav.sheetBooks': '악보집',
   'nav.freeSheets': '무료 악보',
-  'nav.customerSupport': '고객지원',
+  'nav.customerSupport': '고객센터',
   'nav.company.about': '회사소개',
   'nav.company.partnership': '제휴문의',
 
@@ -129,7 +129,7 @@ export default {
 
   // Footer
   'footer.company': '회사',
-  'footer.support': '고객지원',
+  'footer.support': '고객센터',
   'footer.legal': '약관',
   'footer.followUs': '팔로우',
   'footer.copyright': '© 2025 카피드럼. All rights reserved.',
@@ -165,6 +165,20 @@ export default {
   // Mobile - Menu Sidebar
   'mobile.menu.greeting': '{{name}}님, 환영합니다!',
   'mobile.menu.close': '모바일 메뉴 닫기',
+  'mobile.menu.loginPrompt': '로그인하고 구매한 악보를 언제든 다시 받아보세요',
+
+  // 구매내역 목록 (마이페이지 탭·구매내역 페이지 공용)
+  'purchaseOrders.searchPlaceholder': '곡명 또는 아티스트 검색',
+  'purchaseOrders.noResults': '검색 결과가 없어요.',
+  'purchaseOrders.loadMore': '더 보기',
+  'purchaseOrders.sheetCount': '총 {{count}}곡',
+  'purchaseOrders.awaitingDeposit': '입금 대기',
+  'purchaseOrders.depositGuide': '아래 계좌로 입금이 확인되면 바로 다운로드할 수 있어요.',
+  'purchaseOrders.depositAccount': '{{bank}} {{account}} (예금주 {{holder}})',
+  'purchaseOrders.depositor': '입금자명 {{name}}',
+  'purchaseOrders.legacyMethod': '이전 사이트 구매',
+  'purchaseOrders.viewSheet': '악보 보기',
+  'purchaseOrders.clearSearch': '검색어 지우기',
 
   // Mobile - Search Overlay
   'mobile.search.close': '검색 닫기',
@@ -212,7 +226,7 @@ export default {
   'sidebar.cashHistory': '악보캐쉬 내역',
   'sidebar.updateProfile': '회원정보 업데이트',
   'sidebar.cart': '장바구니',
-  'sidebar.purchaseHistory': '구입목록',
+  'sidebar.purchaseHistory': '구매내역',
   'sidebar.customOrder': '주문제작하기',
   'sidebar.myPage': '마이페이지',
   'sidebar.customerSupport': '고객센터',
@@ -334,7 +348,7 @@ export default {
   'sheetDetail.bankTransferCreated': '무통장입금 안내가 생성되었습니다.\n입금 후 자동으로 구매가 완료됩니다.',
   'sheetDetail.paymentWindowOpen': '결제창이 열립니다. 결제를 완료해 주세요.',
   'sheetDetail.purchaseDescription': '악보 구매: {{title}}',
-  'sheetDetail.alreadyPurchased': '이미 구매하신 악보입니다.\n마이페이지 > 악보 구매 내역에서 다운로드해 주세요.',
+  'sheetDetail.alreadyPurchased': '이미 구매하신 악보입니다.\n구매내역에서 다운로드해 주세요.',
   'sheetDetail.purchaseCheckError': '구매 이력 확인 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.',
   'sheetDetail.insufficientCash': '보유 캐쉬가 부족합니다.\n현재 잔액: {{amount}}P\n캐쉬를 충전한 뒤 다시 시도해주세요.',
   'sheetDetail.purchaseComplete': '구매가 완료되었습니다.',
@@ -396,9 +410,9 @@ export default {
   // Footer
   'footer.categories': '악보 카테고리',
   'footer.scoreCategoryTitle': '악보 카테고리',
-  'footer.support': '고객 지원',
+  'footer.support': '고객센터',
   'footer.company': '회사 정보',
-  'footer.guide': '이용 가이드',
+  'footer.guide': '이용가이드',
   'footer.faq': '자주 묻는 질문',
   'footer.contact': '문의하기',
   'footer.refundPolicy': '환불 정책',
@@ -414,6 +428,11 @@ export default {
   'footer.contactInfo': '연락처 070-7570-0028 (작업중에 연락이 어렵습니다. 1:1문의 또는 화면 오른쪽 아래 채팅 상담을 이용해주세요.)',
   'footer.email': '이메일: copydrum@hanmail.net',
   'footer.contactInfoGlobal': '문의사항이 있으시면 마이페이지의 1:1 문의하기를 이용해 주세요.',
+  'footer.contactLabel': '연락처',
+  'footer.contactChat': '채팅 연결',
+  'footer.hosting': '호스팅 서비스: Vercel Inc.',
+  'footer.bizCheck': '사업자정보확인',
+  'footer.businessToggle': '카피드럼 사업자 정보',
   'footer.copyright': '© {{year}} 카피드럼. All rights reserved.',
   'footer.globalService': '글로벌 서비스 | 영어 / 일본어 / 베트남어 / 프랑스어 / 독일어 / 스페인어 / 포르투갈어',
 

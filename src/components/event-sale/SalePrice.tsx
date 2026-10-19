@@ -63,9 +63,9 @@ export default function SalePrice({
     >
       <span className="inline-flex items-baseline gap-1.5">
         {showPercent && percent > 0 && (
-          <span className={`rounded bg-red-600 font-bold text-white leading-none ${sizes.badge}`}>-{percent}%</span>
+          <span className={`rounded bg-rose-600 font-bold text-white leading-none ${sizes.badge}`}>-{percent}%</span>
         )}
-        <span className={`text-red-600 leading-tight ${sizes.sale}`}>{formatKrw(salePrice)}</span>
+        <span className={`text-rose-600 leading-tight ${sizes.sale}`}>{formatKrw(salePrice)}</span>
       </span>
       <span className={`text-gray-400 line-through leading-tight ${sizes.original}`}>{formatKrw(price)}</span>
     </span>

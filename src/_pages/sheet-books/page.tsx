@@ -299,7 +299,7 @@ export default function SheetBooksPage() {
       <section className="relative bg-gradient-to-br from-indigo-700 via-violet-700 to-purple-800 text-white overflow-hidden">
         <div className="relative mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:py-16">
           <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-1.5 text-sm font-semibold border border-white/25">
-            <i className="ri-book-mark-line" />
+            <i className="ri-book-marked-line" />
             {t('sheetBooks.badge')}
           </span>
           <h1 className="mt-4 text-3xl font-bold sm:text-4xl">{t('sheetBooks.title')}</h1>
@@ -383,7 +383,7 @@ export default function SheetBooksPage() {
             </div>
           ) : filteredBooks.length === 0 ? (
             <div className="flex h-64 flex-col items-center justify-center text-center text-gray-500 gap-2">
-              <i className="ri-book-mark-line text-5xl text-gray-300" />
+              <i className="ri-book-marked-line text-5xl text-gray-300" />
               <p className="font-semibold text-gray-600">{t('sheetBooks.empty.title')}</p>
               <p className="text-sm">{t('sheetBooks.empty.description')}</p>
             </div>

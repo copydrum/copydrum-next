@@ -75,6 +75,43 @@ const GENRE_ORDER_GLOBAL = ['팝', '락', '가요', '재즈', 'J-POP', 'OST', 'C
 /** 한국어는 가요 우선, 나머지 언어는 팝 우선 순서 */
 export const getGenreOrder = (language: string) => (language === 'ko' ? GENRE_ORDER_KO : GENRE_ORDER_GLOBAL);
 
+const GENRE_LABEL_KEYS: Record<string, string> = {
+  '가요': 'kpop',
+  '팝': 'pop',
+  '락': 'rock',
+  'CCM': 'ccm',
+  '트로트/성인가요': 'trot',
+  '재즈': 'jazz',
+  'J-POP': 'jpop',
+  'OST': 'ost',
+  '드럼솔로': 'drumSolo',
+  '드럼커버': 'drumCover',
+};
+
+/** DB의 한국어 장르명을 현재 언어로 표시 */
+export const getGenreLabel = (name: string, language: string, t: (key: string) => string) => {
+  if (language === 'ko') return name;
+  const key = GENRE_LABEL_KEYS[name];
+  return key ? t(`categoriesPage.categories.${key}`) : name;
+};
+
+/** 표시 순서대로 정렬된 장르 링크 목록 (DB에 없는 장르는 건너뛴다) */
+export const buildGenreNavItems = (
+  categories: GenreCategory[],
+  language: string,
+  t: (key: string) => string,
+) =>
+  getGenreOrder(language).flatMap((name) => {
+    const category = categories.find((cat) => cat.name === name);
+    if (!category) return [];
+    return [{
+      id: category.id,
+      slug: category.slug,
+      label: getGenreLabel(name, language, t),
+      href: `/categories?category=${category.slug || category.id}`,
+    }];
+  });
+
 /** URL의 category 파라미터(slug 또는 id)가 이 카테고리를 가리키는지 */
 export const isSameCategory = (param: string | null | undefined, category: Pick<GenreCategory, 'id' | 'slug'>) =>
   Boolean(param) && (param === category.id || param === category.slug);

@@ -131,7 +131,7 @@ export default function EventSalePage() {
       />
       <MainHeader user={user} />
 
-      <section className="relative overflow-hidden bg-gradient-to-br from-red-600 via-rose-600 to-orange-500 text-white">
+      <section className="relative overflow-hidden bg-gradient-to-br from-rose-500 via-pink-600 to-blue-600 text-white">
         <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-white/10 blur-2xl" />
         <div className="pointer-events-none absolute -bottom-32 -left-16 h-72 w-72 rounded-full bg-orange-300/20 blur-3xl" />
         <div className="relative mx-auto flex max-w-7xl flex-col gap-6 px-4 py-10 sm:px-6 lg:flex-row lg:items-end lg:justify-between lg:py-14">
@@ -187,7 +187,7 @@ export default function EventSalePage() {
             <div className="mb-4 flex items-end justify-between gap-3 sm:mb-6">
               <div>
                 <h2 className="flex items-center gap-2 text-xl font-extrabold text-gray-900 sm:text-2xl">
-                  <i className="ri-fire-fill text-red-500" />
+                  <i className="ri-fire-fill text-rose-500" />
                   {t('eventSale.page.liveTitle')}
                 </h2>
                 <p className="mt-1 text-sm text-gray-500">
@@ -232,7 +232,7 @@ export default function EventSalePage() {
 
         {isEmpty && (
           <section className="flex flex-col items-center rounded-3xl border border-dashed border-gray-300 bg-white px-6 py-14 text-center">
-            <span className="flex h-16 w-16 items-center justify-center rounded-full bg-red-50 text-3xl text-red-500">
+            <span className="flex h-16 w-16 items-center justify-center rounded-full bg-rose-50 text-3xl text-rose-500">
               <i className="ri-timer-flash-line" />
             </span>
             <h2 className="mt-4 text-lg font-bold text-gray-900 sm:text-xl">{t('eventSale.page.emptyTitle')}</h2>

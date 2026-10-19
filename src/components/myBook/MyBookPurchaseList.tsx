@@ -91,17 +91,17 @@ export default function MyBookPurchaseList({ userId }: { userId: string }) {
   };
 
   return (
-    <section className="mb-6 rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 via-white to-fuchsia-50 p-5 shadow-sm md:p-6">
-      <div className="mb-4">
-        <h3 className="flex items-center gap-2 text-xl font-bold text-gray-900">
-          <i className="ri-book-3-line text-indigo-600" />
+    <section className="rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-pink-50 p-4 shadow-sm md:p-6">
+      <div className="mb-3">
+        <h3 className="flex items-center gap-2 text-lg font-bold text-gray-900 md:text-xl">
+          <i className="ri-book-3-line text-blue-600" />
           {t('myBook.purchases.title')}
-          <span className="text-sm font-semibold text-indigo-600">{orders.length}</span>
+          <span className="text-sm font-semibold text-blue-600">{orders.length}</span>
         </h3>
-        <p className="mt-1 break-keep text-sm text-gray-500">{t('myBook.purchases.desc')}</p>
+        <p className="mt-0.5 break-keep text-xs text-gray-500 md:text-sm">{t('myBook.purchases.desc')}</p>
       </div>
 
-      <ul className="space-y-3">
+      <ul className="space-y-2">
         {orders.map((order) => {
           const unpaid = !PAID_STATUSES.includes(order.status);
           const files = unpaid ? [] : normalizeCompletedFiles(order);
@@ -115,7 +115,7 @@ export default function MyBookPurchaseList({ userId }: { userId: string }) {
               : null;
 
           return (
-            <li key={order.id} className="flex flex-col gap-3 rounded-xl border border-gray-100 bg-white p-4 sm:flex-row sm:items-center">
+            <li key={order.id} className="flex flex-col gap-3 rounded-xl bg-white p-3 shadow-sm ring-1 ring-gray-100 sm:flex-row sm:items-center md:p-4">
               <div className="flex min-w-0 flex-1 items-center gap-3">
                 {coverUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -153,7 +153,7 @@ export default function MyBookPurchaseList({ userId }: { userId: string }) {
                     <p className="mt-1 text-xs text-amber-600">{t('myBook.purchases.unpaidDesc')}</p>
                   ) : (
                     block === 'no_file' && (
-                      <p className="mt-1 text-xs text-indigo-600">{t('myBook.purchases.buildingDesc')}</p>
+                      <p className="mt-1 text-xs text-blue-600">{t('myBook.purchases.buildingDesc')}</p>
                     )
                   )}
                 </div>
@@ -170,7 +170,7 @@ export default function MyBookPurchaseList({ userId }: { userId: string }) {
                     {t('myBook.purchases.pay')}
                   </button>
                 ) : block === 'no_file' ? (
-                  <span className="inline-flex items-center gap-1 rounded-lg bg-indigo-100 px-3 py-2 text-sm font-semibold text-indigo-700">
+                  <span className="inline-flex items-center gap-1 rounded-lg bg-blue-100 px-3 py-2 text-sm font-semibold text-blue-700">
                     <i className="ri-loader-4-line animate-spin" />
                     {t('myBook.purchases.building')}
                   </span>
@@ -184,7 +184,7 @@ export default function MyBookPurchaseList({ userId }: { userId: string }) {
                         type="button"
                         onClick={() => void handleDownload(order, file.url, file.filename, key)}
                         disabled={block !== null || busy}
-                        className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-indigo-300 sm:flex-none"
+                        className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300 sm:flex-none"
                       >
                         <i className="ri-download-2-line" />
                         {busy ? t('myBook.purchases.downloading') : t('myBook.purchases.download')}

@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import type { User } from '@supabase/supabase-js';
 import { supabase } from '../../lib/supabase';
 import MainHeader from '../../components/common/MainHeader';
-import PurchaseHistoryContent from '../../components/purchase/PurchaseHistoryContent';
+import Footer from '../../components/common/Footer';
+import PurchaseOrderList from '../../components/purchase/PurchaseOrderList';
 import { useTranslation } from 'react-i18next';
 import MyBookPurchaseList from '../../components/myBook/MyBookPurchaseList';
 
@@ -15,6 +16,9 @@ export default function PurchasesPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // 로그인 후 이 페이지로 돌아오도록 현재 경로를 넘긴다
+    const goLogin = () => router.push(`/auth/login?from=${encodeURIComponent(window.location.pathname)}`);
+
     const checkAuth = async () => {
       try {
         const {
@@ -22,14 +26,14 @@ export default function PurchasesPage() {
         } = await supabase.auth.getUser();
 
         if (!currentUser) {
-          router.push('/auth/login');
+          goLogin();
           return;
         }
 
         setUser(currentUser);
       } catch (error) {
         console.error('인증 확인 오류:', error);
-        router.push('/auth/login');
+        goLogin();
       } finally {
         setLoading(false);
       }
@@ -41,7 +45,7 @@ export default function PurchasesPage() {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!session?.user) {
-        router.push('/auth/login');
+        goLogin();
       } else {
         setUser(session.user);
       }
@@ -52,54 +56,30 @@ export default function PurchasesPage() {
     };
   }, [router]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <MainHeader user={user} />
-        <div className="py-16 text-center text-gray-500">
-          <i className="ri-loader-4-line text-4xl animate-spin text-blue-500 mb-4" />
-          <p className="font-medium">{t('purchaseHistory.loading')}</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return null;
-  }
-
   return (
     <div className="min-h-screen bg-gray-50">
-      <MainHeader user={user} />
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('purchaseHistory.title')}</h1>
-          <p className="text-sm text-gray-500">{t('purchaseHistory.description')}</p>
-        </div>
-        <MyBookPurchaseList userId={user.id} />
-        <PurchaseHistoryContent user={user} />
+      <div className="hidden md:block">
+        <MainHeader user={user} />
       </div>
+      <main className="mx-auto max-w-5xl px-4 pb-12 pt-5 sm:px-6 md:py-10 lg:px-8">
+        <h1 className="text-2xl font-extrabold text-gray-900 md:text-3xl">{t('purchaseHistory.title')}</h1>
+        <p className="mt-1 text-sm text-gray-500">{t('purchaseHistory.description')}</p>
+
+        <div className="mt-5 space-y-4 md:mt-6">
+          {loading || !user ? (
+            <div className="flex flex-col items-center justify-center py-20 text-gray-500">
+              <i className="ri-loader-4-line mb-3 animate-spin text-3xl text-blue-500" />
+              <p className="text-sm font-medium">{t('purchaseHistory.loading')}</p>
+            </div>
+          ) : (
+            <>
+              <MyBookPurchaseList userId={user.id} />
+              <PurchaseOrderList user={user} title={t('purchaseHistory.listTitle')} />
+            </>
+          )}
+        </div>
+      </main>
+      <Footer />
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

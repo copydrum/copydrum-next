@@ -454,7 +454,7 @@ export default function CartPageWithCheckout() {
                           )}
                           <p
                             className={`text-lg font-bold ${
-                              owned ? 'text-gray-400 line-through' : item.original_price ? 'text-red-600' : 'text-gray-900'
+                              owned ? 'text-gray-400 line-through' : item.original_price ? 'text-rose-600' : 'text-gray-900'
                             }`}
                           >
                             {formatPrice(item.price)}

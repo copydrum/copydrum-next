@@ -1,455 +1,343 @@
 'use client';
-import { useLocaleRouter } from '@/hooks/useLocaleRouter';
 
-import { useCallback, useEffect, useState, useMemo } from 'react';
-import { useSearchParams} from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
+import type { User } from '@supabase/supabase-js';
 import MainHeader from '../../components/common/MainHeader';
 import Footer from '../../components/common/Footer';
+import LocaleLink from '../../components/common/LocaleLink';
+import InquiryForm from '../../components/support/InquiryForm';
 import { supabase } from '../../lib/supabase';
 import { openChatWidget } from '../../lib/chat/openChat';
-import type { User } from '@supabase/supabase-js';
+import { isMyBookVisible } from '@/config/featureFlags';
+
+type Tab = 'faq' | 'contact';
+
+interface FaqItem {
+  key: string;
+  link?: string;
+  koOnly?: boolean;
+}
+
+interface FaqCategory {
+  key: string;
+  icon: string;
+  items: FaqItem[];
+}
+
+const SUPPORT_EMAIL = 'copydrum@hanmail.net';
+
+const FAQ_CATEGORIES: FaqCategory[] = [
+  {
+    key: 'orderPayment',
+    icon: 'ri-bank-card-line',
+    items: [
+      { key: 'payment' },
+      { key: 'bankTransfer', koOnly: true },
+      { key: 'guest' },
+      { key: 'refund', link: '/policy/refund' },
+    ],
+  },
+  {
+    key: 'sheetDownload',
+    icon: 'ri-download-2-line',
+    items: [
+      { key: 'download', link: '/purchases' },
+      { key: 'notWorking' },
+      { key: 'format' },
+      { key: 'print' },
+      { key: 'preorder' },
+    ],
+  },
+  {
+    key: 'cashPoints',
+    icon: 'ri-copper-coin-line',
+    items: [{ key: 'cash' }, { key: 'points' }, { key: 'pointsExpire' }],
+  },
+  {
+    key: 'customOrder',
+    icon: 'ri-edit-line',
+    items: [{ key: 'what', link: '/custom-order' }, { key: 'cost' }, { key: 'duration' }, { key: 'payment' }],
+  },
+  {
+    key: 'myBook',
+    icon: 'ri-book-open-line',
+    items: [{ key: 'what', link: '/my-book' }, { key: 'download' }],
+  },
+  {
+    key: 'account',
+    icon: 'ri-user-settings-line',
+    items: [{ key: 'socialPassword' }, { key: 'forgotPassword' }, { key: 'deleteAccount' }],
+  },
+];
 
 export default function CustomerSupport() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const searchParams = useSearchParams();
-  const router = useLocaleRouter();
-
-  const [activeTab, setActiveTab] = useState<'faq' | 'contact'>(() =>
-    searchParams.get('tab') === 'contact' ? 'contact' : 'faq',
-  );
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    category: '',
-    subject: '',
-    message: ''
-  });
-  const [submitting, setSubmitting] = useState(false);
+  const [activeTab, setActiveTab] = useState<Tab>(() => (searchParams.get('tab') === 'contact' ? 'contact' : 'faq'));
   const [user, setUser] = useState<User | null>(null);
+  const [query, setQuery] = useState('');
+  const [category, setCategory] = useState<string>('all');
+  const [openKey, setOpenKey] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      setUser(user ?? null);
-    };
-
-    fetchUser();
-
+    supabase.auth.getUser().then(({ data }) => setUser(data.user ?? null));
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
+    } = supabase.auth.onAuthStateChange((_event, session) => setUser(session?.user ?? null));
+    return () => subscription.unsubscribe();
   }, []);
 
+  // 푸터의 "문의하기" 링크처럼 ?tab=contact 로 들어오는 경우를 따라간다
   useEffect(() => {
-    const tabParam = searchParams.get('tab');
+    setActiveTab(searchParams.get('tab') === 'contact' ? 'contact' : 'faq');
+  }, [searchParams]);
 
-    if (tabParam === 'contact' && activeTab !== 'contact') {
-      setActiveTab('contact');
-      return;
+  /** 탭은 주소만 바꾸고(기록을 쌓지 않음) 화면은 그 자리에 둔다 */
+  const selectTab = (tab: Tab, scrollToTabs = false) => {
+    setActiveTab(tab);
+    const params = new URLSearchParams(window.location.search);
+    if (tab === 'contact') params.set('tab', 'contact');
+    else params.delete('tab');
+    const qs = params.toString();
+    window.history.replaceState({ ...window.history.state }, '', `${window.location.pathname}${qs ? `?${qs}` : ''}`);
+    if (scrollToTabs) {
+      document.getElementById('support-tabs')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
+  };
 
-    if (!tabParam && activeTab !== 'faq') {
-      setActiveTab('faq');
-    }
-  }, [activeTab, searchParams]);
-
-  const handleTabChange = useCallback(
-    (tab: 'faq' | 'contact') => {
-      setActiveTab(tab);
-
-      const params = new URLSearchParams(searchParams?.toString() ?? '');
-      if (tab === 'faq') {
-        params.delete('tab');
-      } else {
-        params.set('tab', tab);
-      }
-      const qs = params.toString();
-      router.push(qs ? `/customer-support?${qs}` : '/customer-support');
-    },
-    [searchParams, router],
+  const categories = useMemo(
+    () =>
+      FAQ_CATEGORIES.filter((cat) => cat.key !== 'myBook' || isMyBookVisible(i18n.language)).map((cat) => ({
+        ...cat,
+        items: cat.items.filter((item) => !item.koOnly || i18n.language === 'ko'),
+      })),
+    [i18n.language],
   );
 
-  useEffect(() => {
-    if (user) {
-      setFormData((prev) => ({
-        ...prev,
-        name: prev.name || (user.user_metadata?.name as string) || '',
-        email: prev.email || user.email || '',
-      }));
-    }
-  }, [user]);
+  const keyword = query.trim().toLowerCase();
+  const visibleCategories = categories
+    .filter((cat) => category === 'all' || cat.key === category)
+    .map((cat) => ({
+      ...cat,
+      items: cat.items.filter((item) => {
+        if (!keyword) return true;
+        const base = `customerSupport.faq.categories.${cat.key}.items.${item.key}`;
+        return `${t(`${base}.question`)} ${t(`${base}.answer`)}`.toLowerCase().includes(keyword);
+      }),
+    }))
+    .filter((cat) => cat.items.length > 0);
 
-  const faqs = useMemo(() => [
-    {
-      category: t('customerSupport.faq.categories.orderPayment.name'),
-      items: [
-        {
-          question: t('customerSupport.faq.categories.orderPayment.items.download.question'),
-          answer: t('customerSupport.faq.categories.orderPayment.items.download.answer')
-        },
-        {
-          question: t('customerSupport.faq.categories.orderPayment.items.payment.question'),
-          answer: t('customerSupport.faq.categories.orderPayment.items.payment.answer')
-        },
-        {
-          question: t('customerSupport.faq.categories.orderPayment.items.refund.question'),
-          answer: t('customerSupport.faq.categories.orderPayment.items.refund.answer')
-        }
-      ]
-    },
-    {
-      category: t('customerSupport.faq.categories.sheetDownload.name'),
-      items: [
-        {
-          question: t('customerSupport.faq.categories.sheetDownload.items.format.question'),
-          answer: t('customerSupport.faq.categories.sheetDownload.items.format.answer')
-        },
-        {
-          question: t('customerSupport.faq.categories.sheetDownload.items.print.question'),
-          answer: t('customerSupport.faq.categories.sheetDownload.items.print.answer')
-        },
-        {
-          question: t('customerSupport.faq.categories.sheetDownload.items.difficulty.question'),
-          answer: t('customerSupport.faq.categories.sheetDownload.items.difficulty.answer')
-        }
-      ]
-    },
-    {
-      category: t('customerSupport.faq.categories.customOrder.name'),
-      items: [
-        {
-          question: t('customerSupport.faq.categories.customOrder.items.what.question'),
-          answer: t('customerSupport.faq.categories.customOrder.items.what.answer')
-        },
-        {
-          question: t('customerSupport.faq.categories.customOrder.items.duration.question'),
-          answer: t('customerSupport.faq.categories.customOrder.items.duration.answer')
-        },
-        {
-          question: t('customerSupport.faq.categories.customOrder.items.cost.question'),
-          answer: t('customerSupport.faq.categories.customOrder.items.cost.answer')
-        }
-      ]
-    }
-  ], [t]);
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!formData.name || !formData.email || !formData.category || !formData.subject || !formData.message) {
-      alert(t('customerSupport.errors.fillAllFields'));
-      return;
-    }
-
-    try {
-      setSubmitting(true);
-      const trimmedName = formData.name.trim();
-      const trimmedEmail = formData.email.trim();
-      const trimmedSubject = formData.subject.trim();
-      const trimmedMessage = formData.message.trim();
-
-      const { error: insertError } = await supabase.from('customer_inquiries').insert({
-        user_id: user?.id ?? null,
-        name: trimmedName,
-        email: trimmedEmail,
-        category: formData.category,
-        subject: trimmedSubject,
-        message: trimmedMessage,
-        status: 'pending',
-      });
-
-      if (insertError) {
-        throw insertError;
-      }
-
-      alert(t('customerSupport.messages.submitSuccess'));
-      setFormData({
-        name: user
-          ? ((user.user_metadata?.name as string) ?? trimmedName)
-          : '',
-        email: user ? user.email ?? trimmedEmail : '',
-        category: '',
-        subject: '',
-        message: ''
-      });
-    } catch (error) {
-      console.error(t('customerSupport.console.inquiryError'), error);
-      alert(t('customerSupport.errors.submitError'));
-    } finally {
-      setSubmitting(false);
-    }
-  };
+  const channelCard = 'flex flex-col rounded-2xl border border-gray-100 bg-white p-3.5 shadow-sm md:p-5';
 
   return (
-    <div className="min-h-screen bg-white pb-24 md:pb-0">
+    <div className="min-h-screen bg-gray-50">
       <div className="hidden md:block">
         <MainHeader user={user} />
       </div>
-      <div className="pt-0 md:pt-0">
-        {/* Hero Section */}
-        <section className="bg-gradient-to-r from-blue-600 to-blue-800 text-white pt-24 pb-12 md:py-16">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-3 md:space-y-4">
-          <h1 className="text-3xl font-bold md:text-4xl">{t('customerSupport.title')}</h1>
-          <p className="text-sm text-blue-100 md:text-xl">
-            {t('customerSupport.subtitle')}
-          </p>
-        </div>
-        </section>
 
-        {/* Tab Navigation */}
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
-        <div className="flex justify-center mb-6 md:mb-8">
-          <div className="bg-gray-100 rounded-xl p-1 flex gap-1">
+      <main className="mx-auto max-w-5xl px-4 pb-14 pt-6 sm:px-6 md:pt-12">
+        <header className="text-center">
+          <h1 className="text-2xl font-extrabold text-gray-900 md:text-4xl">{t('customerSupport.title')}</h1>
+          <p className="mx-auto mt-2 max-w-xl break-keep text-sm text-gray-600 md:text-base">{t('customerSupport.subtitle')}</p>
+        </header>
+
+        {/* 문의 창구 */}
+        <section className="mt-6 grid grid-cols-2 gap-3 md:mt-8 md:grid-cols-3 md:gap-4">
+          <div className={`${channelCard} col-span-2 ring-1 ring-blue-200 md:col-span-1`}>
+            <div className="flex items-center gap-2">
+              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 text-white">
+                <i className="ri-chat-smile-3-line text-lg" />
+              </span>
+              <h2 className="text-base font-bold text-gray-900">{t('customerSupport.channels.chat.title')}</h2>
+              <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-bold text-blue-700">
+                {t('customerSupport.channels.chat.badge')}
+              </span>
+            </div>
+            <p className="mt-2 flex-1 break-keep text-sm text-gray-600">{t('customerSupport.channels.chat.description')}</p>
             <button
-              onClick={() => handleTabChange('faq')}
-              className={`px-4 py-2 md:px-6 md:py-3 rounded-lg font-medium transition-colors whitespace-nowrap cursor-pointer text-sm md:text-base ${
-                activeTab === 'faq'
-                  ? 'bg-white text-blue-600 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
+              type="button"
+              onClick={openChatWidget}
+              className="mt-3 inline-flex items-center justify-center gap-1.5 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
             >
-              {t('customerSupport.tabs.faq')}
+              <i className="ri-chat-3-line" />
+              {t('customerSupport.channels.chat.button')}
             </button>
+          </div>
+
+          <div className={channelCard}>
+            <div className="flex items-center gap-2">
+              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-50 text-blue-600">
+                <i className="ri-question-answer-line text-lg" />
+              </span>
+              <h2 className="text-base font-bold text-gray-900">{t('customerSupport.channels.inquiry.title')}</h2>
+            </div>
+            <p className="mt-2 hidden flex-1 break-keep text-sm text-gray-600 md:block">{t('customerSupport.channels.inquiry.description')}</p>
             <button
-              onClick={() => handleTabChange('contact')}
-              className={`px-6 py-3 rounded-md font-medium transition-colors whitespace-nowrap cursor-pointer ${
-                activeTab === 'contact'
-                  ? 'bg-white text-blue-600 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
+              type="button"
+              onClick={() => selectTab('contact', true)}
+              className="mt-3 inline-flex items-center justify-center gap-1.5 rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-800 hover:bg-gray-50"
             >
-              {t('customerSupport.tabs.contact')}
+              <i className="ri-edit-line" />
+              {t('customerSupport.channels.inquiry.button')}
             </button>
+          </div>
+
+          <div className={channelCard}>
+            <div className="flex items-center gap-2">
+              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-50 text-blue-600">
+                <i className="ri-mail-line text-lg" />
+              </span>
+              <h2 className="text-base font-bold text-gray-900">{t('customerSupport.channels.email.title')}</h2>
+            </div>
+            <p className="mt-2 hidden flex-1 break-all text-sm text-gray-600 md:block">{SUPPORT_EMAIL}</p>
+            <a
+              href={`mailto:${SUPPORT_EMAIL}`}
+              className="mt-3 inline-flex items-center justify-center gap-1.5 rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-800 hover:bg-gray-50"
+            >
+              <i className="ri-send-plane-line" />
+              {t('customerSupport.channels.email.button')}
+            </a>
+          </div>
+        </section>
+        <p className="mt-3 flex items-center justify-center gap-1.5 break-keep text-center text-xs text-gray-500">
+          <i className="ri-time-line" />
+          {t('customerSupport.channels.hours')}
+        </p>
+
+        {/* 탭 */}
+        <div id="support-tabs" className="mt-8 scroll-mt-[180px] md:mt-10 md:scroll-mt-[140px]">
+          <div role="tablist" className="mx-auto grid max-w-sm grid-cols-2 gap-1 rounded-2xl bg-gray-100 p-1">
+            {(['faq', 'contact'] as const).map((tab) => (
+              <button
+                key={tab}
+                type="button"
+                role="tab"
+                aria-selected={activeTab === tab}
+                onClick={() => selectTab(tab)}
+                className={`rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors md:text-base ${
+                  activeTab === tab ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                {t(`customerSupport.tabs.${tab}`)}
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* FAQ Section */}
-        {activeTab === 'faq' && (
-          <div className="max-w-4xl mx-auto">
-            <div className="space-y-6 md:space-y-8">
-              {faqs.map((category, categoryIndex) => (
-                <div key={categoryIndex} className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                  <div className="bg-gray-50 px-4 py-3 md:px-6 md:py-4 border-b border-gray-200">
-                    <h3 className="text-base font-semibold text-gray-900 md:text-lg">{category.category}</h3>
-                  </div>
-                  <div className="divide-y divide-gray-200">
-                    {category.items.map((faq, faqIndex) => (
-                      <div key={faqIndex} className="p-4 md:p-6">
-                        <h4 className="text-sm font-medium text-gray-900 mb-3 flex items-start md:text-base">
-                          <span className="bg-blue-100 text-blue-600 text-[11px] px-2 py-1 rounded-full mr-3 mt-0.5 flex-shrink-0">
-                            Q
-                          </span>
-                          {faq.question}
-                        </h4>
-                        <div className="ml-7 md:ml-8">
-                          <p className="text-sm text-gray-600 leading-relaxed md:text-base">{faq.answer}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+        {activeTab === 'faq' ? (
+          <section className="mx-auto mt-6 max-w-3xl">
+            <div className="relative">
+              <i className="ri-search-line pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                type="search"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder={t('customerSupport.faq.searchPlaceholder')}
+                className="h-12 w-full rounded-full border border-gray-200 bg-white pl-11 pr-4 text-sm outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+              />
+            </div>
+
+            <div className="-mx-4 mt-3 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {[{ key: 'all', icon: 'ri-apps-line' }, ...categories].map((cat) => (
+                <button
+                  key={cat.key}
+                  type="button"
+                  onClick={() => setCategory(cat.key)}
+                  aria-pressed={category === cat.key}
+                  className={`flex flex-shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 py-2 text-[13px] font-semibold transition-colors ${
+                    category === cat.key ? 'bg-ink text-white' : 'border border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  <i className={cat.icon} />
+                  {cat.key === 'all' ? t('customerSupport.faq.all') : t(`customerSupport.faq.categories.${cat.key}.name`)}
+                </button>
               ))}
             </div>
-          </div>
-        )}
 
-        {/* Contact Form Section */}
-        {activeTab === 'contact' && (
-          <div className="max-w-2xl mx-auto">
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 md:p-8">
-              <div className="text-center mb-6 md:mb-8">
-                <h2 className="text-xl font-bold text-gray-900 md:text-2xl md:mb-2">{t('customerSupport.contact.title')}</h2>
-                <p className="text-gray-600">
-                  {t('customerSupport.contact.description')}
-                </p>
-              </div>
-
-              <form id="customer-inquiry" data-readdy-form onSubmit={handleSubmit} className="space-y-5 md:space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
-                  <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                      {t('customerSupport.contact.form.name')} *
-                    </label>
-                    <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleInputChange}
-                      required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder={t('customerSupport.contact.form.namePlaceholder')}
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                      {t('customerSupport.contact.form.email')} *
-                    </label>
-                    <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder={t('customerSupport.contact.form.emailPlaceholder')}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
-                    {t('customerSupport.contact.form.inquiryType')} *
-                  </label>
-                  <select
-                    id="category"
-                    name="category"
-                    value={formData.category}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pr-8"
-                  >
-                    <option value="">{t('customerSupport.contact.form.inquiryTypePlaceholder')}</option>
-                    <option value="주문/결제">{t('customerSupport.contact.categories.orderPayment')}</option>
-                    <option value="악보/다운로드">{t('customerSupport.contact.categories.sheetDownload')}</option>
-                    <option value="주문제작">{t('customerSupport.contact.categories.customOrder')}</option>
-                    <option value="기술지원">{t('customerSupport.contact.categories.technical')}</option>
-                    <option value="기타">{t('customerSupport.contact.categories.other')}</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2">
-                    {t('customerSupport.contact.form.subject')} *
-                  </label>
-                  <input
-                    type="text"
-                    id="subject"
-                    name="subject"
-                    value={formData.subject}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder={t('customerSupport.contact.form.subjectPlaceholder')}
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
-                    {t('customerSupport.contact.form.message')} *
-                  </label>
-                  <textarea
-                    id="message"
-                    name="message"
-                    value={formData.message}
-                    onChange={handleInputChange}
-                    required
-                    rows={6}
-                    maxLength={500}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
-                    placeholder={t('customerSupport.contact.form.messagePlaceholder')}
-                  />
-                  <div className="text-right text-sm text-gray-500 mt-1">
-                    {formData.message.length}/500{t('customerSupport.contact.form.characters')}
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <button
-                    type="submit"
-                    disabled={submitting}
-                    className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 font-medium transition-colors whitespace-nowrap cursor-pointer disabled:bg-blue-300 disabled:cursor-not-allowed"
-                  >
-                    {submitting 
-                      ? t('customerSupport.contact.form.submitting')
-                      : t('customerSupport.contact.form.submit')}
-                  </button>
-                  <p className="text-xs text-gray-400 text-center">
-                    {t('customerSupport.contact.form.note')}
-                  </p>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Contact Info */}
-      <section className="bg-gray-50 py-12 md:py-16">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10 md:space-y-12">
-          <div className="text-center md:text-left">
-            <h2 className="text-2xl font-bold text-gray-900 md:text-3xl">{t('customerSupport.contactInfo.title')}</h2>
-            <p className="mt-2 text-sm text-gray-600 md:text-lg">
-              {t('customerSupport.contactInfo.subtitle')}
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-3 md:gap-8">
-            <div className="flex items-start gap-4 rounded-2xl bg-white p-5 shadow-sm md:flex-col md:items-center md:text-center">
-              <div className="w-14 h-14 md:w-16 md:h-16 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-xl md:text-2xl">
-                <i className="ri-mail-line" />
-              </div>
-              <div className="md:space-y-2">
-                <h3 className="text-base font-semibold text-gray-900 md:text-lg">{t('customerSupport.contactInfo.email.title')}</h3>
-                <p className="text-sm text-gray-600">{t('customerSupport.contactInfo.email.address')}</p>
-                <p className="text-xs text-gray-500 md:text-sm">{t('customerSupport.contactInfo.email.description')}</p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-4 rounded-2xl bg-white p-5 shadow-sm md:flex-col md:items-center md:text-center">
-              <div className="w-14 h-14 md:w-16 md:h-16 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 text-xl md:text-2xl">
-                <i className="ri-chat-smile-3-line" />
-              </div>
-              <div className="md:space-y-2">
-                <h3 className="text-base font-semibold text-gray-900 md:text-lg">{t('customerSupport.contactInfo.chat.title')}</h3>
-                <p className="text-sm text-gray-600">{t('customerSupport.contactInfo.chat.description')}</p>
+            {visibleCategories.length === 0 ? (
+              <div className="mt-6 rounded-2xl border border-gray-100 bg-white px-6 py-10 text-center shadow-sm">
+                <p className="break-keep text-sm text-gray-600">{t('customerSupport.faq.noResults')}</p>
                 <button
                   type="button"
-                  onClick={openChatWidget}
-                  className="mt-3 inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-lg text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 shadow-sm transition-colors md:text-sm"
+                  onClick={() => selectTab('contact')}
+                  className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
                 >
-                  <i className="ri-chat-3-line" />
-                  {t('customerSupport.contactInfo.chat.button')}
+                  {t('customerSupport.faq.askButton')}
                 </button>
               </div>
-            </div>
-
-            <div className="flex items-start gap-4 rounded-2xl bg-white p-5 shadow-sm md:flex-col md:items-center md:text-center">
-              <div className="w-14 h-14 md:w-16 md:h-16 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 text-xl md:text-2xl">
-                <i className="ri-time-line" />
+            ) : (
+              <div className="mt-5 space-y-5">
+                {visibleCategories.map((cat) => (
+                  <div key={cat.key}>
+                    <h2 className="mb-2 flex items-center gap-1.5 px-1 text-sm font-bold text-gray-900">
+                      <i className={`${cat.icon} text-blue-600`} />
+                      {t(`customerSupport.faq.categories.${cat.key}.name`)}
+                    </h2>
+                    <div className="divide-y divide-gray-100 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+                      {cat.items.map((item) => {
+                        const id = `${cat.key}.${item.key}`;
+                        const base = `customerSupport.faq.categories.${cat.key}.items.${item.key}`;
+                        // 검색 중에는 결과를 모두 펼쳐 보여 준다
+                        const open = Boolean(keyword) || openKey === id;
+                        return (
+                          <div key={id}>
+                            <button
+                              type="button"
+                              onClick={() => setOpenKey(open && !keyword ? null : id)}
+                              aria-expanded={open}
+                              className="flex w-full items-start gap-3 px-4 py-4 text-left md:px-5"
+                            >
+                              <span className="mt-px text-sm font-extrabold text-blue-600">Q</span>
+                              <span className="flex-1 break-keep text-sm font-semibold text-gray-900 md:text-[15px]">
+                                {t(`${base}.question`)}
+                              </span>
+                              <i className={`ri-arrow-down-s-line text-lg text-gray-400 transition-transform ${open ? 'rotate-180' : ''}`} />
+                            </button>
+                            {open && (
+                              <div className="-mt-1 px-4 pb-4 pl-10 md:px-5 md:pl-11">
+                                <p className="break-keep text-sm leading-relaxed text-gray-600">{t(`${base}.answer`)}</p>
+                                {item.link && (
+                                  <LocaleLink
+                                    href={item.link}
+                                    className="mt-2 inline-flex items-center text-sm font-semibold text-blue-700 hover:underline"
+                                  >
+                                    {t(`${base}.link`)}
+                                    <i className="ri-arrow-right-s-line text-base" />
+                                  </LocaleLink>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
               </div>
-              <div className="md:space-y-2">
-                <h3 className="text-base font-semibold text-gray-900 md:text-lg">{t('customerSupport.contactInfo.hours.title')}</h3>
-                <p className="text-sm text-gray-600">{t('customerSupport.contactInfo.hours.weekdays')}</p>
-                <p className="text-xs text-gray-500 md:text-sm">{t('customerSupport.contactInfo.hours.closed')}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+            )}
 
-      <div>
-        <Footer />
-      </div>
-      </div>
+            <p className="mt-6 text-center text-sm text-gray-500">
+              <LocaleLink href="/guide" className="font-semibold text-gray-700 underline underline-offset-2 hover:text-gray-900">
+                {t('footer.guide')}
+              </LocaleLink>
+              <span className="mx-2 text-gray-300">·</span>
+              <LocaleLink href="/policy/refund" className="font-semibold text-gray-700 underline underline-offset-2 hover:text-gray-900">
+                {t('footer.refundPolicy')}
+              </LocaleLink>
+            </p>
+          </section>
+        ) : (
+          <section className="mx-auto mt-6 max-w-2xl rounded-2xl border border-gray-100 bg-white p-5 shadow-sm md:p-7">
+            <h2 className="text-lg font-bold text-gray-900 md:text-xl">{t('customerSupport.contact.title')}</h2>
+            <p className="mb-5 mt-1 break-keep text-sm text-gray-600">{t('customerSupport.contact.description')}</p>
+            <InquiryForm user={user} />
+          </section>
+        )}
+      </main>
+
+      <Footer />
     </div>
   );
 }

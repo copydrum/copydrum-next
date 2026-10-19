@@ -18,12 +18,12 @@
   }
 
   .btn-cart {
-    background-color: #0B0D17;
+    background-color: #14123A;
     color: white;
   }
 
   .btn-cart:hover:not(:disabled) {
-    background-color: #1a1d2e;
+    background-color: #221F55;
   }
 
   .btn-cart:disabled {
@@ -32,12 +32,12 @@
   }
 
   .btn-buy {
-    background-color: #1D4ED8;
+    background-color: #6D4AFF;
     color: white;
   }
 
   .btn-buy:hover:not(:disabled) {
-    background-color: #1e40af;
+    background-color: #5A36EB;
   }
 
   .btn-buy:disabled {
@@ -47,11 +47,11 @@
   }
 
   .btn-buy.btn-buy-sale:not(:disabled) {
-    background-color: #dc2626;
+    background-color: #e11d48;
   }
 
   .btn-buy.btn-buy-sale:hover:not(:disabled) {
-    background-color: #b91c1c;
+    background-color: #be123c;
   }
 }
 

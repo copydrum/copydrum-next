@@ -1,7 +1,7 @@
 'use client';
 import { useLocaleRouter } from '@/hooks/useLocaleRouter';
 import type { User } from '@supabase/supabase-js';
-import { useMemo, useState, useEffect, useCallback } from 'react';
+import { useMemo, useState, useEffect, useRef, useCallback } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../../lib/supabase';
@@ -20,14 +20,9 @@ import { CashChargeMenuCard } from '../cash/CashChargeEntry';
 import { SignupBonusBadge } from '../auth/SignupBonus';
 import { useEventSales } from '../../hooks/useEventSales';
 import LanguageSelector from '../common/LanguageSelector';
-import { useGenreCategories } from '@/hooks/useGenreCategories';
+import BrandLogo from '../common/BrandLogo';
+import { buildGenreNavItems, useGenreCategories } from '@/hooks/useGenreCategories';
 import { removeLocaleFromPathname } from '@/lib/localeUrl';
-
-interface Category {
-  id: string;
-  name: string;
-  slug: string | null;
-}
 
 interface MobileMenuSidebarProps {
   isOpen: boolean;
@@ -41,6 +36,8 @@ interface NavItem {
   icon: string;
 }
 
+const TRANSITION_MS = 280;
+
 const supportLinks: { labelKey: string; href: string }[] = [
   { labelKey: 'footer.guide', href: '/guide' },
   { labelKey: 'footer.faq', href: '/customer-support' },
@@ -52,11 +49,10 @@ const supportLinks: { labelKey: string; href: string }[] = [
 ];
 
 const baseMenuItems: NavItem[] = [
-  { labelKey: 'nav.categories', href: '/categories', icon: 'ri-apps-line' },
   { labelKey: 'sidebar.nav.collections', href: '/collections', icon: 'ri-stack-line' },
   { labelKey: 'freeLessons.nav.label', href: '/free-lessons', icon: 'ri-play-circle-line' },
   { labelKey: 'sidebar.nav.drumLesson', href: '/free-sheets', icon: 'ri-book-2-line' },
-  { labelKey: 'sidebar.nav.sheetBooks', href: '/sheet-books', icon: 'ri-book-mark-line' },
+  { labelKey: 'sidebar.nav.sheetBooks', href: '/sheet-books', icon: 'ri-book-marked-line' },
   { labelKey: 'myBook.name', href: '/my-book', icon: 'ri-book-open-line' },
   { labelKey: 'nav.customOrder', href: '/custom-order', icon: 'ri-edit-line' },
   { labelKey: 'sidebar.nav.purchaseHistory', href: '/purchases', icon: 'ri-file-list-3-line' },
@@ -72,8 +68,20 @@ export default function MobileMenuSidebar({
   const { t, i18n } = useTranslation();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isKoreanSite, setIsKoreanSite] = useState<boolean>(false);
-  const categories: Category[] = useGenreCategories(isOpen);
+  const categories = useGenreCategories(isOpen);
   const eventSales = useEventSales();
+
+  // 닫힘 애니메이션이 끝날 때까지 DOM을 유지한다
+  const [rendered, setRendered] = useState(isOpen);
+  const [visible, setVisible] = useState(false);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const historyPushedRef = useRef(false);
+  const historyTokenRef = useRef<string | null>(null);
+  const pendingHrefRef = useRef<string | null>(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+  const routerRef = useRef(router);
+  routerRef.current = router;
 
   // 호스트 타입을 컴포넌트 마운트 시 한 번만 계산
   useEffect(() => {
@@ -81,7 +89,84 @@ export default function MobileMenuSidebar({
       setIsKoreanSite(isKoreanSiteHost(window.location.host));
     }
   }, []);
-  
+
+  useEffect(() => {
+    if (isOpen) {
+      setRendered(true);
+      const frame = requestAnimationFrame(() => setVisible(true));
+      return () => cancelAnimationFrame(frame);
+    }
+    setVisible(false);
+    const timer = window.setTimeout(() => setRendered(false), TRANSITION_MS);
+    return () => window.clearTimeout(timer);
+  }, [isOpen]);
+
+  // 열려 있는 동안 배경 스크롤 잠금 + ESC 닫기
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') requestCloseRef.current();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    closeButtonRef.current?.focus({ preventScroll: true });
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen]);
+
+  // 뒤로가기(안드로이드)로 메뉴가 닫히도록 열 때 히스토리 항목을 하나 쌓는다
+  useEffect(() => {
+    if (!isOpen) {
+      historyTokenRef.current = null;
+      // 캐쉬 충전 모달 등 다른 경로로 닫힌 경우 쌓아 둔 항목을 되돌린다
+      if (historyPushedRef.current) {
+        historyPushedRef.current = false;
+        window.history.back();
+      }
+      return;
+    }
+
+    // 열 때마다 새 토큰: StrictMode 이중 실행에서는 한 번만 쌓고,
+    // 새로고침 뒤 남아 있는 이전 항목은 내 항목으로 착각하지 않는다
+    historyTokenRef.current ??= `${Date.now()}-${Math.random()}`;
+    if (window.history.state?.copydrumMobileMenu !== historyTokenRef.current) {
+      window.history.pushState({ ...window.history.state, copydrumMobileMenu: historyTokenRef.current }, '');
+    }
+    historyPushedRef.current = true;
+
+    const handlePopState = () => {
+      if (!historyPushedRef.current) return;
+      historyPushedRef.current = false;
+      onCloseRef.current();
+      const href = pendingHrefRef.current;
+      pendingHrefRef.current = null;
+      if (href) routerRef.current.push(href);
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [isOpen]);
+
+  /** 메뉴용 히스토리 항목을 먼저 지운 뒤 이동해야 뒤로가기가 이전 페이지로 정확히 돌아간다 */
+  const requestClose = useCallback(
+    (href?: string) => {
+      if (historyPushedRef.current) {
+        pendingHrefRef.current = href ?? null;
+        window.history.back();
+        return;
+      }
+      onClose();
+      if (href) router.push(href);
+    },
+    [onClose, router],
+  );
+  const requestCloseRef = useRef(requestClose);
+  requestCloseRef.current = requestClose;
+
   const menuItems = useMemo(() => {
     let items = baseMenuItems;
     if (!COLLECTIONS_PUBLIC_ENABLED) {
@@ -100,55 +185,15 @@ export default function MobileMenuSidebar({
       items = items.filter((item) => item.href !== '/my-book');
     }
     if (isKoreanSite) {
-      return items.filter(item => item.labelKey !== 'nav.categories');
+      return items;
     }
-    return items.filter(item => item.labelKey !== 'nav.customOrder' && item.labelKey !== 'nav.categories');
+    return items.filter(item => item.labelKey !== 'nav.customOrder');
   }, [isKoreanSite, i18n.language]);
 
-  // 장르 목록 생성
-  const genreListKo = ['가요', '팝', '락', 'CCM', '트로트/성인가요', '재즈', 'J-POP', 'OST', '드럼솔로', '드럼커버'];
-  const genreListEn = ['팝', '락', '가요', '재즈', 'J-POP', 'OST', 'CCM', '트로트/성인가요', '드럼솔로', '드럼커버'];
-  // 한국어(ko)는 genreListKo, 영어(en)는 genreListEn, 나머지 모든 언어는 genreListEn(영어 순서) 사용
-  const genreList = i18n.language === 'ko' ? genreListKo : genreListEn;
-
-  // 카테고리 이름을 번역하는 함수
-  const getCategoryName = (categoryName: string | null | undefined): string => {
-    if (!categoryName) return '';
-    if (i18n.language === 'ko') return categoryName;
-
-    const categoryMap: Record<string, string> = {
-      '가요': t('categoriesPage.categories.kpop'),
-      '팝': t('categoriesPage.categories.pop'),
-      '락': t('categoriesPage.categories.rock'),
-      'CCM': t('categoriesPage.categories.ccm'),
-      '트로트/성인가요': t('categoriesPage.categories.trot'),
-      '재즈': t('categoriesPage.categories.jazz'),
-      'J-POP': t('categoriesPage.categories.jpop'),
-      'OST': t('categoriesPage.categories.ost'),
-      '드럼솔로': t('categoriesPage.categories.drumSolo'),
-      '드럼커버': t('categoriesPage.categories.drumCover'),
-    };
-
-    return categoryMap[categoryName] || categoryName;
-  };
-
-  // 장르 네비게이션 아이템 생성
-  const genreNavItems = useMemo(() => {
-    return genreList.map((genreKo) => {
-      const category = categories.find((cat) => cat.name === genreKo);
-      if (!category) return null;
-
-      // slug 우선 사용, 없으면 fallback으로 id 사용
-      const categoryParam = category.slug || category.id;
-
-      return {
-        id: category.id,
-        slug: category.slug,
-        label: getCategoryName(genreKo),
-        href: `/categories?category=${categoryParam}`,
-      };
-    }).filter((item): item is { id: string; slug: string | null; label: string; href: string } => item !== null);
-  }, [genreList, categories, i18n.language, t]);
+  const genreNavItems = useMemo(
+    () => buildGenreNavItems(categories, i18n.language, t),
+    [categories, i18n.language, t],
+  );
 
   // 현재 활성 카테고리 (URL에는 slug 또는 id가 들어온다)
   const searchParams = useSearchParams();
@@ -156,13 +201,10 @@ export default function MobileMenuSidebar({
   const pathWithoutLocale = removeLocaleFromPathname(pathname);
   const isCategoriesPage = pathWithoutLocale.startsWith('/categories') && !searchParams?.get('search');
 
-  const greeting = useMemo(() => {
-    if (!user) {
-      return t('auth.loginRequired');
-    }
-    const name = getUserDisplayName(profile, user.email || null);
-    return t('mobile.menu.greeting', { name });
-  }, [t, user, profile]);
+  const displayName = useMemo(
+    () => (user ? getUserDisplayName(profile, user.email || null) : ''),
+    [user, profile],
+  );
 
   // 프로필 정보 로드
   useEffect(() => {
@@ -226,11 +268,6 @@ export default function MobileMenuSidebar({
     }
   }, [isOpen, user]);
 
-  const handleNavigate = (href: string) => {
-    router.push(href);
-    onClose();
-  };
-
   const handleLogout = async () => {
     try {
       // 구글 로그아웃
@@ -247,46 +284,138 @@ export default function MobileMenuSidebar({
     }
   };
 
-  if (!isOpen) {
+  if (!rendered) {
     return null;
   }
+
+  const sectionTitle = 'px-1 text-[13px] font-bold text-gray-900';
 
   return (
     <div className="fixed inset-0 z-50 md:hidden">
       <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
-        onClick={onClose}
+        className={`absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300 ${visible ? 'opacity-100' : 'opacity-0'}`}
+        onClick={() => requestClose()}
         aria-hidden="true"
       />
       <aside
-        className="absolute inset-y-0 left-0 flex h-full w-72 flex-col bg-white shadow-2xl"
+        className={`absolute inset-y-0 left-0 flex h-full w-[86vw] max-w-[340px] flex-col bg-white shadow-2xl transition-transform duration-300 ease-out ${
+          visible ? 'translate-x-0' : '-translate-x-full'
+        }`}
         role="dialog"
         aria-modal="true"
+        aria-label={t('site.name')}
       >
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-          <div className="flex-1">
-            <p className="text-sm font-semibold text-gray-900">{t('site.name')}</p>
-            <p className="text-xs text-gray-500 mt-1">{greeting}</p>
+        <div className="bg-ink px-4 pb-4 text-white">
+          <div className="flex h-14 items-center justify-between">
+            <button type="button" onClick={() => requestClose('/')} aria-label={t('mobile.header.goHome', { site: t('site.name') })}>
+              <BrandLogo size={30} />
+            </button>
+            <button
+              ref={closeButtonRef}
+              type="button"
+              onClick={() => requestClose()}
+              aria-label={t('mobile.menu.close')}
+              className="-mr-1.5 flex h-10 w-10 items-center justify-center rounded-full text-white/80 transition-colors active:bg-white/15"
+            >
+              <i className="ri-close-line text-2xl" />
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label={t('mobile.menu.close')}
-            className="flex h-10 w-10 items-center justify-center rounded-full text-gray-500 hover:bg-gray-100"
-          >
-            <i className="ri-close-line text-xl" />
-          </button>
+
+          {user ? (
+            <div className="space-y-3">
+              <button
+                type="button"
+                onClick={() => requestClose('/mypage')}
+                className="flex w-full items-center gap-3 rounded-2xl text-left"
+              >
+                <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-pink-500 text-base font-bold">
+                  {displayName.charAt(0).toUpperCase() || <i className="ri-user-3-line" />}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-[15px] font-bold">{displayName}</span>
+                  <span className="block text-xs text-white/60">{t('nav.mypage')}</span>
+                </span>
+                <i className="ri-arrow-right-s-line text-xl text-white/50" />
+              </button>
+              <CashChargeMenuCard user={user} onBeforeOpen={() => requestClose()} />
+            </div>
+          ) : (
+            <div>
+              <p className="mb-3 text-[13px] text-white/70">{t('mobile.menu.loginPrompt')}</p>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => requestClose('/auth/login')}
+                  className="rounded-xl bg-white py-2.5 text-sm font-bold text-ink transition-colors active:bg-white/90"
+                >
+                  {t('nav.login')}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => requestClose('/auth/register')}
+                  className="relative rounded-xl bg-blue-600 py-2.5 text-sm font-bold text-white transition-colors active:bg-blue-700"
+                >
+                  {t('header.signup')}
+                  <SignupBonusBadge variant="cornerSm" />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
-        <CashChargeMenuCard user={user} onBeforeOpen={onClose} />
+        <nav className="flex-1 overflow-y-auto overscroll-contain px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-4">
+          {/* 주요 메뉴 */}
+          <div className="grid grid-cols-3 gap-2">
+            {eventSales.hasAny && (
+              <button
+                type="button"
+                onClick={() => requestClose('/event-sale')}
+                className="relative flex flex-col items-center justify-center gap-1.5 rounded-2xl bg-rose-50 px-1 py-3 text-rose-600 transition-colors active:bg-rose-100"
+              >
+                <i className="ri-timer-flash-line text-[22px] leading-none" />
+                <span className="text-center text-xs font-bold leading-tight">{t('eventSale.nav')}</span>
+                {eventSales.hasActive && (
+                  <span className="absolute right-2.5 top-2.5 flex h-2 w-2">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-400 opacity-75" />
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-rose-600" />
+                    <span className="sr-only">{t('eventSale.badge.live')}</span>
+                  </span>
+                )}
+              </button>
+            )}
+            {menuItems.map((item) => {
+              const isActive = pathWithoutLocale === item.href;
+              return (
+                <button
+                  key={item.href}
+                  type="button"
+                  onClick={() => requestClose(item.href)}
+                  aria-current={isActive ? 'page' : undefined}
+                  className={`flex flex-col items-center justify-center gap-1.5 rounded-2xl px-1 py-3 transition-colors ${
+                    isActive ? 'bg-blue-50 text-blue-700 ring-1 ring-inset ring-blue-200' : 'bg-gray-50 text-gray-800 active:bg-gray-100'
+                  }`}
+                >
+                  <i className={`${item.icon} text-[22px] leading-none ${isActive ? 'text-blue-600' : 'text-blue-600/90'}`} />
+                  <span className="text-center text-xs font-semibold leading-tight">{t(item.labelKey)}</span>
+                </button>
+              );
+            })}
+          </div>
 
-        <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-2">
-          {/* 장르 리스트 */}
-          <div className="mb-4">
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-2">
-              {t('nav.categories')}
-            </p>
-            <div className="space-y-1">
+          {/* 장르 */}
+          <section className="mt-6">
+            <div className="mb-2.5 flex items-center justify-between">
+              <h2 className={sectionTitle}>{t('nav.categories')}</h2>
+              <button
+                type="button"
+                onClick={() => requestClose('/categories')}
+                className="flex items-center text-xs font-medium text-gray-500 active:text-gray-800"
+              >
+                {t('home.viewAll')}
+                <i className="ri-arrow-right-s-line text-base" />
+              </button>
+            </div>
+            <div className="flex flex-wrap gap-2">
               {genreNavItems.map((genre) => {
                 const isActive =
                   isCategoriesPage &&
@@ -296,68 +425,29 @@ export default function MobileMenuSidebar({
                   <button
                     key={genre.id}
                     type="button"
-                    onClick={() => handleNavigate(genre.href)}
-                    className={`flex w-full items-center rounded-lg px-3 py-2 text-left transition-colors ${isActive
-                        ? 'bg-blue-50 text-blue-600 border border-blue-200'
-                        : 'bg-white text-gray-700 border border-gray-100 hover:bg-gray-50'
-                      }`}
+                    onClick={() => requestClose(genre.href)}
+                    aria-current={isActive ? 'page' : undefined}
+                    className={`rounded-full px-3.5 py-2 text-[13px] font-medium transition-colors ${
+                      isActive ? 'bg-ink text-white' : 'border border-gray-200 bg-white text-gray-700 active:bg-gray-50'
+                    }`}
                   >
-                    <span className="text-sm font-medium">{genre.label}</span>
+                    {genre.label}
                   </button>
                 );
               })}
             </div>
-          </div>
-
-          {/* 기타 메뉴 아이템 */}
-          {eventSales.hasAny && (
-            <button
-              type="button"
-              onClick={() => handleNavigate('/event-sale')}
-              className="flex w-full items-center rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-left text-red-600 transition-colors hover:bg-red-100"
-            >
-              <i className="ri-timer-flash-line mr-3 text-lg text-red-500" />
-              <span className="text-sm font-bold">{t('eventSale.nav')}</span>
-              {eventSales.hasActive && (
-                <span className="ml-auto rounded-full bg-red-600 px-2 py-0.5 text-[11px] font-bold text-white">
-                  {t('eventSale.badge.live')}
-                </span>
-              )}
-            </button>
-          )}
-          {menuItems.map((item) => {
-            const isActive = pathWithoutLocale === item.href;
-            return (
-              <button
-                key={item.href}
-                type="button"
-                onClick={() => handleNavigate(item.href)}
-                className={`flex w-full items-center rounded-xl px-4 py-3 text-left transition-colors ${isActive
-                    ? 'bg-blue-50 text-blue-600 border border-blue-200'
-                    : 'bg-white text-gray-700 border border-gray-100 hover:bg-gray-50'
-                  }`}
-              >
-                <i
-                  className={`${item.icon} mr-3 text-lg ${isActive ? 'text-blue-500' : 'text-gray-400'
-                    }`}
-                />
-                <span className="text-sm font-medium">{t(item.labelKey)}</span>
-              </button>
-            );
-          })}
+          </section>
 
           {/* 고객 지원 · 약관 */}
-          <div className="pt-4">
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-2">
-              {t('footer.support')}
-            </p>
+          <section className="mt-6 border-t border-gray-100 pt-5">
+            <h2 className={`${sectionTitle} mb-1.5`}>{t('footer.support')}</h2>
             <div className="grid grid-cols-2 gap-x-2">
               {supportLinks.map((link) => (
                 <button
                   key={link.href}
                   type="button"
-                  onClick={() => handleNavigate(link.href)}
-                  className={`rounded-lg px-2 py-2 text-left text-[13px] hover:bg-gray-50 ${
+                  onClick={() => requestClose(link.href)}
+                  className={`rounded-lg px-1 py-2 text-left text-[13px] active:bg-gray-50 ${
                     link.href === '/policy/privacy' ? 'font-semibold text-gray-900' : 'text-gray-600'
                   }`}
                 >
@@ -365,55 +455,24 @@ export default function MobileMenuSidebar({
                 </button>
               ))}
             </div>
-          </div>
+          </section>
 
-          <div className="pt-2">
+          <div className="mt-4">
             <LanguageSelector variant="menu" />
           </div>
-        </nav>
 
-        <div className="border-t border-gray-100 px-5 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] space-y-2">
-          {user ? (
-            <>
-              <button
-                type="button"
-                onClick={() => handleNavigate('/mypage')}
-                className="flex w-full items-center justify-center rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
-              >
-                {t('nav.mypage')}
-              </button>
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="flex w-full items-center justify-center rounded-xl bg-gray-100 px-4 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-200 transition-colors"
-              >
-                <i className="ri-logout-box-line mr-2"></i>
-                {t('nav.logout')}
-              </button>
-            </>
-          ) : (
-            <>
-              <button
-                type="button"
-                onClick={() => handleNavigate('/auth/login')}
-                className="flex w-full items-center justify-center rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
-              >
-                {t('nav.login')}
-              </button>
-              <button
-                type="button"
-                onClick={() => handleNavigate('/auth/register')}
-                className="flex w-full items-center justify-center rounded-xl bg-gray-100 px-4 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-200 transition-colors"
-              >
-                {t('header.signup')}
-                <SignupBonusBadge variant="inline" />
-              </button>
-            </>
+          {user && (
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="mt-4 flex items-center gap-1.5 px-1 py-2 text-[13px] text-gray-500 active:text-gray-800"
+            >
+              <i className="ri-logout-box-r-line text-base" />
+              {t('nav.logout')}
+            </button>
           )}
-        </div>
+        </nav>
       </aside>
     </div>
   );
 }
-
-
