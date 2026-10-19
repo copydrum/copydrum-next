@@ -142,8 +142,8 @@ export default function OnePageCheckout({
   /** 결제 직전 주문에 포인트를 적용하고, PG/캐쉬로 결제할 금액을 돌려준다 */
   const prepareOrder = useCallback(
     async (dbOrderId: string): Promise<number> => {
-      if (pointBalance === 0) return totalAmount;
-
+      // 보유 포인트가 0이어도 생략하지 않는다: 재사용된 주문에 이전 시도의 포인트가 묶여 있으면
+      // 주문의 결제 금액과 PG 요청 금액이 달라져 결제 확인이 거부된다.
       const response = await fetch(`/api/orders/${dbOrderId}/points`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -159,7 +159,7 @@ export default function OnePageCheckout({
       }
       return Number(result.payable);
     },
-    [pointBalance, pointsToUse, totalAmount, t],
+    [pointsToUse, t],
   );
 
   const handlePaymentStart = () => {
