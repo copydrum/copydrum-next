@@ -1,5 +1,8 @@
 import type { NextConfig } from 'next';
 
+const LOCALE_PARAM =
+  ':locale(en|ko|ja|de|es|fr|hi|id|it|pt|ru|th|tr|uk|vi|zh-CN|zh-TW|zh-cn|zh-tw)';
+
 const nextConfig: NextConfig = {
   typescript: {
     // TODO: Remove after fixing all pre-existing type errors in admin page
@@ -42,14 +45,14 @@ const nextConfig: NextConfig = {
       { source: '/reset-password', destination: '/auth/reset-password', permanent: true },
 
       // Locale-prefixed auth redirects
-      { source: '/:locale/login', destination: '/:locale/auth/login', permanent: true },
-      { source: '/:locale/register', destination: '/:locale/auth/register', permanent: true },
-      { source: '/:locale/forgot-password', destination: '/:locale/auth/forgot-password', permanent: true },
-      { source: '/:locale/reset-password', destination: '/:locale/auth/reset-password', permanent: true },
+      { source: `/${LOCALE_PARAM}/login`, destination: '/:locale/auth/login', permanent: true },
+      { source: `/${LOCALE_PARAM}/register`, destination: '/:locale/auth/register', permanent: true },
+      { source: `/${LOCALE_PARAM}/forgot-password`, destination: '/:locale/auth/forgot-password', permanent: true },
+      { source: `/${LOCALE_PARAM}/reset-password`, destination: '/:locale/auth/reset-password', permanent: true },
 
       // Sheet URL redirects (old /sheet/ to new /drum-sheet/ for SEO)
       { source: '/sheet/:slug', destination: '/drum-sheet/:slug', permanent: true },
-      { source: '/:locale/sheet/:slug', destination: '/:locale/drum-sheet/:slug', permanent: true },
+      { source: `/${LOCALE_PARAM}/sheet/:slug`, destination: '/:locale/drum-sheet/:slug', permanent: true },
     ];
   },
 };

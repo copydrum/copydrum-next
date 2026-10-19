@@ -1,22 +1,25 @@
 {
   "title": "Login",
+  "subtitle": "Access your purchased sheets, cash, and points in one place.",
   "noAccount": "Don't have an account?",
   "signUp": "Sign Up",
-  "notice": "🔔 For existing members: Password reset is required on first login due to site renewal.",
   "form": {
     "email": "Email Address",
     "emailPlaceholder": "Enter your email",
     "password": "Password",
     "passwordPlaceholder": "Enter your password",
-    "rememberMe": "Remember Me",
-    "forgotPassword": "Forgot your password?",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "forgotPassword": "Forgot password?",
     "submit": "Login",
     "submitting": "Logging in..."
   },
-  "divider": "or",
+  "divider": "or sign in with email",
   "social": {
     "google": "Google",
-    "kakao": "Kakao"
+    "kakao": "Kakao",
+    "kakaoContinue": "Continue with Kakao",
+    "googleContinue": "Continue with Google"
   },
   "errors": {
     "kakaoLoginFailed": "Kakao login failed. Please try again.",

@@ -1,22 +1,25 @@
 {
   "title": "로그인",
-  "noAccount": "계정이 없으신가요?",
-  "signUp": "회원가입하기",
-  "notice": "🔔 기존 회원님들께: 사이트 리뉴얼로 첫 로그인 시 비밀번호 재설정이 필요합니다.",
+  "subtitle": "구매한 악보와 캐쉬·포인트를 한 곳에서 관리하세요.",
+  "noAccount": "아직 회원이 아니신가요?",
+  "signUp": "회원가입",
   "form": {
     "email": "이메일 주소",
     "emailPlaceholder": "이메일을 입력하세요",
     "password": "비밀번호",
     "passwordPlaceholder": "비밀번호를 입력하세요",
-    "rememberMe": "로그인 상태 유지",
-    "forgotPassword": "비밀번호를 잊으셨나요?",
+    "showPassword": "비밀번호 보기",
+    "hidePassword": "비밀번호 숨기기",
+    "forgotPassword": "비밀번호 찾기",
     "submit": "로그인",
     "submitting": "로그인 중..."
   },
-  "divider": "또는",
+  "divider": "또는 이메일로 로그인",
   "social": {
     "google": "Google",
-    "kakao": "카카오"
+    "kakao": "카카오",
+    "kakaoContinue": "카카오로 계속하기",
+    "googleContinue": "Google로 계속하기"
   },
   "errors": {
     "kakaoLoginFailed": "카카오 로그인에 실패했습니다. 다시 시도해주세요.",

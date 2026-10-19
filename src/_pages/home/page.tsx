@@ -144,7 +144,7 @@ export default function Home() {
   const { i18n, t } = useTranslation();
   const { isKoreanSite } = useSiteLanguage();
 
-  const latestGenreListBase = ['가요', '팝', '락', '트로트/성인가요', '재즈', 'J-POP', 'OST'];
+  const latestGenreListBase = ['가요', '팝', '락', '재즈', 'J-POP', 'OST'];
   const latestGenreList = isKoreanSite
     ? latestGenreListBase
     : latestGenreListBase.filter((g) => !GLOBAL_HIDDEN_GENRES.includes(g));
