@@ -690,7 +690,7 @@ export default function CollectionDetailClient({ slug }: CollectionDetailClientP
 
             {/* Right Sidebar (25%) - Desktop only */}
             <div className="hidden lg:block lg:w-1/4">
-              <div className="lg:sticky lg:top-24 space-y-4">
+              <div className="lg:sticky lg:top-[136px] space-y-4">
                 {/* Collection Summary Card */}
                 <div className="bg-white rounded-lg shadow-sm p-6">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">

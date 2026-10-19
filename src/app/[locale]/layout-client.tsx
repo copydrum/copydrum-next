@@ -5,11 +5,11 @@ import { usePathname, useSearchParams } from 'next/navigation';
 import type { User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import MobileHeader from '@/components/mobile/MobileHeader';
-import MobileQuickNav from '@/components/mobile/MobileQuickNav';
 import MobileMenuSidebar from '@/components/mobile/MobileMenuSidebar';
 import MobileSearchOverlay from '@/components/mobile/MobileSearchOverlay';
 import ChatWidget from '@/components/chat/ChatWidget';
 import { recordPageView, isBotUserAgent } from '@/lib/dashboardAnalytics';
+import { useHideOnScroll } from '@/hooks/useHideOnScroll';
 
 /**
  * 페이지뷰 추적 컴포넌트
@@ -136,6 +136,7 @@ export default function ClientLayout({
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const pathname = usePathname();
   const isAdminPage = pathname.startsWith('/admin');
+  const isScrollingDown = useHideOnScroll();
 
   // 모바일에서 다른 페이지/상품으로 이동할 때 직전 페이지의 스크롤 위치가
   // 유지되는 문제 방지 — 경로가 바뀌면 항상 최상단에서 새 페이지를 보여준다.
@@ -188,11 +189,9 @@ export default function ClientLayout({
           user={user}
           onMenuToggle={() => setIsMobileMenuOpen(true)}
           onSearchToggle={() => setIsMobileSearchOpen(true)}
+          collapsed={isScrollingDown && !isMobileMenuOpen}
         />
       )}
-
-      {/* 모바일 퀵 네비게이션 (헤더 바로 아래, md 이하에서만 표시) */}
-      {!isAdminPage && <MobileQuickNav />}
 
       {/* 모바일 사이드바 메뉴 */}
       <MobileMenuSidebar
@@ -207,13 +206,13 @@ export default function ClientLayout({
         onClose={() => setIsMobileSearchOpen(false)}
       />
 
-      {/* 메인 콘텐츠 - 모바일에서는 헤더(~140px) + 퀵네비(~52px) 높이만큼 패딩 */}
-      <div className={`${isAdminPage ? '' : 'pt-[200px]'} md:pt-0`}>
+      {/* 메인 콘텐츠 - 모바일에서는 헤더(56px) + 검색줄(52px) + 퀵네비(52px) 높이만큼 패딩 */}
+      <div className={`${isAdminPage ? '' : 'pt-[160px]'} md:pt-0`}>
         {children}
       </div>
 
       {/* 고객 상담 채팅 위젯 (관리자 페이지 제외) */}
-      {!isAdminPage && <ChatWidget />}
+      {!isAdminPage && <ChatWidget hideLauncher={isMobileMenuOpen} hideLauncherOnMobile={isScrollingDown} />}
     </>
   );
 }

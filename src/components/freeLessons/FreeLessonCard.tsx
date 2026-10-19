@@ -51,25 +51,25 @@ export default function FreeLessonCard({ lesson, downloaded = false, compact = f
 
         <div className="absolute left-2.5 top-2.5 flex flex-wrap gap-1.5">
           {lesson.is_featured && (
-            <span className="rounded-md bg-amber-400 px-1.5 py-0.5 text-[10px] font-bold text-amber-950 shadow-sm">
+            <span className="rounded-md bg-amber-400 px-1.5 py-0.5 text-[11px] font-bold text-amber-950 shadow-sm">
               {t('freeLessons.card.featured')}
             </span>
           )}
           {isNewLesson(lesson) && (
-            <span className="rounded-md bg-blue-600 px-1.5 py-0.5 text-[10px] font-bold text-white shadow-sm">
+            <span className="rounded-md bg-blue-600 px-1.5 py-0.5 text-[11px] font-bold text-white shadow-sm">
               {t('freeLessons.card.new')}
             </span>
           )}
         </div>
 
         {downloaded && (
-          <span className="absolute right-2.5 top-2.5 inline-flex items-center gap-1 rounded-md bg-emerald-500 px-1.5 py-0.5 text-[10px] font-bold text-white shadow-sm">
+          <span className="absolute right-2.5 top-2.5 inline-flex items-center gap-1 rounded-md bg-emerald-500 px-1.5 py-0.5 text-[11px] font-bold text-white shadow-sm">
             <i className="ri-check-line" />
             {t('freeLessons.card.downloaded')}
           </span>
         )}
 
-        <span className="absolute bottom-2.5 right-2.5 inline-flex items-center gap-1 rounded-md bg-white/95 px-1.5 py-0.5 text-[10px] font-bold text-red-600 shadow-sm">
+        <span className="absolute bottom-2.5 right-2.5 inline-flex items-center gap-1 rounded-md bg-white/95 px-1.5 py-0.5 text-[11px] font-bold text-red-600 shadow-sm">
           <i className="ri-file-pdf-2-line" />
           {t('freeLessons.card.pdf')}
           {lesson.pdf_page_count ? ` · ${t('freeLessons.card.pages', { count: lesson.pdf_page_count })}` : ''}

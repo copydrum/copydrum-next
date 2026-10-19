@@ -19,8 +19,8 @@ export function useSignupBonus() {
 }
 
 const BADGE_VARIANTS = {
-  corner: 'absolute -right-2 -top-2.5 px-1.5 py-0.5 text-[10px]',
-  cornerSm: 'absolute -right-1.5 -top-2 px-1 py-0.5 text-[9px]',
+  corner: 'absolute -right-2 -top-2.5 px-1.5 py-0.5 text-[11px]',
+  cornerSm: 'absolute -right-1.5 -top-2 px-1 py-0.5 text-[11px]',
   inline: 'ml-2 px-2 py-1 text-[11px]',
 };
 

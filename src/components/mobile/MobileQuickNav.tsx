@@ -1,7 +1,7 @@
 'use client';
 
 import { useLocaleRouter } from '@/hooks/useLocaleRouter';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { removeLocaleFromPathname } from '@/lib/localeUrl';
 import { useEventSales } from '@/hooks/useEventSales';
@@ -33,15 +33,17 @@ const quickNavItems: QuickNavItem[] = [
 export default function MobileQuickNav() {
   const router = useLocaleRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { t } = useTranslation();
   const eventSales = useEventSales();
 
   const pathWithoutLocale = removeLocaleFromPathname(pathname);
+  const isSearchResults = pathWithoutLocale.startsWith('/categories') && Boolean(searchParams?.get('search'));
 
   return (
-    <nav className="md:hidden fixed top-[140px] left-0 right-0 z-40 bg-white border-b border-gray-200">
+    <nav className="md:hidden h-[52px] bg-white border-b border-gray-200">
       <div
-        className="flex gap-2 px-3 py-2 overflow-x-auto mobile-quick-nav-scroll"
+        className="flex h-full items-center gap-1.5 px-3 overflow-x-auto mobile-quick-nav-scroll"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
       >
         {quickNavItems
@@ -57,24 +59,27 @@ export default function MobileQuickNav() {
           const isActive =
             item.key === 'home'
               ? pathWithoutLocale === '/' || pathWithoutLocale === ''
-              : pathWithoutLocale.startsWith(item.href);
+              : item.key === 'categories' && isSearchResults
+                ? false
+                : pathWithoutLocale.startsWith(item.href);
 
           return (
             <button
               key={item.key}
               type="button"
               onClick={() => router.push(item.href)}
-              className={`flex items-center gap-1.5 flex-shrink-0 px-3.5 py-2 rounded-full text-[13px] font-semibold whitespace-nowrap transition-all ${
+              aria-current={isActive ? 'page' : undefined}
+              className={`flex h-9 items-center gap-1 flex-shrink-0 px-3.5 rounded-full text-[13px] font-semibold whitespace-nowrap transition-colors ${
                 item.key === 'eventSale'
                   ? isActive
-                    ? 'bg-red-600 text-white shadow-sm'
-                    : 'bg-red-50 text-red-600 border border-red-200 active:bg-red-100'
+                    ? 'bg-red-600 text-white'
+                    : 'bg-red-50 text-red-600 active:bg-red-100'
                   : isActive
-                    ? 'bg-blue-600 text-white shadow-sm'
-                    : 'bg-gray-50 text-gray-600 border border-gray-200 active:bg-gray-100'
+                    ? 'bg-gray-900 text-white'
+                    : 'bg-gray-100 text-gray-700 active:bg-gray-200'
               }`}
             >
-              <i className={`${item.icon} text-[15px]`} />
+              {item.key === 'eventSale' && <i className={`${item.icon} text-[15px]`} />}
               <span>{t(item.labelKey)}</span>
             </button>
           );

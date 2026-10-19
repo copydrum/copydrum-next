@@ -91,7 +91,7 @@ export function CashChargeHeaderButton({ user }: { user?: User | null }) {
       <span suppressHydrationWarning className="whitespace-nowrap rounded-full bg-yellow-400 px-2.5 py-0.5 text-xs font-bold text-gray-900">
         {loggedIn ? t('checkout.cashCharge.entry.charge') : t('checkout.cashCharge.entry.chargeCash')}
       </span>
-      <span suppressHydrationWarning className="pointer-events-none absolute -right-2 -top-2.5 whitespace-nowrap rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-bold leading-none text-white">
+      <span suppressHydrationWarning className="pointer-events-none absolute -right-2 -top-2.5 whitespace-nowrap rounded-full bg-red-500 px-1.5 py-0.5 text-[11px] font-bold leading-none text-white">
         {bonusBadge}
       </span>
     </button>
@@ -114,7 +114,7 @@ export function CashChargeMobileHeaderButton({ user }: { user?: User | null }) {
     >
       <i className={`ri-copper-coin-line text-yellow-300 ${loggedIn ? 'text-lg' : 'text-2xl'}`}></i>
       {loggedIn && <span suppressHydrationWarning className="whitespace-nowrap text-xs font-semibold">{balanceText}</span>}
-      <span suppressHydrationWarning className="pointer-events-none absolute -right-1.5 -top-2 whitespace-nowrap rounded-full bg-red-500 px-1 py-0.5 text-[9px] font-bold leading-none text-white">
+      <span suppressHydrationWarning className="pointer-events-none absolute -right-1.5 -top-2 whitespace-nowrap rounded-full bg-red-500 px-1 py-0.5 text-[11px] font-bold leading-none text-white">
         {bonusShort}
       </span>
     </button>

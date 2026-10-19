@@ -498,13 +498,13 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
         </div>
 
         {/* Main Content */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-8 lg:py-8 space-y-6">
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12">
             {/* 왼쪽: 앨범 썸네일 + 모바일 곡 정보 */}
             <div className="space-y-6">
-              {/* 1. 썸네일 (드럼솔로/드럼커버: 16:9, 드럼레슨 교재: 3:4, 일반: 정사각형) */}
-              <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
+              {/* 1. 썸네일 (드럼솔로/드럼커버: 16:9, 드럼레슨 교재: 3:4, 일반: 정사각형) — 모바일에서는 영상만 크게, 나머지는 곡 정보 옆 작은 썸네일 */}
+              <div className={`bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100 ${isYouTubeCategory ? '' : 'hidden lg:block'}`}>
                 <div
                   className={`${
                     isYouTubeCategory
@@ -555,7 +555,18 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
 
               {/* 2. 모바일: 제목, 가수, 가격, 난이도, 페이지, BPM, 장르 */}
               <div className="lg:hidden">
-                <div className="flex items-start justify-between gap-3">
+                <div className="flex items-start gap-3">
+                  {!isYouTubeCategory && (
+                    <img
+                      src={sheet.thumbnail_url || generateDefaultThumbnail(600, isBookProduct ? 800 : 600)}
+                      alt={`${displaySheetTitle} - ${sheet.artist}`}
+                      className={`${isBookProduct ? 'w-20 aspect-[3/4]' : 'w-24 h-24'} flex-shrink-0 rounded-xl border border-gray-100 object-cover shadow-sm`}
+                      onError={(e) => {
+                        const img = e.target as HTMLImageElement;
+                        img.src = isBookProduct ? generateDefaultThumbnail(600, 800) : generateDefaultThumbnail(600, 600);
+                      }}
+                    />
+                  )}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start gap-2 mb-1">
                       <h1 className="text-xl font-bold text-gray-900 leading-tight break-words">{displaySheetTitle}</h1>
@@ -582,15 +593,15 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
                       <span className="text-xs text-gray-500">{getCategoryName(sheet.categories?.name)}</span>
                     </div>
                   </div>
-                  <div className="text-right flex-shrink-0 flex flex-col items-end gap-2">
-                    <SalePrice
-                      price={displayPrice}
-                      event={activeEvent}
-                      size="lg"
-                      stacked
-                      align="end"
-                      regularClassName="text-2xl font-bold text-blue-600"
-                    />
+                </div>
+                <div className="mt-4 flex items-center justify-between gap-3">
+                  <SalePrice
+                    price={displayPrice}
+                    event={activeEvent}
+                    size="lg"
+                    regularClassName="text-2xl font-bold text-blue-600"
+                  />
+                  <div className="flex-shrink-0">
                     <button
                       type="button"
                       onClick={handleToggleFavorite}
@@ -1091,11 +1102,11 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
       </section>
 
       {/* 모바일: 푸터 숨김 (고정 구매 바가 있으므로 불필요), 데스크톱: 푸터 표시 */}
-      <div className="hidden lg:block mt-16">
+      <div className="mt-10 lg:mt-16">
         <Footer />
       </div>
       {/* 모바일: 하단 고정 구매 바 높이만큼 여백 추가 (2단 레이아웃으로 높이 증가) */}
-      <div className="h-32 lg:hidden" />
+      <div className="h-32 lg:hidden bg-gray-900" />
 
       {/* === Mobile: 하단 고정 구매 바 (2단 레이아웃) === */}
       {sheet && (
@@ -1111,7 +1122,7 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
               <div className="flex items-center gap-3 px-4 py-3">
                 <div className="flex-shrink-0">
                   <span className="text-lg font-bold text-blue-600">FREE</span>
-                  <p className="text-[10px] text-gray-400">{t('sheetDetail.instantDownload')}</p>
+                  <p className="text-[11px] text-gray-400">{t('sheetDetail.instantDownload')}</p>
                 </div>
                 <button
                   onClick={handleFreeDownload}
@@ -1143,14 +1154,15 @@ export default function SheetDetailClient({ sheet }: { sheet: DrumSheet }) {
                 <button
                   onClick={handleAddToCart}
                   disabled={isInCart(sheet.id)}
-                  className={`flex-shrink-0 flex items-center justify-center w-12 h-12 rounded-xl transition-all active:scale-95 ${
+                  className={`flex-shrink-0 flex flex-col items-center justify-center gap-0.5 w-14 h-12 rounded-xl transition-all active:scale-95 ${
                     isInCart(sheet.id)
-                      ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                      ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
                       : 'bg-gray-900 text-white hover:bg-gray-800 active:bg-black'
                   }`}
                   aria-label={isInCart(sheet.id) ? t('categories.alreadyInCart') : t('categoriesPage.addToCart')}
                 >
-                  <ShoppingCart className="w-5 h-5" />
+                  {isInCart(sheet.id) ? <i className="ri-check-line text-lg leading-none" /> : <ShoppingCart className="w-[18px] h-[18px]" />}
+                  <span className="text-[11px] font-semibold leading-none">{t('categoriesPage.cartShort')}</span>
                 </button>
                 <AddToMyBookButton sheet={sheet} variant="compact" />
                 {/* 바로구매 버튼 */}

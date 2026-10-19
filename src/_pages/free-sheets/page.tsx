@@ -957,7 +957,7 @@ const LessonBooksPage = () => {
         </div>
       </section>
 
-      <div className="hidden md:block mt-8">
+      <div className="mt-8">
         <Footer />
       </div>
 

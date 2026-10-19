@@ -60,12 +60,22 @@
   display: none;
 }
 
+/* iOS Safari는 16px 미만 입력창에 포커스하면 화면을 자동 확대한다 */
+@media (max-width: 767px) {
+  input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']),
+  select:not(.allow-small-font),
+  textarea:not(.allow-small-font) {
+    font-size: 16px;
+  }
+}
+
 @layer base {
   * {
     font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'system-ui', 'Roboto', 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
   }
 
   body {
+    background-color: #fff;
     font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'system-ui', 'Roboto', 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;

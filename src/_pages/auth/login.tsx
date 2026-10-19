@@ -11,7 +11,6 @@ import MainHeader from '../../components/common/MainHeader';
 import { SignupBonusBadge } from '../../components/auth/SignupBonus';
 import { useLocaleRouter } from '@/hooks/useLocaleRouter';
 import { removeLocaleFromPathname, getLocalizedUrl } from '@/lib/localeUrl';
-
 // 이전 경로를 가져오는 헬퍼 함수
 const getRedirectPath = (): string => {
   if (typeof window === 'undefined') return '/';
@@ -57,7 +56,6 @@ export default function Login() {
   const [showPasswordSetupHint, setShowPasswordSetupHint] = useState(false);
   const [setupMailSending, setSetupMailSending] = useState(false);
   const [setupMailSent, setSetupMailSent] = useState(false);
-
   const isKo = i18n.language === 'ko';
   const guestText = {
     title: isKo ? '회원가입 없이 구매하기' : 'Buy without signing up',
@@ -418,7 +416,7 @@ export default function Login() {
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <MainHeader />
 
-      <main className="flex-1 flex flex-col items-center py-12 sm:px-6 lg:px-8">
+      <main className="flex-1 flex flex-col items-center py-6 sm:py-12 sm:px-6 lg:px-8">
         <div className="w-full sm:max-w-md">
           <div className="mb-6">
             <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
@@ -439,6 +437,35 @@ export default function Login() {
 
           <div className="mt-8">
             <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={handleKakaoLogin}
+                  className="w-full inline-flex items-center justify-center h-11 px-4 rounded-md bg-[#FEE500] text-sm font-semibold text-[#191919] hover:brightness-95 cursor-pointer"
+                >
+                  <i className="ri-kakao-talk-fill text-lg"></i>
+                  <span className="ml-2">{t('authLogin.social.kakao')}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleGoogleLogin}
+                  className="w-full inline-flex items-center justify-center h-11 px-4 border border-gray-300 rounded-md bg-white text-sm font-semibold text-gray-700 hover:bg-gray-50 cursor-pointer"
+                >
+                  <i className="ri-google-fill text-red-500 text-lg"></i>
+                  <span className="ml-2">{t('authLogin.social.google')}</span>
+                </button>
+              </div>
+
+              <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300" />
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-white text-gray-500">{t('authLogin.divider')}</span>
+                </div>
+              </div>
+
               <form className="space-y-6" onSubmit={handleLogin}>
                 {info && (
                   <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-md text-sm">
@@ -554,37 +581,6 @@ export default function Login() {
                   </button>
                 </div>
               </form>
-
-              <div className="mt-6">
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-gray-300" />
-                  </div>
-                  <div className="relative flex justify-center text-sm">
-                    <span className="px-2 bg-white text-gray-500">{t('authLogin.divider')}</span>
-                  </div>
-                </div>
-
-                <div className="mt-6 grid grid-cols-2 gap-3">
-                  <button 
-                    type="button"
-                    onClick={handleGoogleLogin}
-                    className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 cursor-pointer"
-                  >
-                    <i className="ri-google-fill text-red-500 text-lg"></i>
-                    <span className="ml-2">{t('authLogin.social.google')}</span>
-                  </button>
-
-                  <button 
-                    type="button"
-                    onClick={handleKakaoLogin}
-                    className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 cursor-pointer"
-                  >
-                    <i className="ri-kakao-talk-fill text-yellow-500 text-lg"></i>
-                    <span className="ml-2">{t('authLogin.social.kakao')}</span>
-                  </button>
-                </div>
-              </div>
 
               {/* 게스트 결제 (회원가입 없이 구매) */}
               <div className="mt-6 rounded-lg border border-gray-200 bg-gray-50 p-4">

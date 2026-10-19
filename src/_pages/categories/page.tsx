@@ -1014,22 +1014,27 @@ const CategoriesPage: React.FC = () => {
       <div className="md:hidden">
         <div className="pt-4 pb-[96px] px-4 space-y-4">
           {/* 모바일 장르 필터 - 인라인 (퀵네비와 겹치지 않도록 여유 확보) */}
-          <div className="overflow-x-auto -mx-4 px-4">
+          <div className="overflow-x-auto -mx-4 px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <div className="flex gap-2 pb-1">
               {genreList.map((genreKo) => {
                 const category = categories.find((cat) => cat.name === genreKo);
                 if (!category) return null;
                 
-                const isActive = selectedCategory === category.id;
+                const isActive =
+                  !searchTerm.trim() &&
+                  (selectedCategory === category.id || selectedCategory === category.slug);
+                const categoryParam = category.slug || category.id;
                 return (
                   <button
                     key={category.id}
                     type="button"
+                    aria-pressed={isActive}
                     onClick={() => {
-                      setSelectedCategory(category.id);
+                      setSelectedCategory(categoryParam);
                       setCurrentPage(1);
                       updateQueryParams({
-                        category: category.id,
+                        category: categoryParam,
+                        search: null,
                         page: null,
                       });
                     }}
@@ -1084,15 +1089,44 @@ const CategoriesPage: React.FC = () => {
             </div>
           ) : null}
 
-          {/* 현재 선택된 카테고리 표시 (모바일) */}
-          {!loading && selectedCategory && (
-            <div className="mb-4">
-              <h2 className="text-xl font-bold text-gray-900">
-                {(() => {
-                  const category = categories.find(cat => cat.id === selectedCategory);
-                  return category ? getCategoryName(category.name) : '';
-                })()}
-              </h2>
+          {/* 검색어·결과 수 또는 현재 카테고리 + 정렬 (모바일) */}
+          {!loading && (isSearchMode || selectedCategoryObj) && (
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                {isSearchMode ? (
+                  <>
+                    <h2 className="truncate text-lg font-bold text-gray-900">
+                      {t('categoriesPage.searchResultsTitle', { query: searchTerm.trim() })}
+                    </h2>
+                    <p className="text-xs text-gray-500">
+                      {t('categoriesPage.searchResultsCount', { count: filteredSheets.length })}
+                    </p>
+                  </>
+                ) : (
+                  <h2 className="truncate text-xl font-bold text-gray-900">{categoryName}</h2>
+                )}
+              </div>
+              {filteredSheets.length > 1 && (
+                <select
+                  value={sortBy}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setSortBy(value);
+                    setCurrentPage(1);
+                    updateQueryParams({
+                      sort: value === 'newest' ? null : value,
+                      page: null,
+                    });
+                  }}
+                  aria-label={t('categoriesPage.sort')}
+                  className="flex-shrink-0 rounded-full border border-gray-300 bg-white py-1.5 pl-3 pr-8 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="newest">{t('categoriesPage.sortNewest')}</option>
+                  <option value="popular">{t('categoriesPage.sortPopular')}</option>
+                  <option value="price-low">{t('categoriesPage.sortPriceLow')}</option>
+                  <option value="price-high">{t('categoriesPage.sortPriceHigh')}</option>
+                </select>
+              )}
             </div>
           )}
 
@@ -1244,7 +1278,9 @@ const CategoriesPage: React.FC = () => {
                         <p className="truncate text-sm font-bold text-gray-900">{sheet.title}</p>
                       </div>
                       <p className="truncate text-xs text-gray-500">{sheet.artist}</p>
-                      <p className="truncate text-xs text-gray-400">{sheet.album_name || t('categoriesPage.albumInfoNotFound')}</p>
+                      {sheet.album_name && sheet.album_name !== sheet.title && (
+                        <p className="truncate text-xs text-gray-400">{sheet.album_name}</p>
+                      )}
                       <StarRating
                         rating={reviewStats[sheet.id]?.avgRating ?? 0}
                         count={reviewStats[sheet.id]?.reviewCount ?? 0}

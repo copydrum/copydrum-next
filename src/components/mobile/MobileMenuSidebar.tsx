@@ -19,6 +19,9 @@ import {
 import { CashChargeMenuCard } from '../cash/CashChargeEntry';
 import { SignupBonusBadge } from '../auth/SignupBonus';
 import { useEventSales } from '../../hooks/useEventSales';
+import LanguageSelector from '../common/LanguageSelector';
+import { useGenreCategories } from '@/hooks/useGenreCategories';
+import { removeLocaleFromPathname } from '@/lib/localeUrl';
 
 interface Category {
   id: string;
@@ -37,6 +40,16 @@ interface NavItem {
   href: string;
   icon: string;
 }
+
+const supportLinks: { labelKey: string; href: string }[] = [
+  { labelKey: 'footer.guide', href: '/guide' },
+  { labelKey: 'footer.faq', href: '/customer-support' },
+  { labelKey: 'footer.contact', href: '/customer-support?tab=contact' },
+  { labelKey: 'footer.refundPolicy', href: '/policy/refund' },
+  { labelKey: 'footer.terms', href: '/policy/terms' },
+  { labelKey: 'footer.privacy', href: '/policy/privacy' },
+  { labelKey: 'footer.businessInfo', href: '/company/business-info' },
+];
 
 const baseMenuItems: NavItem[] = [
   { labelKey: 'nav.categories', href: '/categories', icon: 'ri-apps-line' },
@@ -59,7 +72,7 @@ export default function MobileMenuSidebar({
   const { t, i18n } = useTranslation();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isKoreanSite, setIsKoreanSite] = useState<boolean>(false);
-  const [categories, setCategories] = useState<Category[]>([]);
+  const categories: Category[] = useGenreCategories(isOpen);
   const eventSales = useEventSales();
 
   // 호스트 타입을 컴포넌트 마운트 시 한 번만 계산
@@ -68,48 +81,6 @@ export default function MobileMenuSidebar({
       setIsKoreanSite(isKoreanSiteHost(window.location.host));
     }
   }, []);
-
-  // 카테고리 로드
-  useEffect(() => {
-    const loadCategories = async () => {
-      try {
-        // slug 컬럼이 없을 수도 있으므로 먼저 id, name만 조회
-        let { data, error } = await supabase
-          .from('categories')
-          .select('id, name')
-          .neq('name', '드럼레슨')
-          .neq('name', '악보집');
-
-        if (error) throw error;
-
-        // slug 컬럼 존재 여부 확인 후 재조회
-        if (data && data.length > 0) {
-          const { data: dataWithSlug, error: slugError } = await supabase
-            .from('categories')
-            .select('id, name, slug')
-            .neq('name', '드럼레슨')
-          .neq('name', '악보집');
-
-          // slug 컬럼이 있으면 slug 포함 데이터 사용, 없으면 기본 데이터 사용
-          if (!slugError && dataWithSlug) {
-            setCategories(dataWithSlug);
-          } else {
-            // slug 없으면 null로 처리
-            setCategories(data.map(cat => ({ ...cat, slug: null })));
-          }
-        } else {
-          setCategories(data || []);
-        }
-      } catch (error) {
-        console.error('카테고리 로드 오류:', error);
-        setCategories([]);
-      }
-    };
-
-    if (isOpen) {
-      void loadCategories();
-    }
-  }, [isOpen]);
   
   const menuItems = useMemo(() => {
     let items = baseMenuItems;
@@ -172,17 +143,18 @@ export default function MobileMenuSidebar({
 
       return {
         id: category.id,
+        slug: category.slug,
         label: getCategoryName(genreKo),
         href: `/categories?category=${categoryParam}`,
       };
-    }).filter((item): item is { id: string; label: string; href: string } => item !== null);
+    }).filter((item): item is { id: string; slug: string | null; label: string; href: string } => item !== null);
   }, [genreList, categories, i18n.language, t]);
 
-  // 현재 활성 카테고리 ID
+  // 현재 활성 카테고리 (URL에는 slug 또는 id가 들어온다)
   const searchParams = useSearchParams();
-  const activeCategoryId = useMemo(() => {
-    return searchParams?.get('category') ?? null;
-  }, [searchParams]);
+  const activeCategoryParam = searchParams?.get('category') ?? null;
+  const pathWithoutLocale = removeLocaleFromPathname(pathname);
+  const isCategoriesPage = pathWithoutLocale.startsWith('/categories') && !searchParams?.get('search');
 
   const greeting = useMemo(() => {
     if (!user) {
@@ -316,7 +288,10 @@ export default function MobileMenuSidebar({
             </p>
             <div className="space-y-1">
               {genreNavItems.map((genre) => {
-                const isActive = activeCategoryId === genre.id && pathname === '/categories';
+                const isActive =
+                  isCategoriesPage &&
+                  activeCategoryParam !== null &&
+                  (activeCategoryParam === genre.id || activeCategoryParam === genre.slug);
                 return (
                   <button
                     key={genre.id}
@@ -344,14 +319,14 @@ export default function MobileMenuSidebar({
               <i className="ri-timer-flash-line mr-3 text-lg text-red-500" />
               <span className="text-sm font-bold">{t('eventSale.nav')}</span>
               {eventSales.hasActive && (
-                <span className="ml-auto rounded-full bg-red-600 px-2 py-0.5 text-[10px] font-bold text-white">
+                <span className="ml-auto rounded-full bg-red-600 px-2 py-0.5 text-[11px] font-bold text-white">
                   {t('eventSale.badge.live')}
                 </span>
               )}
             </button>
           )}
           {menuItems.map((item) => {
-            const isActive = pathname === item.href;
+            const isActive = pathWithoutLocale === item.href;
             return (
               <button
                 key={item.href}
@@ -370,9 +345,34 @@ export default function MobileMenuSidebar({
               </button>
             );
           })}
+
+          {/* 고객 지원 · 약관 */}
+          <div className="pt-4">
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-2">
+              {t('footer.support')}
+            </p>
+            <div className="grid grid-cols-2 gap-x-2">
+              {supportLinks.map((link) => (
+                <button
+                  key={link.href}
+                  type="button"
+                  onClick={() => handleNavigate(link.href)}
+                  className={`rounded-lg px-2 py-2 text-left text-[13px] hover:bg-gray-50 ${
+                    link.href === '/policy/privacy' ? 'font-semibold text-gray-900' : 'text-gray-600'
+                  }`}
+                >
+                  {t(link.labelKey)}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="pt-2">
+            <LanguageSelector variant="menu" />
+          </div>
         </nav>
 
-        <div className="border-t border-gray-100 px-5 py-4 pb-24 space-y-2">
+        <div className="border-t border-gray-100 px-5 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] space-y-2">
           {user ? (
             <>
               <button

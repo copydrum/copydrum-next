@@ -148,6 +148,7 @@
     "unavailable": "담을 수 없는 곡이 있습니다. 해당 곡을 빼고 다시 신청해 주세요."
   },
   "addButton": {
+    "compactLabel": "악보집",
     "add": "나만의 악보집에 담기",
     "added": "악보집에 담김 ({{count}}곡)",
     "hint": "10곡부터 20%, 50곡이면 {{percent}}% 할인 · 결제 즉시 PDF",

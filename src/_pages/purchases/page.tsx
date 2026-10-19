@@ -6,7 +6,6 @@ import { supabase } from '../../lib/supabase';
 import MainHeader from '../../components/common/MainHeader';
 import PurchaseHistoryContent from '../../components/purchase/PurchaseHistoryContent';
 import { useTranslation } from 'react-i18next';
-import MobileHeader from '../../components/mobile/MobileHeader';
 import MyBookPurchaseList from '../../components/myBook/MyBookPurchaseList';
 
 export default function PurchasesPage() {
@@ -72,7 +71,6 @@ export default function PurchasesPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <MainHeader user={user} />
-      <MobileHeader user={user} />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('purchaseHistory.title')}</h1>

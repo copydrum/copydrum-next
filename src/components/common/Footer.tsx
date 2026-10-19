@@ -93,8 +93,30 @@ export default function Footer() {
   };
 
   return (
-    <footer className="bg-gray-900 text-white py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <footer className="bg-gray-900 text-white py-8 md:py-12">
+      {/* 모바일: 핵심 링크와 사업자 정보만 간단히 */}
+      <div className="md:hidden px-5">
+        <ul className="flex flex-wrap gap-x-4 gap-y-2.5 text-[13px]">
+          {[...supportLinks, ...companyLinks].map((link) => (
+            <li key={link.href} className={link.href === '/policy/privacy' ? '[&>button]:font-semibold [&>button]:text-white' : ''}>
+              {renderLink(link)}
+            </li>
+          ))}
+        </ul>
+        <div className="mt-6 space-y-1 text-xs leading-relaxed text-gray-500">
+          <p>{t('footer.companyInfo')}</p>
+          <p>{t('footer.telecomLicense')}</p>
+          <p>{t('footer.address')}</p>
+          <p>{isKoreanLanguage ? t('footer.contactInfo') : t('footer.contactInfoGlobal')}</p>
+          <p>{t('footer.email')}</p>
+        </div>
+        <div className="mt-6 flex items-center justify-between gap-4 border-t border-gray-800 pt-5">
+          <p className="text-xs text-gray-500">{t('footer.copyright', { year: currentYear })}</p>
+          <img src="/komca.jpg" alt="KOMCA" className="h-10 w-auto" />
+        </div>
+      </div>
+
+      <div className="hidden md:block max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
             {!isGlobalSite && (

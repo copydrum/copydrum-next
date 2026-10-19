@@ -10,6 +10,9 @@ import { fetchUserFavorites, toggleFavorite } from '../../lib/favorites';
 import MainHeader from '../../components/common/MainHeader';
 import Footer from '../../components/common/Footer';
 import HomeEventSaleSection from '../../components/event-sale/HomeEventSaleSection';
+import SalePrice from '../../components/event-sale/SalePrice';
+import { useEventSales } from '../../hooks/useEventSales';
+import type { EventDiscountSheet } from '../../lib/eventDiscountRules';
 import { useTranslation } from 'react-i18next';
 import { getSiteCurrency, convertFromKrw, formatCurrency as formatCurrencyUtil } from '../../lib/currency';
 import { useSiteLanguage } from '../../hooks/useSiteLanguage';
@@ -93,10 +96,30 @@ interface HomeSheetBook {
 const GLOBAL_HIDDEN_GENRES = ['가요', '트로트/성인가요', 'CCM', 'OST'];
 const POPULAR_GENRE_LIST = ['가요', '팝', '락'];
 
+function MobileSheetCardInfo({ sheet, event }: { sheet: DrumSheet; event: EventDiscountSheet | null }) {
+  const { t } = useTranslation();
+  const price = Math.max(0, sheet.price ?? 0);
+
+  return (
+    <div className="px-0.5 pt-2">
+      <h4 className="text-sm font-bold leading-tight text-gray-900 line-clamp-1">{sheet.title}</h4>
+      <p className="mt-0.5 text-xs text-gray-500 line-clamp-1">{sheet.artist}</p>
+      <div className="mt-1">
+        {price === 0 ? (
+          <span className="text-sm font-bold text-blue-600">{t('freeSheets.price.free')}</span>
+        ) : (
+          <SalePrice price={price} event={event} size="sm" regularClassName="text-sm font-bold text-blue-600" />
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function Home() {
   // LCP 개선: 최상단 히어로 배너 이미지를 우선 프리로드
   preload('/banner1.jpg', { as: 'image', fetchPriority: 'high' });
 
+  const eventSales = useEventSales();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [latestSheets, setLatestSheets] = useState<DrumSheet[]>([]);
@@ -890,7 +913,7 @@ export default function Home() {
                 <h3 className="text-2xl font-bold text-gray-900">{t('home.latestSheets')}</h3>
               </div>
               {/* 모바일 장르 탭 */}
-              <div className="overflow-x-auto -mx-4 px-4 mb-4">
+              <div className="overflow-x-auto -mx-4 px-4 mb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 <div className="flex gap-2 pb-1">
                   <button
                     type="button"
@@ -943,7 +966,6 @@ export default function Home() {
                             img.src = generateDefaultThumbnail(400, 400);
                           }}
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent"></div>
                         <button
                           type="button"
                           onClick={(event) => {
@@ -959,13 +981,8 @@ export default function Home() {
                         >
                           <i className={`ri-heart-${isFavorite ? 'fill' : 'line'} text-base`} />
                         </button>
-                        <div className="absolute bottom-0 left-0 right-0 px-2 pb-2 text-center text-white">
-                          <div className="flex items-center justify-center gap-2 flex-wrap">
-                            <h4 className="text-sm font-bold line-clamp-2 leading-tight">{sheet.title}</h4>
-                          </div>
-                          <p className="text-xs text-white/80 line-clamp-1 mt-0.5">{sheet.artist}</p>
-                        </div>
                       </div>
+                      <MobileSheetCardInfo sheet={sheet} event={eventSales.getActiveEvent(sheet.id)} />
                     </div>
                   );
                 })}
@@ -1087,7 +1104,6 @@ export default function Home() {
                             img.src = generateDefaultThumbnail(400, 400);
                           }}
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
                         <button
                           type="button"
                           onClick={(event) => {
@@ -1103,11 +1119,8 @@ export default function Home() {
                         >
                           <i className={`ri-heart-${isFavorite ? 'fill' : 'line'} text-base`} />
                         </button>
-                        <div className="absolute bottom-0 left-0 right-0 px-2 pb-2 text-center text-white">
-                          <h4 className="text-sm font-bold line-clamp-2 leading-tight">{sheet.title}</h4>
-                          <p className="text-xs text-white/80 line-clamp-1 mt-0.5">{sheet.artist}</p>
-                        </div>
                       </div>
+                      <MobileSheetCardInfo sheet={sheet} event={eventSales.getActiveEvent(sheet.id)} />
                     </div>
                   );
                 })}
@@ -1380,13 +1393,13 @@ export default function Home() {
                           </div>
                         )}
                         <div className="absolute top-2 left-2">
-                          <span className="bg-blue-600 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded-full">
+                          <span className="bg-blue-600 text-white text-[11px] font-semibold px-1.5 py-0.5 rounded-full">
                             {t('collectionsPage.collection.badge')}
                           </span>
                         </div>
                         {collection.discount_percentage > 0 && (
                           <div className="absolute top-2 right-2">
-                            <span className="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                            <span className="bg-red-500 text-white text-[11px] font-bold px-1.5 py-0.5 rounded-full">
                               {t('collectionsPage.collection.discount', { percentage: collection.discount_percentage })}
                             </span>
                           </div>
@@ -1560,7 +1573,7 @@ export default function Home() {
                 <div>
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className="text-2xl md:text-3xl font-bold text-gray-900">{t('home.freeLessonTitle')}</h3>
-                    <span className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[10px] md:text-xs font-bold px-2 py-0.5 rounded-full">
+                    <span className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[11px] md:text-xs font-bold px-2 py-0.5 rounded-full">
                       {t('home.freeLessonBadge')}
                     </span>
                   </div>
@@ -1607,18 +1620,18 @@ export default function Home() {
                               }}
                             />
                             {/* PDF badge */}
-                            <span className="absolute top-2 left-2 bg-white/95 text-orange-700 text-[10px] font-bold tracking-wider px-2 py-0.5 rounded-md shadow-sm">
+                            <span className="absolute top-2 left-2 bg-white/95 text-orange-700 text-[11px] font-bold tracking-wider px-2 py-0.5 rounded-md shadow-sm">
                               PDF
                             </span>
                             {/* FREE badge */}
                             {isFree && (
-                              <span className="absolute top-2 right-2 bg-emerald-500 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md shadow-sm">
+                              <span className="absolute top-2 right-2 bg-emerald-500 text-white text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md shadow-sm">
                                 {t('freeSheets.price.free')}
                               </span>
                             )}
                             {/* Page count */}
                             {sheet.page_count ? (
-                              <span className="absolute bottom-2 left-2 bg-black/60 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full backdrop-blur-sm">
+                              <span className="absolute bottom-2 left-2 bg-black/60 text-white text-[11px] font-semibold px-2 py-0.5 rounded-full backdrop-blur-sm">
                                 {sheet.page_count}p
                               </span>
                             ) : null}
@@ -1874,7 +1887,7 @@ export default function Home() {
                 <div>
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className="text-2xl md:text-3xl font-bold text-gray-900">{t('home.lessonMaterialTitle')}</h3>
-                    <span className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-[10px] md:text-xs font-bold px-2 py-0.5 rounded-full">
+                    <span className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-[11px] md:text-xs font-bold px-2 py-0.5 rounded-full">
                       {t('home.lessonMaterialBadge')}
                     </span>
                   </div>
@@ -1916,11 +1929,11 @@ export default function Home() {
                                 img.src = generateDefaultThumbnail(600, 800);
                               }}
                             />
-                            <span className="absolute top-2 left-2 bg-white/95 text-teal-700 text-[10px] font-bold tracking-wider px-2 py-0.5 rounded-md shadow-sm">
+                            <span className="absolute top-2 left-2 bg-white/95 text-teal-700 text-[11px] font-bold tracking-wider px-2 py-0.5 rounded-md shadow-sm">
                               PDF
                             </span>
                             {isFree && (
-                              <span className="absolute top-2 right-2 bg-emerald-500 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md shadow-sm">
+                              <span className="absolute top-2 right-2 bg-emerald-500 text-white text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md shadow-sm">
                                 {t('freeSheets.price.free')}
                               </span>
                             )}
@@ -2024,7 +2037,7 @@ export default function Home() {
                 <div>
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className="text-2xl md:text-3xl font-bold text-gray-900">{t('sheetBooks.title')}</h3>
-                    <span className="bg-gradient-to-r from-indigo-500 to-violet-500 text-white text-[10px] md:text-xs font-bold px-2 py-0.5 rounded-full">
+                    <span className="bg-gradient-to-r from-indigo-500 to-violet-500 text-white text-[11px] md:text-xs font-bold px-2 py-0.5 rounded-full">
                       {t('sheetBooks.badge')}
                     </span>
                   </div>
@@ -2066,16 +2079,16 @@ export default function Home() {
                                 img.src = generateDefaultThumbnail(600, 800);
                               }}
                             />
-                            <span className="absolute top-2 left-2 bg-white/95 text-indigo-700 text-[10px] font-bold tracking-wider px-2 py-0.5 rounded-md shadow-sm">
+                            <span className="absolute top-2 left-2 bg-white/95 text-indigo-700 text-[11px] font-bold tracking-wider px-2 py-0.5 rounded-md shadow-sm">
                               PDF
                             </span>
                             {primaryGenre && (
-                              <span className="absolute top-2 right-2 bg-indigo-600/90 text-white text-[10px] font-semibold px-2 py-0.5 rounded-md shadow-sm">
+                              <span className="absolute top-2 right-2 bg-indigo-600/90 text-white text-[11px] font-semibold px-2 py-0.5 rounded-md shadow-sm">
                                 {getSheetBookGenreLabel(primaryGenre)}
                               </span>
                             )}
                             {book.page_count ? (
-                              <span className="absolute bottom-2 left-2 bg-black/60 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full backdrop-blur-sm">
+                              <span className="absolute bottom-2 left-2 bg-black/60 text-white text-[11px] font-semibold px-2 py-0.5 rounded-full backdrop-blur-sm">
                                 {book.page_count}p
                               </span>
                             ) : null}
@@ -2255,22 +2268,7 @@ export default function Home() {
         </section>
       </div>
 
-      {/* Footer (PC) */}
-      <div className="hidden md:block ">
-        <Footer />
-      </div>
-
-      {/* Business info link (Mobile) */}
-      <div className="md:hidden px-4 sm:px-6 lg:px-8 py-8 text-center space-y-2">
-        <button
-          type="button"
-          onClick={() => router.push('/company/business-info')}
-          className="text-sm font-semibold text-gray-700 underline underline-offset-4"
-        >
-          {t('home.businessInfo')} &gt;
-        </button>
-        <p className="text-xs text-gray-500">© {new Date().getFullYear()} COPYDRUM. All rights reserved.</p>
-      </div>
+      <Footer />
     </div>
   );
 }

@@ -16,7 +16,6 @@ import EventCountdown from '@/components/event-sale/EventCountdown';
 import { isMyBookVisible } from '@/config/featureFlags';
 import { useMyBookStore } from '@/stores/myBookStore';
 import { calculateMyBookPrice, MY_BOOK_MAX_DISCOUNT_PERCENT, MY_BOOK_MIN_SONGS } from '@/lib/myBook/pricing';
-
 const MY_BOOK_CART_CTA_MIN_ITEMS = 5;
 
 const toCheckoutItem = (item: CartItem): CheckoutItem => ({
@@ -46,8 +45,7 @@ export default function CartPageWithCheckout() {
   const [ownedSheetIds, setOwnedSheetIds] = useState<string[]>([]);
   const router = useLocaleRouter();
   const { t: _t, i18n } = useTranslation();
-  const t = (key: string, options?: Record<string, unknown>): string => String(_t(`cartPage.${key}`, options));
-  const autoCheckoutTriggered = useRef(false);
+  const t = (key: string, options?: Record<string, unknown>): string => String(_t(`cartPage.${key}`, options));  const autoCheckoutTriggered = useRef(false);
 
   const handleMoveCartToMyBook = async () => {
     const added = useMyBookStore.getState().addMany(cartItems.map((item) => item.sheet_id));

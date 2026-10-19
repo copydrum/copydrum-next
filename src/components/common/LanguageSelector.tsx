@@ -4,21 +4,29 @@ import { useTranslation } from 'react-i18next';
 import { usePathname } from 'next/navigation';
 import { languages, getLanguageByCode, getLanguageFromPath } from '../../i18n/languages';
 
+type LanguageSelectorVariant = 'desktop' | 'mobile' | 'menu' | 'header';
+
 interface LanguageSelectorProps {
-  variant?: 'desktop' | 'mobile';
+  variant?: LanguageSelectorVariant;
   className?: string;
 }
 
-const buttonClassesByVariant: Record<'desktop' | 'mobile', string> = {
+const buttonClassesByVariant: Record<LanguageSelectorVariant, string> = {
   desktop:
     'flex items-center space-x-2 px-4 py-2 text-blue-700 bg-white rounded-full border border-blue-100 shadow-sm hover:bg-blue-50 transition-colors duration-200',
   mobile:
     'flex items-center space-x-1 px-3 py-1.5 text-sm text-blue-700 bg-white rounded-full border border-blue-100 shadow-sm',
+  menu:
+    'flex w-full items-center space-x-2 px-3 py-2.5 text-sm text-gray-700 bg-white rounded-xl border border-gray-200 hover:bg-gray-50',
+  header:
+    'flex h-10 items-center gap-1 rounded-full px-2.5 text-sm font-semibold text-white/90 transition-colors hover:bg-white/10 hover:text-white',
 };
 
-const menuAlignmentByVariant: Record<'desktop' | 'mobile', string> = {
-  desktop: 'right-0',
-  mobile: 'left-0',
+const menuAlignmentByVariant: Record<LanguageSelectorVariant, string> = {
+  desktop: 'right-0 mt-3',
+  mobile: 'left-0 mt-3',
+  menu: 'left-0 bottom-full mb-2',
+  header: 'right-0 mt-2',
 };
 
 export default function LanguageSelector({ variant = 'desktop', className = '' }: LanguageSelectorProps) {
@@ -146,20 +154,31 @@ export default function LanguageSelector({ variant = 'desktop', className = '' }
         onClick={() => setIsOpen(!isOpen)}
         className={buttonClassesByVariant[variant]}
         aria-label="언어 선택"
+        aria-expanded={isOpen}
+        title={currentLanguage.nativeName}
         suppressHydrationWarning
       >
-        <span className="flex items-center gap-2" suppressHydrationWarning>
-          {renderFlag(currentLanguage.flagCode, currentLanguage.flagEmoji)}
-        </span>
-        <span className="font-medium" suppressHydrationWarning>{currentLanguage.nativeName}</span>
-        <span className="text-xs uppercase text-gray-500" suppressHydrationWarning>{currentLanguage.code}</span>
-        <i className={`ri-arrow-${isOpen ? 'up' : 'down'}-s-line text-lg`}></i>
+        {variant === 'header' ? (
+          <>
+            <i className="ri-global-line text-xl" />
+            <span className="uppercase" suppressHydrationWarning>{currentLanguage.code}</span>
+          </>
+        ) : (
+          <>
+            <span className="flex items-center gap-2" suppressHydrationWarning>
+              {renderFlag(currentLanguage.flagCode, currentLanguage.flagEmoji)}
+            </span>
+            <span className={`font-medium ${variant === 'menu' ? 'flex-1 text-left' : ''}`} suppressHydrationWarning>{currentLanguage.nativeName}</span>
+            <span className="text-xs uppercase text-gray-500" suppressHydrationWarning>{currentLanguage.code}</span>
+            <i className={`ri-arrow-${isOpen !== (variant === 'menu') ? 'up' : 'down'}-s-line text-lg`}></i>
+          </>
+        )}
       </button>
 
       {/* 드롭다운 메뉴 */}
       {isOpen && (
         <div
-          className={`absolute ${menuAlignmentByVariant[variant]} mt-3 w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50 max-h-96 overflow-y-auto`}
+          className={`absolute ${menuAlignmentByVariant[variant]} w-56 bg-white rounded-xl shadow-xl border border-gray-200 py-2 z-50 max-h-96 overflow-y-auto`}
         >
           {languages.map((lang) => (
             <button

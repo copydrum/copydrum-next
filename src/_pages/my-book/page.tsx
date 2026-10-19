@@ -644,7 +644,7 @@ const MyBookPage = () => {
           </div>
 
           {/* 금액 + 신청 */}
-          <div ref={formRef} className="lg:sticky lg:top-24 lg:self-start">
+          <div ref={formRef} className="lg:sticky lg:top-[136px] lg:self-start">
             <form
               onSubmit={handleSubmit}
               className="flex flex-col gap-5 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm md:p-6"

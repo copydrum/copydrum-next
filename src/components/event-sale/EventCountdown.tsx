@@ -101,7 +101,7 @@ export default function EventCountdown({
             >
               {pad2(unit.value)}
             </span>
-            <span className={`mt-1 text-[10px] sm:text-xs font-medium ${labelClass}`}>{unit.label}</span>
+            <span className={`mt-1 text-[11px] sm:text-xs font-medium ${labelClass}`}>{unit.label}</span>
           </div>
         ))}
       </div>

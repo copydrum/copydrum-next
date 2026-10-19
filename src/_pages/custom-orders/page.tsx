@@ -436,7 +436,7 @@ const CustomOrdersPage = () => {
       </div>
 
       {/* Footer (PC) */}
-      <div className="hidden md:block">
+      <div>
         <Footer />
       </div>
     </div>

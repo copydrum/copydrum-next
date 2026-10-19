@@ -1,5 +1,5 @@
 'use client';
-import { useMemo, useState, useEffect, type KeyboardEvent, type ChangeEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type FormEvent, type MouseEvent, type RefObject } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import type { User } from '@supabase/supabase-js';
 import { useTranslation } from 'react-i18next';
@@ -10,6 +10,9 @@ import { useLocaleRouter } from '@/hooks/useLocaleRouter';
 import { getLocaleFromPathname, removeLocaleFromPathname } from '@/lib/localeUrl';
 import { useCart } from '../../hooks/useCart';
 import { useEventSales } from '../../hooks/useEventSales';
+import { useHideOnScroll } from '@/hooks/useHideOnScroll';
+import { useAuthStore } from '@/stores/authStore';
+import { getGenreOrder, isSameCategory, useGenreCategories } from '@/hooks/useGenreCategories';
 import {
   COLLECTIONS_PUBLIC_ENABLED,
   DRUM_LESSON_BOOKS_PUBLIC_ENABLED,
@@ -24,32 +27,135 @@ interface MainHeaderProps {
   user?: User | null;
 }
 
-export default function MainHeader({ user }: MainHeaderProps) {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [categories, setCategories] = useState<Array<{ id: string; name: string; slug: string | null }>>([]);
+interface ServiceNavItem {
+  key: string;
+  href: string;
+  /** 활성 판정에 쓸 경로 (href에 쿼리가 붙는 경우) */
+  match?: string;
+  label: string;
+  tone?: 'sale';
+  live?: boolean;
+  badge?: string;
+}
+
+/** 바깥 클릭·Esc 로 드롭다운을 닫는다 */
+function useDismiss(open: boolean, close: () => void, ref: RefObject<HTMLElement | null>) {
+  useEffect(() => {
+    if (!open) return;
+    const onPointer = (event: globalThis.MouseEvent) => {
+      if (ref.current && !ref.current.contains(event.target as Node)) close();
+    };
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') close();
+    };
+    document.addEventListener('mousedown', onPointer);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onPointer);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open, close, ref]);
+}
+
+function HeaderIconButton({
+  icon,
+  label,
+  badge,
+  onClick,
+  expanded,
+}: {
+  icon: string;
+  label: string;
+  badge?: number;
+  onClick: () => void;
+  expanded?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={label}
+      aria-expanded={expanded}
+      className="relative flex h-12 min-w-[52px] flex-col items-center justify-center rounded-xl px-2 text-white/90 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+      suppressHydrationWarning
+    >
+      <i className={`${icon} text-[22px] leading-none`} />
+      <span className="mt-1 whitespace-nowrap text-[11px] font-medium leading-none">{label}</span>
+      {badge ? (
+        <span className="absolute right-1.5 top-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-red-500 px-1 text-[11px] font-bold leading-none text-white ring-2 ring-blue-700">
+          {badge > 99 ? '99+' : badge}
+        </span>
+      ) : null}
+    </button>
+  );
+}
+
+export default function MainHeader({ user: userProp }: MainHeaderProps) {
+  const storeUser = useAuthStore((state) => state.user);
+  const user = userProp ?? storeUser;
   const router = useLocaleRouter();
   const { t, i18n } = useTranslation();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const pathWithoutLocale = removeLocaleFromPathname(pathname);
   const currentLocale = getLocaleFromPathname(pathname);
-  const isGlobalSite = currentLocale !== 'ko';
   const isKoreanSite = currentLocale === 'ko';
   const { cartItems } = useCart();
   const eventSales = useEventSales();
-  // location.search dependency is implicit because usePathname() triggers re-render
+  const categories = useGenreCategories();
+  const isScrollingDown = useHideOnScroll();
 
-  // 장르 목록 (순서대로) - 한글 원본 (한글 사이트용)
-  const genreListKo = ['가요', '팝', '락', 'CCM', '트로트/성인가요', '재즈', 'J-POP', 'OST', '드럼솔로', '드럼커버'];
-  // 영문 사이트용 장르 순서 (기준 순서)
-  const genreListEn = ['팝', '락', '가요', '재즈', 'J-POP', 'OST', 'CCM', '트로트/성인가요', '드럼솔로', '드럼커버'];
-  // 현재 언어에 맞는 장르 목록 가져오기
-  // 한국어(ko)는 genreListKo, 영어(en)는 genreListEn, 나머지 모든 언어는 genreListEn(영어 순서) 사용
-  const genreList = i18n.language === 'ko' ? genreListKo : genreListEn;
+  const isCategoriesPage = pathWithoutLocale.startsWith('/categories');
+  const urlSearchQuery = isCategoriesPage ? searchParams?.get('search') ?? '' : '';
+  const activeCategoryParam = isCategoriesPage && !urlSearchQuery ? searchParams?.get('category') ?? null : null;
 
-  // 장르 이름을 번역하는 함수
+  const [searchQuery, setSearchQuery] = useState(urlSearchQuery);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const [categoryOpen, setCategoryOpen] = useState(false);
+  const [accountOpen, setAccountOpen] = useState(false);
+  const categoryRef = useRef<HTMLDivElement>(null);
+  const accountRef = useRef<HTMLDivElement>(null);
+  const hoverTimer = useRef<number | null>(null);
+
+  const navHidden = isScrollingDown && !categoryOpen;
+
+  useDismiss(categoryOpen, () => setCategoryOpen(false), categoryRef);
+  useDismiss(accountOpen, () => setAccountOpen(false), accountRef);
+
+  // 검색 결과 화면에서는 검색창에 현재 검색어를 유지한다
+  useEffect(() => {
+    setSearchQuery(urlSearchQuery);
+  }, [urlSearchQuery]);
+
+  // 페이지가 바뀌면 열린 드롭다운을 닫는다
+  useEffect(() => {
+    setCategoryOpen(false);
+    setAccountOpen(false);
+  }, [pathname, searchParams]);
+
+  // "/" 키로 어디서든 검색창에 포커스
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key !== '/' || event.metaKey || event.ctrlKey || event.altKey) return;
+      const target = event.target as HTMLElement | null;
+      if (target && (target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName))) return;
+      if (!searchInputRef.current?.offsetParent) return;
+      event.preventDefault();
+      searchInputRef.current.focus();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
+  useEffect(
+    () => () => {
+      if (hoverTimer.current) window.clearTimeout(hoverTimer.current);
+    },
+    [],
+  );
+
   const getGenreName = (genreKo: string): string => {
     if (i18n.language === 'ko') return genreKo;
-
-    // categoriesPage.categories 키를 사용 (categories 페이지와 동일)
     const genreMap: Record<string, string> = {
       '가요': t('categoriesPage.categories.kpop'),
       '팝': t('categoriesPage.categories.pop'),
@@ -62,118 +168,79 @@ export default function MainHeader({ user }: MainHeaderProps) {
       '드럼솔로': t('categoriesPage.categories.drumSolo'),
       '드럼커버': t('categoriesPage.categories.drumCover'),
     };
-
     return genreMap[genreKo] || genreKo;
   };
 
-  // 카테고리 데이터 로드
-  useEffect(() => {
-    const loadCategories = async () => {
-      try {
-        // slug 컬럼이 없을 수도 있으므로 먼저 id, name만 조회
-        let { data, error } = await supabase
-          .from('categories')
-          .select('id, name')
-          .neq('name', '드럼레슨')
-          .neq('name', '악보집');
-
-        if (error) throw error;
-
-        // slug 컬럼 존재 여부 확인 후 재조회
-        if (data && data.length > 0) {
-          const { data: dataWithSlug, error: slugError } = await supabase
-            .from('categories')
-            .select('id, name, slug')
-            .neq('name', '드럼레슨')
-          .neq('name', '악보집');
-
-          // slug 컬럼이 있으면 slug 포함 데이터 사용, 없으면 기본 데이터 사용
-          if (!slugError && dataWithSlug) {
-            setCategories(dataWithSlug);
-          } else {
-            // slug 없으면 null로 처리
-            setCategories(data.map(cat => ({ ...cat, slug: null })));
-          }
-        } else {
-          setCategories(data || []);
-        }
-      } catch (error) {
-        console.error('카테고리 로드 오류:', error);
-        // 에러 발생해도 빈 배열로 초기화
-        setCategories([]);
-      }
-    };
-
-    loadCategories();
-  }, []);
-
-  // 현재 활성 장르 ID 가져오기 (URL 쿼리 파라미터 기반)
-  const searchParams = useSearchParams();
-  const activeCategoryId = useMemo(() => {
-    const categoryParam = searchParams?.get('category') ?? null;
-
-    // categories 페이지에서만 활성 상태 표시 (locale prefix 제거 후 비교)
-    const pathWithoutLocale = removeLocaleFromPathname(pathname);
-    if (pathWithoutLocale === '/categories' && categoryParam) {
-      return categoryParam;
-    }
-
-    return null;
-  }, [searchParams, pathname]);
-
-  // 장르 네비게이션 아이템 생성
-  const genreNavItems = useMemo(() => {
-    return genreList.map((genreKo) => {
-      const category = categories.find((cat) => cat.name === genreKo);
-      if (!category) return null;
-
-      // slug 우선 사용, 없으면 fallback으로 id 사용
-      const categoryParam = category.slug || category.id;
-
-      return {
-        id: category.id,
-        label: getGenreName(genreKo),
-        href: `/categories?category=${categoryParam}`,
-      };
-    }).filter((item): item is { id: string; label: string; href: string } => item !== null);
-  }, [genreList, categories, i18n.language, t]);
-
-  const navItems = useMemo(
-    () => [...genreNavItems],
-    [genreNavItems],
+  const genreItems = useMemo(
+    () =>
+      getGenreOrder(i18n.language)
+        .map((genreKo) => {
+          const category = categories.find((cat) => cat.name === genreKo);
+          if (!category) return null;
+          return {
+            id: category.id,
+            slug: category.slug,
+            label: getGenreName(genreKo),
+            href: `/categories?category=${category.slug || category.id}`,
+          };
+        })
+        .filter((item): item is { id: string; slug: string | null; label: string; href: string } => item !== null),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [categories, i18n.language, t],
   );
 
-  const containerClassName = useMemo(() => {
-    const classes = ['hidden', 'md:block', 'bg-blue-700'];
-    return classes.join(' ');
-  }, []);
+  const activeGenre = genreItems.find((item) => isSameCategory(activeCategoryParam, item)) ?? null;
 
-  const handleSearch = () => {
+  const serviceItems = useMemo(() => {
+    const items: (ServiceNavItem | false)[] = [
+      eventSales.hasAny && {
+        key: 'eventSale',
+        href: '/event-sale',
+        label: t('eventSale.nav'),
+        tone: 'sale',
+        live: eventSales.hasActive,
+      },
+      FREE_LESSONS_PUBLIC_ENABLED && { key: 'freeLessons', href: '/free-lessons', label: t('freeLessons.nav.label') },
+      DRUM_LESSON_BOOKS_PUBLIC_ENABLED && {
+        key: 'drumLesson',
+        href: '/free-sheets?tab=books',
+        match: '/free-sheets',
+        label: t('sidebar.nav.drumLesson'),
+      },
+      COLLECTIONS_PUBLIC_ENABLED && { key: 'collections', href: '/collections', label: t('sidebar.nav.collections') },
+      SHEET_BOOKS_PUBLIC_ENABLED && { key: 'sheetBooks', href: '/sheet-books', label: t('sidebar.nav.sheetBooks') },
+      isMyBookVisible(currentLocale) && {
+        key: 'myBook',
+        href: '/my-book',
+        label: t('myBook.name'),
+        badge: t('myBook.badge'),
+      },
+      isKoreanSite && { key: 'customOrder', href: '/custom-order', label: t('nav.customOrder') },
+    ];
+    return items.filter((item): item is ServiceNavItem => Boolean(item));
+  }, [eventSales.hasAny, eventSales.hasActive, currentLocale, isKoreanSite, t]);
+
+  const navigate = (href: string) => (event?: MouseEvent) => {
+    event?.preventDefault();
+    router.push(href);
+  };
+
+  const handleSearch = (event: FormEvent) => {
+    event.preventDefault();
     const trimmed = searchQuery.trim();
     if (!trimmed) {
+      searchInputRef.current?.focus();
       return;
     }
     router.push(`/categories?search=${encodeURIComponent(trimmed)}`);
-  };
-
-  const handleKeyPress = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
-      handleSearch();
-    }
-  };
-
-  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(event.target.value);
+    searchInputRef.current?.blur();
   };
 
   const handleLogout = async () => {
     try {
-      // 구글 로그아웃
       if (googleAuth.isLoggedIn()) {
         googleAuth.logout();
       }
-
-      // Supabase 로그아웃
       await supabase.auth.signOut();
       window.location.reload();
     } catch (error) {
@@ -181,253 +248,280 @@ export default function MainHeader({ user }: MainHeaderProps) {
     }
   };
 
+  const openCategoryOnHover = () => {
+    if (hoverTimer.current) window.clearTimeout(hoverTimer.current);
+    setCategoryOpen(true);
+  };
+
+  const closeCategoryOnLeave = () => {
+    if (hoverTimer.current) window.clearTimeout(hoverTimer.current);
+    hoverTimer.current = window.setTimeout(() => setCategoryOpen(false), 150);
+  };
+
+  const accountLinks = [
+    { href: '/mypage', icon: 'ri-user-3-line', label: t('sidebar.nav.mypage') },
+    { href: '/purchases', icon: 'ri-file-list-3-line', label: t('sidebar.nav.purchaseHistory') },
+    ...(isKoreanSite ? [{ href: '/custom-order', icon: 'ri-edit-line', label: t('sidebar.nav.customOrder') }] : []),
+    { href: '/customer-support', icon: 'ri-customer-service-2-line', label: t('nav.customerSupport') },
+  ];
+
+  const cartCount = cartItems.length;
+
   return (
-    <div className={containerClassName} suppressHydrationWarning>
-      <div className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex flex-col gap-4 py-4" suppressHydrationWarning>
-        <div className="flex justify-end items-center gap-3" suppressHydrationWarning>
-          {/* User Action Buttons */}
-          <div className="flex items-center gap-2" suppressHydrationWarning>
-            <CashChargeHeaderButton user={user} />
-            {user ? (
-              <>
-                <button
-                  onClick={() => router.push('/custom-order')}
-                  className="text-white hover:text-purple-300 text-sm font-medium px-3 py-1.5 rounded-md hover:bg-white/10 transition-colors cursor-pointer"
-                  suppressHydrationWarning
-                >
-                  {t('sidebar.nav.customOrder')}
-                </button>
-                <button
-                  onClick={() => router.push('/mypage')}
-                  className="text-white hover:text-purple-300 text-sm font-medium px-3 py-1.5 rounded-md hover:bg-white/10 transition-colors cursor-pointer"
-                  suppressHydrationWarning
-                >
-                  {t('sidebar.nav.mypage')}
-                </button>
-                <button
-                  onClick={() => router.push('/purchases')}
-                  className="text-white hover:text-purple-300 text-sm font-medium px-3 py-1.5 rounded-md hover:bg-white/10 transition-colors cursor-pointer"
-                  suppressHydrationWarning
-                >
-                  {t('sidebar.nav.purchaseHistory')}
-                </button>
-                <button
-                  onClick={() => router.push('/cart')}
-                  className="relative text-white hover:text-purple-300 text-sm font-medium px-3 py-1.5 rounded-md hover:bg-white/10 transition-colors cursor-pointer"
-                  suppressHydrationWarning
-                >
-                  {t('sidebar.nav.cart')}
-                  {cartItems.length > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                      {cartItems.length}
-                    </span>
-                  )}
-                </button>
-                <button
-                  onClick={handleLogout}
-                  className="text-white hover:text-purple-300 text-sm font-medium px-3 py-1.5 rounded-md hover:bg-white/10 transition-colors cursor-pointer"
-                  suppressHydrationWarning
-                >
-                  {t('sidebar.nav.logout')}
-                </button>
-              </>
-            ) : (
-              <>
-                <button
-                  onClick={() => router.push('/cart')}
-                  className="relative text-white hover:text-purple-300 text-sm font-medium px-3 py-1.5 rounded-md hover:bg-white/10 transition-colors cursor-pointer"
-                  suppressHydrationWarning
-                >
-                  {t('sidebar.nav.cart')}
-                  {cartItems.length > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                      {cartItems.length}
-                    </span>
-                  )}
-                </button>
-                <button
-                  onClick={() => router.push('/auth/login')}
-                  className="text-white hover:text-purple-300 text-sm font-medium px-3 py-1.5 rounded-md hover:bg-white/10 transition-colors cursor-pointer"
-                  suppressHydrationWarning
-                >
-                  {t('sidebar.nav.login')}
-                </button>
-                <button
-                  onClick={() => router.push('/auth/register')}
-                  className="relative text-white hover:text-purple-300 text-sm font-medium px-3 py-1.5 rounded-md hover:bg-white/10 transition-colors cursor-pointer"
-                  suppressHydrationWarning
-                >
-                  {t('sidebar.header.signup')}
-                  <SignupBonusBadge />
-                </button>
-              </>
-            )}
-          </div>
-          <LanguageSelector />
-        </div>
-        {/* Logo, Search & Cart Row */}
-        <div className="flex items-center relative">
-          {/* Logo */}
-          <div className="flex flex-col -ml-4 absolute left-0">
-            <div className="flex items-center">
-              <img
-                src="/logo.png"
-                alt={t('sidebar.site.name')}
-                className={`h-12 w-auto cursor-pointer ${isGlobalSite ? '' : 'mr-3'}`}
-                onClick={() => router.push('/')}
-                suppressHydrationWarning
-              />
-              {!isGlobalSite && (
-                <h1
-                  className="text-2xl font-bold text-white cursor-pointer"
-                  style={{ fontFamily: '"Noto Sans KR", "Malgun Gothic", sans-serif' }}
-                  onClick={() => router.push('/')}
-                  suppressHydrationWarning
-                >
+    <div className="hidden md:block" suppressHydrationWarning>
+      {/* 고정 헤더 높이만큼 본문을 밀어낸다 */}
+      <div aria-hidden="true" className="h-[120px]" />
+
+      <header className="fixed inset-x-0 top-0 z-50" suppressHydrationWarning>
+        {/* 1단: 로고 · 검색 · 계정 */}
+        <div className="relative z-10 bg-blue-700" suppressHydrationWarning>
+          <div className="mx-auto flex h-[72px] max-w-7xl items-center gap-4 px-4 sm:px-6 lg:gap-8 lg:px-8" suppressHydrationWarning>
+            <a
+              href="/"
+              onClick={navigate('/')}
+              className="flex flex-shrink-0 items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+              aria-label={t('sidebar.site.name')}
+            >
+              <img src="/logo.png" alt={t('sidebar.site.name')} className="h-9 w-auto" suppressHydrationWarning />
+              {isKoreanSite && (
+                <h1 className="hidden whitespace-nowrap text-[22px] font-extrabold tracking-tight text-white lg:block" suppressHydrationWarning>
                   {t('sidebar.site.name')}
                 </h1>
               )}
-            </div>
-            <span className="text-xs text-white/80 mt-0.5 ml-0.5" suppressHydrationWarning>
-              {t('sidebar.header.tagline')}
-            </span>
-          </div>
+            </a>
 
-          {/* Search Bar */}
-          <div className="flex-1 max-w-2xl mx-auto">
-            <div className="relative">
+            <form role="search" onSubmit={handleSearch} className="relative min-w-0 max-w-2xl flex-1">
+              <i className="ri-search-line pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-lg text-gray-400" />
               <input
-                type="text"
-                placeholder={t('sidebar.search.placeholder')}
+                ref={searchInputRef}
+                type="search"
+                enterKeyHint="search"
                 value={searchQuery}
-                onChange={handleChange}
-                onKeyDown={handleKeyPress}
-                className="w-full px-6 py-3 text-base border-0 rounded-full focus:outline-none pr-12 bg-blue-50 placeholder-gray-400 text-gray-900"
+                onChange={(event) => setSearchQuery(event.target.value)}
+                placeholder={t('sidebar.search.placeholder')}
+                aria-label={t('sidebar.search.placeholder')}
+                className="h-11 w-full rounded-full border-0 bg-white pl-11 pr-24 text-[15px] text-gray-900 placeholder-gray-400 shadow-sm outline-none transition-shadow focus:ring-4 focus:ring-white/30 [&::-webkit-search-cancel-button]:hidden"
                 suppressHydrationWarning
               />
+              {searchQuery ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery('');
+                    searchInputRef.current?.focus();
+                  }}
+                  aria-label={t('mobile.search.clear')}
+                  className="absolute right-12 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                >
+                  <i className="ri-close-line text-lg" />
+                </button>
+              ) : (
+                <kbd className="pointer-events-none absolute right-12 top-1/2 hidden h-6 -translate-y-1/2 items-center rounded-md border border-gray-200 px-2 font-sans text-xs text-gray-400 lg:flex">
+                  /
+                </kbd>
+              )}
               <button
-                onClick={handleSearch}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-blue-700 cursor-pointer transition-colors duration-200"
+                type="submit"
+                aria-label={t('search.button')}
+                className="absolute right-1 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-blue-600 text-white transition-colors hover:bg-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300"
               >
-                <i className="ri-search-line text-xl"></i>
+                <i className="ri-search-line text-lg" />
               </button>
+            </form>
+
+            <div className="ml-auto flex flex-shrink-0 items-center gap-1" suppressHydrationWarning>
+              <div className="mr-2 hidden xl:block">
+                <CashChargeHeaderButton user={user} />
+              </div>
+              <HeaderIconButton
+                icon="ri-shopping-cart-2-line"
+                label={t('nav.cart')}
+                badge={cartCount}
+                onClick={() => router.push('/cart')}
+              />
+              {user ? (
+                <div ref={accountRef} className="relative">
+                  <HeaderIconButton
+                    icon="ri-user-3-line"
+                    label={t('nav.mypage')}
+                    expanded={accountOpen}
+                    onClick={() => setAccountOpen((open) => !open)}
+                  />
+                  {accountOpen && (
+                    <div className="absolute right-0 top-full mt-2 w-64 overflow-hidden rounded-2xl border border-gray-100 bg-white py-2 text-gray-700 shadow-xl">
+                      <div className="mb-1 border-b border-gray-100 px-4 pb-3 pt-1">
+                        <p className="truncate text-sm font-semibold text-gray-900">{user.email}</p>
+                        <div className="mt-2 xl:hidden">
+                          <CashChargeHeaderButton user={user} />
+                        </div>
+                      </div>
+                      {accountLinks.map((link) => (
+                        <a
+                          key={link.href}
+                          href={link.href}
+                          onClick={navigate(link.href)}
+                          className="flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-gray-50"
+                        >
+                          <i className={`${link.icon} text-lg text-gray-400`} />
+                          {link.label}
+                        </a>
+                      ))}
+                      <div className="my-1 border-t border-gray-100" />
+                      <button
+                        type="button"
+                        onClick={handleLogout}
+                        className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm text-gray-500 hover:bg-gray-50"
+                      >
+                        <i className="ri-logout-box-r-line text-lg text-gray-400" />
+                        {t('sidebar.nav.logout')}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <>
+                  <HeaderIconButton
+                    icon="ri-user-3-line"
+                    label={t('nav.login')}
+                    onClick={() => router.push('/auth/login')}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => router.push('/auth/register')}
+                    className="relative ml-1 h-9 whitespace-nowrap rounded-full bg-white px-4 text-sm font-bold text-blue-700 shadow-sm transition-colors hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+                    suppressHydrationWarning
+                  >
+                    {t('header.signup')}
+                    <SignupBonusBadge />
+                  </button>
+                </>
+              )}
+              <LanguageSelector variant="header" className="ml-1" />
             </div>
           </div>
         </div>
 
-        {/* Navigation Menu */}
-        <nav className="flex items-center justify-center space-x-8 pb-2" suppressHydrationWarning>
-          {eventSales.hasAny && (
-            <button
-              onClick={() => router.push('/event-sale')}
-              className={`relative inline-flex items-center gap-1.5 font-bold text-lg whitespace-nowrap cursor-pointer transition-all duration-200 ${
-                removeLocaleFromPathname(pathname).startsWith('/event-sale')
-                  ? 'text-red-300 underline'
-                  : 'text-red-400 hover:text-red-300 hover:underline'
-              }`}
+        {/* 2단: 카테고리 · 서비스 메뉴 (아래로 스크롤하면 1단 뒤로 숨는다) */}
+        <nav
+          aria-label={t('nav.categories')}
+          aria-hidden={navHidden || undefined}
+          className={`relative border-b border-gray-200 bg-white shadow-sm transition-transform duration-200 ease-out ${
+            navHidden ? '-translate-y-full' : ''
+          }`}
+          suppressHydrationWarning
+        >
+          <div className="mx-auto flex h-12 max-w-7xl items-center gap-2 px-4 sm:px-6 lg:px-8" suppressHydrationWarning>
+            <div
+              ref={categoryRef}
+              className="relative flex-shrink-0"
+              onMouseEnter={openCategoryOnHover}
+              onMouseLeave={closeCategoryOnLeave}
             >
-              {eventSales.hasActive && (
-                <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500" />
-                </span>
-              )}
-              {t('eventSale.nav')}
-            </button>
-          )}
-          {navItems.map((item) => {
-            const isActive = activeCategoryId === item.id;
-            return (
-              <a
-                key={item.href}
-                href={item.href}
-                onClick={(event) => {
-                  event.preventDefault();
-                  router.push(item.href);
-                }}
-                className={`font-semibold text-lg whitespace-nowrap cursor-pointer transition-all duration-200 ${
-                  isActive
-                    ? 'text-purple-300 underline'
-                    : 'text-white hover:text-purple-300 hover:underline'
+              <button
+                type="button"
+                onClick={() => setCategoryOpen((open) => !open)}
+                aria-expanded={categoryOpen}
+                aria-haspopup="true"
+                tabIndex={navHidden ? -1 : undefined}
+                className={`-ml-3 flex h-9 items-center gap-1.5 rounded-full px-3 text-[15px] font-bold transition-colors ${
+                  categoryOpen || activeGenre ? 'bg-blue-50 text-blue-700' : 'text-gray-900 hover:bg-gray-100'
                 }`}
-                suppressHydrationWarning
               >
-                {item.label}
+                <i className="ri-menu-2-line text-lg" />
+                <span className="whitespace-nowrap">{activeGenre ? activeGenre.label : t('nav.categories')}</span>
+                <i className={`ri-arrow-down-s-line text-lg transition-transform ${categoryOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              <div
+                className={`absolute left-0 top-full pt-2 transition duration-150 ${
+                  categoryOpen ? 'visible translate-y-0 opacity-100' : 'invisible -translate-y-1 opacity-0'
+                }`}
+              >
+                <div className="w-[440px] rounded-2xl border border-gray-100 bg-white p-3 shadow-xl">
+                  <p className="px-3 pb-2 pt-1 text-xs font-semibold text-gray-400">{t('nav.categories')}</p>
+                  <div className="grid grid-cols-2 gap-1">
+                    {genreItems.map((item) => {
+                      const isActive = activeGenre?.id === item.id;
+                      return (
+                        <a
+                          key={item.id}
+                          href={item.href}
+                          onClick={navigate(item.href)}
+                          tabIndex={categoryOpen ? undefined : -1}
+                          aria-current={isActive ? 'page' : undefined}
+                          className={`group flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
+                            isActive ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                          }`}
+                        >
+                          {item.label}
+                          <i className={`ri-arrow-right-s-line ${isActive ? 'text-blue-400' : 'text-gray-300 group-hover:text-gray-400'}`} />
+                        </a>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <span aria-hidden="true" className="h-5 w-px flex-shrink-0 bg-gray-200" />
+
+            <div className="flex min-w-0 flex-1 items-center overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {serviceItems.map((item) => {
+                const isActive = pathWithoutLocale.startsWith(item.match ?? item.href);
+                return (
+                  <a
+                    key={item.key}
+                    href={item.href}
+                    onClick={navigate(item.href)}
+                    tabIndex={navHidden ? -1 : undefined}
+                    aria-current={isActive ? 'page' : undefined}
+                    className={`relative inline-flex h-12 flex-shrink-0 items-center gap-1.5 whitespace-nowrap px-3 text-[15px] font-semibold transition-colors ${
+                      item.tone === 'sale'
+                        ? 'text-red-600 hover:text-red-700'
+                        : isActive
+                          ? 'text-blue-700'
+                          : 'text-gray-600 hover:text-gray-900'
+                    }`}
+                  >
+                    {item.live && (
+                      <span className="relative flex h-2 w-2">
+                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75" />
+                        <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500" />
+                      </span>
+                    )}
+                    {item.label}
+                    {item.badge && (
+                      <span className="rounded-full bg-fuchsia-500 px-1.5 py-0.5 text-[11px] font-bold leading-none text-white">
+                        {item.badge}
+                      </span>
+                    )}
+                    {isActive && (
+                      <span
+                        aria-hidden="true"
+                        className={`absolute inset-x-3 bottom-0 h-0.5 rounded-full ${item.tone === 'sale' ? 'bg-red-600' : 'bg-blue-700'}`}
+                      />
+                    )}
+                  </a>
+                );
+              })}
+            </div>
+
+            <div className="hidden flex-shrink-0 items-center gap-5 text-sm text-gray-500 lg:flex">
+              <a href="/guide" onClick={navigate('/guide')} tabIndex={navHidden ? -1 : undefined} className="hover:text-gray-900">
+                {t('nav.guide')}
               </a>
-            );
-          })}
-          {FREE_LESSONS_PUBLIC_ENABLED && (
-            <button
-              onClick={() => router.push('/free-lessons')}
-              className={`font-semibold text-lg whitespace-nowrap cursor-pointer transition-all duration-200 ${
-                removeLocaleFromPathname(pathname).startsWith('/free-lessons')
-                  ? 'text-purple-300 underline'
-                  : 'text-white hover:text-purple-300 hover:underline'
-              }`}
-              suppressHydrationWarning
-            >
-              {t('freeLessons.nav.label')}
-            </button>
-          )}
-          {/* Drum Lesson Menu */}
-          {DRUM_LESSON_BOOKS_PUBLIC_ENABLED && (
-            <button
-              onClick={() => router.push('/free-sheets?tab=books')}
-              className={`font-semibold text-lg whitespace-nowrap cursor-pointer transition-all duration-200 ${
-                removeLocaleFromPathname(pathname).startsWith('/free-sheets')
-                  ? 'text-purple-300 underline'
-                  : 'text-white hover:text-purple-300 hover:underline'
-              }`}
-              suppressHydrationWarning
-            >
-              {t('sidebar.nav.drumLesson')}
-            </button>
-          )}
-          {COLLECTIONS_PUBLIC_ENABLED && (
-            <button
-              onClick={() => router.push('/collections')}
-              className={`font-semibold text-lg whitespace-nowrap cursor-pointer transition-all duration-200 ${
-                removeLocaleFromPathname(pathname).startsWith('/collections')
-                  ? 'text-purple-300 underline'
-                  : 'text-white hover:text-purple-300 hover:underline'
-              }`}
-              suppressHydrationWarning
-            >
-              {t('sidebar.nav.collections')}
-            </button>
-          )}
-          {SHEET_BOOKS_PUBLIC_ENABLED && (
-            <button
-              onClick={() => router.push('/sheet-books')}
-              className={`font-semibold text-lg whitespace-nowrap cursor-pointer transition-all duration-200 ${
-                removeLocaleFromPathname(pathname).startsWith('/sheet-books')
-                  ? 'text-purple-300 underline'
-                  : 'text-white hover:text-purple-300 hover:underline'
-              }`}
-              suppressHydrationWarning
-            >
-              {t('sidebar.nav.sheetBooks')}
-            </button>
-          )}
-          {isMyBookVisible(currentLocale) && (
-            <button
-              onClick={() => router.push('/my-book')}
-              className={`relative hidden xl:inline-block font-semibold text-lg whitespace-nowrap cursor-pointer transition-all duration-200 ${
-                removeLocaleFromPathname(pathname).startsWith('/my-book')
-                  ? 'text-purple-300 underline'
-                  : 'text-white hover:text-purple-300 hover:underline'
-              }`}
-              suppressHydrationWarning
-            >
-              {t('myBook.name')}
-              <span className="absolute -top-2 left-full -ml-1 rounded bg-fuchsia-500 px-1.5 py-0.5 text-[10px] font-bold leading-none text-white no-underline">
-                {t('myBook.badge')}
-              </span>
-            </button>
-          )}
+              <a
+                href="/customer-support"
+                onClick={navigate('/customer-support')}
+                tabIndex={navHidden ? -1 : undefined}
+                className="hover:text-gray-900"
+              >
+                {t('nav.customerSupport')}
+              </a>
+            </div>
+          </div>
         </nav>
-      </div>
+      </header>
     </div>
   );
 }
-

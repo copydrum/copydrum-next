@@ -77,7 +77,14 @@ function lastServerTimestamp(messages: ChatMessage[]): string | null {
   return null;
 }
 
-export default function ChatWidget() {
+interface ChatWidgetProps {
+  /** 모바일 메뉴 등 오버레이가 열려 있을 때 플로팅 버튼을 숨긴다 */
+  hideLauncher?: boolean;
+  /** 모바일에서 아래로 스크롤하는 동안 플로팅 버튼을 숨긴다 */
+  hideLauncherOnMobile?: boolean;
+}
+
+export default function ChatWidget({ hideLauncher = false, hideLauncherOnMobile = false }: ChatWidgetProps = {}) {
   const { i18n } = useTranslation();
   const pathname = usePathname();
   const lang = i18n.language;
@@ -625,10 +632,15 @@ export default function ChatWidget() {
     ? 'fixed inset-0 z-[9999] flex h-[100dvh] w-full flex-col overflow-hidden bg-white'
     : 'mb-3 flex h-[600px] max-h-[calc(100vh-7rem)] w-[380px] max-w-[calc(100vw-2.5rem)] flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl';
 
+  const launcherHidden = !open && (hideLauncher || (isMobile && hideLauncherOnMobile));
+
   return (
     <div
-      className="fixed right-5 z-[9999] flex flex-col items-end transition-[bottom] duration-200 ease-out"
+      className={`fixed right-5 z-[9999] flex flex-col items-end transition-[bottom,opacity,transform] duration-200 ease-out ${
+        launcherHidden ? 'pointer-events-none translate-y-4 opacity-0' : ''
+      }`}
       style={{ bottom: bottomOffset }}
+      aria-hidden={launcherHidden || undefined}
     >
       {open && (
         <div className={panelClass} role="dialog" aria-label={t.headerTitle}>

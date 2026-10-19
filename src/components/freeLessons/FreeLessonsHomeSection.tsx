@@ -39,7 +39,7 @@ export default function FreeLessonsHomeSection() {
           <div>
             <div className="mb-1 flex items-center gap-2">
               <h3 className="text-2xl font-bold text-gray-900 md:text-3xl">{t('freeLessons.home.title')}</h3>
-              <span className="rounded-full bg-gradient-to-r from-red-500 to-rose-500 px-2 py-0.5 text-[10px] font-bold text-white md:text-xs">
+              <span className="rounded-full bg-gradient-to-r from-red-500 to-rose-500 px-2 py-0.5 text-[11px] font-bold text-white md:text-xs">
                 {t('freeLessons.home.badge')}
               </span>
             </div>

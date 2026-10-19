@@ -63,13 +63,14 @@ export default function AddToMyBookButton({ sheet, variant = 'full', className =
         type="button"
         onClick={handleClick}
         aria-label={added ? t('myBook.addButton.added', { count: ids.length }) : t('myBook.addButton.add')}
-        className={`relative flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl border transition-all active:scale-95 ${
+        className={`relative flex h-12 w-14 flex-shrink-0 flex-col items-center justify-center gap-0.5 rounded-xl border transition-all active:scale-95 ${
           added ? 'border-indigo-200 bg-indigo-50 text-indigo-600' : 'border-indigo-200 bg-white text-indigo-600'
         } ${className}`}
       >
-        <i className={`${added ? 'ri-book-open-fill' : 'ri-book-open-line'} text-xl`} />
+        <i className={`${added ? 'ri-book-open-fill' : 'ri-book-open-line'} text-lg leading-none`} />
+        <span className="text-[11px] font-semibold leading-none">{t('myBook.addButton.compactLabel')}</span>
         {ids.length > 0 && (
-          <span className="absolute -right-1 -top-1 min-w-[18px] rounded-full bg-indigo-600 px-1 text-[10px] font-bold leading-[18px] text-white">
+          <span className="absolute -right-1 -top-1 min-w-[18px] rounded-full bg-indigo-600 px-1 text-[11px] font-bold leading-[18px] text-white">
             {ids.length}
           </span>
         )}

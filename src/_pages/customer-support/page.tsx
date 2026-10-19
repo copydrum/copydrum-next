@@ -446,7 +446,7 @@ export default function CustomerSupport() {
         </div>
       </section>
 
-      <div className="hidden md:block">
+      <div>
         <Footer />
       </div>
       </div>

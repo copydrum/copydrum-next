@@ -22,8 +22,8 @@ interface SalePriceProps {
 }
 
 const SIZE_CLASSES: Record<SalePriceSize, { sale: string; original: string; badge: string }> = {
-  xs: { sale: 'text-xs font-bold', original: 'text-[10px]', badge: 'text-[10px] px-1 py-px' },
-  sm: { sale: 'text-sm font-bold', original: 'text-xs', badge: 'text-[10px] px-1.5 py-0.5' },
+  xs: { sale: 'text-xs font-bold', original: 'text-[11px]', badge: 'text-[11px] px-1 py-px' },
+  sm: { sale: 'text-sm font-bold', original: 'text-xs', badge: 'text-[11px] px-1.5 py-0.5' },
   md: { sale: 'text-lg font-bold', original: 'text-sm', badge: 'text-xs px-1.5 py-0.5' },
   lg: { sale: 'text-2xl font-extrabold', original: 'text-sm', badge: 'text-xs px-2 py-0.5' },
   xl: { sale: 'text-3xl font-extrabold', original: 'text-base', badge: 'text-sm px-2 py-0.5' },
