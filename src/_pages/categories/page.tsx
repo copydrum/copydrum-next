@@ -1508,12 +1508,12 @@ const CategoriesPage: React.FC = () => {
                           <div className="flex items-center justify-end gap-1.5">
                             {renderFavoriteButton(sheet)}
                             {renderCartButton(sheet, 'compact')}
-                            {/* 마우스가 있는 기기에서는 줄에 올렸을 때만 보여 표를 가볍게 한다 */}
+                            {/* 평소엔 연한 테두리로 두고, 줄에 마우스를 올리면 진하게 바꿔 표를 가볍게 한다 */}
                             <button
                               type="button"
                               onClick={() => void handleBuyNow(sheet)}
                               disabled={buyingNowSheetId === sheet.id}
-                              className="inline-flex items-center rounded-lg bg-blue-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-blue-700 focus:opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100"
+                              className="inline-flex items-center rounded-lg border border-blue-200 bg-white px-3 py-[7px] text-xs font-semibold text-blue-600 transition hover:!bg-blue-700 group-hover:border-blue-600 group-hover:bg-blue-600 group-hover:text-white focus-visible:border-blue-600 focus-visible:bg-blue-600 focus-visible:text-white disabled:opacity-60"
                             >
                               {buyingNowSheetId === sheet.id ? t('sheet.buyNowProcessing') || '처리 중...' : t('sheet.buyNow')}
                             </button>
