@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { validateOrderPricing } from '@/lib/pricing/validateOrderPricing';
 import { getAuthenticatedUser } from '@/lib/auth/requireUser';
 import { releaseOrderPoints } from '@/lib/points/server';
@@ -18,6 +18,51 @@ function createAdminClient() {
 
   console.warn('[create-order] ⚠️ Service Role Key 없음 → Anon Key 사용 (RLS 적용됨)');
   return createClient(url, anonKey);
+}
+
+const RELEASABLE_PG_STATUSES = new Set(['FAILED', 'CANCELLED']);
+
+/**
+ * 새 주문을 만들기 전에, 결제되지 않은 이전 pending 주문에 묶인 포인트를 되돌린다.
+ * 결제를 시도한 주문(transaction_id 있음)은 재활용되지 않으므로 여기서 풀지 않으면 포인트가 계속 묶여 있다.
+ * PG 상태가 결제 완료·진행 중이거나 조회에 실패하면 건드리지 않는다.
+ */
+async function releaseAbandonedOrderPoints(supabase: SupabaseClient, userId: string) {
+  const { data: lockedOrders, error } = await supabase
+    .from('orders')
+    .select('id, order_number, transaction_id, points_used')
+    .eq('user_id', userId)
+    .eq('status', 'pending')
+    .gt('points_used', 0);
+
+  if (error) {
+    console.error('[create-order] 포인트가 묶인 pending 주문 조회 실패:', error);
+    return;
+  }
+  if (!lockedOrders?.length) return;
+
+  const portoneApiKey = process.env.PORTONE_API_KEY;
+  const { getPortOnePaymentSnapshot } = await import('@/lib/payments/portoneStatus');
+
+  await Promise.all(
+    lockedOrders.map(async (order) => {
+      try {
+        if (order.transaction_id) {
+          if (!portoneApiKey) return;
+          const snap = await getPortOnePaymentSnapshot(order.transaction_id, portoneApiKey);
+          if (snap && !RELEASABLE_PG_STATUSES.has(snap.status)) return;
+        }
+        const released = await releaseOrderPoints(supabase, order.id);
+        console.log('[create-order] 미결제 주문 포인트 복구:', {
+          orderId: order.id,
+          orderNumber: order.order_number,
+          released,
+        });
+      } catch (releaseError) {
+        console.error('[create-order] 미결제 주문 포인트 복구 실패:', { orderId: order.id, releaseError });
+      }
+    }),
+  );
 }
 
 export async function POST(request: NextRequest) {
@@ -279,6 +324,8 @@ export async function POST(request: NextRequest) {
     // ============================================================
     // 기존 pending 주문 없음 → 새 주문 생성
     // ============================================================
+    await releaseAbandonedOrderPoints(supabase, userId);
+
     const now = new Date();
     const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '');
     const randomStr = Math.random().toString(36).substring(2, 8).toUpperCase();
