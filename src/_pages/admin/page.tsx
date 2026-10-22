@@ -23,6 +23,7 @@ import ChatInbox from '../../components/admin/ChatInbox';
 import ChatMetrics from '../../components/admin/ChatMetrics';
 import ChatSettingsPanel from '../../components/admin/ChatSettingsPanel';
 import LegacyLookupModal from '../../components/admin/LegacyLookupModal';
+import PointHistoryModal from '../../components/admin/PointHistoryModal';
 import {
   type DashboardAnalyticsPeriod,
   type DashboardAnalyticsResult,
@@ -76,6 +77,7 @@ interface Profile {
   created_at: string;
   updated_at: string;
   credits?: number | null;
+  points?: number | null;
 }
 
 // 기존 코드
@@ -1370,6 +1372,7 @@ const AdminPage: React.FC = () => {
   const [cashHistoryPage, setCashHistoryPage] = useState(1);
   const cashHistoryPageSize = 20;
   const [cashHistoryTotal, setCashHistoryTotal] = useState(0);
+  const [pointHistoryMember, setPointHistoryMember] = useState<Profile | null>(null);
 
   const [showMemberBulkModal, setShowMemberBulkModal] = useState(false);
   const [memberCsvFile, setMemberCsvFile] = useState<File | null>(null);
@@ -2086,7 +2089,7 @@ const AdminPage: React.FC = () => {
 
         const { data, error } = await supabase
           .from('profiles')
-          .select('id, email, name, kakao_id, google_id, is_admin, credits, created_at, updated_at')
+          .select('id, email, name, kakao_id, google_id, is_admin, credits, points, created_at, updated_at')
           .order('created_at', { ascending: false })
           .range(from, to);
 
@@ -7249,7 +7252,7 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
               <div>
                 <h2 className="text-2xl font-bold text-gray-900">적립금 관리</h2>
                 <p className="text-sm text-gray-500">
-                  회원의 캐쉬 잔액을 조회하고 직접 충전/차감하거나 사용 내역을 확인할 수 있습니다.
+                  회원의 캐쉬·적립 포인트 잔액과 내역을 확인하고, 직접 지급/차감할 수 있습니다.
                 </p>
               </div>
               <div className="flex flex-col sm:flex-row sm:items-center gap-3">
@@ -7285,6 +7288,9 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
                     보유 캐쉬
                   </th>
                   <th className="px-3 md:px-6 py-2 md:py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    적립 포인트
+                  </th>
+                  <th className="px-3 md:px-6 py-2 md:py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                     최근 가입
                   </th>
                   <th className="px-3 md:px-6 py-2 md:py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
@@ -7295,13 +7301,13 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
               <tbody className="bg-white divide-y divide-gray-200">
                 {cashLoading ? (
                   <tr>
-                    <td colSpan={4} className="px-3 md:px-6 py-6 md:py-8 text-center text-sm md:text-base text-gray-500">
+                    <td colSpan={5} className="px-3 md:px-6 py-6 md:py-8 text-center text-sm md:text-base text-gray-500">
                       적립금 데이터를 불러오는 중입니다...
                     </td>
                   </tr>
                 ) : paginatedCashMembers.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="px-3 md:px-6 py-6 md:py-8 text-center text-sm md:text-base text-gray-500">
+                    <td colSpan={5} className="px-3 md:px-6 py-6 md:py-8 text-center text-sm md:text-base text-gray-500">
                       {cashSearchTerm ? '검색 결과가 없습니다.' : '회원 정보가 없습니다.'}
                     </td>
                   </tr>
@@ -7324,6 +7330,9 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
                       <td className="px-3 md:px-6 py-3 md:py-4 text-xs md:text-sm font-semibold text-gray-900">
                         {formatCurrency(member.credits ?? 0)}
                       </td>
+                      <td className="px-3 md:px-6 py-3 md:py-4 text-xs md:text-sm font-semibold text-emerald-700">
+                        {(member.points ?? 0).toLocaleString('ko-KR')}P
+                      </td>
                       <td className="px-3 md:px-6 py-3 md:py-4 text-xs md:text-sm text-gray-500">
                         {new Date(member.created_at).toLocaleDateString('ko-KR')}
                       </td>
@@ -7342,8 +7351,16 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
                             className="inline-flex items-center gap-1 md:gap-2 rounded-lg bg-gray-100 px-2 md:px-3 py-1.5 md:py-1.5 text-xs md:text-sm font-semibold text-gray-700 hover:bg-gray-200 transition-colors"
                           >
                             <i className="ri-time-line w-3.5 h-3.5 md:w-4 md:h-4"></i>
-                            <span className="hidden sm:inline">내역 보기</span>
-                            <span className="sm:hidden">내역</span>
+                            <span className="hidden sm:inline">캐쉬 내역</span>
+                            <span className="sm:hidden">캐쉬</span>
+                          </button>
+                          <button
+                            onClick={() => setPointHistoryMember(member)}
+                            className="inline-flex items-center gap-1 md:gap-2 rounded-lg bg-emerald-50 px-2 md:px-3 py-1.5 md:py-1.5 text-xs md:text-sm font-semibold text-emerald-700 hover:bg-emerald-100 transition-colors"
+                          >
+                            <i className="ri-coin-line w-3.5 h-3.5 md:w-4 md:h-4"></i>
+                            <span className="hidden sm:inline">포인트 관리</span>
+                            <span className="sm:hidden">포인트</span>
                           </button>
                           <button
                             onClick={() => handleOpenChargeRefund(member)}
@@ -7608,6 +7625,16 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
               </div>
             </div>
           </div>
+        )}
+
+        {pointHistoryMember && (
+          <PointHistoryModal
+            member={pointHistoryMember}
+            onClose={() => setPointHistoryMember(null)}
+            onBalanceChange={(points) =>
+              setCashMembers((prev) => prev.map((m) => (m.id === pointHistoryMember.id ? { ...m, points } : m)))
+            }
+          />
         )}
 
         {showCashHistoryModal && selectedCashMember && (
