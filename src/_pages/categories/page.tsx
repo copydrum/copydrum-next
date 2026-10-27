@@ -65,6 +65,9 @@ interface DrumSheet {
 const DIFFICULTY_CODES: Record<string, string> = { 초급: 'beginner', 중급: 'intermediate', 고급: 'advanced' };
 const normalizeDifficulty = (value: string | null | undefined) => (value ? DIFFICULTY_CODES[value.trim()] ?? value : '');
 
+/** 인기 지표가 없어 '인기순'은 제공하지 않는다. 예전 링크의 sort=popular는 최신순으로 처리 */
+const parseSortParam = (value: string | null | undefined) => (!value || value === 'popular' ? 'newest' : value);
+
 const CategoriesPage: React.FC = () => {
   // ... existing code ...
 
@@ -78,7 +81,7 @@ const CategoriesPage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>(() => searchParams.get('category') || '');
   const [searchTerm, setSearchTerm] = useState<string>(() => searchParams.get('search') || '');
   const [showFilters, setShowFilters] = useState<boolean>(false);
-  const [sortBy, setSortBy] = useState<string>(() => searchParams.get('sort') || 'newest');
+  const [sortBy, setSortBy] = useState<string>(() => parseSortParam(searchParams.get('sort')));
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>(() => searchParams.get('difficulty') || '');
   const [priceRange, setPriceRange] = useState(() => ({
     min: searchParams.get('priceMin') || '',
@@ -104,7 +107,10 @@ const CategoriesPage: React.FC = () => {
   const { i18n, t } = useTranslation();
   const { isKoreanSite } = useSiteLanguage();
   const fetchIdRef = useRef(0);
+  const genreNavRef = useRef<HTMLElement>(null);
   const [mounted, setMounted] = useState(false);
+  const listKey = [selectedCategory, searchTerm.trim(), selectedArtist, selectedAlbum].join('|');
+  const [loadedListKey, setLoadedListKey] = useState<string | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -236,7 +242,7 @@ const CategoriesPage: React.FC = () => {
   useEffect(() => {
     const categoryParam = searchParams.get('category');
     const searchParam = searchParams.get('search') || '';
-    const sortParam = searchParams.get('sort') || 'newest';
+    const sortParam = parseSortParam(searchParams.get('sort'));
     const difficultyParamRaw = searchParams.get('difficulty');
     const difficultyParam = difficultyParamRaw && difficultyParamRaw !== 'all' ? difficultyParamRaw : '';
     const priceMinParam = searchParams.get('priceMin') || '';
@@ -402,8 +408,10 @@ const CategoriesPage: React.FC = () => {
 
   const loadDrumSheets = async () => {
     const trimmedSearch = searchTerm.trim();
+    const requestKey = listKey;
     if (!trimmedSearch && !selectedCategory && !selectedArtist && !selectedAlbum) {
       setDrumSheets([]);
+      setLoadedListKey(requestKey);
       setLoading(false);
       return;
     }
@@ -676,6 +684,7 @@ const CategoriesPage: React.FC = () => {
       console.error('Drum sheets loading error:', err);
     } finally {
       if (fetchId === fetchIdRef.current) {
+        setLoadedListKey(requestKey);
         setLoading(false);
       }
     }
@@ -712,6 +721,31 @@ const CategoriesPage: React.FC = () => {
     if (videoId) return `https://i.ytimg.com/vi/${videoId}/hq720.jpg`;
     return generateDefaultThumbnail(1280, 720);
   };
+
+  // hq720·업로드 썸네일이 없으면 hqdefault → 기본 썸네일 순으로 대체.
+  // YouTube는 없는 썸네일에 오류 대신 120x90 회색 이미지를 주므로 로드 후 크기로도 판단한다.
+  const applyVideoThumbnailFallback = (img: HTMLImageElement, videoId: string | null) => {
+    const youtubeFallback = videoId ? `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg` : null;
+    if (youtubeFallback && img.dataset.fallback !== 'youtube') {
+      img.dataset.fallback = 'youtube';
+      img.src = youtubeFallback;
+      return;
+    }
+    if (img.dataset.fallback === 'default') return;
+    img.dataset.fallback = 'default';
+    img.src = generateDefaultThumbnail(1280, 720);
+  };
+
+  // 모바일에서는 장르 탭이 가로 스크롤이라, 선택된 탭이 화면 밖이면 가운데로 옮긴다
+  useEffect(() => {
+    const nav = genreNavRef.current;
+    const active = nav?.querySelector<HTMLElement>('button[aria-pressed="true"]');
+    if (!nav || !active || nav.scrollWidth <= nav.clientWidth) return;
+    const navRect = nav.getBoundingClientRect();
+    const activeRect = active.getBoundingClientRect();
+    const left = activeRect.left - navRect.left + nav.scrollLeft - (nav.clientWidth - activeRect.width) / 2;
+    nav.scrollTo({ left: Math.max(0, left), behavior: 'smooth' });
+  }, [selectedCategory, categories.length, searchTerm]);
 
   const handleCategorySelect = (categoryId: string) => {
     setSelectedCategory(categoryId);
@@ -903,9 +937,6 @@ const CategoriesPage: React.FC = () => {
       case 'price-high':
         sorted.sort((a, b) => getDisplayPrice(b) - getDisplayPrice(a));
         break;
-      case 'popular':
-        sorted.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()); // 최신순 정렬
-        break;
       default:
         break;
     }
@@ -927,8 +958,12 @@ const CategoriesPage: React.FC = () => {
   const paginatedSheets = filteredSheets.slice(startIndex, endIndex);
   const showCategoryLimitNotice = !isSearchMode && totalPages >= MAX_CATEGORY_PAGES && currentPage === MAX_CATEGORY_PAGES;
 
+  // 장르·검색 조건이 바뀐 직후에는 이전 목록이 남아 있으므로 새 목록이 올 때까지 로딩으로 취급
+  const hasListCriteria = Boolean(selectedCategory || searchTerm.trim() || selectedArtist || selectedAlbum);
+  const listLoading = loading || (hasListCriteria && loadedListKey !== null && loadedListKey !== listKey);
+
   useEffect(() => {
-    if (!totalPages || currentPage <= totalPages) return;
+    if (listLoading || !totalPages || currentPage <= totalPages) return;
     const clampedPage = Math.max(1, totalPages);
     setCurrentPage(clampedPage);
     updateQueryParams(
@@ -937,7 +972,7 @@ const CategoriesPage: React.FC = () => {
       },
       { replace: true }
     );
-  }, [totalPages, currentPage, updateQueryParams]);
+  }, [listLoading, totalPages, currentPage, updateQueryParams]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -1220,6 +1255,7 @@ const CategoriesPage: React.FC = () => {
 
         {/* 장르 */}
         <nav
+          ref={genreNavRef}
           aria-label={t('categoriesPage.categoryLabel')}
           className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
@@ -1254,7 +1290,7 @@ const CategoriesPage: React.FC = () => {
           <div className="min-w-0">
             <h1 className="truncate text-xl font-extrabold text-gray-900 md:text-3xl">{headingTitle}</h1>
             <p className="mt-0.5 text-sm text-gray-500" suppressHydrationWarning>
-              {loading
+              {listLoading
                 ? '\u00a0'
                 : t(isResultCapped ? 'categoriesPage.resultsCountMore' : 'categoriesPage.resultsCount', { count: filteredSheets.length })}
               {(selectedArtist || selectedAlbum) && (
@@ -1289,7 +1325,6 @@ const CategoriesPage: React.FC = () => {
                 className="h-10 appearance-none rounded-full border border-gray-200 bg-white pl-3.5 pr-8 text-sm font-semibold text-gray-700 outline-none hover:bg-gray-50 focus:ring-2 focus:ring-blue-100"
               >
                 <option value="newest">{t('categoriesPage.sortNewest')}</option>
-                <option value="popular">{t('categoriesPage.sortPopular')}</option>
                 <option value="price-low">{t('categoriesPage.sortPriceLow')}</option>
                 <option value="price-high">{t('categoriesPage.sortPriceHigh')}</option>
               </select>
@@ -1326,7 +1361,7 @@ const CategoriesPage: React.FC = () => {
 
         {/* 목록 */}
         <div className="mt-4 md:mt-5">
-          {loading ? (
+          {listLoading ? (
             <div className="py-20 text-center text-gray-500">
               <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-b-2 border-blue-600" />
               <p className="text-sm font-medium" suppressHydrationWarning>{t('categoriesPage.loadingSheetsMessage')}</p>
@@ -1356,9 +1391,15 @@ const CategoriesPage: React.FC = () => {
                 return (
                   <div key={sheet.id} className="group flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-shadow hover:shadow-md">
                     <button type="button" onClick={() => goToSheet(sheet)} className="relative block text-left" aria-label={sheet.title}>
-                      <div
-                        className="aspect-video w-full bg-gray-200 transition duration-300 group-hover:brightness-95"
-                        style={{ backgroundImage: `url(${getYouTubeThumbnailUrl(sheet)})`, backgroundPosition: 'center', backgroundSize: 'cover' }}
+                      <img
+                        src={getYouTubeThumbnailUrl(sheet)}
+                        alt=""
+                        loading="lazy"
+                        className="aspect-video w-full bg-gray-200 object-cover transition duration-300 group-hover:brightness-95"
+                        onError={(event) => applyVideoThumbnailFallback(event.currentTarget, videoId)}
+                        onLoad={(event) => {
+                          if (event.currentTarget.naturalWidth <= 120) applyVideoThumbnailFallback(event.currentTarget, videoId);
+                        }}
                       />
                       <span className="absolute inset-0 flex items-center justify-center">
                         <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white/95 text-rose-600 shadow md:h-12 md:w-12">
@@ -1529,7 +1570,7 @@ const CategoriesPage: React.FC = () => {
         </div>
 
         {/* 페이지 나누기 */}
-        {!loading && totalPages > 1 && (
+        {!listLoading && totalPages > 1 && (
           <div className="mt-6 flex items-center justify-center gap-1.5">
             <button
               type="button"
