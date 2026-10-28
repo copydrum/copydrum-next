@@ -67,9 +67,20 @@ export default function Footer() {
     </a>
   );
 
-  const businessDetails = (
+  const businessToggleButton = (
+    <button
+      type="button"
+      onClick={() => setBusinessOpen((open) => !open)}
+      aria-expanded={businessOpen}
+      className="flex items-center gap-1 text-xs font-semibold text-white/70 transition-colors hover:text-white"
+    >
+      {t('footer.businessToggle')}
+      <i className={`ri-arrow-down-s-line text-base transition-transform ${businessOpen ? 'rotate-180' : ''}`} />
+    </button>
+  );
+
+  const businessExtraDetails = (
     <>
-      <p>{t('footer.companyInfo')}</p>
       <p>
         {t('footer.telecomLicense')}
         <a
@@ -124,18 +135,11 @@ export default function Footer() {
         </ul>
 
         <div className="mt-6 border-t border-white/10 pt-4">
-          <button
-            type="button"
-            onClick={() => setBusinessOpen((open) => !open)}
-            aria-expanded={businessOpen}
-            className="flex items-center gap-1 text-xs font-semibold text-white/70"
-          >
-            {t('footer.businessToggle')}
-            <i className={`ri-arrow-down-s-line text-base transition-transform ${businessOpen ? 'rotate-180' : ''}`} />
-          </button>
+          {businessToggleButton}
           {/* 접혀 있어도 검색엔진·법정 고지를 위해 DOM에는 남겨 둔다 */}
           <div className={`mt-3 space-y-1 text-xs leading-relaxed text-white/60 ${businessOpen ? '' : 'hidden'}`}>
-            {businessDetails}
+            <p>{t('footer.companyInfo')}</p>
+            {businessExtraDetails}
           </div>
         </div>
 
@@ -196,7 +200,13 @@ export default function Footer() {
         </div>
 
         <div className="mt-12 flex items-start justify-between gap-8 border-t border-white/10 pt-8">
-          <div className="space-y-1.5 text-[13px] leading-relaxed text-white/60">{businessDetails}</div>
+          <div className="space-y-1.5 text-[13px] leading-relaxed text-white/60">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+              <p>{t('footer.companyInfo')}</p>
+              {businessToggleButton}
+            </div>
+            <div className={`space-y-1.5 ${businessOpen ? '' : 'hidden'}`}>{businessExtraDetails}</div>
+          </div>
           <img src="/komca.jpg" alt="KOMCA" width={50} height={50} className="h-[50px] w-[50px] flex-shrink-0 rounded" />
         </div>
 
