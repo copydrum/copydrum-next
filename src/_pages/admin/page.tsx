@@ -1326,7 +1326,11 @@ const AdminPage: React.FC = () => {
   const [dashboardAnalyticsError, setDashboardAnalyticsError] = useState<string | null>(null);
 
   const [members, setMembers] = useState<Profile[]>([]);
+  const [memberTotalCount, setMemberTotalCount] = useState(0);
+  const [membersLoading, setMembersLoading] = useState(false);
   const [memberSearchTerm, setMemberSearchTerm] = useState('');
+  const [memberSearchQuery, setMemberSearchQuery] = useState('');
+  const memberRequestIdRef = useRef(0);
   const [isAddingMember, setIsAddingMember] = useState(false);
   // 이전 사이트 내역 조회 모달 (null 이면 닫힘)
   const [legacyLookupQuery, setLegacyLookupQuery] = useState<string | null>(null);
@@ -2008,62 +2012,30 @@ const AdminPage: React.FC = () => {
       setLoading(false);
     }
   };
+  // 회원이 수만 명이라 화면에 보이는 페이지만 서버에서 검색해 받는다
   const loadMembers = async () => {
+    const requestId = ++memberRequestIdRef.current;
+    setMembersLoading(true);
     try {
-      // 먼저 총 개수 확인
-      const { count: totalCount, error: countError } = await supabase
-        .from('profiles')
-        .select('*', { count: 'exact', head: true });
+      const params = new URLSearchParams({
+        page: String(memberCurrentPage),
+        pageSize: String(memberItemsPerPage),
+      });
+      if (memberSearchQuery) params.set('q', memberSearchQuery);
 
-      if (countError) {
-        console.error('회원 개수 확인 오류:', countError);
-        throw countError;
+      const response = await fetch(`/api/admin/members?${params.toString()}`, { cache: 'no-store' });
+      const result = await response.json();
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || `회원 목록 조회 실패 (${response.status})`);
       }
+      if (requestId !== memberRequestIdRef.current) return;
 
-      console.log(`📊 총 회원 개수: ${totalCount}명`);
-
-      let allMembers: Profile[] = [];
-      let from = 0;
-      const pageSize = 1000;
-      const totalPages = Math.ceil((totalCount || 0) / pageSize);
-
-      console.log(`회원 데이터 로드 시작... (총 ${totalPages}페이지 예상)`);
-
-      // 1000개씩 페이지네이션하여 모든 데이터 가져오기
-      for (let page = 0; page < totalPages; page++) {
-        const to = from + pageSize - 1;
-        console.log(`[${page + 1}/${totalPages}] 회원 데이터 로드 중: ${from} ~ ${to}`);
-
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .order('created_at', { ascending: false })
-          .range(from, to)
-          .limit(pageSize);
-
-        if (error) {
-          console.error(`[${page + 1}/${totalPages}] 회원 데이터 로드 오류:`, error);
-          throw error;
-        }
-
-        if (data && data.length > 0) {
-          allMembers = [...allMembers, ...data];
-          console.log(`✅ [${page + 1}/${totalPages}] 현재까지 로드된 회원 수: ${allMembers.length}명 (이번 페이지: ${data.length}명)`);
-          from += pageSize;
-        } else {
-          console.log(`⚠️ [${page + 1}/${totalPages}] 데이터가 없습니다.`);
-          break;
-        }
-      }
-
-      setMembers(allMembers);
-      console.log(`🎉 최종 로드 완료: 총 ${allMembers.length}명의 회원을 로드했습니다. (예상: ${totalCount}명)`);
-
-      if (allMembers.length !== totalCount) {
-        console.warn(`⚠️ 경고: 로드된 회원 수(${allMembers.length})와 총 개수(${totalCount})가 일치하지 않습니다.`);
-      }
+      setMembers(result.members as Profile[]);
+      setMemberTotalCount(result.total ?? 0);
     } catch (error) {
       console.error('회원 목록 로드 오류:', error);
+    } finally {
+      if (requestId === memberRequestIdRef.current) setMembersLoading(false);
     }
   };
 
@@ -2361,46 +2333,50 @@ const AdminPage: React.FC = () => {
         throw countError;
       }
 
-      console.log(`📊 총 악보 개수: ${totalCount}개`);
-
-      let allSheets: DrumSheet[] = [];
-      let from = 0;
       const pageSize = 1000;
       const totalPages = Math.ceil((totalCount || 0) / pageSize);
 
-      console.log(`악보 데이터 로드 시작... (총 ${totalPages}페이지 예상)`);
-
-      // 1000개씩 페이지네이션하여 모든 데이터 가져오기
-      for (let page = 0; page < totalPages; page++) {
-        const to = from + pageSize - 1;
-        console.log(`[${page + 1}/${totalPages}] 악보 데이터 로드 중: ${from} ~ ${to}`);
-
+      // 악보 페이지와 장르 연결 정보를 한꺼번에 요청한다 (순서대로 받으면 수십 번 왕복한다)
+      const fetchSheetPage = async (page: number) => {
         const { data, error } = await supabase
           .from('drum_sheets')
           .select('id, title, artist, difficulty, price, category_id, created_at, is_active, thumbnail_url, album_name, page_count, tempo, youtube_url, sales_type, preorder_deadline, description, categories (id, name)')
           .order('created_at', { ascending: false })
-          .range(from, to)
-          .limit(pageSize);
-
+          .order('id', { ascending: true })
+          .range(page * pageSize, (page + 1) * pageSize - 1);
         if (error) {
-          console.error(`[${page + 1}/${totalPages}] 악보 데이터 로드 오류:`, {
-            message: error.message,
-            code: error.code,
-            details: error.details,
-            hint: error.hint,
-            error: error
-          });
+          console.error(`[${page + 1}/${totalPages}] 악보 데이터 로드 오류:`, error);
           throw error;
         }
+        return data ?? [];
+      };
 
-        if (data && data.length > 0) {
-          // 난이도 필드 확인용 디버깅 (첫 3개 악보)
-          if (page === 0 && data.length > 0) {
-            console.log('🔍 악보 난이도 확인 (처음 3개):');
-            data.slice(0, 3).forEach((sheet: any, index: number) => {
-              console.log(`  [${index + 1}] ID: ${sheet.id}, 제목: ${sheet.title}, 난이도: "${sheet.difficulty}" (타입: ${typeof sheet.difficulty})`);
-            });
+      const fetchAllCategoryRelations = async () => {
+        const relations: { sheet_id: string; category_id: string }[] = [];
+        for (let page = 0; ; page++) {
+          const { data, error } = await supabase
+            .from('drum_sheet_categories')
+            .select('sheet_id, category_id')
+            .order('sheet_id', { ascending: true })
+            .order('category_id', { ascending: true })
+            .range(page * pageSize, (page + 1) * pageSize - 1);
+          if (error) {
+            console.error('카테고리 관계 조회 오류:', error);
+            return relations;
           }
+          relations.push(...((data ?? []) as { sheet_id: string; category_id: string }[]));
+          if (!data || data.length < pageSize) return relations;
+        }
+      };
+
+      const [sheetPages, categoryRelations] = await Promise.all([
+        Promise.all(Array.from({ length: totalPages }, (_, page) => fetchSheetPage(page))),
+        fetchAllCategoryRelations(),
+      ]);
+
+      let allSheets: DrumSheet[] = [];
+      for (const data of sheetPages) {
+        if (data.length > 0) {
           // description 파싱 처리 (JSON 문자열인 경우 객체로 변환)
           const parsedData = data.map((sheet: any) => {
             if (sheet.description) {
@@ -2422,70 +2398,26 @@ const AdminPage: React.FC = () => {
             }
             return sheet;
           });
-          
-          allSheets = [...allSheets, ...parsedData];
-          console.log(`✅ [${page + 1}/${totalPages}] 현재까지 로드된 악보 수: ${allSheets.length}개 (이번 페이지: ${data.length}개)`);
-          from += pageSize;
-        } else {
-          console.log(`⚠️ [${page + 1}/${totalPages}] 데이터가 없습니다.`);
-          break;
+
+          allSheets.push(...parsedData);
         }
       }
 
-      // 난이도 필드 통계 확인
-      const difficultyStats: { [key: string]: number } = {};
-      allSheets.forEach((sheet: any) => {
-        const diff = sheet.difficulty;
-        const key = diff ? String(diff) : 'null/undefined';
-        difficultyStats[key] = (difficultyStats[key] || 0) + 1;
-      });
-      console.log('📊 난이도 필드 통계:', difficultyStats);
-
-      // 난이도가 없는 악보 샘플 출력
-      const sheetsWithoutDifficulty = allSheets.filter((sheet: any) => !sheet.difficulty).slice(0, 5);
-      if (sheetsWithoutDifficulty.length > 0) {
-        console.warn(`⚠️ 난이도가 없는 악보 (최대 5개):`, sheetsWithoutDifficulty.map((s: any) => ({ id: s.id, title: s.title })));
-      }
-
-      // drum_sheet_categories 관계 조회하여 category_ids 추가
-      if (allSheets.length > 0) {
-        const sheetIds = allSheets.map((sheet: any) => sheet.id);
-        const categoryMap = new Map<string, string[]>();
-
-        const batchSize = 100;
-        for (let i = 0; i < sheetIds.length; i += batchSize) {
-          const batch = sheetIds.slice(i, i + batchSize);
-          const { data: categoryRelations, error: relationError } = await supabase
-            .from('drum_sheet_categories')
-            .select('sheet_id, category_id')
-            .in('sheet_id', batch);
-
-          if (relationError) {
-            console.error('카테고리 관계 조회 오류:', {
-              message: relationError.message,
-              code: relationError.code,
-              details: relationError.details,
-              hint: relationError.hint,
-              error: relationError
-            });
-          } else if (categoryRelations) {
-            categoryRelations.forEach((relation: any) => {
-              if (relation.sheet_id && relation.category_id) {
-                const existing = categoryMap.get(relation.sheet_id) || [];
-                if (!existing.includes(relation.category_id)) {
-                  existing.push(relation.category_id);
-                  categoryMap.set(relation.sheet_id, existing);
-                }
-              }
-            });
+      const categoryMap = new Map<string, string[]>();
+      categoryRelations.forEach((relation) => {
+        if (relation.sheet_id && relation.category_id) {
+          const existing = categoryMap.get(relation.sheet_id) || [];
+          if (!existing.includes(relation.category_id)) {
+            existing.push(relation.category_id);
+            categoryMap.set(relation.sheet_id, existing);
           }
         }
+      });
 
-        allSheets = allSheets.map((sheet: any) => ({
-          ...sheet,
-          category_ids: categoryMap.get(sheet.id) || [],
-        }));
-      }
+      allSheets = allSheets.map((sheet: any) => ({
+        ...sheet,
+        category_ids: categoryMap.get(sheet.id) || [],
+      }));
 
       setSheets(allSheets);
       console.log(`🎉 최종 로드 완료: 총 ${allSheets.length}개의 악보를 로드했습니다. (예상: ${totalCount}개)`);
@@ -6697,9 +6629,6 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
         loadOrders();
         loadCustomOrders();
         break;
-      case 'member-list':
-        loadMembers();
-        break;
       case 'sheets':
         loadSheets();
         loadCategories();
@@ -6761,12 +6690,6 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
 
     return () => clearInterval(intervalId);
   }, [isAdmin, activeMenu]);
-
-  // 필터링된 데이터
-  const filteredMembers = members.filter(member =>
-    member.email.toLowerCase().includes(memberSearchTerm.toLowerCase()) ||
-    member.name.toLowerCase().includes(memberSearchTerm.toLowerCase())
-  );
 
   const renderInquiryManagement = () => {
     const statusOptions = ['all', ...Array.from(new Set(customerInquiries.map((inquiry) => inquiry.status)))];
@@ -6940,15 +6863,25 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
   };
 
   // 회원 페이지네이션 계산
-  const memberTotalPages = Math.ceil(filteredMembers.length / memberItemsPerPage);
+  const memberTotalPages = Math.ceil(memberTotalCount / memberItemsPerPage);
   const memberStartIndex = (memberCurrentPage - 1) * memberItemsPerPage;
   const memberEndIndex = memberStartIndex + memberItemsPerPage;
-  const paginatedMembers = filteredMembers.slice(memberStartIndex, memberEndIndex);
+  const paginatedMembers = members;
 
-  // 검색어 변경 시 첫 페이지로 리셋
+  // 입력이 멈춘 뒤에 검색하고, 검색어가 바뀌면 첫 페이지로 돌아간다
   useEffect(() => {
-    setMemberCurrentPage(1);
+    const timer = setTimeout(() => {
+      setMemberSearchQuery(memberSearchTerm.trim());
+      setMemberCurrentPage(1);
+    }, 300);
+    return () => clearTimeout(timer);
   }, [memberSearchTerm]);
+
+  useEffect(() => {
+    if (!isAdmin || activeMenu !== 'member-list') return;
+    void loadMembers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAdmin, activeMenu, memberCurrentPage, memberSearchQuery]);
 
   const filteredCashMembers = React.useMemo(() => {
     const keyword = cashSearchTerm.trim().toLowerCase();
@@ -7847,7 +7780,7 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
               {paginatedMembers.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-3 md:px-6 py-6 md:py-8 text-center text-sm md:text-base text-gray-500">
-                    {memberSearchTerm ? '검색 결과가 없습니다.' : '회원이 없습니다.'}
+                    {membersLoading ? '회원 목록을 불러오는 중...' : memberSearchQuery ? '검색 결과가 없습니다.' : '회원이 없습니다.'}
                   </td>
                 </tr>
               ) : (
@@ -7941,7 +7874,7 @@ ONE MORE TIME,ALLDAY PROJECT,ALLDAY PROJECT - ONE MORE TIME.pdf,https://www.yout
         {memberTotalPages > 1 && (
           <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
             <div className="text-sm text-gray-700">
-              전체 {filteredMembers.length}개 중 {memberStartIndex + 1}-{Math.min(memberEndIndex, filteredMembers.length)}개 표시
+              전체 {memberTotalCount.toLocaleString('ko-KR')}개 중 {memberStartIndex + 1}-{Math.min(memberEndIndex, memberTotalCount)}개 표시
             </div>
             <div className="flex items-center space-x-2">
               <button
