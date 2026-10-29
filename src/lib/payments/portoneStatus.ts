@@ -12,21 +12,6 @@ export interface PortOnePaymentSnapshot {
   currency: string;
 }
 
-async function getAccessToken(apiSecret: string, signal?: AbortSignal): Promise<string> {
-  const cleanSecret = apiSecret.replace(/[\s"']/g, '').trim();
-  const res = await fetch('https://api.portone.io/login/api-secret', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ apiSecret: cleanSecret }),
-    signal,
-  });
-  if (!res.ok) {
-    throw new Error(`PortOne 토큰 발급 실패: ${res.status}`);
-  }
-  const json = await res.json();
-  return json.accessToken as string;
-}
-
 /**
  * paymentId(transaction_id)로 PortOne V2 결제 단건을 조회한다.
  * - 결제가 존재하지 않으면(404) null 반환.
@@ -43,13 +28,12 @@ export async function getPortOnePaymentSnapshot(
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    const accessToken = await getAccessToken(apiSecret, controller.signal);
-
+    const cleanSecret = apiSecret.replace(/[\s"']/g, '').trim();
     const res = await fetch(
-      `https://api.portone.io/v2/payments/${encodeURIComponent(paymentId)}`,
+      `https://api.portone.io/payments/${encodeURIComponent(paymentId)}`,
       {
         method: 'GET',
-        headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+        headers: { Authorization: `PortOne ${cleanSecret}`, 'Content-Type': 'application/json' },
         signal: controller.signal,
       },
     );

@@ -3,6 +3,7 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { validateOrderPricing } from '@/lib/pricing/validateOrderPricing';
 import { getAuthenticatedUser } from '@/lib/auth/requireUser';
 import { releaseOrderPoints } from '@/lib/points/server';
+import { getPortOnePaymentSnapshot, type PortOnePaymentSnapshot } from '@/lib/payments/portoneStatus';
 
 // ✅ Service Role Key가 있으면 Admin 권한으로 RLS 우회
 // 없으면 Anon Key로 폴백 (이 경우 RLS 정책에 의존)
@@ -22,34 +23,68 @@ function createAdminClient() {
 
 const RELEASABLE_PG_STATUSES = new Set(['FAILED', 'CANCELLED']);
 
+interface PendingOrderRow {
+  id: string;
+  order_number: string | null;
+  total_amount: number | null;
+  transaction_id: string | null;
+  payment_method: string | null;
+  points_used: number | null;
+  order_items: { drum_sheet_id: string | null }[] | null;
+}
+
+type SnapshotLookup = (transactionId: string) => Promise<PortOnePaymentSnapshot | null>;
+
+/**
+ * 이 요청에서 쓸 사용자의 pending 주문을 한 번에 읽는다.
+ * - 같은 금액: 재활용 후보 + 중복결제 가드 대상
+ * - 포인트가 묶인 주문: 새 주문 생성 전에 포인트 복구 대상
+ */
+async function fetchUserPendingOrders(
+  supabase: SupabaseClient,
+  userId: string,
+  amount: number,
+): Promise<PendingOrderRow[]> {
+  const amountFilter = Number.isFinite(amount) ? `total_amount.eq.${amount},` : '';
+  const { data, error } = await supabase
+    .from('orders')
+    .select('id, order_number, total_amount, transaction_id, payment_method, points_used, order_items ( drum_sheet_id )')
+    .eq('user_id', userId)
+    .eq('status', 'pending')
+    .or(`${amountFilter}points_used.gt.0`)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('[create-order] pending 주문 조회 실패:', error);
+    return [];
+  }
+  return (data ?? []) as PendingOrderRow[];
+}
+
+function hasSameItems(order: PendingOrderRow, requestedSheetIds: string[]): boolean {
+  const ids = (order.order_items || [])
+    .map((item) => item.drum_sheet_id)
+    .filter(Boolean)
+    .sort();
+  return ids.length === requestedSheetIds.length && ids.every((id, idx) => id === requestedSheetIds[idx]);
+}
+
 /**
  * 새 주문을 만들기 전에, 결제되지 않은 이전 pending 주문에 묶인 포인트를 되돌린다.
  * 결제를 시도한 주문(transaction_id 있음)은 재활용되지 않으므로 여기서 풀지 않으면 포인트가 계속 묶여 있다.
  * PG 상태가 결제 완료·진행 중이거나 조회에 실패하면 건드리지 않는다.
  */
-async function releaseAbandonedOrderPoints(supabase: SupabaseClient, userId: string) {
-  const { data: lockedOrders, error } = await supabase
-    .from('orders')
-    .select('id, order_number, transaction_id, points_used')
-    .eq('user_id', userId)
-    .eq('status', 'pending')
-    .gt('points_used', 0);
-
-  if (error) {
-    console.error('[create-order] 포인트가 묶인 pending 주문 조회 실패:', error);
-    return;
-  }
-  if (!lockedOrders?.length) return;
-
-  const portoneApiKey = process.env.PORTONE_API_KEY;
-  const { getPortOnePaymentSnapshot } = await import('@/lib/payments/portoneStatus');
-
+async function releaseAbandonedOrderPoints(
+  supabase: SupabaseClient,
+  lockedOrders: PendingOrderRow[],
+  getSnapshot: SnapshotLookup | null,
+) {
   await Promise.all(
     lockedOrders.map(async (order) => {
       try {
         if (order.transaction_id) {
-          if (!portoneApiKey) return;
-          const snap = await getPortOnePaymentSnapshot(order.transaction_id, portoneApiKey);
+          if (!getSnapshot) return;
+          const snap = await getSnapshot(order.transaction_id);
           if (snap && !RELEASABLE_PG_STATUSES.has(snap.status)) return;
         }
         const released = await releaseOrderPoints(supabase, order.id);
@@ -79,8 +114,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const supabase = createAdminClient();
+
+    // 세 작업 모두 읽기 전용이라 함께 보낸다. 인증이 실패하면 결과를 쓰지 않고 바로 거절한다.
+    const [authUser, pricingError, pendingOrders] = await Promise.all([
+      getAuthenticatedUser(),
+      validateOrderPricing(supabase, items, Number(amount)),
+      fetchUserPendingOrders(supabase, userId, Number(amount)),
+    ]);
+
     // 🔒 세션 인증: 본인 계정으로만 주문을 생성할 수 있다.
-    const authUser = await getAuthenticatedUser();
     if (!authUser) {
       return NextResponse.json(
         { success: false, error: '로그인이 필요합니다.' },
@@ -94,10 +137,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const supabase = createAdminClient();
-
     // 🔒 서버 측 가격 검증 (가격 조작/언더프라이싱 차단)
-    const pricingError = await validateOrderPricing(supabase, items, Number(amount));
     if (pricingError) {
       console.warn('[create-order] ⛔ 가격 검증 실패:', {
         userId,
@@ -127,79 +167,62 @@ export async function POST(request: NextRequest) {
     // ============================================================
 
     // 요청된 아이템의 sheetId 목록을 정렬하여 비교용 키 생성
-    const requestedSheetIds = items
+    const requestedSheetIds: string[] = items
       .map((item: any) => item.sheetId)
       .filter(Boolean)
       .sort();
 
-    // 동일 유저의 pending 상태 주문 중 동일 금액 + 결제 시도가 없었던(transaction_id IS NULL) 것만 조회
-    // → 이미 결제 시도가 진행 중인 주문은 재활용 후보에서 제외
-    const { data: existingPendingOrders } = await supabase
-      .from('orders')
-      .select(`
-        id,
-        order_number,
-        total_amount,
-        transaction_id,
-        points_used,
-        order_items (
-          drum_sheet_id
-        )
-      `)
-      .eq('user_id', userId)
-      .eq('status', 'pending')
-      .eq('total_amount', amount)
-      .is('transaction_id', null)
-      .order('created_at', { ascending: false });
+    const sameItemOrders = pendingOrders.filter(
+      (order) => Number(order.total_amount) === Number(amount) && hasSameItems(order, requestedSheetIds),
+    );
 
-    if (existingPendingOrders && existingPendingOrders.length > 0) {
-      // 아이템 구성까지 동일한 기존 주문 찾기
-      for (const existingOrder of existingPendingOrders) {
-        const existingSheetIds = (existingOrder.order_items || [])
-          .map((item: any) => item.drum_sheet_id)
-          .filter(Boolean)
-          .sort();
+    for (const existingOrder of sameItemOrders.filter((order) => !order.transaction_id)) {
+      // ✅ 기존 pending 주문 재활용: updated_at만 갱신
+      // (transaction_id가 NULL인 주문이므로 결제 시도가 없었음 — 안전하게 재활용 가능)
+      await supabase
+        .from('orders')
+        .update({
+          updated_at: new Date().toISOString(),
+          payment_method: paymentMethod || null, // 결제수단이 바뀔 수 있으므로 갱신
+        })
+        .eq('id', existingOrder.id);
 
-        // 아이템 개수 및 구성이 완전히 동일한지 비교
-        const isSameItems =
-          existingSheetIds.length === requestedSheetIds.length &&
-          existingSheetIds.every((id: string, idx: number) => id === requestedSheetIds[idx]);
-
-        if (isSameItems) {
-          // ✅ 기존 pending 주문 재활용: updated_at만 갱신
-          // (transaction_id가 NULL인 주문이므로 결제 시도가 없었음 — 안전하게 재활용 가능)
-          await supabase
-            .from('orders')
-            .update({
-              updated_at: new Date().toISOString(),
-              payment_method: paymentMethod || null, // 결제수단이 바뀔 수 있으므로 갱신
-            })
-            .eq('id', existingOrder.id);
-
-          // 이전 시도에서 묶인 포인트는 되돌린다. 포인트를 쓸 결제 화면은 결제 직전에 다시 적용한다.
-          if ((existingOrder.points_used ?? 0) > 0) {
-            try {
-              await releaseOrderPoints(supabase, existingOrder.id);
-            } catch (releaseError) {
-              console.error('[create-order] 재활용 주문 포인트 복구 실패:', { orderId: existingOrder.id, releaseError });
-              continue;
-            }
-          }
-
-          console.log('[create-order] ♻️ 기존 pending 주문 재활용 (transaction_id NULL):', {
-            orderId: existingOrder.id,
-            orderNumber: existingOrder.order_number,
-          });
-
-          return NextResponse.json({
-            success: true,
-            orderId: existingOrder.id,
-            orderNumber: existingOrder.order_number,
-            reused: true, // 기존 주문 재활용 여부
-          });
+      // 이전 시도에서 묶인 포인트는 되돌린다. 포인트를 쓸 결제 화면은 결제 직전에 다시 적용한다.
+      if ((existingOrder.points_used ?? 0) > 0) {
+        try {
+          await releaseOrderPoints(supabase, existingOrder.id);
+        } catch (releaseError) {
+          console.error('[create-order] 재활용 주문 포인트 복구 실패:', { orderId: existingOrder.id, releaseError });
+          continue;
         }
       }
+
+      console.log('[create-order] ♻️ 기존 pending 주문 재활용 (transaction_id NULL):', {
+        orderId: existingOrder.id,
+        orderNumber: existingOrder.order_number,
+      });
+
+      return NextResponse.json({
+        success: true,
+        orderId: existingOrder.id,
+        orderNumber: existingOrder.order_number,
+        reused: true, // 기존 주문 재활용 여부
+      });
     }
+
+    // 같은 결제를 여러 번 묻지 않도록 transaction_id 별 조회 결과를 공유한다.
+    const portoneApiKey = process.env.PORTONE_API_KEY;
+    const snapshotRequests = new Map<string, Promise<PortOnePaymentSnapshot | null>>();
+    const getSnapshot: SnapshotLookup | null = portoneApiKey
+      ? (transactionId) => {
+          let pending = snapshotRequests.get(transactionId);
+          if (!pending) {
+            pending = getPortOnePaymentSnapshot(transactionId, portoneApiKey);
+            snapshotRequests.set(transactionId, pending);
+          }
+          return pending;
+        }
+      : null;
 
     // ============================================================
     // 🛡️ 중복결제 가드
@@ -211,103 +234,78 @@ export async function POST(request: NextRequest) {
     //   ⚠️ best-effort: PortOne 조회 실패/지연 시에는 기존 동작(새 주문 생성)으로 폴백하여
     //      결제 흐름 자체를 막지 않는다. (PAY_PENDING은 PayPal 비동기 시나리오이므로 통과)
     // ============================================================
-    const { data: inflightOrders } = await supabase
-      .from('orders')
-      .select(`
-        id,
-        order_number,
-        transaction_id,
-        payment_method,
-        total_amount,
-        order_items ( drum_sheet_id )
-      `)
-      .eq('user_id', userId)
-      .eq('status', 'pending')
-      .eq('total_amount', amount)
-      .not('transaction_id', 'is', null)
-      .order('created_at', { ascending: false });
-
-    const sameItemsInflight = (inflightOrders || []).filter((o: any) => {
-      const ids = (o.order_items || [])
-        .map((it: any) => it.drum_sheet_id)
-        .filter(Boolean)
-        .sort();
-      return (
-        ids.length === requestedSheetIds.length &&
-        ids.every((id: string, idx: number) => id === requestedSheetIds[idx])
-      );
-    });
+    const sameItemsInflight = sameItemOrders.filter((order) => order.transaction_id);
 
     if (sameItemsInflight.length > 0) {
-      const portoneApiKey = process.env.PORTONE_API_KEY;
-      if (portoneApiKey) {
-        for (const inflight of sameItemsInflight) {
-          try {
-            const { getPortOnePaymentSnapshot } = await import('@/lib/payments/portoneStatus');
-            const snap = await getPortOnePaymentSnapshot(
-              inflight.transaction_id as string,
-              portoneApiKey,
-            );
+      if (getSnapshot) {
+        const snapshots = await Promise.allSettled(
+          sameItemsInflight.map((inflight) => getSnapshot(inflight.transaction_id as string)),
+        );
 
-            if (snap && snap.status === 'PAID') {
-              console.warn('[create-order] 🛑 중복결제 차단 — 동일 상품의 기존 결제가 이미 PAID:', {
-                userId,
-                existingOrderId: inflight.id,
-                existingOrderNumber: inflight.order_number,
-                transactionId: inflight.transaction_id,
-              });
-
-              // 기존 주문을 완료 처리(아직 pending이면) 후 그 주문으로 안내
-              try {
-                const { completeOrderAfterPayment } = await import(
-                  '@/lib/payments/completeOrderAfterPayment'
-                );
-                await completeOrderAfterPayment(
-                  inflight.id,
-                  (inflight.payment_method || 'card') as any,
-                  {
-                    transactionId: inflight.transaction_id as string,
-                    paymentConfirmedAt: new Date().toISOString(),
-                    paymentProvider: 'portone-dedupe',
-                  },
-                  supabase,
-                );
-              } catch (completeErr) {
-                console.error('[create-order] 기존 PAID 주문 완료 처리 실패(무시하고 안내):', completeErr);
-              }
-
-              return NextResponse.json({
-                success: true,
-                orderId: inflight.id,
-                orderNumber: inflight.order_number,
-                reused: true,
-                alreadyPaid: true, // 클라이언트가 success 페이지로 보낼 수 있도록 표시
-              });
-            }
-
-            // PayPal 등 비동기 결제: PAY_PENDING 중이면 같은 주문을 재활용 (새 pending 주문 난립 방지)
-            const INFLIGHT_PENDING = ['PENDING', 'READY', 'PAY_PENDING'];
-            if (snap && INFLIGHT_PENDING.includes(snap.status)) {
-              console.log('[create-order] ♻️ in-flight 결제 처리 중 — 기존 주문 재활용:', {
-                userId,
-                existingOrderId: inflight.id,
-                existingOrderNumber: inflight.order_number,
-                transactionId: inflight.transaction_id,
-                portoneStatus: snap.status,
-              });
-              return NextResponse.json({
-                success: true,
-                orderId: inflight.id,
-                orderNumber: inflight.order_number,
-                reused: true,
-                inflightPending: true,
-              });
-            }
-          } catch (snapErr) {
+        for (const [index, inflight] of sameItemsInflight.entries()) {
+          const result = snapshots[index];
+          if (result.status === 'rejected') {
             // 조회 실패 → best-effort 폴백 (아래에서 새 주문 생성)
             console.warn('[create-order] in-flight 결제 상태 조회 실패(새 주문으로 폴백):', {
               existingOrderId: inflight.id,
-              error: snapErr instanceof Error ? snapErr.message : String(snapErr),
+              error: result.reason instanceof Error ? result.reason.message : String(result.reason),
+            });
+            continue;
+          }
+          const snap = result.value;
+
+          if (snap && snap.status === 'PAID') {
+            console.warn('[create-order] 🛑 중복결제 차단 — 동일 상품의 기존 결제가 이미 PAID:', {
+              userId,
+              existingOrderId: inflight.id,
+              existingOrderNumber: inflight.order_number,
+              transactionId: inflight.transaction_id,
+            });
+
+            // 기존 주문을 완료 처리(아직 pending이면) 후 그 주문으로 안내
+            try {
+              const { completeOrderAfterPayment } = await import(
+                '@/lib/payments/completeOrderAfterPayment'
+              );
+              await completeOrderAfterPayment(
+                inflight.id,
+                (inflight.payment_method || 'card') as any,
+                {
+                  transactionId: inflight.transaction_id as string,
+                  paymentConfirmedAt: new Date().toISOString(),
+                  paymentProvider: 'portone-dedupe',
+                },
+                supabase,
+              );
+            } catch (completeErr) {
+              console.error('[create-order] 기존 PAID 주문 완료 처리 실패(무시하고 안내):', completeErr);
+            }
+
+            return NextResponse.json({
+              success: true,
+              orderId: inflight.id,
+              orderNumber: inflight.order_number,
+              reused: true,
+              alreadyPaid: true, // 클라이언트가 success 페이지로 보낼 수 있도록 표시
+            });
+          }
+
+          // PayPal 등 비동기 결제: PAY_PENDING 중이면 같은 주문을 재활용 (새 pending 주문 난립 방지)
+          const INFLIGHT_PENDING = ['PENDING', 'READY', 'PAY_PENDING'];
+          if (snap && INFLIGHT_PENDING.includes(snap.status)) {
+            console.log('[create-order] ♻️ in-flight 결제 처리 중 — 기존 주문 재활용:', {
+              userId,
+              existingOrderId: inflight.id,
+              existingOrderNumber: inflight.order_number,
+              transactionId: inflight.transaction_id,
+              portoneStatus: snap.status,
+            });
+            return NextResponse.json({
+              success: true,
+              orderId: inflight.id,
+              orderNumber: inflight.order_number,
+              reused: true,
+              inflightPending: true,
             });
           }
         }
@@ -323,31 +321,35 @@ export async function POST(request: NextRequest) {
 
     // ============================================================
     // 기존 pending 주문 없음 → 새 주문 생성
+    // 이전 주문 포인트 복구는 새 주문과 무관하므로 주문 생성과 함께 진행한다.
     // ============================================================
-    await releaseAbandonedOrderPoints(supabase, userId);
-
     const now = new Date();
     const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '');
     const randomStr = Math.random().toString(36).substring(2, 8).toUpperCase();
     const orderNumber = `ORDER-${dateStr}-${randomStr}`;
 
-    const { data: order, error: orderError } = await supabase
-      .from('orders')
-      .insert({
-        user_id: userId,
-        order_number: orderNumber,
-        total_amount: amount,
-        status: 'pending',
-        payment_status: 'pending',
-        payment_method: paymentMethod || null,
-        order_type: 'product',
-        metadata: {
-          type: 'sheet_purchase',
-          description,
-        },
-      })
-      .select()
-      .single();
+    const lockedOrders = pendingOrders.filter((order) => (order.points_used ?? 0) > 0);
+
+    const [, { data: order, error: orderError }] = await Promise.all([
+      releaseAbandonedOrderPoints(supabase, lockedOrders, getSnapshot),
+      supabase
+        .from('orders')
+        .insert({
+          user_id: userId,
+          order_number: orderNumber,
+          total_amount: amount,
+          status: 'pending',
+          payment_status: 'pending',
+          payment_method: paymentMethod || null,
+          order_type: 'product',
+          metadata: {
+            type: 'sheet_purchase',
+            description,
+          },
+        })
+        .select()
+        .single(),
+    ]);
 
     if (orderError || !order) {
       console.error('[create-order] ❌ 주문 생성 실패:', orderError);

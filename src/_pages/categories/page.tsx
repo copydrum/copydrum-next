@@ -988,8 +988,8 @@ const CategoriesPage: React.FC = () => {
   const categoryName = selectedCategoryObj ? getCategoryName(selectedCategoryObj.name) : '';
   const isYouTubeCategory = selectedCategoryObj?.name === '드럼솔로' || selectedCategoryObj?.name === '드럼커버';
   const categorySeo = categoryName ? buildCategorySeoStrings(categoryName, t) : {
-    title: t('categoriesPage.title') || 'Categories | COPYDRUM',
-    description: t('categoriesPage.description') || 'Browse all drum sheet music categories',
+    title: `${t('categoriesPage.pageTitle')} | COPYDRUM`,
+    description: t('categoriesPage.pageDescription'),
   };
   
   // Build canonical URL
