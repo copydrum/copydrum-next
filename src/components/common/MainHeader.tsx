@@ -242,7 +242,7 @@ export default function MainHeader({ user: userProp }: MainHeaderProps) {
       if (googleAuth.isLoggedIn()) {
         googleAuth.logout();
       }
-      await supabase.auth.signOut();
+      await supabase.auth.signOut({ scope: 'local' });
       window.location.reload();
     } catch (error) {
       console.error('로그아웃 오류:', error);

@@ -2,9 +2,9 @@
 
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import * as PortOne from '@portone/browser-sdk/v2';
 import { v4 as uuidv4 } from 'uuid';
 import { supabase } from '../../lib/supabase';
+import { runPaymentRequest } from '../../lib/payments/portone';
 import { useAuthStore } from '../../stores/authStore';
 import { isMobileDevice } from '../../utils/device';
 
@@ -140,9 +140,12 @@ export default function CustomOrderKoreanPayButton({
 
         const isMobile = isMobileDevice();
 
-        await PortOne.requestPayment(requestData, {
+        // PortOne V2 requestPayment 는 Promise 만 반환한다 (콜백 인자 없음).
+        // 시트 결제와 동일하게 runPaymentRequest 로 성공/실패를 처리해야
+        // PC(IFRAME)에서도 검증·에러 표시가 된다. 모바일 REDIRECTION 은
+        // 페이지 이동 후 /payments/custom-order/return 이 검증한다.
+        await runPaymentRequest(requestData, {
           onPaymentSuccess: async (result: any) => {
-            // PC(IFRAME) 경로: 콜백에서 직접 검증. (모바일은 리턴 페이지가 처리)
             const confirmedPaymentId =
               result.paymentId || result.txId || result.tx_id || result.id || paymentId;
             const outcome = await verifyWithRetry(confirmedPaymentId);
@@ -157,16 +160,12 @@ export default function CustomOrderKoreanPayButton({
           },
           onPaymentFail: (err: any) => {
             console.warn('[CustomOrderKoreanPay] 결제 실패:', err);
-            // 모바일에서는 이 콜백이 실행되지 않을 수 있음(리다이렉트). PC만 여기서 처리.
             if (!isMobile) {
               setError(t('customOrders.detail.payFailed'));
               setProcessing(null);
             }
           },
         });
-
-        // 모바일 REDIRECTION 은 위 호출에서 페이지가 이동하므로 이 지점에 도달하지 않음.
-        // PC IFRAME 은 콜백에서 처리되므로 여기서 별도 처리 없음.
       } catch (e) {
         console.error('[CustomOrderKoreanPay] 결제 요청 오류:', e);
         setError(t('customOrders.detail.payFailed'));

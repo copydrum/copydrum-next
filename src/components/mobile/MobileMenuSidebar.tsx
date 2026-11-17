@@ -276,7 +276,7 @@ export default function MobileMenuSidebar({
       }
 
       // Supabase 로그아웃
-      await supabase.auth.signOut();
+      await supabase.auth.signOut({ scope: 'local' });
       onClose();
       window.location.reload();
     } catch (error) {

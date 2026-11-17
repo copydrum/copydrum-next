@@ -473,7 +473,7 @@ export default function MyPage() {
       alert(t('mypage.deleteAccount.success'));
       
       // 로그아웃 및 홈으로 리다이렉트
-      await supabase.auth.signOut();
+      await supabase.auth.signOut({ scope: 'local' });
       router.push('/');
     } catch (error: any) {
       console.error('회원탈퇴 오류:', error);

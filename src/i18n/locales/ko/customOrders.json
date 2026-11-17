@@ -114,6 +114,7 @@
     "payBank": "무통장 입금",
     "payOr": "또는",
     "paySubtitleKr": "카드·카카오페이로 즉시 결제하거나, 무통장 입금으로 결제할 수 있습니다.",
+    "payNoCashNote": "주문제작은 캐쉬·보너스 캐쉬로 결제할 수 없습니다. 카드, 카카오페이, 무통장 입금으로만 결제해 주세요.",
     "payBankTitle": "무통장 입금 안내",
     "payBankInfoTitle": "입금 계좌 정보",
     "payBankName": "은행",

@@ -752,6 +752,41 @@ export default function CustomOrderDetail({ orderId, onClose, onUpdated }: Custo
             </div>
             <div className="border-t border-gray-200 bg-white p-4">
               <form onSubmit={handleSendMessage} className="flex flex-col gap-2">
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const isUsd = Boolean(order.locale && order.locale !== 'ko');
+                      const raw = estimatedPrice.replace(/,/g, '');
+                      const priceNum = isUsd ? parseFloat(raw) : parseInt(raw, 10);
+                      const priceLabel =
+                        Number.isFinite(priceNum) && priceNum > 0
+                          ? isUsd
+                            ? `$${priceNum}`
+                            : `${priceNum.toLocaleString('ko-KR')}원`
+                          : '(금액 입력)';
+                      setMessageInput(
+                        [
+                          '안녕하세요, 카피드럼입니다 :)',
+                          '요청하신 악보의 견적 및 결제 안내를 드립니다.',
+                          '',
+                          '악보 등급: ',
+                          `제작 비용: ${priceLabel}`,
+                          '',
+                          '주문제작 요청 화면에서 카드결제, 카카오페이, 무통장 입금 중 편하신 방법으로 결제를 진행해 주시면 확인 즉시 작업이 시작됩니다.',
+                          '※ 주문제작은 캐쉬·보너스 캐쉬로 결제할 수 없으며, 위 결제 수단으로만 가능합니다.',
+                          '',
+                          '참고 및 안내 사항',
+                          '작업이 완료된 후에는 [마이페이지 > 주문제작 신청 내역] 에서 바로 악보를 다운로드 받으실 수 있습니다.',
+                          '감사합니다 :)',
+                        ].join('\n')
+                      );
+                    }}
+                    className="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50"
+                  >
+                    견적 안내 문구
+                  </button>
+                </div>
                 <textarea
                   value={messageInput}
                   onChange={(e) => setMessageInput(e.target.value)}

@@ -50,7 +50,7 @@ export default function UserSidebar({ user }: UserSidebarProps) {
       }
 
       // Supabase 로그아웃
-      await supabase.auth.signOut();
+      await supabase.auth.signOut({ scope: 'local' });
       window.location.reload();
     } catch (error) {
       console.error('로그아웃 오류:', error);

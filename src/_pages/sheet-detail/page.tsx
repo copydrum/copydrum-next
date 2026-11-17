@@ -232,7 +232,7 @@ export default function SheetDetailPage() {
 
   const handleLogout = async () => {
     try {
-      await supabase.auth.signOut();
+      await supabase.auth.signOut({ scope: 'local' });
       setUser(null);
     } catch (err) {
       console.error('Logout failed:', err);

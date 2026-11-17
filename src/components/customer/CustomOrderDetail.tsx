@@ -425,7 +425,13 @@ export default function CustomOrderDetail({ orderId, onBookOrderChange }: Custom
                   <p className="mt-1 text-xs text-gray-400">{t('myBook.pay.noBankTransfer')}</p>
                 </div>
               ) : (
-                <p className="mb-4 text-xs text-gray-600">{t('customOrders.detail.paySubtitleKr')}</p>
+                <div className="mb-4 space-y-2">
+                  <p className="text-xs text-gray-600">{t('customOrders.detail.paySubtitleKr')}</p>
+                  <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+                    <i className="ri-information-line mr-1 align-middle" />
+                    {t('customOrders.detail.payNoCashNote')}
+                  </div>
+                </div>
               )}
               {isBook ? (
                 <MyBookPaySection

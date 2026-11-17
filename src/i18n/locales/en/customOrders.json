@@ -111,7 +111,8 @@
     "payPending": "Your payment is being processed. Please refresh this page in a moment.",
     "payCard": "Pay by card",
     "payKakao": "Pay with KakaoPay",
-    "paySubtitleKr": "Once you pay by card or KakaoPay, production begins right away."
+    "paySubtitleKr": "Once you pay by card or KakaoPay, production begins right away.",
+    "payNoCashNote": "Custom orders cannot be paid with cash balance or bonus cash. Please pay by card, KakaoPay, or bank transfer."
   }
 }
 
