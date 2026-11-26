@@ -104,7 +104,10 @@ export default function CustomOrderKoreanPayButton({
             ? process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY_KAKAOPAY!
             : process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY_INICIS!;
 
-        const paymentId = `copay_${uuidv4()}`;
+        // KG이니시스는 주문번호(paymentId)를 40자까지만 받는다.
+        // `copay_` + 하이픈 있는 UUID(36자)는 42자라 PC 카드결제창이 빈 화면으로 멈췄다.
+        // 하이픈을 빼서 38자로 맞춘다. (`copay_` 접두는 웹훅이 주문제작 결제를 구분하는 데 쓰므로 유지)
+        const paymentId = `copay_${uuidv4().replace(/-/g, '')}`;
         const origin = window.location.origin;
         const returnUrl = `${origin}/payments/custom-order/return?customOrderId=${encodeURIComponent(
           customOrderId
