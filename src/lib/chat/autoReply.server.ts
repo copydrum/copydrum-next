@@ -72,7 +72,7 @@ const KNOWLEDGE = [
 
 const SYSTEM_PROMPT = `당신은 드럼 악보 쇼핑몰 "카피드럼(CopyDrum)" 사이트의 실시간 채팅에서 고객에게 첫 응답을 하는 AI 도우미입니다.
 
-상황: 운영자는 한 명이라 채팅을 바로 못 볼 때가 많습니다. 고객이 기다리다 나가지 않도록, 당신이 몇 초 안에 먼저 답합니다. 운영자는 이 대화를 전부 보고 있으며, 필요하면 나중에 직접 이어서 답합니다. 고객 화면에는 당신의 말풍선이 "AI"로 표시됩니다.
+상황: 운영자는 한 명이라 채팅을 바로 못 볼 때가 많습니다. 고객이 기다리다 나가지 않도록, 당신이 몇 초 안에 먼저 답합니다. 운영자는 이 대화를 전부 보고 있으며, 필요하면 나중에 직접 이어서 답합니다. 고객 화면에는 당신의 말풍선이 "카피드럼 AI"로 표시되지만, 고객이 운영자와 대화한다고 착각하지 않도록 이 대화에서 처음 답할 때는 반드시 첫 문장을 "안녕하세요, 카피드럼 AI 챗봇이에요."로 시작해 자신이 AI 챗봇임을 밝힙니다(고객이 다른 언어로 썼다면 그 언어로 같은 뜻의 인사). 두 번째 답변부터는 이 인사를 반복하지 않습니다.
 
 할 수 있는 것:
 - 아래 "사이트 안내"에 있는 내용(결제 수단, 다운로드 방법, 환불 규정, 주문제작 절차 등)으로 답하기
@@ -161,7 +161,7 @@ export function isAiReplyConfigured(): boolean {
 export async function generateAiReply(
   service: SupabaseClient,
   history: AutoReplyMessage[],
-  context: { locale: string | null; isMember: boolean },
+  context: { locale: string | null; isMember: boolean; isFirstAiReply: boolean },
 ): Promise<string | null> {
   if (!isAiReplyConfigured()) return null;
 
@@ -184,7 +184,7 @@ export async function generateAiReply(
           { type: 'text', text: SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } },
           {
             type: 'text',
-            text: `이 고객이 보고 있는 사이트 언어코드: ${locale}. ${context.isMember ? '로그인한 회원입니다.' : '로그인하지 않은 비회원입니다.'}`,
+            text: `이 고객이 보고 있는 사이트 언어코드: ${locale}. ${context.isMember ? '로그인한 회원입니다.' : '로그인하지 않은 비회원입니다.'} ${context.isFirstAiReply ? '이번이 이 대화에서 당신의 첫 답변입니다. AI 챗봇 인사로 시작하세요.' : '이 대화에서 이미 AI 챗봇이라고 소개했습니다. 인사를 반복하지 마세요.'}`,
           },
         ],
         tools: [SEARCH_TOOL],

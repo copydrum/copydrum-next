@@ -99,6 +99,7 @@ export async function POST(request: Request) {
         replyBody = await generateAiReply(service, history, {
           locale: conv.locale ?? null,
           isMember: !!conv.user_id,
+          isFirstAiReply: !recent.some((m) => m.sender_type === 'bot'),
         });
       }
     }
