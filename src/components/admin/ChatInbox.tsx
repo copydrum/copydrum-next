@@ -392,6 +392,8 @@ export default function ChatInbox() {
                         <img src={m.attachment_url} alt="첨부 사진" className="max-h-60 max-w-full rounded-lg object-contain" />
                       </a>
                     )}
+                    {m.sender_type === 'bot' && <div className="mb-1 text-[10px] font-semibold text-indigo-500">AI 자동 응답</div>}
+                    {m.sender_type === 'system' && <div className="mb-1 text-[10px] font-semibold text-gray-400">자동 안내</div>}
                     {m.body}
                     <div className={`mt-1 text-[10px] ${m.sender_type === 'admin' ? 'text-indigo-200' : 'text-gray-400'}`}>
                       {new Date(m.created_at).toLocaleTimeString('ko-KR')}

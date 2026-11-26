@@ -31,6 +31,7 @@ import {
   guestFetch,
   guestUnreadCount,
   uploadChatImage,
+  requestAutoReply,
   MAX_ATTACHMENT_BYTES,
   type GuestSession,
 } from '@/lib/chat/client';
@@ -368,8 +369,8 @@ export default function ChatWidget({ hideLauncher = false, hideLauncherOnMobile 
     return subscribeToConversation(conversationId, (msg) => {
       if (openRef.current) {
         appendUnique([msg]);
-        if (msg.sender_type === 'admin') markUserConversationSeen(conversationId).catch(() => {});
-      } else if (msg.sender_type === 'admin') {
+        if (msg.sender_type !== 'user') markUserConversationSeen(conversationId).catch(() => {});
+      } else if (msg.sender_type !== 'user') {
         setUnread((n) => n + 1);
       }
     });
@@ -483,6 +484,7 @@ export default function ChatWidget({ hideLauncher = false, hideLauncherOnMobile 
       try {
         const session = await guestStart({ firstMessage, locale: lang });
         guestSessionRef.current = session;
+        void requestAutoReply(session.conversationId, session);
         pendingRef.current = [];
         setConversationId(session.conversationId);
         const msgs = await guestFetch(session);
@@ -520,10 +522,12 @@ export default function ChatWidget({ hideLauncher = false, hideLauncherOnMobile 
           const convId = await ensureMemberConversation();
           const msg = await sendUserMessage(convId, userId, body);
           appendUnique([msg]);
+          void requestAutoReply(convId, null);
         } else {
           const session = guestSessionRef.current!;
           await guestSend(session, body);
           appendUnique([localMessage(session.conversationId, body)]);
+          void requestAutoReply(session.conversationId, session);
         }
       } catch (err) {
         console.error('[chat] send failed', err);
@@ -557,6 +561,7 @@ export default function ChatWidget({ hideLauncher = false, hideLauncherOnMobile 
         guestSessionRef.current = session;
         pendingRef.current = [];
         setConversationId(session.conversationId);
+        void requestAutoReply(session.conversationId, session);
         const msgs = await guestFetch(session);
         setMessages(msgs);
         scrollToBottom();
@@ -597,12 +602,14 @@ export default function ChatWidget({ hideLauncher = false, hideLauncherOnMobile 
           const url = await uploadChatImage(file, convId, null);
           const msg = await sendUserMessage(convId, userId, '', url);
           appendUnique([msg]);
+          void requestAutoReply(convId, null);
         } else {
           const session = guestSessionRef.current;
           if (!session) return;
           const url = await uploadChatImage(file, session.conversationId, session);
           await guestSend(session, '', url);
           appendUnique([localMessage(session.conversationId, '', url)]);
+          void requestAutoReply(session.conversationId, session);
         }
       } catch (err) {
         console.error('[chat] attach failed', err);
@@ -904,7 +911,15 @@ function MessageBubble({
   imageAlt: string;
   time: string;
 }) {
-  if (message.sender_type === 'system' || message.sender_type === 'bot') {
+  if (message.sender_type === 'bot') {
+    // AI 첫 응답: 담당자 말풍선과 같은 모양, 이름에 AI 표시
+    return (
+      <AgentBubble name={`${agentName} AI`} time={time}>
+        {message.body}
+      </AgentBubble>
+    );
+  }
+  if (message.sender_type === 'system') {
     return (
       <div className="mx-auto max-w-[90%] rounded-lg bg-gray-100 px-3 py-2 text-center text-xs text-gray-500 whitespace-pre-wrap">
         {message.body}

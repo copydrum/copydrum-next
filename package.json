@@ -16,6 +16,7 @@
     "autopost:auth-blogger": "npm --prefix tools/blog-autopost run auth:blogger"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^1.14.0",
     "@paypal/react-paypal-js": "^8.9.2",
     "@pdf-lib/fontkit": "^1.1.1",
     "@portone/browser-sdk": "^0.1.3",

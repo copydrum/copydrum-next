@@ -80,6 +80,20 @@ export default function ChatSettingsPanel({ updatedBy }: { updatedBy?: string | 
         <Toggle checked={chat.enabled} onChange={(v) => update({ enabled: v })} />
       </Row>
 
+      {/* 자동 응답 */}
+      <Row
+        title="AI 자동 첫 응답"
+        desc="고객 메시지에 AI가 몇 초 안에 먼저 답합니다. FAQ·이용가이드·환불정책과 악보 검색으로 답하고, 주문 확인이 필요한 문의는 담당자에게 넘긴다고 안내합니다. 담당자가 30분 안에 답한 대화에는 끼어들지 않습니다."
+      >
+        <Toggle checked={chat.aiReply !== false} onChange={(v) => update({ aiReply: v })} />
+      </Row>
+      <Row
+        title="첫 메시지 자동 안내"
+        desc="AI가 답하지 못했을 때 “메시지 잘 받았어요. 답변이 오면 이메일로 알려드려요”를 바로 보냅니다."
+      >
+        <Toggle checked={chat.autoAck !== false} onChange={(v) => update({ autoAck: v })} />
+      </Row>
+
       {/* 모드 */}
       <div className="rounded-lg border border-gray-200 p-4">
         <p className="mb-2 text-sm font-semibold text-gray-700">온라인 판정 방식</p>

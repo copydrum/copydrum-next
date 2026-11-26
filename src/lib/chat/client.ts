@@ -284,6 +284,27 @@ export async function guestUnreadCount(session: GuestSession): Promise<number> {
   return data.unread ?? 0;
 }
 
+// ── 자동 응답 (자동 안내 / AI 첫 응답) ───────────────────────────────────────
+/** 고객 메시지를 보낸 직후 호출. 응답은 일반 메시지처럼 폴링/Realtime 으로 도착한다. 실패해도 무시. */
+export async function requestAutoReply(conversationId: string, guestSession: GuestSession | null): Promise<void> {
+  try {
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (!guestSession) {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) return;
+      headers.Authorization = `Bearer ${session.access_token}`;
+    }
+    await fetch('/api/chat/auto-reply', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ conversationId, guestToken: guestSession?.token ?? null }),
+      keepalive: true,
+    });
+  } catch {
+    /* 자동 응답은 부가 기능이므로 실패해도 채팅은 그대로 동작 */
+  }
+}
+
 // ── 이미지 첨부 ───────────────────────────────────────────────────────────────
 export const MAX_ATTACHMENT_BYTES = 5 * 1024 * 1024;
 

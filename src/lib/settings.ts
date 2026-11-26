@@ -70,6 +70,10 @@ export interface ChatSettings {
   offlineMessage: string;
   /** 위젯 헤더에 표시할 응답 예상시간 (언어별 문구는 위젯이 번역) */
   typicalReply: ChatTypicalReply;
+  /** 고객 첫 메시지에 "확인 중, 답변 오면 이메일로 알려드려요" 자동 안내 */
+  autoAck: boolean;
+  /** AI가 FAQ·악보 검색으로 먼저 답변 (서버에 ANTHROPIC_API_KEY 필요) */
+  aiReply: boolean;
 }
 
 export type ChatTypicalReply = 'none' | 'minutes' | 'hour' | 'hours' | 'day';
@@ -147,6 +151,8 @@ export const SITE_SETTING_DEFAULTS: SiteSettings = {
     welcomeMessage: '안녕하세요, 카피드럼입니다! :)\n무엇이든 편하게 물어보세요.',
     offlineMessage: '지금은 운영시간 외예요.\n메시지를 남겨주시면 확인 후 답변드릴게요. :)',
     typicalReply: 'hours',
+    autoAck: true,
+    aiReply: true,
   },
 };
 
